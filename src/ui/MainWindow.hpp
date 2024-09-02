@@ -32,6 +32,7 @@ private:
     Utils::UI::VideoParameters m_parametersBagToVideo;
     Utils::UI::VideoParameters m_parametersVideoToBag;
     Utils::UI::ImageParameters m_parametersBagToImages;
+    Utils::UI::PlayBagParameters m_parametersPlayBag;
 
     // We only need this one for encoding a video, but not for writing to a bag file
     QString m_encodingFormat = "mp4";

@@ -9,6 +9,8 @@ target_sources(rt_progress_widgets INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/BasicProgressWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/ImagesProgressWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/ImagesProgressWidget.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/PlayBagProgressWidget.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/PlayBagProgressWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/VideoProgressWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/VideoProgressWidget.hpp
 )

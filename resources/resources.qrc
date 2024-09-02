@@ -1,9 +1,14 @@
 <RCC>
     <qresource>
+        <file>gifs/playing_bag_black.gif</file>
+        <file>gifs/playing_bag_white.gif</file>
+
         <file>icons/bag_to_images_black.svg</file>
         <file>icons/bag_to_images_white.svg</file>
         <file>icons/bag_to_video_black.svg</file>
         <file>icons/bag_to_video_white.svg</file>
+        <file>icons/play_bag_black.svg</file>
+        <file>icons/play_bag_white.svg</file>
         <file>icons/video_to_bag_black.svg</file>
         <file>icons/video_to_bag_white.svg</file>
     </qresource>

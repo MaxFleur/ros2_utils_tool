@@ -23,6 +23,9 @@ struct ImageParameters : BasicParameters {
     QString format = "jpg";
     int     quality = 8;
 };
+struct PlayBagParameters : BasicParameters {
+    bool loop = false;
+};
 
 // Create a larger font for a certain widget
 void

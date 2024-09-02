@@ -3,10 +3,13 @@
 #include "BagToImagesWidget.hpp"
 #include "BagToVideoWidget.hpp"
 #include "ImagesProgressWidget.hpp"
+#include "PlayBagConfigWidget.hpp"
+#include "PlayBagProgressWidget.hpp"
 #include "StartWidget.hpp"
 #include "VideoToBagWidget.hpp"
 #include "VideoProgressWidget.hpp"
 
+#include <QApplication>
 #include <QCloseEvent>
 
 #include "rclcpp/rclcpp.hpp"
@@ -34,6 +37,9 @@ MainWindow::setStartWidget()
     connect(startWidget, &StartWidget::bagToImagesRequested, this, [this] {
         setConfigWidget(2);
     });
+    connect(startWidget, &StartWidget::playBagRequested, this, [this] {
+        setConfigWidget(3);
+    });
     setCentralWidget(startWidget);
 }
 
@@ -52,6 +58,9 @@ MainWindow::setConfigWidget(int mode)
     case 2:
         basicConfigWidget = new BagToImagesWidget(m_parametersBagToImages);
         break;
+    case 3:
+        basicConfigWidget = new PlayBagConfigWidget(m_parametersPlayBag);
+        break;
     }
     setCentralWidget(basicConfigWidget);
 
@@ -65,24 +74,39 @@ MainWindow::setConfigWidget(int mode)
 void
 MainWindow::setProgressWidget(int mode)
 {
-    QPointer<BasicProgressWidget> basicProgressWidget;
-    switch (mode) {
-    case 0:
-    case 1:
-        basicProgressWidget = new VideoProgressWidget(mode == 0 ? m_parametersBagToVideo : m_parametersVideoToBag, mode == 0);
-        break;
-    case 2:
-        basicProgressWidget = new ImagesProgressWidget(m_parametersBagToImages);
-        break;
+    if (mode == 3) {
+        auto* const progressWidget = new PlayBagProgressWidget(m_parametersPlayBag);
+        connect(progressWidget, &PlayBagProgressWidget::stopped, this, [this] (bool terminateApplication) {
+            if (terminateApplication) {
+                rclcpp::shutdown();
+                QApplication::quit();
+            } else {
+                setStartWidget();
+            }
+        });
+
+        setCentralWidget(progressWidget);
+        progressWidget->startThread();
+    } else {
+        QPointer<BasicProgressWidget> progressWidget;
+        switch (mode) {
+        case 0:
+        case 1:
+            progressWidget = new VideoProgressWidget(mode == 0 ? m_parametersBagToVideo : m_parametersVideoToBag, mode == 0);
+            break;
+        case 2:
+            progressWidget = new ImagesProgressWidget(m_parametersBagToImages);
+            break;
+        }
+
+        connect(progressWidget, &BasicProgressWidget::progressStopped, this, [this, mode] {
+            setConfigWidget(mode);
+        });
+        connect(progressWidget, &BasicProgressWidget::finished, this, &MainWindow::setStartWidget);
+
+        setCentralWidget(progressWidget);
+        progressWidget->startThread();
     }
-    setCentralWidget(basicProgressWidget);
-
-    connect(basicProgressWidget, &BasicProgressWidget::progressStopped, this, [this, mode] {
-        setConfigWidget(mode);
-    });
-    connect(basicProgressWidget, &BasicProgressWidget::finished, this, &MainWindow::setStartWidget);
-
-    basicProgressWidget->startThread();
 }
 
 
