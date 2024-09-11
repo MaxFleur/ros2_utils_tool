@@ -2,7 +2,6 @@
 
 #include "UtilsROS.hpp"
 
-#include <cv_bridge/cv_bridge.h>
 #include <opencv2/opencv.hpp>
 
 #include "rclcpp/rclcpp.hpp"
@@ -11,6 +10,12 @@
 #include "sensor_msgs/msg/image.hpp"
 
 #include <filesystem>
+
+#ifdef ROS_JAZZY
+#include <cv_bridge/cv_bridge.hpp>
+#else
+#include <cv_bridge/cv_bridge.h>
+#endif
 
 WriteToImageThread::WriteToImageThread(const Utils::UI::ImageParameters& imageParameters,
                                        QObject*                          parent) :

@@ -17,6 +17,12 @@ find_package(rosbag2_transport REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 
+if($ENV{ROS_DISTRO} STREQUAL "jazzy")
+    add_definitions(-DROS_JAZZY)
+else()
+    add_definitions(-DROS_HUMBLE)
+endif()
+
 if(${Qt6_FOUND})
     find_package(QT NAMES Qt6 COMPONENTS Widgets REQUIRED)
     find_package(Qt6 COMPONENTS Widgets REQUIRED)

@@ -3,12 +3,16 @@
 #include "UtilsROS.hpp"
 #include "VideoEncoder.hpp"
 
-#include <cv_bridge/cv_bridge.h>
-
 #include "rclcpp/rclcpp.hpp"
 #include "rosbag2_cpp/reader.hpp"
 
 #include "sensor_msgs/msg/image.hpp"
+
+#ifdef ROS_JAZZY
+#include <cv_bridge/cv_bridge.hpp>
+#else
+#include <cv_bridge/cv_bridge.h>
+#endif
 
 EncodingThread::EncodingThread(const Utils::UI::VideoParameters& videoParameters,
                                QObject*                          parent) :
