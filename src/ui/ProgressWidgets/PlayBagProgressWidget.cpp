@@ -85,7 +85,9 @@ PlayBagProgressWidget::stopButtonPressed()
     /**
      * @note For ROS Humble there is no way to stop the player because there is no stop function
      *       and because it opens instance which cannot be quit. So we can only shutdown the application.
+     *       (but pause it before to avoid sending messages while being shut down)
      */
+    m_thread->pausePlaying();
     emit stopped(true);
 #endif
 }
