@@ -16,5 +16,5 @@ target_sources(rt_progress_widgets INTERFACE
 )
 
 target_link_libraries(rt_progress_widgets
-    INTERFACE Qt::Widgets rt_utils
+    INTERFACE Qt::Widgets rt_thread_cv_bridge rt_thread_play_bag rt_utils
 ) 
