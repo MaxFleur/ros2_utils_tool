@@ -52,7 +52,7 @@ ament_target_dependencies(tool_bag_to_video cv_bridge rclcpp rosbag2_cpp sensor_
 ament_target_dependencies(tool_video_to_bag cv_bridge rclcpp rosbag2_cpp sensor_msgs)
 
 target_link_libraries(tool_ui
-    Qt::Widgets rt_ros rt_ui
+    Qt::Widgets rt_ui
 )
 target_link_libraries(tool_bag_to_images
     Qt::Widgets rt_thread_cv_bridge rt_utils

@@ -78,8 +78,7 @@ MainWindow::setProgressWidget(int mode)
         auto* const progressWidget = new PlayBagProgressWidget(m_parametersPlayBag);
         connect(progressWidget, &PlayBagProgressWidget::stopped, this, [this] (bool terminateApplication) {
             if (terminateApplication) {
-                rclcpp::shutdown();
-                QApplication::quit();
+                close();
             } else {
                 setStartWidget();
             }
@@ -113,6 +112,6 @@ MainWindow::setProgressWidget(int mode)
 void
 MainWindow::closeEvent(QCloseEvent *event)
 {
-    rclcpp::shutdown();
+    std::raise(SIGINT);
     event->accept();
 }

@@ -1,16 +1,1 @@
 add_subdirectory(thread)
-
-add_library (rt_ros INTERFACE)
-
-target_include_directories (rt_ros
-    INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
-) 
-
-target_sources(rt_ros INTERFACE
-    ${CMAKE_CURRENT_LIST_DIR}/ROSHandler.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/ROSHandler.cpp
-)
-
-target_link_libraries(rt_ros
-    INTERFACE Qt::Widgets
-)

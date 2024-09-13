@@ -29,12 +29,14 @@ public:
     {
         m_player->stop();
     }
+
 #else
     void
     pausePlaying()
     {
         m_player->pause();
     }
+
 #endif
 
 private:

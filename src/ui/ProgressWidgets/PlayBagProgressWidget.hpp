@@ -16,8 +16,6 @@ public:
     PlayBagProgressWidget(const Utils::UI::PlayBagParameters& playBagParameters,
                           QWidget*                            parent = 0);
 
-    ~PlayBagProgressWidget();
-
     void
     startThread();
 

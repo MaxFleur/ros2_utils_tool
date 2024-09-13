@@ -58,13 +58,6 @@ PlayBagProgressWidget::PlayBagProgressWidget(const Utils::UI::PlayBagParameters&
 }
 
 
-PlayBagProgressWidget::~PlayBagProgressWidget()
-{
-    m_thread->quit();
-    m_thread->wait();
-}
-
-
 void
 PlayBagProgressWidget::startThread()
 {
