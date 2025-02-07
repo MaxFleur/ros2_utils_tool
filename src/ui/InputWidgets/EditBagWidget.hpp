@@ -39,10 +39,15 @@ private slots:
 
 private:
     QPointer<QTreeWidget> m_treeWidget;
+
     QPointer<QLabel> m_editLabel;
     QPointer<QLabel> m_differentDirsLabel;
-    QPointer<QCheckBox> m_deleteSourceCheckBox;
+
     QPointer<QLineEdit> m_targetLineEdit;
+
+    QPointer<QCheckBox> m_deleteSourceCheckBox;
+    QPointer<QCheckBox> m_updateTimestampsCheckBox;
+
     QPointer<QWidget> m_targetBagNameWidget;
 
     Utils::UI::EditBagInputParameters& m_parameters;

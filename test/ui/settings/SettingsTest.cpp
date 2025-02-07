@@ -218,6 +218,7 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.beginGroup("edit");
             REQUIRE(!qSettings.value("topics").isValid());
             REQUIRE(!qSettings.value("delete_source").isValid());
+            REQUIRE(!qSettings.value("update_timestamps").isValid());
             qSettings.endGroup();
         }
         SECTION("Write") {
@@ -225,12 +226,15 @@ TEST_CASE("Settings Testing", "[ui]") {
             EditBagInputSettings settings(parameters, "edit");
 
             parameters.deleteSource = true;
+            parameters.updateTimestamps = true;
             parameters.topics.push_back({ "renamed_topic", "original_topic", 42, 1337, true });
             settings.write();
 
             qSettings.beginGroup("edit");
             REQUIRE(qSettings.value("delete_source").isValid());
             REQUIRE(qSettings.value("delete_source").toBool() == true);
+            REQUIRE(qSettings.value("update_timestamps").isValid());
+            REQUIRE(qSettings.value("update_timestamps").toBool() == true);
 
             const auto size = qSettings.beginReadArray("topics");
             for (auto i = 0; i < size; ++i) {

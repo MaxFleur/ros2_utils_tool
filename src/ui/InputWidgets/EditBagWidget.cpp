@@ -55,10 +55,16 @@ EditBagWidget::EditBagWidget(Utils::UI::EditBagInputParameters& parameters,
     m_editLabel->setFont(labelFont);
     m_differentDirsLabel->setFont(labelFont);
 
-    m_deleteSourceCheckBox = new QCheckBox("Delete source bag after completion");
+    m_deleteSourceCheckBox = new QCheckBox("Delete Source Bag after Completion");
     m_deleteSourceCheckBox->setTristate(false);
     m_deleteSourceCheckBox->setChecked(m_parameters.deleteSource);
     m_deleteSourceCheckBox->setVisible(false);
+
+    m_updateTimestampsCheckBox = new QCheckBox("Update Timestamps to current Time");
+    m_updateTimestampsCheckBox->setToolTip("Whether to keep the old bag's timestamp or use the current time<br>when the edited bag is written.");
+    m_updateTimestampsCheckBox->setTristate(false);
+    m_updateTimestampsCheckBox->setChecked(m_parameters.updateTimestamps);
+    m_updateTimestampsCheckBox->setVisible(false);
 
     m_targetLineEdit = new QLineEdit(m_parameters.targetDirectory);
     auto* const targetPushButton = new QToolButton;
@@ -84,6 +90,7 @@ EditBagWidget::EditBagWidget(Utils::UI::EditBagInputParameters& parameters,
     controlsLayout->addWidget(m_targetBagNameWidget);
     controlsLayout->addWidget(m_differentDirsLabel);
     controlsLayout->addWidget(m_deleteSourceCheckBox);
+    controlsLayout->addWidget(m_updateTimestampsCheckBox);
     // Give it a more "squishy" look
     controlsLayout->setContentsMargins(30, 30, 30, 30);
     controlsLayout->addStretch();
@@ -102,6 +109,9 @@ EditBagWidget::EditBagWidget(Utils::UI::EditBagInputParameters& parameters,
     connect(m_treeWidget, &QTreeWidget::itemChanged, this, &EditBagWidget::itemCheckStateChanged);
     connect(m_deleteSourceCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.deleteSource, state == Qt::Checked, m_settings);
+    });
+    connect(m_updateTimestampsCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
+        writeParameterToSettings(m_parameters.updateTimestamps, state == Qt::Checked, m_settings);
     });
     connect(targetPushButton, &QPushButton::clicked, this, &EditBagWidget::targetPushButtonPressed);
     connect(m_dialogButtonBox, &QDialogButtonBox::accepted, this, &EditBagWidget::okButtonPressed);
@@ -210,6 +220,7 @@ EditBagWidget::createTopicTree(bool newTreeRequested)
     m_targetBagNameWidget->setVisible(true);
     m_differentDirsLabel->setVisible(true);
     m_deleteSourceCheckBox->setVisible(true);
+    m_updateTimestampsCheckBox->setVisible(true);
     m_okButton->setVisible(true);
 
     adjustSize();

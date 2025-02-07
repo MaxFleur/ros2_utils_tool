@@ -2,6 +2,7 @@
 
 #include "UtilsROS.hpp"
 
+#include "rclcpp/rclcpp.hpp"
 #include "rosbag2_cpp/reader.hpp"
 #include "rosbag2_cpp/writer.hpp"
 
@@ -41,11 +42,12 @@ EditBagThread::run()
 
     rosbag2_cpp::Writer writer;
     writer.open(targetDirectoryStd);
+    auto node = std::make_shared<rclcpp::Node>("edit_bag");
     std::atomic<int> instanceCount = 1;
     std::mutex mutex;
 
     // Move to own lambda for multithreading
-    const auto writeTopicToBag = [this, &writer, &instanceCount, &mutex, totalInstances] (const auto& topic) {
+    const auto writeTopicToBag = [this, &writer, &instanceCount, &mutex, node, totalInstances] (const auto& topic) {
         const auto originalTopicNameStd = topic.originalTopicName.toStdString();
 
         mutex.lock();
@@ -89,6 +91,13 @@ EditBagThread::run()
 
             if (!topic.renamedTopicName.isEmpty()) {
                 message->topic_name = topic.renamedTopicName.toStdString();
+            }
+            if (m_parameters.updateTimestamps) {
+#ifdef ROS_JAZZY
+                message->recv_timestamp = node->now().nanoseconds();
+#else
+                message->time_stamp = node->now().nanoseconds();
+#endif
             }
             writer.write(message);
 
