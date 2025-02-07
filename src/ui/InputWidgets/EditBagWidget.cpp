@@ -33,20 +33,20 @@ EditBagWidget::EditBagWidget(Utils::UI::EditBagInputParameters& parameters,
     }
     m_sourceLineEdit->setText(m_parameters.sourceDirectory);
 
-    m_editLabel = new QLabel("Unselect all items you want to remove.<br>"
-                             "Change the message count to crop messages.");
+    m_editLabel = new QLabel("Unselect all items you want to remove. Change the message count to crop messages.");
     m_editLabel->setVisible(false);
 
     m_treeWidget = new QTreeWidget;
     m_treeWidget->setVisible(false);
     m_treeWidget->setColumnCount(4);
     m_treeWidget->headerItem()->setText(COL_CHECKBOXES, "");
-    m_treeWidget->headerItem()->setText(COL_TOPICS, "Topics:");
+    m_treeWidget->headerItem()->setText(COL_TOPIC_NAME, "Topic Name:");
+    m_treeWidget->headerItem()->setText(COL_TOPIC_TYPE, "Topic Type:");
     m_treeWidget->headerItem()->setText(COL_MESSAGE_COUNT, "Message Count:");
     m_treeWidget->headerItem()->setText(COL_RENAMING, "Rename Topic (Optional):");
     m_treeWidget->setRootIsDecorated(false);
 
-    m_differentDirsLabel = new QLabel("The edited bag needs to be a new file. However, you can choose to delete<br>"
+    m_differentDirsLabel = new QLabel("The edited bag needs to be a new file. However, you can choose to delete "
                                       "the source file after creation.");
     m_differentDirsLabel->setVisible(false);
 
@@ -162,13 +162,23 @@ EditBagWidget::createTopicTree(bool newTreeRequested)
         item->setFlags(item->flags() & ~Qt::ItemIsSelectable);
         item->setCheckState(COL_CHECKBOXES, editBagItem.isSelected ? Qt::Checked : Qt::Unchecked);
         // Create item widgets
-        auto* const topicLabel = new QLabel(QString::fromStdString(topicMetaData.name));
-        topicLabel->setEnabled(editBagItem.isSelected);
+        auto* const topicNameLabel = new QLabel(QString::fromStdString(topicMetaData.name));
+        topicNameLabel->setEnabled(editBagItem.isSelected);
+
+        auto* const topicTypeLabel = new QLabel(QString::fromStdString(topicMetaData.type));
+        topicTypeLabel->setEnabled(editBagItem.isSelected);
+        auto font = topicTypeLabel->font();
+        font.setItalic(true);
+        topicTypeLabel->setFont(font);
+
         auto* const messageCountWidget = new MessageCountWidget(editBagItem.lowerBoundary, topicWithMessageCount.message_count - 1, editBagItem.upperBoundary);
         messageCountWidget->setEnabled(editBagItem.isSelected);
+
         auto* const renamingLineEdit = new QLineEdit(editBagItem.renamedTopicName);
         renamingLineEdit->setEnabled(editBagItem.isSelected);
-        m_treeWidget->setItemWidget(item, COL_TOPICS, topicLabel);
+
+        m_treeWidget->setItemWidget(item, COL_TOPIC_NAME, topicNameLabel);
+        m_treeWidget->setItemWidget(item, COL_TOPIC_TYPE, topicTypeLabel);
         m_treeWidget->setItemWidget(item, COL_MESSAGE_COUNT, messageCountWidget);
         m_treeWidget->setItemWidget(item, COL_RENAMING, renamingLineEdit);
 
@@ -184,9 +194,12 @@ EditBagWidget::createTopicTree(bool newTreeRequested)
     }
 
     m_treeWidget->resizeColumnToContents(COL_CHECKBOXES);
-    m_treeWidget->resizeColumnToContents(COL_TOPICS);
+    m_treeWidget->resizeColumnToContents(COL_TOPIC_NAME);
+    m_treeWidget->resizeColumnToContents(COL_TOPIC_TYPE);
     m_treeWidget->resizeColumnToContents(COL_MESSAGE_COUNT);
     m_treeWidget->resizeColumnToContents(COL_RENAMING);
+    m_treeWidget->setColumnWidth(COL_TOPIC_NAME, m_treeWidget->columnWidth(COL_TOPIC_NAME) + 10);
+    m_treeWidget->setColumnWidth(COL_TOPIC_TYPE, m_treeWidget->columnWidth(COL_TOPIC_TYPE) + 10);
     // Adjusting the size will for whatever reason reset the column width above
     const auto keptWidth = width() + BUFFER_SPACE;
 
@@ -211,7 +224,8 @@ EditBagWidget::itemCheckStateChanged(QTreeWidgetItem* item, int column)
         return;
     }
     // Disable item widgets, this improves distinction between enabed and disabled topics
-    m_treeWidget->itemWidget(item, COL_TOPICS)->setEnabled(item->checkState(COL_CHECKBOXES) == Qt::Checked ? true : false);
+    m_treeWidget->itemWidget(item, COL_TOPIC_NAME)->setEnabled(item->checkState(COL_CHECKBOXES) == Qt::Checked ? true : false);
+    m_treeWidget->itemWidget(item, COL_TOPIC_TYPE)->setEnabled(item->checkState(COL_CHECKBOXES) == Qt::Checked ? true : false);
     m_treeWidget->itemWidget(item, COL_MESSAGE_COUNT)->setEnabled(item->checkState(COL_CHECKBOXES) == Qt::Checked ? true : false);
     m_treeWidget->itemWidget(item, COL_RENAMING)->setEnabled(item->checkState(COL_CHECKBOXES) == Qt::Checked ? true : false);
 
