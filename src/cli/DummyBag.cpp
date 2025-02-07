@@ -110,7 +110,7 @@ main(int argc, char* argv[])
     QObject::connect(dummyBagThread, &DummyBagThread::progressChanged, [] (const QString& progressString, int progress) {
         const auto progressStringCMD = Utils::CLI::drawProgressString(progress);
         // Always clear the last line for a nice "progress bar" feeling
-        std::cout << progressStringCMD << " " << progressString.toStdString() << "\r" << std::flush;
+        std::cout << progressString.toStdString() << " " << progressStringCMD << " " << progress << "%" << "\r" << std::flush;
     });
     QObject::connect(dummyBagThread, &DummyBagThread::finished, [] {
         // This signal is thrown even if SIGINT is called, but we haven't finished, only interrupted

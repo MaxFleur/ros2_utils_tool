@@ -127,7 +127,7 @@ main(int argc, char* argv[])
     QObject::connect(writeToImageThread, &WriteToImageThread::progressChanged, [] (const QString& progressString, int progress) {
         const auto progressStringCMD = Utils::CLI::drawProgressString(progress);
         // Always clear the last line for a nice "progress bar" feeling
-        std::cout << progressStringCMD << " " << progressString.toStdString() << "\r" << std::flush;
+        std::cout << progressString.toStdString() << " " << progressStringCMD << " " << progress << "%" << "\r" << std::flush;
     });
     QObject::connect(writeToImageThread, &WriteToImageThread::finished, [] {
         std::cout << "" << std::endl; // Extra line to stop flushing
