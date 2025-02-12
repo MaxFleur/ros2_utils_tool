@@ -39,19 +39,21 @@ PublishWidget::PublishWidget(Utils::UI::PublishParameters& parameters,
     advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions ? Qt::Checked : Qt::Unchecked);
     advancedOptionsCheckBox->setText("Show Advanced Options");
 
+    auto* const scaleCheckBox = Utils::UI::createCheckBox("Scale the video to another width and height.", m_parameters.scale);
     auto* const switchRedBlueCheckBox = Utils::UI::createCheckBox("Switch the video's red and blue values.", m_parameters.switchRedBlueValues);
     auto* const loopCheckBox = Utils::UI::createCheckBox("Loop the video file if it has been played through.", m_parameters.loop);
 
-    auto* const advancedOptionsFormLayout = new QFormLayout;
-    advancedOptionsFormLayout->addRow("Switch Red and Blue Values:", switchRedBlueCheckBox);
-    advancedOptionsFormLayout->addRow("Loop Video:", loopCheckBox);
+    m_advancedOptionsFormLayout = new QFormLayout;
+    m_advancedOptionsFormLayout->addRow("Scale Video:", scaleCheckBox);
+    m_advancedOptionsFormLayout->addRow("Switch Red and Blue Values:", switchRedBlueCheckBox);
+    m_advancedOptionsFormLayout->addRow("Loop Video:", loopCheckBox);
 
     // Different input widgets are needed depending on if we want to publish a video or image sequences
     if (m_publishVideo) {
         auto* const useHardwareAccCheckBox = Utils::UI::createCheckBox("Enable hardware acceleration for faster video decoding.",
                                                                        m_parameters.useHardwareAcceleration);
 
-        advancedOptionsFormLayout->addRow("Hardware Accleration:", useHardwareAccCheckBox);
+        m_advancedOptionsFormLayout->addRow("Hardware Accleration:", useHardwareAccCheckBox);
         connect(useHardwareAccCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
             writeParameterToSettings(m_parameters.useHardwareAcceleration, state == Qt::Checked, m_settings);
         });
@@ -61,14 +63,14 @@ PublishWidget::PublishWidget(Utils::UI::PublishParameters& parameters,
         fpsSpinBox->setValue(m_parameters.fps);
         fpsSpinBox->setToolTip("Set the fps value used for publishing.");
 
-        advancedOptionsFormLayout->addRow("FPS:", fpsSpinBox);
+        m_advancedOptionsFormLayout->addRow("FPS:", fpsSpinBox);
         connect(fpsSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [this] (int value) {
             writeParameterToSettings(m_parameters.fps, value, m_settings);
         });
     }
 
     auto* const advancedOptionsWidget = new QWidget;
-    advancedOptionsWidget->setLayout(advancedOptionsFormLayout);
+    advancedOptionsWidget->setLayout(m_advancedOptionsFormLayout);
     advancedOptionsWidget->setVisible(m_parameters.showAdvancedOptions);
 
     auto* const controlsLayout = new QVBoxLayout;
@@ -105,6 +107,7 @@ PublishWidget::PublishWidget(Utils::UI::PublishParameters& parameters,
         m_parameters.showAdvancedOptions = state == Qt::Checked;
         advancedOptionsWidget->setVisible(state == Qt::Checked);
     });
+    connect(scaleCheckBox, &QCheckBox::stateChanged, this, &PublishWidget::scaleCheckBoxPressed);
     connect(switchRedBlueCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.switchRedBlueValues, state == Qt::Checked, m_settings);
     });
@@ -113,6 +116,8 @@ PublishWidget::PublishWidget(Utils::UI::PublishParameters& parameters,
     });
     connect(m_dialogButtonBox, &QDialogButtonBox::accepted, this, &PublishWidget::okButtonPressed);
     connect(okShortCut, &QShortcut::activated, this, &PublishWidget::okButtonPressed);
+
+    scaleCheckBoxPressed(m_parameters.scale);
 }
 
 
@@ -154,6 +159,38 @@ PublishWidget::searchButtonPressed()
     m_sourceLineEdit->setText(dir);
 
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.topicName.isEmpty());
+}
+
+
+// We only need to create this if we want to scale the video
+void
+PublishWidget::scaleCheckBoxPressed(int state)
+{
+    // Partially checked value can still count for this case
+    writeParameterToSettings(m_parameters.scale, state != Qt::Unchecked, m_settings);
+
+    if (state != Qt::Unchecked) {
+        m_widthSpinBox = new QSpinBox;
+        m_widthSpinBox->setRange(1, 3840);
+        m_widthSpinBox->setValue(m_parameters.width);
+
+        m_heightSpinBox = new QSpinBox;
+        m_heightSpinBox->setRange(1, 2160);
+        m_heightSpinBox->setValue(m_parameters.height);
+
+        m_advancedOptionsFormLayout->insertRow(1, "Width:", m_widthSpinBox);
+        m_advancedOptionsFormLayout->insertRow(2, "Height:", m_heightSpinBox);
+
+        connect(m_widthSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [this] (int value) {
+            writeParameterToSettings(m_parameters.width, value, m_settings);
+        });
+        connect(m_heightSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [this] (int value) {
+            writeParameterToSettings(m_parameters.height, value, m_settings);
+        });
+    } else if (m_widthSpinBox && m_heightSpinBox) {
+        m_advancedOptionsFormLayout->removeRow(m_widthSpinBox);
+        m_advancedOptionsFormLayout->removeRow(m_heightSpinBox);
+    }
 }
 
 

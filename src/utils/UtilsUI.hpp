@@ -73,9 +73,12 @@ struct EditBagInputParameters : AdvancedInputParameters {
 
 struct PublishParameters : AdvancedInputParameters {
     int  fps = 30;
+    int  width = 1280;
+    int  height = 720;
     bool switchRedBlueValues = false;
     bool loop = false;
     bool useHardwareAcceleration = false;
+    bool scale = false;
 };
 
 struct DialogParameters {

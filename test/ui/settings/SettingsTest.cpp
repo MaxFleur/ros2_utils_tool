@@ -260,9 +260,12 @@ TEST_CASE("Settings Testing", "[ui]") {
         SECTION("Read") {
             qSettings.beginGroup("publish");
             REQUIRE(!qSettings.value("fps").isValid());
-            REQUIRE(!qSettings.value("hw_acc").isValid());
+            REQUIRE(!qSettings.value("width").isValid());
+            REQUIRE(!qSettings.value("height").isValid());
             REQUIRE(!qSettings.value("switch_red_blue").isValid());
             REQUIRE(!qSettings.value("loop").isValid());
+            REQUIRE(!qSettings.value("hw_acc").isValid());
+            REQUIRE(!qSettings.value("scale").isValid());
             qSettings.endGroup();
         }
         SECTION("Write") {
@@ -270,20 +273,29 @@ TEST_CASE("Settings Testing", "[ui]") {
             PublishSettings settings(parameters, "publish");
 
             parameters.fps = 40;
-            parameters.useHardwareAcceleration = true;
+            parameters.width = 1280;
+            parameters.height = 720;
             parameters.switchRedBlueValues = true;
             parameters.loop = true;
+            parameters.useHardwareAcceleration = true;
+            parameters.scale = true;
             settings.write();
 
             qSettings.beginGroup("publish");
             REQUIRE(qSettings.value("fps").isValid());
             REQUIRE(qSettings.value("fps").toInt() == 40);
-            REQUIRE(qSettings.value("hw_acc").isValid());
-            REQUIRE(qSettings.value("hw_acc").toBool() == true);
+            REQUIRE(qSettings.value("width").isValid());
+            REQUIRE(qSettings.value("width").toInt() == 1280);
+            REQUIRE(qSettings.value("height").isValid());
+            REQUIRE(qSettings.value("height").toInt() == 720);
             REQUIRE(qSettings.value("switch_red_blue").isValid());
             REQUIRE(qSettings.value("switch_red_blue").toBool() == true);
             REQUIRE(qSettings.value("loop").isValid());
             REQUIRE(qSettings.value("loop").toBool() == true);
+            REQUIRE(qSettings.value("hw_acc").isValid());
+            REQUIRE(qSettings.value("hw_acc").toBool() == true);
+            REQUIRE(qSettings.value("scale").isValid());
+            REQUIRE(qSettings.value("scale").toBool() == true);
             qSettings.endGroup();
         }
     }

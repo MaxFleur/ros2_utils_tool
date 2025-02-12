@@ -19,17 +19,19 @@ getArgumentsIndex(const QStringList& stringList, const QString& shortArg, const 
 
 
 bool
-checkArgumentValidity(const QStringList& stringList, const QString& shortArg, const QString& longArg, int& parameter, int lowerRange, int higherRange)
+checkArgumentValidity(const QStringList& stringList, const QString& shortArg, const QString& longArg,
+                      int& parameter, int lowerRange, int higherRange, int argumentListOffset)
 {
     if (!containsArguments(stringList, shortArg, longArg)) {
         return true;
     }
 
     const auto argumentIndex = std::max(stringList.lastIndexOf(shortArg), stringList.lastIndexOf(longArg));
-    if (stringList.at(argumentIndex) == stringList.last()) {
+    if (stringList.at(argumentIndex) == stringList.last() ||
+        (argumentListOffset == 2 && stringList.at(argumentIndex + 1) == stringList.last())) {
         return false;
     }
-    if (parameter = stringList.at(argumentIndex + 1).toInt(); parameter < lowerRange || parameter > higherRange) {
+    if (parameter = stringList.at(argumentIndex + argumentListOffset).toInt(); parameter < lowerRange || parameter > higherRange) {
         return false;
     }
 

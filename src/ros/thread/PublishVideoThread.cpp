@@ -53,6 +53,9 @@ PublishVideoThread::run()
         if (m_parameters.switchRedBlueValues) {
             cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
         }
+        if (m_parameters.scale) {
+            cv::resize(frame, frame, cv::Size(m_parameters.width, m_parameters.height), 0, 0);
+        }
 
         // Create empty sensor message
         sensor_msgs::msg::Image message;
