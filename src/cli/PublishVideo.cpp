@@ -91,8 +91,8 @@ main(int argc, char* argv[])
         publishParameters.scale = true;
         // Hardware acceleration
         publishParameters.useHardwareAcceleration = Utils::CLI::containsArguments(arguments, "-a", "--accelerate");
-        // Switch red and blue values
-        publishParameters.switchRedBlueValues = Utils::CLI::containsArguments(arguments, "-e", "--exchange");
+        // Exchange red and blue values
+        publishParameters.exchangeRedBlueValues = Utils::CLI::containsArguments(arguments, "-e", "--exchange");
         // Loop
         publishParameters.loop = Utils::CLI::containsArguments(arguments, "-l", "--loop");
     }

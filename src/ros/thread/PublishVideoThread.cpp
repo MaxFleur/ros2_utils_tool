@@ -50,7 +50,7 @@ PublishVideoThread::run()
             break;
         }
 
-        if (m_parameters.switchRedBlueValues) {
+        if (m_parameters.exchangeRedBlueValues) {
             cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
         }
         if (m_parameters.scale) {

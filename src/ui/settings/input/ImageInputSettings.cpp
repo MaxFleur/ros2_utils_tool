@@ -18,7 +18,7 @@ ImageInputSettings::write()
     settings.beginGroup(m_groupName);
     setSettingsParameter(settings, m_parameters.format, "format");
     setSettingsParameter(settings, m_parameters.quality, "quality");
-    setSettingsParameter(settings, m_parameters.switchRedBlueValues, "switch_red_blue");
+    setSettingsParameter(settings, m_parameters.exchangeRedBlueValues, "switch_red_blue");
     setSettingsParameter(settings, m_parameters.useBWImages, "bw_images");
     setSettingsParameter(settings, m_parameters.jpgOptimize, "jpg_optimize");
     setSettingsParameter(settings, m_parameters.pngBilevel, "png_bilevel");
@@ -39,7 +39,7 @@ ImageInputSettings::read()
     settings.beginGroup(m_groupName);
     m_parameters.format = settings.value("format").isValid() ? settings.value("format").toString() : "jpg";
     m_parameters.quality = settings.value("quality").isValid() ? settings.value("quality").toInt() : 8;
-    m_parameters.switchRedBlueValues = settings.value("switch_red_blue").isValid() ? settings.value("switch_red_blue").toBool() : false;
+    m_parameters.exchangeRedBlueValues = settings.value("switch_red_blue").isValid() ? settings.value("switch_red_blue").toBool() : false;
     m_parameters.useBWImages = settings.value("bw_images").isValid() ? settings.value("bw_images").toBool() : false;
     m_parameters.jpgOptimize = settings.value("jpg_optimize").isValid() ? settings.value("jpg_optimize").toBool() : false;
     m_parameters.pngBilevel = settings.value("png_bilevel").isValid() ? settings.value("png_bilevel").toBool() : false;

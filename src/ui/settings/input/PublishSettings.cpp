@@ -16,7 +16,7 @@ PublishSettings::write()
 
     QSettings settings;
     settings.beginGroup(m_groupName);
-    setSettingsParameter(settings, m_parameters.switchRedBlueValues, "switch_red_blue");
+    setSettingsParameter(settings, m_parameters.exchangeRedBlueValues, "switch_red_blue");
     setSettingsParameter(settings, m_parameters.loop, "loop");
     setSettingsParameter(settings, m_parameters.useHardwareAcceleration, "hw_acc");
     setSettingsParameter(settings, m_parameters.scale, "scale");
@@ -38,7 +38,7 @@ PublishSettings::read()
 
     QSettings settings;
     settings.beginGroup(m_groupName);
-    m_parameters.switchRedBlueValues = settings.value("switch_red_blue").isValid() ? settings.value("switch_red_blue").toBool() : false;
+    m_parameters.exchangeRedBlueValues = settings.value("switch_red_blue").isValid() ? settings.value("switch_red_blue").toBool() : false;
     m_parameters.loop = settings.value("loop").isValid() ? settings.value("loop").toBool() : false;
     m_parameters.useHardwareAcceleration = settings.value("hw_acc").isValid() ? settings.value("hw_acc").toBool() : false;
     m_parameters.scale = settings.value("scale").isValid() ? settings.value("scale").toBool() : false;

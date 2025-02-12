@@ -88,7 +88,7 @@ TEST_CASE("Settings Testing", "[ui]") {
 
             parameters.format = "jpg";
             parameters.quality = 10;
-            parameters.switchRedBlueValues = true;
+            parameters.exchangeRedBlueValues = true;
             parameters.useBWImages = true;
             parameters.jpgOptimize = true;
             parameters.pngBilevel = true;
@@ -128,7 +128,7 @@ TEST_CASE("Settings Testing", "[ui]") {
             parameters.format = "mkv";
             parameters.fps = 20;
             parameters.useHardwareAcceleration = true;
-            parameters.switchRedBlueValues = true;
+            parameters.exchangeRedBlueValues = true;
             parameters.useBWImages = true;
             parameters.lossless = true;
             settings.write();
@@ -165,7 +165,7 @@ TEST_CASE("Settings Testing", "[ui]") {
             parameters.fps = 40;
             parameters.useCustomFPS = true;
             parameters.useHardwareAcceleration = true;
-            parameters.switchRedBlueValues = true;
+            parameters.exchangeRedBlueValues = true;
             settings.write();
 
             qSettings.beginGroup("bag");
@@ -275,7 +275,7 @@ TEST_CASE("Settings Testing", "[ui]") {
             parameters.fps = 40;
             parameters.width = 1280;
             parameters.height = 720;
-            parameters.switchRedBlueValues = true;
+            parameters.exchangeRedBlueValues = true;
             parameters.loop = true;
             parameters.useHardwareAcceleration = true;
             parameters.scale = true;

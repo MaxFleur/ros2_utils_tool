@@ -50,7 +50,7 @@ PublishImagesThread::run()
                 continue;
             }
 
-            if (m_parameters.switchRedBlueValues) {
+            if (m_parameters.exchangeRedBlueValues) {
                 cv::cvtColor(mat, mat, cv::COLOR_BGR2RGB);
             }
             if (m_parameters.scale) {

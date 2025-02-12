@@ -38,7 +38,7 @@ struct AdvancedInputParameters : InputParameters {
 struct ImageInputParameters : AdvancedInputParameters {
     QString format = "jpg";
     int     quality = 8;
-    bool    switchRedBlueValues = false;
+    bool    exchangeRedBlueValues = false;
     bool    useBWImages = false;
     bool    jpgOptimize = false;
     bool    pngBilevel = false;
@@ -47,7 +47,7 @@ struct VideoInputParameters : AdvancedInputParameters {
     QString format = "mp4";
     int     fps = 30;
     bool    useHardwareAcceleration = false;
-    bool    switchRedBlueValues = false;
+    bool    exchangeRedBlueValues = false;
     bool    useBWImages = false;
     bool    lossless = false;
 };
@@ -55,7 +55,7 @@ struct BagInputParameters : AdvancedInputParameters {
     int  fps = 30;
     bool useCustomFPS = false;
     bool useHardwareAcceleration = false;
-    bool switchRedBlueValues = false;
+    bool exchangeRedBlueValues = false;
 };
 struct EditBagInputParameters : AdvancedInputParameters {
     struct EditBagTopic {
@@ -75,7 +75,7 @@ struct PublishParameters : AdvancedInputParameters {
     int  fps = 30;
     int  width = 1280;
     int  height = 720;
-    bool switchRedBlueValues = false;
+    bool exchangeRedBlueValues = false;
     bool loop = false;
     bool useHardwareAcceleration = false;
     bool scale = false;

@@ -19,7 +19,7 @@ showHelp()
     std::cout << "Additional parameters:" << std::endl;
     std::cout << "-t or --topic_name: Video topic inside the bag. If no topic name is specified, the first found video topic in the bag is taken.\n" << std::endl;
     std::cout << "-f or --format: Must be jpg, png or bmp (jpg is default)." << std::endl;
-    std::cout << "-s or --switch: Switch red and blue values." << std::endl;
+    std::cout << "-e or --exchange: Exchange red and blue values." << std::endl;
     std::cout << "-c or --colorless: Encode images without color.\n" << std::endl;
     std::cout << "-q 0-9 or --quality 0-9 (jpg and png only): Image quality, must be between 0 and 9 (9 is highest, 8 is default)." << std::endl;
     std::cout << "-o or --optimize (jpg only): Optimize jpg file size." << std::endl;
@@ -95,8 +95,8 @@ main(int argc, char* argv[])
             inputParameters.format = arguments.at(qualityFormatIndex + 1);
         }
 
-        // Switch red and blue values
-        inputParameters.switchRedBlueValues = Utils::CLI::containsArguments(arguments, "-s", "--switch");
+        // Exchange red and blue values
+        inputParameters.exchangeRedBlueValues = Utils::CLI::containsArguments(arguments, "-e", "--exchange");
         // Black white images
         inputParameters.useBWImages = Utils::CLI::containsArguments(arguments, "-c", "--colorless");
         // Optimize for jpeg
