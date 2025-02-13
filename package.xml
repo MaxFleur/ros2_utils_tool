@@ -7,6 +7,13 @@
   <maintainer email="m.fleury@nct-dresden.de">maxime</maintainer>
   <license>GPLv3</license>
 
+  <depend>cv_bridge</depend>
+  <depend>rclcpp</depend>
+  <depend>rosbag2_cpp</depend>
+  <depend>sensor_msgs</depend>
+
+  <test_depend>catch_ros2</test_depend>
+
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <export>
