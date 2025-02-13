@@ -10,14 +10,18 @@
 #include <QVBoxLayout>
 
 StartWidget::StartWidget(Utils::UI::DialogParameters& dialogParameters, QWidget *parent) :
-    QWidget(parent), m_dialogParameters(dialogParameters), m_isBagToolsWidgetSelected{true}
+    QWidget(parent), m_dialogParameters(dialogParameters)
 {
-    auto* const headerLabel = new QLabel("ROS TOOLS");
-    Utils::UI::setWidgetFontSize(headerLabel);
-    headerLabel->setAlignment(Qt::AlignHCenter);
+    m_headerLabel = new QLabel("ROS TOOLS");
+    Utils::UI::setWidgetFontSize(m_headerLabel);
+    m_headerLabel->setAlignment(Qt::AlignHCenter);
 
     m_settingsButton = new QPushButton;
     m_settingsButton->setFlat(true);
+
+    auto settingsButtonSizePolicy = m_settingsButton->sizePolicy();
+    settingsButtonSizePolicy.setRetainSizeWhenHidden(true);
+    m_settingsButton->setSizePolicy(settingsButtonSizePolicy);
 
     auto* const settingsButtonLayout = new QHBoxLayout;
     settingsButtonLayout->addStretch();
@@ -26,66 +30,90 @@ StartWidget::StartWidget(Utils::UI::DialogParameters& dialogParameters, QWidget 
     // Create three widgets: One for providing the overview for bag and publishing tools,
     // one for bag and one for publishing tools only
     // Overview widget
+    m_conversionToolsButton = createToolButton("Conversion\nTools");
     m_bagToolsButton = createToolButton("Bag Tools");
     m_publishingToolsButton = createToolButton("Publishing\nTools");
 
-    auto* const overallToolsButtonLayout = new QHBoxLayout;
-    overallToolsButtonLayout->addStretch();
-    overallToolsButtonLayout->addWidget(m_bagToolsButton);
-    overallToolsButtonLayout->addWidget(m_publishingToolsButton);
-    overallToolsButtonLayout->addStretch();
+    auto* const overallUpperLayout = new QHBoxLayout;
+    overallUpperLayout->addStretch();
+    overallUpperLayout->addWidget(m_conversionToolsButton);
+    overallUpperLayout->addWidget(m_bagToolsButton);
+    overallUpperLayout->addStretch();
+
+    auto* const overallLowerLayout = new QHBoxLayout;
+    overallLowerLayout->addStretch();
+    overallLowerLayout->addWidget(m_publishingToolsButton);
+    overallLowerLayout->addStretch();
+
+    auto* const overallToolsMainLayout = new QVBoxLayout;
+    overallToolsMainLayout->addLayout(overallUpperLayout);
+    overallToolsMainLayout->addLayout(overallLowerLayout);
 
     auto* const overallToolsWidget = new QWidget;
-    overallToolsWidget->setLayout(overallToolsButtonLayout);
+    overallToolsWidget->setLayout(overallToolsMainLayout);
+
+    // Conversion tools widget
+    m_bagToVideoPushButton = createToolButton("Encode Video\nfrom Bag");
+    m_videoToBagPushButton = createToolButton("Write Video\nto Bag");
+    m_bagToImagesPushButton = createToolButton("Write Images\nfrom Bag");
+
+    auto* const conversionToolsUpperLayout = new QHBoxLayout;
+    conversionToolsUpperLayout->addStretch();
+    conversionToolsUpperLayout->addWidget(m_bagToVideoPushButton);
+    conversionToolsUpperLayout->addWidget(m_videoToBagPushButton);
+    conversionToolsUpperLayout->addStretch();
+
+    auto* const conversionToolsLowerLayout = new QHBoxLayout;
+    conversionToolsLowerLayout->addStretch();
+    conversionToolsLowerLayout->addWidget(m_bagToImagesPushButton);
+    conversionToolsLowerLayout->addStretch();
+
+    auto* const conversionToolsMainLayout = new QVBoxLayout;
+    conversionToolsMainLayout->addStretch();
+    conversionToolsMainLayout->addLayout(conversionToolsUpperLayout);
+    conversionToolsMainLayout->addLayout(conversionToolsLowerLayout);
+    conversionToolsMainLayout->addStretch();
+
+    auto* const conversionToolsWidget = new QWidget;
+    conversionToolsWidget->setLayout(conversionToolsMainLayout);
 
     // Bag tools widget
-    m_editROSBagButton = createToolButton("Edit\nROSBag");
-    m_bagInfoButton = createToolButton("Get Infos\nfrom ROSBag");
-    m_bagToVideoPushButton = createToolButton("Encode Video\nfrom ROSBag");
-    m_videoToBagPushButton = createToolButton("Write Video\nto ROSBag");
-    m_bagToImagesPushButton = createToolButton("Write Images\nfrom ROSBag");
-    m_dummyBagButton = createToolButton("Create Dummy\nROSBag");
+    m_editBagButton = createToolButton("Edit Bag");
+    m_dummyBagButton = createToolButton("Create\nDummy Bag");
+    m_bagInfoButton = createToolButton("Get Infos\nfrom Bag");
 
-    auto* const upperBagToolsButtonLayout = new QHBoxLayout;
-    upperBagToolsButtonLayout->addStretch();
-    upperBagToolsButtonLayout->addWidget(m_editROSBagButton);
-    upperBagToolsButtonLayout->addWidget(m_bagInfoButton);
-    upperBagToolsButtonLayout->addStretch();
+    auto* const bagToolsUpperLayout = new QHBoxLayout;
+    bagToolsUpperLayout->addStretch();
+    bagToolsUpperLayout->addWidget(m_editBagButton);
+    bagToolsUpperLayout->addWidget(m_dummyBagButton);
+    bagToolsUpperLayout->addStretch();
 
-    auto* const centerBagToolsButtonLayout = new QHBoxLayout;
-    centerBagToolsButtonLayout->addStretch();
-    centerBagToolsButtonLayout->addWidget(m_bagToVideoPushButton);
-    centerBagToolsButtonLayout->addWidget(m_videoToBagPushButton);
-    centerBagToolsButtonLayout->addStretch();
+    auto* const bagToolsLowerLayout = new QHBoxLayout;
+    bagToolsLowerLayout->addStretch();
+    bagToolsLowerLayout->addWidget(m_bagInfoButton);
+    bagToolsLowerLayout->addStretch();
 
-    auto* const lowerBagToolsButtonLayout = new QHBoxLayout;
-    lowerBagToolsButtonLayout->addStretch();
-    lowerBagToolsButtonLayout->addWidget(m_bagToImagesPushButton);
-    lowerBagToolsButtonLayout->addWidget(m_dummyBagButton);
-    lowerBagToolsButtonLayout->addStretch();
-
-    auto* const bagToolsLayout = new QVBoxLayout;
-    bagToolsLayout->addStretch();
-    bagToolsLayout->addLayout(upperBagToolsButtonLayout);
-    bagToolsLayout->addLayout(centerBagToolsButtonLayout);
-    bagToolsLayout->addLayout(lowerBagToolsButtonLayout);
-    bagToolsLayout->addStretch();
+    auto* const bagToolsMainLayout = new QVBoxLayout;
+    bagToolsMainLayout->addStretch();
+    bagToolsMainLayout->addLayout(bagToolsUpperLayout);
+    bagToolsMainLayout->addLayout(bagToolsLowerLayout);
+    bagToolsMainLayout->addStretch();
 
     auto* const bagToolsWidget = new QWidget;
-    bagToolsWidget->setLayout(bagToolsLayout);
+    bagToolsWidget->setLayout(bagToolsMainLayout);
 
     // Publishing tools widget
     m_publishVideoButton = createToolButton("Publish Video\nas ROS Topic");
     m_publishImagesButton = createToolButton("Publish Images\nas ROS Topic");
 
-    auto* const publishingToolsLayout = new QHBoxLayout;
-    publishingToolsLayout->addStretch();
-    publishingToolsLayout->addWidget(m_publishVideoButton);
-    publishingToolsLayout->addWidget(m_publishImagesButton);
-    publishingToolsLayout->addStretch();
+    auto* const publishingToolsMainLayout = new QHBoxLayout;
+    publishingToolsMainLayout->addStretch();
+    publishingToolsMainLayout->addWidget(m_publishVideoButton);
+    publishingToolsMainLayout->addWidget(m_publishImagesButton);
+    publishingToolsMainLayout->addStretch();
 
     auto* const publishingToolsWidget = new QWidget;
-    publishingToolsWidget->setLayout(publishingToolsLayout);
+    publishingToolsWidget->setLayout(publishingToolsMainLayout);
 
     setButtonIcons();
 
@@ -105,7 +133,7 @@ StartWidget::StartWidget(Utils::UI::DialogParameters& dialogParameters, QWidget 
 
     m_mainLayout = new QVBoxLayout;
     m_mainLayout->addLayout(settingsButtonLayout);
-    m_mainLayout->addWidget(headerLabel);
+    m_mainLayout->addWidget(m_headerLabel);
     m_mainLayout->addStretch();
     m_mainLayout->addWidget(overallToolsWidget);
     m_mainLayout->addStretch();
@@ -113,47 +141,54 @@ StartWidget::StartWidget(Utils::UI::DialogParameters& dialogParameters, QWidget 
     m_mainLayout->addLayout(backButtonLayout);
     setLayout(m_mainLayout);
 
+    const auto switchToOverallTools = [this, conversionToolsWidget, bagToolsWidget, publishingToolsWidget, overallToolsWidget] {
+        switch (m_widgetOnInstantiation) {
+        case WIDGET_CONVERSION:
+            replaceWidgets(conversionToolsWidget, overallToolsWidget, 0, true);
+            break;
+        case WIDGET_BAG:
+            replaceWidgets(bagToolsWidget, overallToolsWidget, 0, true);
+            break;
+        case WIDGET_PUBLISHING:
+            replaceWidgets(publishingToolsWidget, overallToolsWidget, 0, true);
+            break;
+        default:
+            break;
+        }
+    };
+    const auto switchToConversionTools = [this, overallToolsWidget, conversionToolsWidget] {
+        replaceWidgets(overallToolsWidget, conversionToolsWidget, 1, false);
+    };
     const auto switchToBagTools = [this, overallToolsWidget, bagToolsWidget] {
-        m_isBagToolsWidgetSelected = true;
-        replaceWidgets(overallToolsWidget, bagToolsWidget, 1, false);
+        replaceWidgets(overallToolsWidget, bagToolsWidget, 2, false);
     };
-    const auto switchToPublshingTools = [this, overallToolsWidget, publishingToolsWidget] {
-        m_isBagToolsWidgetSelected = false;
-        replaceWidgets(overallToolsWidget, publishingToolsWidget, 2, false);
+    const auto switchToPublishingTools = [this, overallToolsWidget, publishingToolsWidget] {
+        replaceWidgets(overallToolsWidget, publishingToolsWidget, 3, false);
     };
-
-    switch (m_widgetOnInstantiation) {
-    case 1:
-        switchToBagTools();
-        break;
-    case 2:
-        switchToPublshingTools();
-        break;
-    default:
-        break;
-    }
 
     connect(m_settingsButton, &QPushButton::clicked, this, &StartWidget::openSettingsDialog);
 
+    connect(m_backButton, &QPushButton::clicked, this, switchToOverallTools);
+    connect(m_conversionToolsButton, &QPushButton::clicked, this, switchToConversionTools);
     connect(m_bagToolsButton, &QPushButton::clicked, this, switchToBagTools);
-    connect(m_publishingToolsButton, &QPushButton::clicked, this, switchToPublshingTools);
+    connect(m_publishingToolsButton, &QPushButton::clicked, this, switchToPublishingTools);
 
-    connect(m_editROSBagButton, &QPushButton::clicked, this, [this] {
+    connect(m_bagToVideoPushButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(0);
     });
-    connect(m_bagInfoButton, &QPushButton::clicked, this, [this] {
+    connect(m_videoToBagPushButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(1);
     });
-    connect(m_bagToVideoPushButton, &QPushButton::clicked, this, [this] {
+    connect(m_bagToImagesPushButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(2);
     });
-    connect(m_videoToBagPushButton, &QPushButton::clicked, this, [this] {
+    connect(m_editBagButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(3);
     });
-    connect(m_bagToImagesPushButton, &QPushButton::clicked, this, [this] {
+    connect(m_dummyBagButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(4);
     });
-    connect(m_dummyBagButton, &QPushButton::clicked, this, [this] {
+    connect(m_bagInfoButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(5);
     });
     connect(m_publishVideoButton, &QPushButton::clicked, this, [this] {
@@ -163,9 +198,19 @@ StartWidget::StartWidget(Utils::UI::DialogParameters& dialogParameters, QWidget 
         emit toolRequested(7);
     });
 
-    connect(m_backButton, &QPushButton::clicked, this, [this, bagToolsWidget, publishingToolsWidget, overallToolsWidget] {
-        replaceWidgets(m_isBagToolsWidgetSelected ? bagToolsWidget : publishingToolsWidget, overallToolsWidget, 0, true);
-    });
+    switch (m_widgetOnInstantiation) {
+    case WIDGET_CONVERSION:
+        switchToConversionTools();
+        break;
+    case WIDGET_BAG:
+        switchToBagTools();
+        break;
+    case WIDGET_PUBLISHING:
+        switchToPublishingTools();
+        break;
+    default:
+        break;
+    }
 }
 
 
@@ -177,15 +222,32 @@ StartWidget::openSettingsDialog()
 }
 
 
-// Used to switch between the three overall widgets
+// Used to switch between the four overall widgets
 void
 StartWidget::replaceWidgets(QWidget* fromWidget, QWidget* toWidget, int widgetIdentifier, bool otherItemVisibility)
 {
     // If the back button is visible, the other elements should be hidden and vice versa
-    m_settingsButton->setVisible(otherItemVisibility);
     m_backButton->setVisible(!otherItemVisibility);
+    m_settingsButton->setVisible(otherItemVisibility);
     m_versionLabel->setVisible(otherItemVisibility);
     m_widgetOnInstantiation = widgetIdentifier;
+
+    switch (m_widgetOnInstantiation) {
+    case WIDGET_OVERALL:
+        m_headerLabel->setText("ROS TOOLS");
+        break;
+    case WIDGET_CONVERSION:
+        m_headerLabel->setText("CONVERSION TOOLS");
+        break;
+    case WIDGET_BAG:
+        m_headerLabel->setText("BAG TOOLS");
+        break;
+    case WIDGET_PUBLISHING:
+        m_headerLabel->setText("PUBLISHING TOOLS");
+        break;
+    default:
+        break;
+    }
 
     m_mainLayout->replaceWidget(fromWidget, toWidget);
     fromWidget->setVisible(false);
@@ -214,15 +276,17 @@ StartWidget::setButtonIcons()
     const auto isDarkMode = Utils::UI::isDarkMode();
     m_settingsButton->setIcon(QIcon(isDarkMode ? ":/icons/gear_white.svg" : ":/icons/gear_black.svg"));
 
+    m_conversionToolsButton->setIcon(QIcon(isDarkMode ? ":/icons/conversion_tools_white.svg" : ":/icons/conversion_tools_black.svg"));
     m_bagToolsButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_tools_white.svg" : ":/icons/bag_tools_black.svg"));
     m_publishingToolsButton->setIcon(QIcon(isDarkMode ? ":/icons/publishing_tools_white.svg" : ":/icons/publishing_tools_black.svg"));
 
-    m_editROSBagButton->setIcon(QIcon(isDarkMode ? ":/icons/edit_bag_white.svg" : ":/icons/edit_bag_black.svg"));
-    m_bagInfoButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_info_white.svg" : ":/icons/bag_info_black.svg"));
     m_bagToVideoPushButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_to_video_white.svg" : ":/icons/bag_to_video_black.svg"));
     m_videoToBagPushButton->setIcon(QIcon(isDarkMode ? ":/icons/video_to_bag_white.svg" : ":/icons/video_to_bag_black.svg"));
     m_bagToImagesPushButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_to_images_white.svg" : ":/icons/bag_to_images_black.svg"));
+
+    m_editBagButton->setIcon(QIcon(isDarkMode ? ":/icons/edit_bag_white.svg" : ":/icons/edit_bag_black.svg"));
     m_dummyBagButton->setIcon(QIcon(isDarkMode ? ":/icons/dummy_bag_white.svg" : ":/icons/dummy_bag_black.svg"));
+    m_bagInfoButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_info_white.svg" : ":/icons/bag_info_black.svg"));
 
     m_publishVideoButton->setIcon(QIcon(isDarkMode ? ":/icons/publish_video_white.svg" : ":/icons/publish_video_black.svg"));
     m_publishImagesButton->setIcon(QIcon(isDarkMode ? ":/icons/publish_images_white.svg" : ":/icons/publish_images_black.svg"));

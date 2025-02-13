@@ -15,7 +15,7 @@
 #include "UtilsROS.hpp"
 
 BagInfoWidget::BagInfoWidget(QWidget *parent) :
-    BasicInputWidget("Get Infos from ROSBag", ":/icons/bag_info", parent)
+    BasicInputWidget("Get Infos from Bag", ":/icons/bag_info", parent)
 {
     auto* const bagLineEdit = new QLineEdit();
     bagLineEdit->setToolTip("The directory of the ROSBag source file.");

@@ -21,7 +21,7 @@
 #include <filesystem>
 
 BagToVideoWidget::BagToVideoWidget(Utils::UI::VideoInputParameters& parameters, QWidget *parent) :
-    BasicInputWidget("Encode Video from ROSBag", ":/icons/bag_to_video", parent),
+    BasicInputWidget("Encode Video from Bag", ":/icons/bag_to_video", parent),
     m_parameters(parameters), m_settings(parameters, "bag_to_video")
 {
     m_sourceLineEdit->setText(parameters.sourceDirectory);

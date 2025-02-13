@@ -19,7 +19,7 @@
 
 EditBagWidget::EditBagWidget(Utils::UI::EditBagInputParameters& parameters,
                              bool checkROS2NameConform, QWidget *parent) :
-    BasicInputWidget("Edit ROSBag", ":/icons/edit_bag", parent),
+    BasicInputWidget("Edit Bag", ":/icons/edit_bag", parent),
     m_parameters(parameters), m_settings(parameters, "edit_bag"),
     m_checkROS2NameConform(checkROS2NameConform)
 {

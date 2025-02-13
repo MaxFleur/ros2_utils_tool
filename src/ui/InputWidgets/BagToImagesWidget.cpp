@@ -20,7 +20,7 @@
 #include <filesystem>
 
 BagToImagesWidget::BagToImagesWidget(Utils::UI::ImageInputParameters& parameters, QWidget *parent) :
-    BasicInputWidget("Write Images from ROSBag", ":/icons/bag_to_images", parent),
+    BasicInputWidget("Write Images from Bag", ":/icons/bag_to_images", parent),
     m_parameters(parameters), m_settings(parameters, "bag_to_images")
 {
     m_sourceLineEdit->setText(parameters.sourceDirectory);

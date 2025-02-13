@@ -20,7 +20,7 @@
 
 DummyBagWidget::DummyBagWidget(Utils::UI::DummyBagInputParameters& parameters,
                                bool checkROS2NameConform, QWidget *parent) :
-    BasicInputWidget("Create Dummy ROSBag", ":/icons/dummy_bag", parent),
+    BasicInputWidget("Create Dummy Bag", ":/icons/dummy_bag", parent),
     m_parameters(parameters), m_settings(parameters, "dummy_bag"),
     m_checkROS2NameConform(checkROS2NameConform)
 {

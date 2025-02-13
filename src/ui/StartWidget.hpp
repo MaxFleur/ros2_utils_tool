@@ -44,16 +44,20 @@ private:
     event(QEvent *event) override;
 
 private:
+    QPointer<QLabel> m_headerLabel;
+
     // Buttons for tools
+    QPointer<QToolButton> m_conversionToolsButton;
     QPointer<QToolButton> m_bagToolsButton;
     QPointer<QToolButton> m_publishingToolsButton;
 
-    QPointer<QToolButton> m_editROSBagButton;
-    QPointer<QToolButton> m_bagInfoButton;
     QPointer<QToolButton> m_bagToVideoPushButton;
     QPointer<QToolButton> m_videoToBagPushButton;
     QPointer<QToolButton> m_bagToImagesPushButton;
+
+    QPointer<QToolButton> m_editBagButton;
     QPointer<QToolButton> m_dummyBagButton;
+    QPointer<QToolButton> m_bagInfoButton;
 
     QPointer<QToolButton> m_publishVideoButton;
     QPointer<QToolButton> m_publishImagesButton;
@@ -70,5 +74,8 @@ private:
     // Used to remember which widget was active when we switch to the input widget, but cancel
     inline static int m_widgetOnInstantiation = 0;
 
-    bool m_isBagToolsWidgetSelected;
+    static constexpr int WIDGET_OVERALL = 0;
+    static constexpr int WIDGET_CONVERSION = 1;
+    static constexpr int WIDGET_BAG = 2;
+    static constexpr int WIDGET_PUBLISHING = 3;
 };

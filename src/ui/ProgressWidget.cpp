@@ -24,18 +24,18 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
 {
     switch (threadTypeId) {
     case 0:
-        m_thread = new EditBagThread(dynamic_cast<Utils::UI::EditBagInputParameters&>(parameters), this);
-        break;
-    case 2:
         m_thread = new EncodingThread(dynamic_cast<Utils::UI::VideoInputParameters&>(parameters), this);
         break;
-    case 3:
+    case 1:
         m_thread = new WriteToBagThread(dynamic_cast<Utils::UI::BagInputParameters&>(parameters), this);
         break;
-    case 4:
+    case 2:
         m_thread = new WriteToImageThread(dynamic_cast<Utils::UI::ImageInputParameters&>(parameters), this);
         break;
-    case 5:
+    case 3:
+        m_thread = new EditBagThread(dynamic_cast<Utils::UI::EditBagInputParameters&>(parameters), this);
+        break;
+    case 4:
         m_thread = new DummyBagThread(dynamic_cast<Utils::UI::DummyBagInputParameters&>(parameters), this);
         break;
     case 6:
