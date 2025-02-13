@@ -70,6 +70,18 @@ struct EditBagInputParameters : AdvancedInputParameters {
     bool                  deleteSource = false;
     bool                  updateTimestamps = false;
 };
+struct MergeBagsInputParameters : AdvancedInputParameters {
+    struct MergeBagTopic {
+        QString name = "";
+        // Topic names might be identical across bags, but cannot be identical in the same bag.
+        // So store the bag directory as an additional identifier
+        QString bagDir = "";
+        bool    isSelected = true;
+    };
+
+    QVector<MergeBagTopic> topics = {};
+    QString                secondSourceDirectory = "";
+};
 
 struct PublishParameters : AdvancedInputParameters {
     int  fps = 30;

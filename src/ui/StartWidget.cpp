@@ -79,17 +79,19 @@ StartWidget::StartWidget(Utils::UI::DialogParameters& dialogParameters, QWidget 
 
     // Bag tools widget
     m_editBagButton = createToolButton("Edit Bag");
+    m_mergeBagsButton = createToolButton("Merge Bags");
     m_dummyBagButton = createToolButton("Create\nDummy Bag");
     m_bagInfoButton = createToolButton("Get Infos\nfrom Bag");
 
     auto* const bagToolsUpperLayout = new QHBoxLayout;
     bagToolsUpperLayout->addStretch();
     bagToolsUpperLayout->addWidget(m_editBagButton);
-    bagToolsUpperLayout->addWidget(m_dummyBagButton);
+    bagToolsUpperLayout->addWidget(m_mergeBagsButton);
     bagToolsUpperLayout->addStretch();
 
     auto* const bagToolsLowerLayout = new QHBoxLayout;
     bagToolsLowerLayout->addStretch();
+    bagToolsLowerLayout->addWidget(m_dummyBagButton);
     bagToolsLowerLayout->addWidget(m_bagInfoButton);
     bagToolsLowerLayout->addStretch();
 
@@ -185,17 +187,20 @@ StartWidget::StartWidget(Utils::UI::DialogParameters& dialogParameters, QWidget 
     connect(m_editBagButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(3);
     });
-    connect(m_dummyBagButton, &QPushButton::clicked, this, [this] {
+    connect(m_mergeBagsButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(4);
     });
-    connect(m_bagInfoButton, &QPushButton::clicked, this, [this] {
+    connect(m_dummyBagButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(5);
     });
-    connect(m_publishVideoButton, &QPushButton::clicked, this, [this] {
+    connect(m_bagInfoButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(6);
     });
-    connect(m_publishImagesButton, &QPushButton::clicked, this, [this] {
+    connect(m_publishVideoButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(7);
+    });
+    connect(m_publishImagesButton, &QPushButton::clicked, this, [this] {
+        emit toolRequested(8);
     });
 
     switch (m_widgetOnInstantiation) {
@@ -285,6 +290,7 @@ StartWidget::setButtonIcons()
     m_bagToImagesPushButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_to_images_white.svg" : ":/icons/bag_to_images_black.svg"));
 
     m_editBagButton->setIcon(QIcon(isDarkMode ? ":/icons/edit_bag_white.svg" : ":/icons/edit_bag_black.svg"));
+    m_mergeBagsButton->setIcon(QIcon(isDarkMode ? ":/icons/merge_bags_white.svg" : ":/icons/merge_bags_black.svg"));
     m_dummyBagButton->setIcon(QIcon(isDarkMode ? ":/icons/dummy_bag_white.svg" : ":/icons/dummy_bag_black.svg"));
     m_bagInfoButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_info_white.svg" : ":/icons/bag_info_black.svg"));
 

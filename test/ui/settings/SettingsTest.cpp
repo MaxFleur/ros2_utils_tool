@@ -7,6 +7,7 @@
 #include "DummyBagInputSettings.hpp"
 #include "EditBagInputSettings.hpp"
 #include "ImageInputSettings.hpp"
+#include "MergeBagsInputSettings.hpp"
 #include "PublishSettings.hpp"
 #include "UtilsUI.hpp"
 #include "VideoInputSettings.hpp"
@@ -206,6 +207,41 @@ TEST_CASE("Settings Testing", "[ui]") {
                 REQUIRE(qSettings.value("type").toString() == "string");
                 REQUIRE(qSettings.value("name").isValid());
                 REQUIRE(qSettings.value("name").toString() == "example_name");
+            }
+            REQUIRE(size == 1);
+            qSettings.endArray();
+
+            qSettings.endGroup();
+        }
+    }
+    SECTION("Edit Bag Input Params Test") {
+        SECTION("Read") {
+            qSettings.beginGroup("merge");
+            REQUIRE(!qSettings.value("topics").isValid());
+            REQUIRE(!qSettings.value("second_source").isValid());
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Utils::UI::MergeBagsInputParameters parameters;
+            MergeBagsInputSettings settings(parameters, "merge");
+
+            parameters.secondSourceDirectory = "/path/to/other/bag";
+            parameters.topics.push_back({ "topic", "/path/to/other/bag", true });
+            settings.write();
+
+            qSettings.beginGroup("merge");
+            REQUIRE(qSettings.value("second_source").isValid());
+            REQUIRE(qSettings.value("second_source").toString() == "/path/to/other/bag");
+
+            const auto size = qSettings.beginReadArray("topics");
+            for (auto i = 0; i < size; ++i) {
+                qSettings.setArrayIndex(i);
+                REQUIRE(qSettings.value("name").isValid());
+                REQUIRE(qSettings.value("name").toString() == "topic");
+                REQUIRE(qSettings.value("dir").isValid());
+                REQUIRE(qSettings.value("dir").toString() == "/path/to/other/bag");
+                REQUIRE(qSettings.value("is_selected").isValid());
+                REQUIRE(qSettings.value("is_selected").toBool() == true);
             }
             REQUIRE(size == 1);
             qSettings.endArray();

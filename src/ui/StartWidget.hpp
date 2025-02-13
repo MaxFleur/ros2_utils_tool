@@ -56,6 +56,7 @@ private:
     QPointer<QToolButton> m_bagToImagesPushButton;
 
     QPointer<QToolButton> m_editBagButton;
+    QPointer<QToolButton> m_mergeBagsButton;
     QPointer<QToolButton> m_dummyBagButton;
     QPointer<QToolButton> m_bagInfoButton;
 

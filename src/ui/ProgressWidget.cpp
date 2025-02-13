@@ -4,6 +4,7 @@
 #include "DummyBagThread.hpp"
 #include "EditBagThread.hpp"
 #include "EncodingThread.hpp"
+#include "MergeBagsThread.hpp"
 #include "PublishImagesThread.hpp"
 #include "PublishVideoThread.hpp"
 #include "WriteToBagThread.hpp"
@@ -36,12 +37,15 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
         m_thread = new EditBagThread(dynamic_cast<Utils::UI::EditBagInputParameters&>(parameters), this);
         break;
     case 4:
+        m_thread = new MergeBagsThread(dynamic_cast<Utils::UI::MergeBagsInputParameters&>(parameters), this);
+        break;
+    case 5:
         m_thread = new DummyBagThread(dynamic_cast<Utils::UI::DummyBagInputParameters&>(parameters), this);
         break;
-    case 6:
+    case 7:
         m_thread = new PublishVideoThread(dynamic_cast<Utils::UI::PublishParameters&>(parameters), this);
         break;
-    case 7:
+    case 8:
         m_thread = new PublishImagesThread(dynamic_cast<Utils::UI::PublishParameters&>(parameters), this);
         break;
     }
@@ -70,7 +74,7 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
 
     // Display a progress bar or play a gif depending on if we are doing bag or publishing stuff
     QWidget* progressWidget;
-    if (threadTypeId < 6) {
+    if (threadTypeId < 7) {
         auto* const progressBar = new QProgressBar;
         progressBar->setVisible(false);
         progressWidget = progressBar;

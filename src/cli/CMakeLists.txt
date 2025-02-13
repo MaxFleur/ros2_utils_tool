@@ -8,6 +8,7 @@ target_sources(rt_cli INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/BagToImages.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToVideo.cpp
     ${CMAKE_CURRENT_LIST_DIR}/DummyBag.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/MergeBags.cpp
     ${CMAKE_CURRENT_LIST_DIR}/PublishImages.cpp
     ${CMAKE_CURRENT_LIST_DIR}/PublishVideo.cpp
     ${CMAKE_CURRENT_LIST_DIR}/VideoToBag.cpp
