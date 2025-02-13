@@ -5,6 +5,7 @@
 #include "BagToVideoWidget.hpp"
 #include "DummyBagWidget.hpp"
 #include "EditBagWidget.hpp"
+#include "MergeBagsWidget.hpp"
 #include "ProgressWidget.hpp"
 #include "PublishWidget.hpp"
 #include "StartWidget.hpp"
@@ -58,21 +59,24 @@ MainWindow::setInputWidget(int mode)
         basicInputWidget = new EditBagWidget(m_editBagParameters, m_dialogParameters.checkROS2NameConform);
         break;
     case 4:
-        basicInputWidget = new DummyBagWidget(m_dummyBagParameters, m_dialogParameters.checkROS2NameConform);
+        basicInputWidget = new MergeBagsWidget(m_mergeBagsParameters);
         break;
     case 5:
-        basicInputWidget = new BagInfoWidget;
+        basicInputWidget = new DummyBagWidget(m_dummyBagParameters, m_dialogParameters.checkROS2NameConform);
         break;
     case 6:
-        basicInputWidget = new PublishWidget(m_publishParametersVideo, m_dialogParameters.checkROS2NameConform, true);
+        basicInputWidget = new BagInfoWidget;
         break;
     case 7:
+        basicInputWidget = new PublishWidget(m_publishParametersVideo, m_dialogParameters.checkROS2NameConform, true);
+        break;
+    case 8:
         basicInputWidget = new PublishWidget(m_publishParametersImages, m_dialogParameters.checkROS2NameConform, false);
         break;
     }
 
-    resize(mode == 3 ? basicInputWidget->width() : DEFAULT_WIDTH,
-           mode == 3 ? basicInputWidget->height() : DEFAULT_HEIGHT);
+    resize(mode == 3 || mode == 4 ? basicInputWidget->width() : DEFAULT_WIDTH,
+           mode == 3 || mode == 4 ? basicInputWidget->height() : DEFAULT_HEIGHT);
     setCentralWidget(basicInputWidget);
 
     connect(basicInputWidget, &BasicInputWidget::back, this, &MainWindow::setStartWidget);
@@ -104,14 +108,18 @@ MainWindow::setProgressWidget(int mode)
                                             "Writing to edited ROSBag...", m_editBagParameters, mode);
         break;
     case 4:
+        progressWidget = new ProgressWidget(":/icons/merge_bags_black.svg", ":/icons/merge_bags_white.svg",
+                                            "Writing merged ROSBag...", m_mergeBagsParameters, mode);
+        break;
+    case 5:
         progressWidget = new ProgressWidget(":/icons/dummy_bag_black.svg", ":/icons/dummy_bag_white.svg",
                                             "Creating Bag...", m_dummyBagParameters, mode);
         break;
-    case 6:
+    case 7:
         progressWidget = new ProgressWidget(":/icons/publish_video_black.svg", ":/icons/publish_video_white.svg",
                                             "Publishing Video...", m_publishParametersVideo, mode);
         break;
-    case 7:
+    case 8:
         progressWidget = new ProgressWidget(":/icons/publish_images_black.svg", ":/icons/publish_images_white.svg",
                                             "Publishing Images...", m_publishParametersImages, mode);
         break;

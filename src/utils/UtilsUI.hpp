@@ -70,6 +70,16 @@ struct EditBagInputParameters : AdvancedInputParameters {
     bool                  deleteSource = false;
     bool                  updateTimestamps = false;
 };
+struct MergeBagsInputParameters : AdvancedInputParameters {
+    struct MergeBagTopic {
+        QString name = "";
+        QString bagDir = "";
+        bool    isSelected = true;
+    };
+
+    QVector<MergeBagTopic> topics = {};
+    QString                secondSourceDirectory = "";
+};
 
 struct PublishParameters : AdvancedInputParameters {
     int  fps = 30;
