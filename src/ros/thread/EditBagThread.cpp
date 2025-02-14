@@ -8,12 +8,6 @@
 
 #include <filesystem>
 
-#ifdef ROS_JAZZY
-#include <cv_bridge/cv_bridge.hpp>
-#else
-#include <cv_bridge/cv_bridge.h>
-#endif
-
 EditBagThread::EditBagThread(const Utils::UI::EditBagInputParameters& parameters,
                              QObject*                                 parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),

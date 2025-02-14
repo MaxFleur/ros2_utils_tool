@@ -46,37 +46,37 @@ MainWindow::setInputWidget(int mode)
 {
     QPointer<BasicInputWidget> basicInputWidget;
     switch (mode) {
-    case 0:
+    case Utils::UI::TOOL_BAG_TO_VIDEO:
         basicInputWidget = new BagToVideoWidget(m_parametersBagToVideo);
         break;
-    case 1:
+    case Utils::UI::TOOL_VIDEO_TO_BAG:
         basicInputWidget = new VideoToBagWidget(m_parametersVideoToBag, m_dialogParameters.checkROS2NameConform);
         break;
-    case 2:
+    case Utils::UI::TOOL_BAG_TO_IMAGES:
         basicInputWidget = new BagToImagesWidget(m_parametersBagToImages);
         break;
-    case 3:
+    case Utils::UI::TOOL_EDIT_BAG:
         basicInputWidget = new EditBagWidget(m_editBagParameters, m_dialogParameters.checkROS2NameConform);
         break;
-    case 4:
+    case Utils::UI::TOOL_MERGE_BAGS:
         basicInputWidget = new MergeBagsWidget(m_mergeBagsParameters);
         break;
-    case 5:
+    case Utils::UI::TOOL_DUMMY_BAG:
         basicInputWidget = new DummyBagWidget(m_dummyBagParameters, m_dialogParameters.checkROS2NameConform);
         break;
-    case 6:
+    case Utils::UI::TOOL_BAG_INFO:
         basicInputWidget = new BagInfoWidget;
         break;
-    case 7:
+    case Utils::UI::TOOL_PUBLISH_VIDEO:
         basicInputWidget = new PublishWidget(m_publishParametersVideo, m_dialogParameters.checkROS2NameConform, true);
         break;
-    case 8:
+    case Utils::UI::TOOL_PUBLISH_IMAGES:
         basicInputWidget = new PublishWidget(m_publishParametersImages, m_dialogParameters.checkROS2NameConform, false);
         break;
     }
 
-    resize(mode == 3 || mode == 4 ? basicInputWidget->width() : DEFAULT_WIDTH,
-           mode == 3 || mode == 4 ? basicInputWidget->height() : DEFAULT_HEIGHT);
+    resize(mode == Utils::UI::TOOL_EDIT_BAG || mode == Utils::UI::TOOL_MERGE_BAGS ? basicInputWidget->width() : DEFAULT_WIDTH,
+           mode == Utils::UI::TOOL_EDIT_BAG || mode == Utils::UI::TOOL_MERGE_BAGS ? basicInputWidget->height() : DEFAULT_HEIGHT);
     setCentralWidget(basicInputWidget);
 
     connect(basicInputWidget, &BasicInputWidget::back, this, &MainWindow::setStartWidget);

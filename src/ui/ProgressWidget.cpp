@@ -24,28 +24,28 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
     QWidget(parent)
 {
     switch (threadTypeId) {
-    case 0:
+    case Utils::UI::TOOL_BAG_TO_VIDEO:
         m_thread = new EncodingThread(dynamic_cast<Utils::UI::VideoInputParameters&>(parameters), this);
         break;
-    case 1:
+    case Utils::UI::TOOL_VIDEO_TO_BAG:
         m_thread = new WriteToBagThread(dynamic_cast<Utils::UI::BagInputParameters&>(parameters), this);
         break;
-    case 2:
+    case Utils::UI::TOOL_BAG_TO_IMAGES:
         m_thread = new WriteToImageThread(dynamic_cast<Utils::UI::ImageInputParameters&>(parameters), this);
         break;
-    case 3:
+    case Utils::UI::TOOL_EDIT_BAG:
         m_thread = new EditBagThread(dynamic_cast<Utils::UI::EditBagInputParameters&>(parameters), this);
         break;
-    case 4:
+    case Utils::UI::TOOL_MERGE_BAGS:
         m_thread = new MergeBagsThread(dynamic_cast<Utils::UI::MergeBagsInputParameters&>(parameters), this);
         break;
-    case 5:
+    case Utils::UI::TOOL_DUMMY_BAG:
         m_thread = new DummyBagThread(dynamic_cast<Utils::UI::DummyBagInputParameters&>(parameters), this);
         break;
-    case 7:
+    case Utils::UI::TOOL_PUBLISH_VIDEO:
         m_thread = new PublishVideoThread(dynamic_cast<Utils::UI::PublishParameters&>(parameters), this);
         break;
-    case 8:
+    case Utils::UI::TOOL_PUBLISH_IMAGES:
         m_thread = new PublishImagesThread(dynamic_cast<Utils::UI::PublishParameters&>(parameters), this);
         break;
     }
@@ -74,7 +74,7 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
 
     // Display a progress bar or play a gif depending on if we are doing bag or publishing stuff
     QWidget* progressWidget;
-    if (threadTypeId < 7) {
+    if (threadTypeId != Utils::UI::TOOL_PUBLISH_VIDEO && threadTypeId != Utils::UI::TOOL_PUBLISH_IMAGES) {
         auto* const progressBar = new QProgressBar;
         progressBar->setVisible(false);
         progressWidget = progressBar;

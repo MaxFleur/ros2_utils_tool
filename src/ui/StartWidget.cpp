@@ -176,31 +176,31 @@ StartWidget::StartWidget(Utils::UI::DialogParameters& dialogParameters, QWidget 
     connect(m_publishingToolsButton, &QPushButton::clicked, this, switchToPublishingTools);
 
     connect(m_bagToVideoPushButton, &QPushButton::clicked, this, [this] {
-        emit toolRequested(0);
+        emit toolRequested(Utils::UI::TOOL_BAG_TO_VIDEO);
     });
     connect(m_videoToBagPushButton, &QPushButton::clicked, this, [this] {
-        emit toolRequested(1);
+        emit toolRequested(Utils::UI::TOOL_VIDEO_TO_BAG);
     });
     connect(m_bagToImagesPushButton, &QPushButton::clicked, this, [this] {
-        emit toolRequested(2);
+        emit toolRequested(Utils::UI::TOOL_BAG_TO_IMAGES);
     });
     connect(m_editBagButton, &QPushButton::clicked, this, [this] {
-        emit toolRequested(3);
+        emit toolRequested(Utils::UI::TOOL_EDIT_BAG);
     });
     connect(m_mergeBagsButton, &QPushButton::clicked, this, [this] {
-        emit toolRequested(4);
+        emit toolRequested(Utils::UI::TOOL_MERGE_BAGS);
     });
     connect(m_dummyBagButton, &QPushButton::clicked, this, [this] {
-        emit toolRequested(5);
+        emit toolRequested(Utils::UI::TOOL_DUMMY_BAG);
     });
     connect(m_bagInfoButton, &QPushButton::clicked, this, [this] {
-        emit toolRequested(6);
+        emit toolRequested(Utils::UI::TOOL_BAG_INFO);
     });
     connect(m_publishVideoButton, &QPushButton::clicked, this, [this] {
-        emit toolRequested(7);
+        emit toolRequested(Utils::UI::TOOL_PUBLISH_VIDEO);
     });
     connect(m_publishImagesButton, &QPushButton::clicked, this, [this] {
-        emit toolRequested(8);
+        emit toolRequested(Utils::UI::TOOL_PUBLISH_IMAGES);
     });
 
     switch (m_widgetOnInstantiation) {

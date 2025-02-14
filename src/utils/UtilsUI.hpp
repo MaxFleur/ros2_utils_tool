@@ -131,4 +131,14 @@ isDarkMode();
 
 static constexpr int FONT_SIZE_HEADER = 16;
 static constexpr int FONT_SIZE_BUTTON = 14;
+
+static constexpr int TOOL_BAG_TO_VIDEO = 0;
+static constexpr int TOOL_VIDEO_TO_BAG = 1;
+static constexpr int TOOL_BAG_TO_IMAGES = 2;
+static constexpr int TOOL_EDIT_BAG = 3;
+static constexpr int TOOL_MERGE_BAGS = 4;
+static constexpr int TOOL_DUMMY_BAG = 5;
+static constexpr int TOOL_BAG_INFO = 6;
+static constexpr int TOOL_PUBLISH_VIDEO = 7;
+static constexpr int TOOL_PUBLISH_IMAGES = 8;
 }

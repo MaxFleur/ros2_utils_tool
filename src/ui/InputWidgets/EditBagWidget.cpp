@@ -4,7 +4,6 @@
 #include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QFormLayout>
-#include <QHBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
