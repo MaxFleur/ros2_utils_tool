@@ -227,12 +227,25 @@ EditBagWidget::okButtonPressed()
             return;
         }
         // Ask only once
-        if (!topic.renamedTopicName.isEmpty() && m_checkROS2NameConform && !Utils::ROS::isNameROS2Conform(topic.renamedTopicName) && areROS2NamesInvalid) {
+        if (!topic.renamedTopicName.isEmpty() && m_checkROS2NameConform &&
+            !Utils::ROS::isNameROS2Conform(topic.renamedTopicName) && areROS2NamesInvalid) {
             areROS2NamesInvalid = false;
         }
     }
-    // General warnings and errors first, then question messagebox
-    if (const auto ioParamsValid = areIOParametersValid({ m_parameters.sourceDirectory }); !ioParamsValid) {
+
+    // Sets remove duplicates, so use such an instance to check for duplicate topic names
+    QSet<QString> topicNameSet;
+    auto sizeOfSelectedTopics = 0;
+    for (const auto& topic : m_parameters.topics) {
+        if (!topic.isSelected) {
+            continue;
+        }
+
+        topicNameSet.insert(topic.renamedTopicName.isEmpty() ? topic.originalTopicName : topic.renamedTopicName);
+        sizeOfSelectedTopics++;
+    }
+
+    if (const auto ioParamsValid = areIOParametersValid(sizeOfSelectedTopics, topicNameSet.size()); !ioParamsValid) {
         return;
     }
     if (!areROS2NamesInvalid) {

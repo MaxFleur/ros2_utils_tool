@@ -80,8 +80,14 @@ BasicBagWidget::targetPushButtonPressed()
 
 
 bool
-BasicBagWidget::areIOParametersValid(const QVector<QString>& sourceParameters)
+BasicBagWidget::areIOParametersValid(int topicSize, int topicSizeWithOutDuplicates,
+                                     const QString& secondSourceParameter)
 {
+    QVector<QString> sourceParameters = { m_parameters.sourceDirectory };
+    if (!secondSourceParameter.isEmpty()) {
+        sourceParameters.push_back(secondSourceParameter);
+    }
+
     const auto containsBagFile = [] (const auto& directory) {
         return !Utils::ROS::doesDirectoryContainBagFile(directory);
     };
@@ -111,6 +117,15 @@ BasicBagWidget::areIOParametersValid(const QVector<QString>& sourceParameters)
         auto *const msgBox = new QMessageBox(QMessageBox::Warning, "Bagfile already exists!",
                                              "A bag file already exists under the specified directory! Are you sure you want to continue? "
                                              "This will overwrite the existing file.",
+                                             QMessageBox::Yes | QMessageBox::No);
+        if (const auto ret = msgBox->exec(); ret == QMessageBox::No) {
+            return false;
+        }
+    }
+    if (topicSize != topicSizeWithOutDuplicates) {
+        auto *const msgBox = new QMessageBox(QMessageBox::Warning, "Duplicate topic names!",
+                                             "Duplicate topic names were selected, which is not allowed in ROS bag files. These would be merged into one topic.\n"
+                                             "Are you sure you want to continue? ",
                                              QMessageBox::Yes | QMessageBox::No);
         if (const auto ret = msgBox->exec(); ret == QMessageBox::No) {
             return false;

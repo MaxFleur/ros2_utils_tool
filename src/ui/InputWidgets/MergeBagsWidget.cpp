@@ -210,12 +210,7 @@ MergeBagsWidget::itemCheckStateChanged(QTreeWidgetItem* item, int column)
 void
 MergeBagsWidget::okButtonPressed()
 {
-    if (const auto ioParamsValid = areIOParametersValid({ m_parameters.sourceDirectory, m_parameters.secondSourceDirectory });
-        !ioParamsValid) {
-        return;
-    }
-
-    // Sets remove duplicates, so use a set to check if duplicate topic names were selected
+    // Sets remove duplicates, so use such an instance to check for duplicate topic names
     QSet<QString> topicNameSet;
     auto sizeOfSelectedTopics = 0;
     for (const auto& topic : m_parameters.topics) {
@@ -226,14 +221,10 @@ MergeBagsWidget::okButtonPressed()
         topicNameSet.insert(topic.name);
         sizeOfSelectedTopics++;
     }
-    if (topicNameSet.size() != sizeOfSelectedTopics) {
-        auto *const msgBox = new QMessageBox(QMessageBox::Warning, "Duplicate topic names!",
-                                             "Duplicate topic names were selected, which is not allowed in ROS bag files. These would be merged into one topic.\n"
-                                             "Are you sure you want to continue? ",
-                                             QMessageBox::Yes | QMessageBox::No);
-        if (const auto ret = msgBox->exec(); ret == QMessageBox::No) {
-            return;
-        }
+
+    if (const auto ioParamsValid = areIOParametersValid(sizeOfSelectedTopics, topicNameSet.size(), m_parameters.secondSourceDirectory);
+        !ioParamsValid) {
+        return;
     }
 
     emit okPressed();

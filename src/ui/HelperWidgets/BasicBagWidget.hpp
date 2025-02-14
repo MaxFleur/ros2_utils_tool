@@ -34,7 +34,9 @@ protected slots:
 
 protected:
     [[nodiscard]] bool
-    areIOParametersValid(const QVector<QString>& sourceParameters);
+    areIOParametersValid(int            topicSize,
+                         int            topicSizeWithoutDuplicates,
+                         const QString& secondSourceParameter = QString());
 
 protected:
     QPointer<QTreeWidget> m_treeWidget;
