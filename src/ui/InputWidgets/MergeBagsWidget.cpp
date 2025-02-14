@@ -15,7 +15,7 @@
 #include <filesystem>
 
 MergeBagsWidget::MergeBagsWidget(Utils::UI::MergeBagsInputParameters& parameters, QWidget *parent) :
-    BasicInputWidget("Merge Bags", ":/icons/merge_bags", parent),
+    BasicBagWidget(parameters, "Merge Bags", ":/icons/merge_bags", "merge_bags", parent),
     m_parameters(parameters), m_settings(parameters, "merge_bags")
 {
     m_secondSourceLineEdit = new QLineEdit;
@@ -27,26 +27,13 @@ MergeBagsWidget::MergeBagsWidget(Utils::UI::MergeBagsInputParameters& parameters
     formLayout->addRow("First Bag Location:", m_findSourceLayout);
     formLayout->addRow("Second Bag Location:", secondSourceLayout);
 
-    if (!std::filesystem::exists(m_parameters.sourceDirectory.toStdString()) ||
-        !Utils::ROS::doesDirectoryContainBagFile(m_parameters.sourceDirectory)) {
-        m_parameters.sourceDirectory = "";
-        writeParameterToSettings(m_parameters.sourceDirectory, QString(), m_settings);
-    }
     if (!std::filesystem::exists(m_parameters.secondSourceDirectory.toStdString()) ||
         !Utils::ROS::doesDirectoryContainBagFile(m_parameters.secondSourceDirectory)) {
         m_parameters.secondSourceDirectory = "";
         writeParameterToSettings(m_parameters.secondSourceDirectory, QString(), m_settings);
     }
-    m_sourceLineEdit->setText(m_parameters.sourceDirectory);
     m_secondSourceLineEdit->setText(m_parameters.secondSourceDirectory);
 
-    m_treeWidget = new QTreeWidget;
-    m_treeWidget->setVisible(false);
-    m_treeWidget->setColumnCount(3);
-    m_treeWidget->headerItem()->setText(COL_CHECKBOXES, "");
-    m_treeWidget->headerItem()->setText(COL_TOPIC_NAME, "Topic Name:");
-    m_treeWidget->headerItem()->setText(COL_TOPIC_TYPE, "Topic Type:");
-    m_treeWidget->setRootIsDecorated(false);
     m_treeWidget->setMinimumHeight(300);
 
     m_sufficientSpaceLabel = new QLabel("A new bag file will be created, so make sure that enough space is available!");
@@ -55,18 +42,6 @@ MergeBagsWidget::MergeBagsWidget(Utils::UI::MergeBagsInputParameters& parameters
     auto labelFont = m_sufficientSpaceLabel->font();
     labelFont.setBold(true);
     m_sufficientSpaceLabel->setFont(labelFont);
-
-    m_targetLineEdit = new QLineEdit(m_parameters.targetDirectory);
-    auto* const targetPushButton = new QToolButton;
-    auto* const targetLineEditLayout = Utils::UI::createLineEditButtonLayout(m_targetLineEdit, targetPushButton);
-
-    auto* const targetFormLayout = new QFormLayout;
-    targetFormLayout->addRow("Target Location:", targetLineEditLayout);
-    targetFormLayout->setContentsMargins(0, 0, 0, 0);
-
-    m_targetBagNameWidget = new QWidget;
-    m_targetBagNameWidget->setLayout(targetFormLayout);
-    m_targetBagNameWidget->setVisible(false);
 
     auto* const controlsLayout = new QVBoxLayout;
     controlsLayout->addStretch();
@@ -87,17 +62,12 @@ MergeBagsWidget::MergeBagsWidget(Utils::UI::MergeBagsInputParameters& parameters
     mainLayout->addLayout(m_buttonLayout);
     setLayout(mainLayout);
 
-    m_okButton->setEnabled(true);
-    m_okButton->setVisible(false);
-
     connect(m_findSourceButton, &QPushButton::clicked, this, [this] {
         setSourceDirectory(true);
     });
     connect(secondSourceButton, &QPushButton::clicked, this, [this] {
         setSourceDirectory(false);
     });
-    connect(m_treeWidget, &QTreeWidget::itemChanged, this, &MergeBagsWidget::itemCheckStateChanged);
-    connect(targetPushButton, &QPushButton::clicked, this, &MergeBagsWidget::targetPushButtonPressed);
     connect(m_dialogButtonBox, &QDialogButtonBox::accepted, this, &MergeBagsWidget::okButtonPressed);
 
     if (!m_sourceLineEdit->text().isEmpty() && !m_secondSourceLineEdit->text().isEmpty()) {
@@ -121,7 +91,7 @@ MergeBagsWidget::setSourceDirectory(bool isFirstSource)
     }
     const auto& otherSourcePath = isFirstSource ? m_parameters.secondSourceDirectory : m_parameters.sourceDirectory;
     if (bagDirectory == otherSourcePath) {
-        Utils::UI::createCriticalMessageBox("Equal input bag files!", "The input files are identical. Please select different files!");
+        Utils::UI::createCriticalMessageBox("Equal input bag files!", "The input files are identical. Please select a different file!");
         return;
     }
 
@@ -230,9 +200,7 @@ MergeBagsWidget::itemCheckStateChanged(QTreeWidgetItem* item, int column)
         return;
     }
 
-    // Disable item widgets, this improves distinction between enabed and disabled topics
-    m_treeWidget->itemWidget(item, COL_TOPIC_NAME)->setEnabled(item->checkState(COL_CHECKBOXES) == Qt::Checked ? true : false);
-    m_treeWidget->itemWidget(item, COL_TOPIC_TYPE)->setEnabled(item->checkState(COL_CHECKBOXES) == Qt::Checked ? true : false);
+    BasicBagWidget::itemCheckStateChanged(item, column);
 
     const auto rowIndex = item->data(COL_TOPIC_NAME, Qt::UserRole).toInt();
     writeParameterToSettings(m_parameters.topics[rowIndex].isSelected, item->checkState(COL_CHECKBOXES) == Qt::Checked, m_settings);
@@ -240,38 +208,10 @@ MergeBagsWidget::itemCheckStateChanged(QTreeWidgetItem* item, int column)
 
 
 void
-MergeBagsWidget::targetPushButtonPressed()
-{
-    const auto fileName = QFileDialog::getSaveFileName(this, "Target Bag File", "", "");
-    if (fileName.isEmpty()) {
-        return;
-    }
-
-    m_targetLineEdit->setText(fileName);
-    writeParameterToSettings(m_parameters.targetDirectory, fileName, m_settings);
-}
-
-
-void
 MergeBagsWidget::okButtonPressed()
 {
-    QTreeWidgetItemIterator it(m_treeWidget);
-    if (!Utils::ROS::doesDirectoryContainBagFile(m_parameters.sourceDirectory) ||
-        !Utils::ROS::doesDirectoryContainBagFile(m_parameters.secondSourceDirectory)) {
-        Utils::UI::createCriticalMessageBox("Invalid bag file(s)!", "One or more source bag file(s) seem to be invalid or broken!");
-        return;
-    }
-    if (m_targetLineEdit->text().isEmpty()) {
-        auto *const msgBox = new QMessageBox(QMessageBox::Warning, "No target specified!", "Please make sure that a target file has been entered!",
-                                             QMessageBox::Ok);
-        msgBox->exec();
-        return;
-    }
-    if (m_parameters.sourceDirectory == m_parameters.targetDirectory || m_parameters.secondSourceDirectory == m_parameters.targetDirectory) {
-        auto *const msgBox = new QMessageBox(QMessageBox::Critical, "Equal files!",
-                                             "A source and the target dir have the same path. Please enter a different name for the target file!",
-                                             QMessageBox::Ok);
-        msgBox->exec();
+    if (const auto ioParamsValid = areIOParametersValid({ m_parameters.sourceDirectory, m_parameters.secondSourceDirectory });
+        !ioParamsValid) {
         return;
     }
 
@@ -290,15 +230,6 @@ MergeBagsWidget::okButtonPressed()
         auto *const msgBox = new QMessageBox(QMessageBox::Warning, "Duplicate topic names!",
                                              "Duplicate topic names were selected, which is not allowed in ROS bag files. These would be merged into one topic.\n"
                                              "Are you sure you want to continue? ",
-                                             QMessageBox::Yes | QMessageBox::No);
-        if (const auto ret = msgBox->exec(); ret == QMessageBox::No) {
-            return;
-        }
-    }
-    if (std::filesystem::exists(m_parameters.targetDirectory.toStdString())) {
-        auto *const msgBox = new QMessageBox(QMessageBox::Warning, "Bagfile already exists!",
-                                             "A bag file already exists under the specified directory! Are you sure you want to continue? "
-                                             "This will overwrite the existing file.",
                                              QMessageBox::Yes | QMessageBox::No);
         if (const auto ret = msgBox->exec(); ret == QMessageBox::No) {
             return;
