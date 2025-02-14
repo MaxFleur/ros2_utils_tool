@@ -98,6 +98,9 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
         connect(m_thread, &BasicThread::progressChanged, this, [progressLabel] (const QString& progressString, int /* progress */) {
             progressLabel->setText(progressString);
         });
+        connect(m_thread, &BasicThread::finished, this, [movie] {
+            movie->stop();
+        });
 
         movie->start();
     }
