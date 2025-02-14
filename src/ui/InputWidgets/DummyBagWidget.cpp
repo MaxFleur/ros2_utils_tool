@@ -173,15 +173,8 @@ DummyBagWidget::okButtonPressed()
         Utils::UI::createCriticalMessageBox("Duplicate topic names!", "Please make sure that no duplicate topic names are used!");
         return;
     }
-
-    if (std::filesystem::exists(m_parameters.sourceDirectory.toStdString())) {
-        auto *const msgBox = new QMessageBox(QMessageBox::Warning, "Bagfile already exists!",
-                                             "A bag file already exists under the specified directory! Are you sure you want to continue? "
-                                             "This will overwrite the existing file.",
-                                             QMessageBox::Yes | QMessageBox::No);
-        if (const auto ret = msgBox->exec(); ret == QMessageBox::No) {
-            return;
-        }
+    if (!Utils::UI::continueForExistingTarget(m_parameters.sourceDirectory, "Bagfile", "bag file")) {
+        return;
     }
 
     emit okPressed();

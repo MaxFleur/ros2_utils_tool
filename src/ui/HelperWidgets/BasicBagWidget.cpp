@@ -113,14 +113,8 @@ BasicBagWidget::areIOParametersValid(int topicSize, int topicSizeWithOutDuplicat
         return false;
     }
 
-    if (std::filesystem::exists(m_parameters.targetDirectory.toStdString())) {
-        auto *const msgBox = new QMessageBox(QMessageBox::Warning, "Bagfile already exists!",
-                                             "A bag file already exists under the specified directory! Are you sure you want to continue? "
-                                             "This will overwrite the existing file.",
-                                             QMessageBox::Yes | QMessageBox::No);
-        if (const auto ret = msgBox->exec(); ret == QMessageBox::No) {
-            return false;
-        }
+    if (!Utils::UI::continueForExistingTarget(m_parameters.targetDirectory, "Bag file", "bag file")) {
+        return false;
     }
     if (topicSize != topicSizeWithOutDuplicates) {
         auto *const msgBox = new QMessageBox(QMessageBox::Warning, "Duplicate topic names!",

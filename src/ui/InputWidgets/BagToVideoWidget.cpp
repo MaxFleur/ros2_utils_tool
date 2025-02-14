@@ -178,7 +178,6 @@ BagToVideoWidget::videoLocationButtonPressed()
         return;
     }
 
-    m_fileDialogOpened = true;
     writeParameterToSettings(m_parameters.targetDirectory, fileName, m_settings);
     m_videoNameLineEdit->setText(fileName);
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() &&
@@ -233,15 +232,8 @@ BagToVideoWidget::okButtonPressed()
         Utils::UI::createCriticalMessageBox("Invalid bag file!", "The source bag file seems to be invalid or broken!");
         return;
     }
-
-    // Only ask if exists and the file dialog has not been called
-    if (std::filesystem::exists(m_parameters.targetDirectory.toStdString()) && !m_fileDialogOpened) {
-        auto *const msgBox = new QMessageBox(QMessageBox::Warning, "Video already exists!",
-                                             "A video already exists under the specified directory! Are you sure you want to continue? This will overwrite the existing file.",
-                                             QMessageBox::Yes | QMessageBox::No);
-        if (const auto ret = msgBox->exec(); ret == QMessageBox::No) {
-            return;
-        }
+    if (!Utils::UI::continueForExistingTarget(m_parameters.targetDirectory, "Video", "video")) {
+        return;
     }
 
     emit okPressed();

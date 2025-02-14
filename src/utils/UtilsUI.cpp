@@ -4,7 +4,7 @@
 
 #include <QMessageBox>
 
-#include <cmath>
+#include <filesystem>
 
 namespace Utils::UI
 {
@@ -77,6 +77,24 @@ createCriticalMessageBox(const QString& headerText, const QString& mainText)
 {
     auto *const msgBox = new QMessageBox(QMessageBox::Critical, headerText, mainText, QMessageBox::Ok);
     msgBox->exec();
+}
+
+
+bool
+continueForExistingTarget(const QString& targetDirectory, const QString& headerTextBeginning,
+                          const QString& targetIdentifier)
+{
+    if (std::filesystem::exists(targetDirectory.toStdString())) {
+        auto *const msgBox = new QMessageBox(QMessageBox::Warning, headerTextBeginning + " already exists!",
+                                             "The specified " + targetIdentifier + " already exists! Are you sure you want to continue? "
+                                             "This will overwrite all target files.",
+                                             QMessageBox::Yes | QMessageBox::No);
+        if (const auto ret = msgBox->exec(); ret == QMessageBox::No) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 

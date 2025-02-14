@@ -44,6 +44,4 @@ private:
     Utils::UI::VideoInputParameters& m_parameters;
 
     VideoInputSettings m_settings;
-
-    bool m_fileDialogOpened = false;
 };

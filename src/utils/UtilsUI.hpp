@@ -125,6 +125,11 @@ void
 createCriticalMessageBox(const QString& headerText,
                          const QString& mainText);
 
+bool
+continueForExistingTarget(const QString& targetDirectory,
+                          const QString& headerTextBeginning,
+                          const QString& targetIdentifier);
+
 // Checks if the application is in dark mode
 [[nodiscard]] bool
 isDarkMode();

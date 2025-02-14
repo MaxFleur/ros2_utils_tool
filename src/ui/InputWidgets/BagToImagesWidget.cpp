@@ -221,14 +221,8 @@ BagToImagesWidget::okButtonPressed()
         Utils::UI::createCriticalMessageBox("Invalid bag file!", "The source bag file seems to be invalid or broken!");
         return;
     }
-    if (std::filesystem::exists(m_parameters.targetDirectory.toStdString())) {
-        auto *const msgBox = new QMessageBox(QMessageBox::Warning, "Directory already exists!",
-                                             "The specified directory already exists! Are you sure you want to continue? "
-                                             "This will overwrite all potentially existing images.",
-                                             QMessageBox::Yes | QMessageBox::No);
-        if (const auto ret = msgBox->exec(); ret == QMessageBox::No) {
-            return;
-        }
+    if (!Utils::UI::continueForExistingTarget(m_parameters.targetDirectory, "Directory", "directory")) {
+        return;
     }
 
     emit okPressed();
