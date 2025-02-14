@@ -65,25 +65,9 @@ main(int argc, char* argv[])
     // Check for optional arguments
     if (arguments.size() > 2) {
         // Topic name
-        if (Utils::CLI::containsArguments(arguments, "-t", "--topic_name")) {
-            const auto topicNameIndex = Utils::CLI::getArgumentsIndex(arguments, "-t", "--topic_name");
-            if (arguments.at(topicNameIndex) == arguments.last()) {
-                std::cerr << "Please enter a valid topic name!" << std::endl;
-                return 0;
-            }
-
-            const auto& topicName = arguments.at(topicNameIndex + 1);
-            if (!Utils::ROS::isNameROS2Conform(topicName)) {
-                const auto errorString = "The topic name does not follow the ROS2 naming convention! More information on ROS2 naming convention is found here:\n"
-                                         "https://design.ros2.org/articles/topic_and_service_names.html\n"
-                                         "Do you want to continue anyways? [y/n]";
-                if (!Utils::CLI::shouldContinue(errorString)) {
-                    return 0;
-                }
-            }
-            publishParameters.topicName = topicName;
+        if (!Utils::CLI::isTopicNameValid(arguments, publishParameters.topicName)) {
+            return 0;
         }
-
         // Framerate
         if (!Utils::CLI::checkArgumentValidity(arguments, "-r", "--rate", publishParameters.fps, 1, 60)) {
             std::cerr << "Please enter a framerate in the range of 1 to 60!" << std::endl;

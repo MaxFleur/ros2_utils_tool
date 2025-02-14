@@ -13,19 +13,19 @@ namespace Utils::CLI
 // Checks if the command arguments stringlist contains either a specific
 // short or long argument and returns the index
 bool
-containsArguments(const QStringList& stringList,
+containsArguments(const QStringList& argumentsList,
                   const QString&     shortArg,
                   const QString&     longArg);
 
 // Get the index of arguments in a stringlist
 int
-getArgumentsIndex(const QStringList& stringList,
+getArgumentsIndex(const QStringList& argumentsList,
                   const QString&     shortArg,
                   const QString&     longArg);
 
 // Check if an argument to be set with a value is correctly called
 bool
-checkArgumentValidity(const QStringList& stringList,
+checkArgumentValidity(const QStringList& argumentsList,
                       const QString&     shortArg,
                       const QString&     longArg,
                       int&               parameter,
@@ -37,6 +37,10 @@ checkArgumentValidity(const QStringList& stringList,
 // Ask if the tool should continue for cases of invalidacies
 bool
 shouldContinue(const std::string& message);
+
+bool
+isTopicNameValid(const QStringList& argumentsList,
+                 QString&           parameterTopicName);
 
 // Draws a small progress string in the following format:
 // ############################--------------------
