@@ -151,6 +151,7 @@ DummyBagWidget::okButtonPressed()
         return;
     }
 
+    auto areROS2NamesValid = true;
     // Sets remove duplicates, so use a set to check if duplicate topic names exist
     QSet<QString> topicNameSet;
     for (QPointer<DummyTopicWidget> dummyTopicWidget : m_dummyTopicWidgets) {
@@ -159,12 +160,12 @@ DummyBagWidget::okButtonPressed()
             return;
         }
 
-        if (m_checkROS2NameConform && !Utils::ROS::isNameROS2Conform(dummyTopicWidget->getTopicName())) {
-            auto *const msgBox = Utils::UI::createInvalidROSNameMessageBox();
-
-            if (const auto returnValue = msgBox->exec(); returnValue == QMessageBox::No) {
+        if (m_checkROS2NameConform && !Utils::ROS::isNameROS2Conform(dummyTopicWidget->getTopicName()) && areROS2NamesValid) {
+            if (const auto returnValue = Utils::UI::continueWithInvalidROS2Names(); !returnValue) {
                 return;
             }
+            // Only ask once for invalid names
+            areROS2NamesValid = false;
         }
 
         topicNameSet.insert(dummyTopicWidget->getTopicName());

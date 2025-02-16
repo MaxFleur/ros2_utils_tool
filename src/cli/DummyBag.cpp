@@ -59,18 +59,20 @@ main(int argc, char* argv[])
     QVector<QString> topicTypes;
     QVector<QString> topicNames;
     QSet<QString> topicNameSet;
+    auto areROS2NamesValid = true;
     // Ensure correct topic type and name ordering
     for (auto i = 2; i < arguments.size() - 1; i++) {
         const auto argument = arguments.at(i);
 
         if (i % 2 == 0) {
-            if (!Utils::ROS::isNameROS2Conform(argument)) {
+            if (!Utils::ROS::isNameROS2Conform(argument) && areROS2NamesValid) {
                 const auto errorString = "The topic name does not follow the ROS2 naming convention! More information on ROS2 naming convention is found here:\n"
                                          "https://design.ros2.org/articles/topic_and_service_names.html\n"
                                          "Do you want to continue anyways? [y/n]";
                 if (!Utils::CLI::shouldContinue(errorString)) {
                     return 0;
                 }
+                areROS2NamesValid = false;
             }
             topicNames.push_back(argument);
             topicNameSet.insert(argument);

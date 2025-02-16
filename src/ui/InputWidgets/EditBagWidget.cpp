@@ -217,7 +217,7 @@ EditBagWidget::itemCheckStateChanged(QTreeWidgetItem* item, int column)
 void
 EditBagWidget::okButtonPressed()
 {
-    auto areROS2NamesInvalid = true;
+    auto areROS2NamesValid = true;
     for (const auto& topic : m_parameters.topics) {
         if (topic.upperBoundary <= topic.lowerBoundary) {
             auto *const msgBox = new QMessageBox(QMessageBox::Critical, "Message count invalid!",
@@ -226,10 +226,10 @@ EditBagWidget::okButtonPressed()
             msgBox->exec();
             return;
         }
-        // Ask only once
         if (!topic.renamedTopicName.isEmpty() && m_checkROS2NameConform &&
-            !Utils::ROS::isNameROS2Conform(topic.renamedTopicName) && areROS2NamesInvalid) {
-            areROS2NamesInvalid = false;
+            !Utils::ROS::isNameROS2Conform(topic.renamedTopicName) && areROS2NamesValid) {
+            // Ask only once for invalid names
+            areROS2NamesValid = false;
         }
     }
 
@@ -248,9 +248,8 @@ EditBagWidget::okButtonPressed()
     if (const auto ioParamsValid = areIOParametersValid(sizeOfSelectedTopics, topicNameSet.size()); !ioParamsValid) {
         return;
     }
-    if (!areROS2NamesInvalid) {
-        auto *const msgBox = Utils::UI::createInvalidROSNameMessageBox();
-        if (const auto returnValue = msgBox->exec(); returnValue == QMessageBox::No) {
+    if (!areROS2NamesValid) {
+        if (const auto returnValue = Utils::UI::continueWithInvalidROS2Names(); !returnValue) {
             return;
         }
     }

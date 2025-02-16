@@ -202,9 +202,7 @@ PublishWidget::okButtonPressed()
     }
 
     if (m_checkROS2NameConform && !Utils::ROS::isNameROS2Conform(m_parameters.topicName)) {
-        auto *const msgBox = Utils::UI::createInvalidROSNameMessageBox();
-
-        if (const auto returnValue = msgBox->exec(); returnValue == QMessageBox::No) {
+        if (const auto returnValue = Utils::UI::continueWithInvalidROS2Names(); !returnValue) {
             return;
         }
     }

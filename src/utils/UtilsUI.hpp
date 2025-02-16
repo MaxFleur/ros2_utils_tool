@@ -116,9 +116,9 @@ createCheckBox(const QString& toolTipText,
 createLineEditButtonLayout(QPointer<QLineEdit>   lineEdit,
                            QPointer<QToolButton> toolButton);
 
-// Create a messagebox informing of invalid ROS2 topic names
-[[nodiscard]] QMessageBox*
-createInvalidROSNameMessageBox();
+// Create a messagebox asking if a user should continue with invalid ROS2 names
+[[nodiscard]] bool
+continueWithInvalidROS2Names();
 
 // Creates a messagebox informing of a critical error
 void
