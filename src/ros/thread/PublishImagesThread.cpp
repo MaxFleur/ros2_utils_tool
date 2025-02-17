@@ -50,8 +50,11 @@ PublishImagesThread::run()
                 continue;
             }
 
-            if (m_parameters.switchRedBlueValues) {
+            if (m_parameters.exchangeRedBlueValues) {
                 cv::cvtColor(mat, mat, cv::COLOR_BGR2RGB);
+            }
+            if (m_parameters.scale) {
+                cv::resize(mat, mat, cv::Size(m_parameters.width, m_parameters.height), 0, 0);
             }
 
             // Create empty sensor message
@@ -64,7 +67,7 @@ PublishImagesThread::run()
             m_publisher->publish(message);
             rclcpp::spin_some(m_node);
 
-            emit progressChanged("Publishing image " + QString::number(iterator) + " of " + QString::number(frameCount) + "...", PROGRESS);
+            emit progressChanged("Publishing image " + QString::number(iterator + 1) + " of " + QString::number(frameCount) + "...", PROGRESS);
             iterator++;
 
             rate.sleep();

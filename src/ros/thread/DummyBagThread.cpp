@@ -47,8 +47,10 @@ DummyBagThread::run()
             } else if (type == "Integer") {
                 Utils::ROS::writeMessageToBag(std_msgs::msg::Int32(), i, writer, name, timeStamp);
             } else if (type == "Image") {
-                // Just a blue mat
-                cv::Mat mat(720, 1280, CV_8UC3, cv::Scalar(255, 0, 0));
+                // Lerp from blue to red
+                const auto blue = 255 - (i * (255.0f / (float) m_parameters.messageCount));
+                const auto red = 0 + (i * (255.0f / (float) m_parameters.messageCount));
+                cv::Mat mat(720, 1280, CV_8UC3, cv::Scalar(blue, 0, red));
                 sensor_msgs::msg::Image message;
                 std_msgs::msg::Header header;
                 header.stamp = timeStamp;

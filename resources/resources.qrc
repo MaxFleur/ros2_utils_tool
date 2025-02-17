@@ -11,12 +11,16 @@
         <file>icons/bag_to_video_white.svg</file>
         <file>icons/bag_tools_black.svg</file>
         <file>icons/bag_tools_white.svg</file>
+        <file>icons/conversion_tools_black.svg</file>
+        <file>icons/conversion_tools_white.svg</file>
         <file>icons/dummy_bag_black.svg</file>
         <file>icons/dummy_bag_white.svg</file>
         <file>icons/edit_bag_black.svg</file>
         <file>icons/edit_bag_white.svg</file>
         <file>icons/gear_black.svg</file>
         <file>icons/gear_white.svg</file>
+        <file>icons/merge_bags_black.svg</file>
+        <file>icons/merge_bags_white.svg</file>
         <file>icons/minus_black.svg</file>
         <file>icons/minus_white.svg</file>
         <file>icons/plus_black.svg</file>

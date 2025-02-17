@@ -19,7 +19,7 @@ showHelp()
     std::cout << "-t or --topic_name: Topic name. If this is empty, the name '/topic_video' will be taken.\n" << std::endl;
     std::cout << "-r or --rate: Framerate for the image stream. Must be from 10 to 60. If no rate is specified, the video's rate will be taken." << std::endl;
     std::cout << "-a or --accelerate: Use hardware acceleration." << std::endl;
-    std::cout << "-s or --switch: Switch red and blue values.\n" << std::endl;
+    std::cout << "-e or --exchange: Exchange red and blue values.\n" << std::endl;
     std::cout << "-h or --help: Show this help." << std::endl;
 }
 
@@ -65,35 +65,18 @@ main(int argc, char* argv[])
     // Check for optional arguments
     if (arguments.size() > 3) {
         // Topic name
-        if (Utils::CLI::containsArguments(arguments, "-t", "--topic_name")) {
-            const auto topicNameIndex = Utils::CLI::getArgumentsIndex(arguments, "-t", "--topic_name");
-            if (arguments.at(topicNameIndex) == arguments.last()) {
-                std::cerr << "Please enter a valid topic name!" << std::endl;
-                return 0;
-            }
-
-            const auto& topicName = arguments.at(topicNameIndex + 1);
-            if (!Utils::ROS::isNameROS2Conform(topicName)) {
-                const auto errorString = "The topic name does not follow the ROS2 naming convention! More information on ROS2 naming convention is found here:\n"
-                                         "https://design.ros2.org/articles/topic_and_service_names.html\n"
-                                         "Do you want to continue anyways? [y/n]";
-                if (!Utils::CLI::shouldContinue(errorString)) {
-                    return 0;
-                }
-            }
-            inputParameters.topicName = topicName;
+        if (!Utils::CLI::isTopicNameValid(arguments, inputParameters.topicName)) {
+            return 0;
         }
-
         // Framerate
         if (!Utils::CLI::checkArgumentValidity(arguments, "-r", "--rate", inputParameters.fps, 10, 60)) {
             std::cerr << "Please enter a framerate in the range of 10 to 60!" << std::endl;
             return 0;
         }
-
         // Hardware acceleration
         inputParameters.useHardwareAcceleration = Utils::CLI::containsArguments(arguments, "-a", "--accelerate");
-        // Switch red and blue values
-        inputParameters.switchRedBlueValues = Utils::CLI::containsArguments(arguments, "-s", "--switch");
+        // Exchange red and blue values
+        inputParameters.exchangeRedBlueValues = Utils::CLI::containsArguments(arguments, "-e", "--exchange");
     }
 
     // Apply default topic name if not assigned
@@ -118,7 +101,7 @@ main(int argc, char* argv[])
     QObject::connect(writeToBagThread, &WriteToBagThread::progressChanged, [] (const QString& progressString, int progress) {
         const auto progressStringCMD = Utils::CLI::drawProgressString(progress);
         // Always clear the last line for a nice "progress bar" feeling
-        std::cout << progressStringCMD << " " << progressString.toStdString() << "\r" << std::flush;
+        std::cout << progressString.toStdString() << " " << progressStringCMD << " " << progress << "%" << "\r" << std::flush;
     });
     QObject::connect(writeToBagThread, &WriteToBagThread::finished, [] {
         std::cout << "" << std::endl; // Extra line to stop flushing

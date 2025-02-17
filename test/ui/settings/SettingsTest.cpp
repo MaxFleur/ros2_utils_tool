@@ -7,6 +7,7 @@
 #include "DummyBagInputSettings.hpp"
 #include "EditBagInputSettings.hpp"
 #include "ImageInputSettings.hpp"
+#include "MergeBagsInputSettings.hpp"
 #include "PublishSettings.hpp"
 #include "UtilsUI.hpp"
 #include "VideoInputSettings.hpp"
@@ -88,7 +89,7 @@ TEST_CASE("Settings Testing", "[ui]") {
 
             parameters.format = "jpg";
             parameters.quality = 10;
-            parameters.switchRedBlueValues = true;
+            parameters.exchangeRedBlueValues = true;
             parameters.useBWImages = true;
             parameters.jpgOptimize = true;
             parameters.pngBilevel = true;
@@ -128,7 +129,7 @@ TEST_CASE("Settings Testing", "[ui]") {
             parameters.format = "mkv";
             parameters.fps = 20;
             parameters.useHardwareAcceleration = true;
-            parameters.switchRedBlueValues = true;
+            parameters.exchangeRedBlueValues = true;
             parameters.useBWImages = true;
             parameters.lossless = true;
             settings.write();
@@ -165,7 +166,7 @@ TEST_CASE("Settings Testing", "[ui]") {
             parameters.fps = 40;
             parameters.useCustomFPS = true;
             parameters.useHardwareAcceleration = true;
-            parameters.switchRedBlueValues = true;
+            parameters.exchangeRedBlueValues = true;
             settings.write();
 
             qSettings.beginGroup("bag");
@@ -215,9 +216,45 @@ TEST_CASE("Settings Testing", "[ui]") {
     }
     SECTION("Edit Bag Input Params Test") {
         SECTION("Read") {
+            qSettings.beginGroup("merge");
+            REQUIRE(!qSettings.value("topics").isValid());
+            REQUIRE(!qSettings.value("second_source").isValid());
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Utils::UI::MergeBagsInputParameters parameters;
+            MergeBagsInputSettings settings(parameters, "merge");
+
+            parameters.secondSourceDirectory = "/path/to/other/bag";
+            parameters.topics.push_back({ "topic", "/path/to/other/bag", true });
+            settings.write();
+
+            qSettings.beginGroup("merge");
+            REQUIRE(qSettings.value("second_source").isValid());
+            REQUIRE(qSettings.value("second_source").toString() == "/path/to/other/bag");
+
+            const auto size = qSettings.beginReadArray("topics");
+            for (auto i = 0; i < size; ++i) {
+                qSettings.setArrayIndex(i);
+                REQUIRE(qSettings.value("name").isValid());
+                REQUIRE(qSettings.value("name").toString() == "topic");
+                REQUIRE(qSettings.value("dir").isValid());
+                REQUIRE(qSettings.value("dir").toString() == "/path/to/other/bag");
+                REQUIRE(qSettings.value("is_selected").isValid());
+                REQUIRE(qSettings.value("is_selected").toBool() == true);
+            }
+            REQUIRE(size == 1);
+            qSettings.endArray();
+
+            qSettings.endGroup();
+        }
+    }
+    SECTION("Edit Bag Input Params Test") {
+        SECTION("Read") {
             qSettings.beginGroup("edit");
             REQUIRE(!qSettings.value("topics").isValid());
             REQUIRE(!qSettings.value("delete_source").isValid());
+            REQUIRE(!qSettings.value("update_timestamps").isValid());
             qSettings.endGroup();
         }
         SECTION("Write") {
@@ -225,12 +262,15 @@ TEST_CASE("Settings Testing", "[ui]") {
             EditBagInputSettings settings(parameters, "edit");
 
             parameters.deleteSource = true;
+            parameters.updateTimestamps = true;
             parameters.topics.push_back({ "renamed_topic", "original_topic", 42, 1337, true });
             settings.write();
 
             qSettings.beginGroup("edit");
             REQUIRE(qSettings.value("delete_source").isValid());
             REQUIRE(qSettings.value("delete_source").toBool() == true);
+            REQUIRE(qSettings.value("update_timestamps").isValid());
+            REQUIRE(qSettings.value("update_timestamps").toBool() == true);
 
             const auto size = qSettings.beginReadArray("topics");
             for (auto i = 0; i < size; ++i) {
@@ -256,9 +296,12 @@ TEST_CASE("Settings Testing", "[ui]") {
         SECTION("Read") {
             qSettings.beginGroup("publish");
             REQUIRE(!qSettings.value("fps").isValid());
-            REQUIRE(!qSettings.value("hw_acc").isValid());
+            REQUIRE(!qSettings.value("width").isValid());
+            REQUIRE(!qSettings.value("height").isValid());
             REQUIRE(!qSettings.value("switch_red_blue").isValid());
             REQUIRE(!qSettings.value("loop").isValid());
+            REQUIRE(!qSettings.value("hw_acc").isValid());
+            REQUIRE(!qSettings.value("scale").isValid());
             qSettings.endGroup();
         }
         SECTION("Write") {
@@ -266,20 +309,29 @@ TEST_CASE("Settings Testing", "[ui]") {
             PublishSettings settings(parameters, "publish");
 
             parameters.fps = 40;
-            parameters.useHardwareAcceleration = true;
-            parameters.switchRedBlueValues = true;
+            parameters.width = 1280;
+            parameters.height = 720;
+            parameters.exchangeRedBlueValues = true;
             parameters.loop = true;
+            parameters.useHardwareAcceleration = true;
+            parameters.scale = true;
             settings.write();
 
             qSettings.beginGroup("publish");
             REQUIRE(qSettings.value("fps").isValid());
             REQUIRE(qSettings.value("fps").toInt() == 40);
-            REQUIRE(qSettings.value("hw_acc").isValid());
-            REQUIRE(qSettings.value("hw_acc").toBool() == true);
+            REQUIRE(qSettings.value("width").isValid());
+            REQUIRE(qSettings.value("width").toInt() == 1280);
+            REQUIRE(qSettings.value("height").isValid());
+            REQUIRE(qSettings.value("height").toInt() == 720);
             REQUIRE(qSettings.value("switch_red_blue").isValid());
             REQUIRE(qSettings.value("switch_red_blue").toBool() == true);
             REQUIRE(qSettings.value("loop").isValid());
             REQUIRE(qSettings.value("loop").toBool() == true);
+            REQUIRE(qSettings.value("hw_acc").isValid());
+            REQUIRE(qSettings.value("hw_acc").toBool() == true);
+            REQUIRE(qSettings.value("scale").isValid());
+            REQUIRE(qSettings.value("scale").toBool() == true);
             qSettings.endGroup();
         }
     }

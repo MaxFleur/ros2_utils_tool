@@ -22,7 +22,7 @@
 
 VideoToBagWidget::VideoToBagWidget(Utils::UI::BagInputParameters& parameters,
                                    bool checkROS2NameConform, QWidget *parent) :
-    BasicInputWidget("Write Video to a ROSBag", ":/icons/video_to_bag", parent),
+    BasicInputWidget("Write Video to Bag", ":/icons/video_to_bag", parent),
     m_parameters(parameters), m_settings(parameters, "vid_to_bag"),
     m_checkROS2NameConform(checkROS2NameConform)
 {
@@ -50,7 +50,7 @@ VideoToBagWidget::VideoToBagWidget(Utils::UI::BagInputParameters& parameters,
                                                                  "the video's fps will be used.", m_parameters.useCustomFPS);
     auto* const useHardwareAccCheckBox = Utils::UI::createCheckBox("Enable hardware acceleration for faster video decoding and writing.",
                                                                    m_parameters.useHardwareAcceleration);
-    auto* const switchRedBlueCheckBox = Utils::UI::createCheckBox("Switch the video's red and blue values.", m_parameters.switchRedBlueValues);
+    auto* const switchRedBlueCheckBox = Utils::UI::createCheckBox("Switch the video's red and blue values.", m_parameters.exchangeRedBlueValues);
 
     m_advancedOptionsFormLayout = new QFormLayout;
     m_advancedOptionsFormLayout->addRow("Use Custom FPS:", useCustomFPSCheckBox);
@@ -102,7 +102,7 @@ VideoToBagWidget::VideoToBagWidget(Utils::UI::BagInputParameters& parameters,
         writeParameterToSettings(m_parameters.useHardwareAcceleration, state == Qt::Checked, m_settings);
     });
     connect(switchRedBlueCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
-        writeParameterToSettings(m_parameters.switchRedBlueValues, state == Qt::Checked, m_settings);
+        writeParameterToSettings(m_parameters.exchangeRedBlueValues, state == Qt::Checked, m_settings);
     });
     connect(m_dialogButtonBox, &QDialogButtonBox::accepted, this, &VideoToBagWidget::okButtonPressed);
     connect(okShortCut, &QShortcut::activated, this, &VideoToBagWidget::okButtonPressed);
@@ -188,20 +188,12 @@ VideoToBagWidget::okButtonPressed()
     }
 
     if (m_checkROS2NameConform && !Utils::ROS::isNameROS2Conform(m_parameters.topicName)) {
-        auto *const msgBox = Utils::UI::createInvalidROSNameMessageBox();
-
-        if (const auto returnValue = msgBox->exec(); returnValue == QMessageBox::No) {
+        if (const auto returnValue = Utils::UI::continueWithInvalidROS2Names(); !returnValue) {
             return;
         }
     }
-    if (std::filesystem::exists(m_parameters.targetDirectory.toStdString())) {
-        auto *const msgBox = new QMessageBox(QMessageBox::Warning, "Bag file already exists!",
-                                             "A bag file already exists under the specified directory! Are you sure "
-                                             "you want to continue? This will overwrite the existing file.",
-                                             QMessageBox::Yes | QMessageBox::No);
-        if (const auto ret = msgBox->exec(); ret == QMessageBox::No) {
-            return;
-        }
+    if (!Utils::UI::continueForExistingTarget(m_parameters.targetDirectory, "Bag file", "bag file")) {
+        return;
     }
 
     emit okPressed();

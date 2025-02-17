@@ -97,7 +97,7 @@ WriteToImageThread::run()
                 mat.convertTo(cvPointer->image, CV_8UC1);
             } else if (m_parameters.useBWImages) {
                 cv::cvtColor(cvPointer->image, cvPointer->image, cv::COLOR_BGR2GRAY);
-            } else if (m_parameters.switchRedBlueValues) {
+            } else if (m_parameters.exchangeRedBlueValues) {
                 cv::cvtColor(cvPointer->image, cvPointer->image, cv::COLOR_BGR2RGB);
             }
 

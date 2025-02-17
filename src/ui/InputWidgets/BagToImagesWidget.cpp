@@ -20,7 +20,7 @@
 #include <filesystem>
 
 BagToImagesWidget::BagToImagesWidget(Utils::UI::ImageInputParameters& parameters, QWidget *parent) :
-    BasicInputWidget("Write Images from ROSBag", ":/icons/bag_to_images", parent),
+    BasicInputWidget("Write Images from Bag", ":/icons/bag_to_images", parent),
     m_parameters(parameters), m_settings(parameters, "bag_to_images")
 {
     m_sourceLineEdit->setText(parameters.sourceDirectory);
@@ -61,7 +61,7 @@ BagToImagesWidget::BagToImagesWidget(Utils::UI::ImageInputParameters& parameters
     advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions ? Qt::Checked : Qt::Unchecked);
     advancedOptionsCheckBox->setText("Show Advanced Options");
 
-    auto* const switchRedBlueCheckBox = Utils::UI::createCheckBox("Switch the video's red and blue values.", m_parameters.switchRedBlueValues);
+    auto* const switchRedBlueCheckBox = Utils::UI::createCheckBox("Switch the video's red and blue values.", m_parameters.exchangeRedBlueValues);
     auto* const useBWCheckBox = Utils::UI::createCheckBox("If the images should be colorless or not.", m_parameters.useBWImages);
 
     m_advancedOptionsFormLayout = new QFormLayout;
@@ -113,7 +113,7 @@ BagToImagesWidget::BagToImagesWidget(Utils::UI::ImageInputParameters& parameters
         advancedOptionsWidget->setVisible(state == Qt::Checked);
     });
     connect(switchRedBlueCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
-        writeParameterToSettings(m_parameters.switchRedBlueValues, state == Qt::Checked, m_settings);
+        writeParameterToSettings(m_parameters.exchangeRedBlueValues, state == Qt::Checked, m_settings);
     });
     connect(useBWCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.useBWImages, state == Qt::Checked, m_settings);
@@ -221,14 +221,8 @@ BagToImagesWidget::okButtonPressed()
         Utils::UI::createCriticalMessageBox("Invalid bag file!", "The source bag file seems to be invalid or broken!");
         return;
     }
-    if (std::filesystem::exists(m_parameters.targetDirectory.toStdString())) {
-        auto *const msgBox = new QMessageBox(QMessageBox::Warning, "Directory already exists!",
-                                             "The specified directory already exists! Are you sure you want to continue? "
-                                             "This will overwrite all potentially existing images.",
-                                             QMessageBox::Yes | QMessageBox::No);
-        if (const auto ret = msgBox->exec(); ret == QMessageBox::No) {
-            return;
-        }
+    if (!Utils::UI::continueForExistingTarget(m_parameters.targetDirectory, "Directory", "directory")) {
+        return;
     }
 
     emit okPressed();

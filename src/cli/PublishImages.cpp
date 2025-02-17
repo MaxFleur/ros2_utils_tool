@@ -19,8 +19,9 @@ showHelp()
     std::cout << "The images must have format jpg, png or bmp." << std::endl;
     std::cout << "Additional parameters:" << std::endl;
     std::cout << "-t or --topic_name: Topic name. If this is empty, the name '/topic_video' will be taken.\n" << std::endl;
+    std::cout << "-s width height or --scale width height: Scale. width must be between 1 and 3840, height between 1 and 2160.\n" << std::endl;
     std::cout << "-r or --rate: Framerate for the published video. Must be from 1 to 60." << std::endl;
-    std::cout << "-s or --switch: Switch red and blue values." << std::endl;
+    std::cout << "-e or --exchange: Exchange red and blue values." << std::endl;
     std::cout << "-l or --loop: Loop the video.\n" << std::endl;
     std::cout << "-h or --help: Show this help." << std::endl;
 }
@@ -64,32 +65,27 @@ main(int argc, char* argv[])
     // Check for optional arguments
     if (arguments.size() > 2) {
         // Topic name
-        if (Utils::CLI::containsArguments(arguments, "-t", "--topic_name")) {
-            const auto topicNameIndex = Utils::CLI::getArgumentsIndex(arguments, "-t", "--topic_name");
-            if (arguments.at(topicNameIndex) == arguments.last()) {
-                std::cerr << "Please enter a valid topic name!" << std::endl;
-                return 0;
-            }
-
-            const auto& topicName = arguments.at(topicNameIndex + 1);
-            if (!Utils::ROS::isNameROS2Conform(topicName)) {
-                const auto errorString = "The topic name does not follow the ROS2 naming convention! More information on ROS2 naming convention is found here:\n"
-                                         "https://design.ros2.org/articles/topic_and_service_names.html\n"
-                                         "Do you want to continue anyways? [y/n]";
-                if (!Utils::CLI::shouldContinue(errorString)) {
-                    return 0;
-                }
-            }
-            publishParameters.topicName = topicName;
+        if (!Utils::CLI::isTopicNameValid(arguments, publishParameters.topicName)) {
+            return 0;
         }
-
         // Framerate
         if (!Utils::CLI::checkArgumentValidity(arguments, "-r", "--rate", publishParameters.fps, 1, 60)) {
             std::cerr << "Please enter a framerate in the range of 1 to 60!" << std::endl;
             return 0;
         }
-        // Switch red and blue values
-        publishParameters.switchRedBlueValues = Utils::CLI::containsArguments(arguments, "-s", "--switch");
+        // Scale
+        publishParameters.scale = Utils::CLI::containsArguments(arguments, "-s", "--scale");
+        if (!Utils::CLI::checkArgumentValidity(arguments, "-s", "--scale", publishParameters.width, 1, 3840)) {
+            std::cerr << "Please enter a width value between 1 and 3840!" << std::endl;
+            return 0;
+        }
+        if (!Utils::CLI::checkArgumentValidity(arguments, "-s", "--scale", publishParameters.height, 1, 2160, 2)) {
+            std::cerr << "Please enter a height value between 1 and 2160!" << std::endl;
+            return 0;
+        }
+        publishParameters.scale = true;
+        // Exchange red and blue values
+        publishParameters.exchangeRedBlueValues = Utils::CLI::containsArguments(arguments, "-e", "--exchange");
         // Loop
         publishParameters.loop = Utils::CLI::containsArguments(arguments, "-l", "--loop");
     }

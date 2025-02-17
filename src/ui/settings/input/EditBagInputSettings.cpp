@@ -29,6 +29,7 @@ EditBagInputSettings::write()
     }
     settings.endArray();
     setSettingsParameter(settings, m_parameters.deleteSource, "delete_source");
+    setSettingsParameter(settings, m_parameters.updateTimestamps, "update_timestamps");
 
     settings.endGroup();
     return true;
@@ -55,6 +56,7 @@ EditBagInputSettings::read()
     }
     settings.endArray();
     m_parameters.deleteSource = settings.value("delete_source").isValid() ? settings.value("delete_source").toBool() : false;
+    m_parameters.updateTimestamps = settings.value("update_timestamps").isValid() ? settings.value("update_timestamps").toBool() : false;
 
     settings.endGroup();
     return true;

@@ -1,20 +1,17 @@
 #pragma once
 
-#include "BasicInputWidget.hpp"
+#include "BasicBagWidget.hpp"
 #include "EditBagInputSettings.hpp"
 #include "UtilsUI.hpp"
 
-#include <QLineEdit>
 #include <QPointer>
 #include <QWidget>
-#include <QTreeWidgetItem>
 
 class QCheckBox;
 class QLabel;
-class QTreeWidget;
 
 // Widget for editing a bag file
-class EditBagWidget : public BasicInputWidget
+class EditBagWidget : public BasicBagWidget
 {
     Q_OBJECT
 public:
@@ -29,21 +26,17 @@ private slots:
 
     void
     itemCheckStateChanged(QTreeWidgetItem* item,
-                          int              column);
-
-    void
-    targetPushButtonPressed();
+                          int              column) override;
 
     void
     okButtonPressed();
 
 private:
-    QPointer<QTreeWidget> m_treeWidget;
     QPointer<QLabel> m_editLabel;
     QPointer<QLabel> m_differentDirsLabel;
+
     QPointer<QCheckBox> m_deleteSourceCheckBox;
-    QPointer<QLineEdit> m_targetLineEdit;
-    QPointer<QWidget> m_targetBagNameWidget;
+    QPointer<QCheckBox> m_updateTimestampsCheckBox;
 
     Utils::UI::EditBagInputParameters& m_parameters;
 
@@ -51,10 +44,8 @@ private:
 
     const bool m_checkROS2NameConform;
 
-    static constexpr int COL_CHECKBOXES = 0;
-    static constexpr int COL_TOPICS = 1;
-    static constexpr int COL_MESSAGE_COUNT = 2;
-    static constexpr int COL_RENAMING = 3;
+    static constexpr int COL_MESSAGE_COUNT = 3;
+    static constexpr int COL_RENAMING = 4;
 
-    static constexpr int BUFFER_SPACE = 40;
+    static constexpr int BUFFER_SPACE = 200;
 };

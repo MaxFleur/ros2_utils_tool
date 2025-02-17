@@ -20,7 +20,7 @@
 
 DummyBagWidget::DummyBagWidget(Utils::UI::DummyBagInputParameters& parameters,
                                bool checkROS2NameConform, QWidget *parent) :
-    BasicInputWidget("Create Dummy ROSBag", ":/icons/dummy_bag", parent),
+    BasicInputWidget("Create Dummy Bag", ":/icons/dummy_bag", parent),
     m_parameters(parameters), m_settings(parameters, "dummy_bag"),
     m_checkROS2NameConform(checkROS2NameConform)
 {
@@ -151,6 +151,7 @@ DummyBagWidget::okButtonPressed()
         return;
     }
 
+    auto areROS2NamesValid = true;
     // Sets remove duplicates, so use a set to check if duplicate topic names exist
     QSet<QString> topicNameSet;
     for (QPointer<DummyTopicWidget> dummyTopicWidget : m_dummyTopicWidgets) {
@@ -159,12 +160,12 @@ DummyBagWidget::okButtonPressed()
             return;
         }
 
-        if (m_checkROS2NameConform && !Utils::ROS::isNameROS2Conform(dummyTopicWidget->getTopicName())) {
-            auto *const msgBox = Utils::UI::createInvalidROSNameMessageBox();
-
-            if (const auto returnValue = msgBox->exec(); returnValue == QMessageBox::No) {
+        if (m_checkROS2NameConform && !Utils::ROS::isNameROS2Conform(dummyTopicWidget->getTopicName()) && areROS2NamesValid) {
+            if (const auto returnValue = Utils::UI::continueWithInvalidROS2Names(); !returnValue) {
                 return;
             }
+            // Only ask once for invalid names
+            areROS2NamesValid = false;
         }
 
         topicNameSet.insert(dummyTopicWidget->getTopicName());
@@ -173,15 +174,8 @@ DummyBagWidget::okButtonPressed()
         Utils::UI::createCriticalMessageBox("Duplicate topic names!", "Please make sure that no duplicate topic names are used!");
         return;
     }
-
-    if (std::filesystem::exists(m_parameters.sourceDirectory.toStdString())) {
-        auto *const msgBox = new QMessageBox(QMessageBox::Warning, "Bagfile already exists!",
-                                             "A bag file already exists under the specified directory! Are you sure you want to continue? "
-                                             "This will overwrite the existing file.",
-                                             QMessageBox::Yes | QMessageBox::No);
-        if (const auto ret = msgBox->exec(); ret == QMessageBox::No) {
-            return;
-        }
+    if (!Utils::UI::continueForExistingTarget(m_parameters.sourceDirectory, "Bagfile", "bag file")) {
+        return;
     }
 
     emit okPressed();

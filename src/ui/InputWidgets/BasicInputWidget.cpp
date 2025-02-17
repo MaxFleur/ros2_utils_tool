@@ -9,6 +9,8 @@
 #include <QPushButton>
 #include <QToolButton>
 
+#include <filesystem>
+
 BasicInputWidget::BasicInputWidget(const QString& headerText, const QString& iconPath, QWidget *parent) :
     QWidget(parent), m_iconPath(iconPath)
 {

@@ -18,7 +18,7 @@ showHelp()
     std::cout << "-t or --topic_name: Video topic inside the bag. If no topic name is specified, the first found video topic in the bag is taken.\n" << std::endl;
     std::cout << "-r or --rate: Framerate for the encoded video. Must be from 10 to 60." << std::endl;
     std::cout << "-a or --accelerate: Use hardware acceleration." << std::endl;
-    std::cout << "-s or --switch: Switch red and blue values." << std::endl;
+    std::cout << "-e or --exchange: Exchange red and blue values." << std::endl;
     std::cout << "-c or --colorless: Use colorless images." << std::endl;
     std::cout << "-l or --lossless (mkv only): Use lossless images.\n" << std::endl;
     std::cout << "-h or --help: Show this help." << std::endl;
@@ -96,8 +96,8 @@ main(int argc, char* argv[])
 
         // Hardware acceleration
         inputParameters.useHardwareAcceleration = Utils::CLI::containsArguments(arguments, "-a", "--accelerate");
-        // Switch red and blue values
-        inputParameters.switchRedBlueValues = Utils::CLI::containsArguments(arguments, "-s", "--switch");
+        // Exchange red and blue values
+        inputParameters.exchangeRedBlueValues = Utils::CLI::containsArguments(arguments, "-e", "--exchange");
         // Colorless
         inputParameters.useBWImages = Utils::CLI::containsArguments(arguments, "-c", "--colorless");
         // Lossless
@@ -130,7 +130,7 @@ main(int argc, char* argv[])
     QObject::connect(encodingThread, &EncodingThread::progressChanged, [] (const QString& progressString, int progress) {
         const auto progressStringCMD = Utils::CLI::drawProgressString(progress);
         // Always clear the last line for a nice "progress bar" feeling
-        std::cout << progressStringCMD << " " << progressString.toStdString() << "\r" << std::flush;
+        std::cout << progressString.toStdString() << " " << progressStringCMD << " " << progress << "%" << "\r" << std::flush;
     });
     QObject::connect(encodingThread, &EncodingThread::finished, [] {
         std::cout << "" << std::endl; // Extra line to stop flushing

@@ -1,11 +1,18 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>ros2_utils_tool</name>
-  <version>0.3.0</version>
+  <version>0.8.0</version>
   <description>The ros2_utils_tool package</description>
 
   <maintainer email="m.fleury@nct-dresden.de">maxime</maintainer>
-  <license>GPLv3</license>
+  <license>EUPLv1.2</license>
+
+  <depend>cv_bridge</depend>
+  <depend>rclcpp</depend>
+  <depend>rosbag2_cpp</depend>
+  <depend>sensor_msgs</depend>
+
+  <test_depend>catch_ros2</test_depend>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

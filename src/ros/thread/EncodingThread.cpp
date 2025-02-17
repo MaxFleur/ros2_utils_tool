@@ -76,7 +76,7 @@ EncodingThread::run()
             cv::cvtColor(cvPointer->image, greyMat, cv::COLOR_BGR2GRAY);
             videoEncoder->writeImageToVideo(greyMat);
         } else {
-            if (m_parameters.switchRedBlueValues) {
+            if (m_parameters.exchangeRedBlueValues) {
                 cv::cvtColor(cvPointer->image, cvPointer->image, cv::COLOR_BGR2RGB);
             }
             videoEncoder->writeImageToVideo(cvPointer->image);

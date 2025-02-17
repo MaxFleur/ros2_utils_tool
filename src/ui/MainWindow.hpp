@@ -37,8 +37,9 @@ private:
     Utils::UI::VideoInputParameters m_parametersBagToVideo;
     Utils::UI::BagInputParameters m_parametersVideoToBag;
     Utils::UI::ImageInputParameters m_parametersBagToImages;
-    Utils::UI::DummyBagInputParameters m_dummyBagParameters;
     Utils::UI::EditBagInputParameters m_editBagParameters;
+    Utils::UI::MergeBagsInputParameters m_mergeBagsParameters;
+    Utils::UI::DummyBagInputParameters m_dummyBagParameters;
 
     Utils::UI::PublishParameters m_publishParametersVideo;
     Utils::UI::PublishParameters m_publishParametersImages;

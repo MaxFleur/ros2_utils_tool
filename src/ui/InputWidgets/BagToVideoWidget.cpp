@@ -21,7 +21,7 @@
 #include <filesystem>
 
 BagToVideoWidget::BagToVideoWidget(Utils::UI::VideoInputParameters& parameters, QWidget *parent) :
-    BasicInputWidget("Encode Video from ROSBag", ":/icons/bag_to_video", parent),
+    BasicInputWidget("Encode Video from Bag", ":/icons/bag_to_video", parent),
     m_parameters(parameters), m_settings(parameters, "bag_to_video")
 {
     m_sourceLineEdit->setText(parameters.sourceDirectory);
@@ -68,7 +68,7 @@ BagToVideoWidget::BagToVideoWidget(Utils::UI::VideoInputParameters& parameters, 
 
     auto* const useHardwareAccCheckBox = Utils::UI::createCheckBox("Enable hardware acceleration for faster video encoding.",
                                                                    m_parameters.useHardwareAcceleration);
-    auto* const switchRedBlueCheckBox = Utils::UI::createCheckBox("Switch the video's red and blue values.", m_parameters.switchRedBlueValues);
+    auto* const switchRedBlueCheckBox = Utils::UI::createCheckBox("Switch the video's red and blue values.", m_parameters.exchangeRedBlueValues);
     auto* const useBWImagesCheckBox = Utils::UI::createCheckBox("Write a colorless video.", m_parameters.useBWImages);
 
     m_advancedOptionsFormLayout = new QFormLayout;
@@ -128,7 +128,7 @@ BagToVideoWidget::BagToVideoWidget(Utils::UI::VideoInputParameters& parameters, 
         writeParameterToSettings(m_parameters.useHardwareAcceleration, state == Qt::Checked, m_settings);
     });
     connect(switchRedBlueCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
-        writeParameterToSettings(m_parameters.switchRedBlueValues, state == Qt::Checked, m_settings);
+        writeParameterToSettings(m_parameters.exchangeRedBlueValues, state == Qt::Checked, m_settings);
     });
     connect(useBWImagesCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.useBWImages, state == Qt::Checked, m_settings);
@@ -178,7 +178,6 @@ BagToVideoWidget::videoLocationButtonPressed()
         return;
     }
 
-    m_fileDialogOpened = true;
     writeParameterToSettings(m_parameters.targetDirectory, fileName, m_settings);
     m_videoNameLineEdit->setText(fileName);
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() &&
@@ -233,15 +232,8 @@ BagToVideoWidget::okButtonPressed()
         Utils::UI::createCriticalMessageBox("Invalid bag file!", "The source bag file seems to be invalid or broken!");
         return;
     }
-
-    // Only ask if exists and the file dialog has not been called
-    if (std::filesystem::exists(m_parameters.targetDirectory.toStdString()) && !m_fileDialogOpened) {
-        auto *const msgBox = new QMessageBox(QMessageBox::Warning, "Video already exists!",
-                                             "A video already exists under the specified directory! Are you sure you want to continue? This will overwrite the existing file.",
-                                             QMessageBox::Yes | QMessageBox::No);
-        if (const auto ret = msgBox->exec(); ret == QMessageBox::No) {
-            return;
-        }
+    if (!Utils::UI::continueForExistingTarget(m_parameters.targetDirectory, "Video", "video")) {
+        return;
     }
 
     emit okPressed();
