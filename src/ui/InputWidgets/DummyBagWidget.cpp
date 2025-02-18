@@ -115,6 +115,7 @@ DummyBagWidget::removeDummyTopicWidget()
     m_dummyTopicWidgets.pop_back();
     m_parameters.topics.pop_back();
     m_settings.write();
+    m_numberOfTopics--;
 
     m_plusButton->setEnabled(m_numberOfTopics != MAXIMUM_NUMBER_OF_TOPICS);
     m_minusButton->setEnabled(m_parameters.topics.size() != 1);
