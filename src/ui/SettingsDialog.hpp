@@ -24,6 +24,7 @@ private:
     okClicked();
 
 private:
+    QPointer<QCheckBox> m_usePredefinedTopicNamesCheckBox;
     QPointer<QCheckBox> m_storeParametersCheckBox;
     QPointer<QCheckBox> m_checkROS2NamingConventionCheckBox;
 

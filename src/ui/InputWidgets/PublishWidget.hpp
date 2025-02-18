@@ -18,6 +18,7 @@ class PublishWidget : public BasicInputWidget
 
 public:
     PublishWidget(Utils::UI::PublishParameters& parameters,
+                  bool                          usePredefinedTopicName,
                   bool                          checkROS2NameConform,
                   bool                          publishVideo,
                   QWidget*                      parent = 0);

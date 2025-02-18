@@ -50,7 +50,8 @@ MainWindow::setInputWidget(int mode)
         basicInputWidget = new BagToVideoWidget(m_parametersBagToVideo);
         break;
     case Utils::UI::TOOL_VIDEO_TO_BAG:
-        basicInputWidget = new VideoToBagWidget(m_parametersVideoToBag, m_dialogParameters.checkROS2NameConform);
+        basicInputWidget = new VideoToBagWidget(m_parametersVideoToBag, m_dialogParameters.usePredefinedTopicNames,
+                                                m_dialogParameters.checkROS2NameConform);
         break;
     case Utils::UI::TOOL_BAG_TO_IMAGES:
         basicInputWidget = new BagToImagesWidget(m_parametersBagToImages);
@@ -68,10 +69,12 @@ MainWindow::setInputWidget(int mode)
         basicInputWidget = new BagInfoWidget;
         break;
     case Utils::UI::TOOL_PUBLISH_VIDEO:
-        basicInputWidget = new PublishWidget(m_publishParametersVideo, m_dialogParameters.checkROS2NameConform, true);
+        basicInputWidget = new PublishWidget(m_publishParametersVideo, m_dialogParameters.usePredefinedTopicNames,
+                                             m_dialogParameters.checkROS2NameConform, true);
         break;
     case Utils::UI::TOOL_PUBLISH_IMAGES:
-        basicInputWidget = new PublishWidget(m_publishParametersImages, m_dialogParameters.checkROS2NameConform, false);
+        basicInputWidget = new PublishWidget(m_publishParametersImages, m_dialogParameters.usePredefinedTopicNames,
+                                             m_dialogParameters.checkROS2NameConform, false);
         break;
     }
 

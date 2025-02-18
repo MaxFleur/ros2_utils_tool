@@ -18,6 +18,7 @@ class VideoToBagWidget : public BasicInputWidget
 
 public:
     VideoToBagWidget(Utils::UI::BagInputParameters& parameters,
+                     bool                           usePredefinedTopicName,
                      bool                           checkROS2NameConform,
                      QWidget*                       parent = 0);
 

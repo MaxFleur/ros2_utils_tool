@@ -340,6 +340,7 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.clear();
             qSettings.beginGroup("dialog");
             REQUIRE(!qSettings.value("save_parameters").isValid());
+            REQUIRE(!qSettings.value("predefined_topic_names").isValid());
             REQUIRE(!qSettings.value("check_ros2_naming_convention").isValid());
             qSettings.endGroup();
         }
@@ -347,6 +348,7 @@ TEST_CASE("Settings Testing", "[ui]") {
             Utils::UI::DialogParameters parameters;
             DialogSettings settings(parameters, "dialog");
 
+            parameters.usePredefinedTopicNames = false;
             parameters.saveParameters = true;
             parameters.checkROS2NameConform = true;
             settings.write();
@@ -354,6 +356,8 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.beginGroup("dialog");
             REQUIRE(qSettings.value("save_parameters").isValid());
             REQUIRE(qSettings.value("save_parameters").toBool() == true);
+            REQUIRE(qSettings.value("predefined_topic_names").isValid());
+            REQUIRE(qSettings.value("predefined_topic_names").toBool() == false);
             REQUIRE(qSettings.value("check_ros2_naming_convention").isValid());
             REQUIRE(qSettings.value("check_ros2_naming_convention").toBool() == true);
             qSettings.endGroup();
