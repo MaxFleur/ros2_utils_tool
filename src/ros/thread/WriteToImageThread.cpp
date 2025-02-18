@@ -109,7 +109,7 @@ WriteToImageThread::run()
             // Have to create this as extra string to keep it atomic inside the mutex
             std::stringstream formatedIterationCount;
             // Use leading zeroes
-            formatedIterationCount << std::setw(messageCountNumberOfDigits) << std::setfill('0') << iterationCount << "\n";
+            formatedIterationCount << std::setw(messageCountNumberOfDigits) << std::setfill('0') << iterationCount;
             const auto targetString = targetDirectoryStd + "/" + formatedIterationCount.str() + "." + m_parameters.format.toStdString();
 
             mutex.unlock();
