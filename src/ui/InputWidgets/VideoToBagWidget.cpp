@@ -21,7 +21,7 @@
 #include <filesystem>
 
 VideoToBagWidget::VideoToBagWidget(Utils::UI::BagInputParameters& parameters,
-                                   bool checkROS2NameConform, QWidget *parent) :
+                                   bool usePredefinedTopicName, bool checkROS2NameConform, QWidget *parent) :
     BasicInputWidget("Write Video to Bag", ":/icons/video_to_bag", parent),
     m_parameters(parameters), m_settings(parameters, "vid_to_bag"),
     m_checkROS2NameConform(checkROS2NameConform)
@@ -36,6 +36,10 @@ VideoToBagWidget::VideoToBagWidget(Utils::UI::BagInputParameters& parameters,
 
     auto* const topicNameLineEdit = new QLineEdit(m_parameters.topicName);
     topicNameLineEdit->setToolTip("The video's topic name inside the ROSBag.");
+    // Use a predefined name if set in the settings
+    if (usePredefinedTopicName && m_parameters.topicName.isEmpty()) {
+        topicNameLineEdit->setText("/topic_video");
+    }
 
     auto* const basicOptionsFormLayout = new QFormLayout;
     basicOptionsFormLayout->addRow("Video File:", m_findSourceLayout);
