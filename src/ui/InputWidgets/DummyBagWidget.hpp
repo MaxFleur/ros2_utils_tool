@@ -60,5 +60,5 @@ private:
 
     const bool m_checkROS2NameConform;
 
-    static constexpr int MAXIMUM_NUMBER_OF_TOPICS = 3;
+    static constexpr int MAXIMUM_NUMBER_OF_TOPICS = 4;
 };

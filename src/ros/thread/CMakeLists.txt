@@ -26,5 +26,5 @@ target_sources(rt_thread INTERFACE
 )
 
 target_link_libraries(rt_thread
-    INTERFACE ${OpenCV_LIBS} Qt::Widgets rt_utils
+    INTERFACE ${OpenCV_LIBS} ${PCL_LIBRARIES} Qt::Widgets rt_utils
 )

@@ -11,6 +11,7 @@ DummyTopicWidget::DummyTopicWidget(const QString& topicTypeText, const QString& 
     m_topicTypeComboBox->addItem("String", 0);
     m_topicTypeComboBox->addItem("Integer", 1);
     m_topicTypeComboBox->addItem("Image", 2);
+    m_topicTypeComboBox->addItem("Point Cloud", 3);
     if (!topicTypeText.isEmpty()) {
         m_topicTypeComboBox->setCurrentText(topicTypeText);
     }

@@ -15,9 +15,9 @@ void
 showHelp()
 {
     std::cout << "Usage: ros2 run mediassist4_ros_tools tool_dummy_bag path/to/ROSBag topic_name_1 topic_type_1 "
-        "(topic_name_2 topic_type_2 topic_name_3 topic_type_3) message_count\n" << std::endl;
-    std::cout << "Topic type is either 'String', 'Integer' or 'Image'." << std::endl;
-    std::cout << "You can write up to three topics." << std::endl;
+        "(...) message_count\n" << std::endl;
+    std::cout << "Topic type is either 'String', 'Integer', 'Image' or 'PointCloud'." << std::endl;
+    std::cout << "You can write up to four topics." << std::endl;
     std::cout << "The message count must be between 1 and 1000.\n" << std::endl;
     std::cout << "-h or --help: Show this help." << std::endl;
 }
@@ -31,7 +31,7 @@ main(int argc, char* argv[])
     // Create application
     QCoreApplication app(argc, argv);
     const auto arguments = app.arguments();
-    if (arguments.size() < 4 || arguments.size() > 9 || arguments.contains("--help") || arguments.contains("-h")) {
+    if (arguments.size() < 4 || arguments.size() > 11 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
     }
@@ -77,8 +77,8 @@ main(int argc, char* argv[])
             topicNames.push_back(argument);
             topicNameSet.insert(argument);
         } else {
-            if (argument != "String" && argument != "Integer" && argument != "Image") {
-                std::cerr << "The topic type must be either 'String', 'Integer' or 'Image'!" << std::endl;
+            if (argument != "String" && argument != "Integer" && argument != "Image" && argument != "PointCloud") {
+                std::cerr << "The topic type must be either 'String', 'Integer', 'Image' or 'PointCloud'!" << std::endl;
                 return 0;
             }
             topicTypes.push_back(argument);
