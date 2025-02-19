@@ -31,7 +31,7 @@ BagToImagesWidget::BagToImagesWidget(Utils::UI::ImageInputParameters& parameters
     m_topicNameComboBox->setToolTip("The ROSBag topic of the video file.\nIf the Bag contains multiple video topics, you can choose one of them.");
 
     if (!m_parameters.sourceDirectory.isEmpty()) {
-        Utils::UI::fillComboBoxWithTopics(m_topicNameComboBox, m_parameters.sourceDirectory);
+        Utils::UI::fillComboBoxWithTopics(m_topicNameComboBox, m_parameters.sourceDirectory, "sensor_msgs/msg/Image");
 
         if (!m_parameters.topicName.isEmpty()) {
             m_topicNameComboBox->setCurrentText(m_parameters.topicName);
@@ -132,7 +132,8 @@ BagToImagesWidget::searchButtonPressed()
         return;
     }
     // Automatically fill with available topic names
-    if (const auto containsVideoTopics = Utils::UI::fillComboBoxWithTopics(m_topicNameComboBox, bagDirectory); !containsVideoTopics) {
+    if (const auto containsVideoTopics = Utils::UI::fillComboBoxWithTopics(m_topicNameComboBox, bagDirectory, "sensor_msgs/msg/Image");
+        !containsVideoTopics) {
         Utils::UI::createCriticalMessageBox("Topic not found!", "The bag file does not contain any image/video topics!");
         return;
     }

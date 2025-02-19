@@ -7,6 +7,8 @@ target_include_directories (rt_input_widgets
 target_sources(rt_input_widgets INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/BagInfoWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BagInfoWidget.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/BagToPCDsWidget.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/BagToPCDsWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToImagesWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToImagesWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToVideoWidget.cpp

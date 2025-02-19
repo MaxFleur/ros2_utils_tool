@@ -113,7 +113,7 @@ getFirstTopicWithCertainType(const QString& bagDirectory, const QString& typeNam
 
 
 QVector<QString>
-getBagVideoTopics(const QString& bagDirectory)
+getBagTopics(const QString& bagDirectory, const QString& topicType)
 {
     QVector<QString> videoTopics;
     if (const auto doesDirContainBag = doesDirectoryContainBagFile(bagDirectory); !doesDirContainBag) {
@@ -124,7 +124,7 @@ getBagVideoTopics(const QString& bagDirectory)
     reader.open(bagDirectory.toStdString());
 
     for (const auto topicsAndTypes = reader.get_all_topics_and_types(); const auto& topicAndType : topicsAndTypes) {
-        if (topicAndType.type == "sensor_msgs/msg/Image") {
+        if (topicAndType.type == topicType.toStdString()) {
             videoTopics.push_back(QString::fromStdString(topicAndType.name));
         }
     }

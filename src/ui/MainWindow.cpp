@@ -1,6 +1,7 @@
 #include "MainWindow.hpp"
 
 #include "BagInfoWidget.hpp"
+#include "BagToPCDsWidget.hpp"
 #include "BagToImagesWidget.hpp"
 #include "BagToVideoWidget.hpp"
 #include "DummyBagWidget.hpp"
@@ -52,6 +53,9 @@ MainWindow::setInputWidget(int mode)
     case Utils::UI::TOOL_VIDEO_TO_BAG:
         basicInputWidget = new VideoToBagWidget(m_parametersVideoToBag, m_dialogParameters.usePredefinedTopicNames,
                                                 m_dialogParameters.checkROS2NameConform);
+        break;
+    case Utils::UI::TOOL_BAG_TO_PCDS:
+        basicInputWidget = new BagToPCDsWidget(m_parametersBagToPCDs);
         break;
     case Utils::UI::TOOL_BAG_TO_IMAGES:
         basicInputWidget = new BagToImagesWidget(m_parametersBagToImages);

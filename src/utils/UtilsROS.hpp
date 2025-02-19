@@ -67,7 +67,8 @@ getFirstTopicWithCertainType(const QString& bagDirectory,
 
 // Returns all video bag topics stored in a ROSBag
 [[nodiscard]] QVector<QString>
-getBagVideoTopics(const QString& bagDirectory);
+getBagTopics(const QString& bagDirectory,
+             const QString& topicType);
 
 // Returns if a topic name follows the ROS2 naming convention
 [[nodiscard]] bool

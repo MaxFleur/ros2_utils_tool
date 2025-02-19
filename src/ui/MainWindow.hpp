@@ -36,6 +36,7 @@ private:
     // The parameters are transferred to the progress widget and their thread.
     Utils::UI::VideoInputParameters m_parametersBagToVideo;
     Utils::UI::BagInputParameters m_parametersVideoToBag;
+    Utils::UI::AdvancedInputParameters m_parametersBagToPCDs;
     Utils::UI::ImageInputParameters m_parametersBagToImages;
     Utils::UI::EditBagInputParameters m_editBagParameters;
     Utils::UI::MergeBagsInputParameters m_mergeBagsParameters;

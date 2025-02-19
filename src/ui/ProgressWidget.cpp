@@ -9,6 +9,7 @@
 #include "PublishVideoThread.hpp"
 #include "WriteToBagThread.hpp"
 #include "WriteToImageThread.hpp"
+#include "WriteToPCDsThread.hpp"
 
 #include <QLabel>
 #include <QMessageBox>
@@ -29,6 +30,9 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
         break;
     case Utils::UI::TOOL_VIDEO_TO_BAG:
         m_thread = new WriteToBagThread(dynamic_cast<Utils::UI::BagInputParameters&>(parameters), this);
+        break;
+    case Utils::UI::TOOL_BAG_TO_PCDS:
+        m_thread = new WriteToPCDsThread(dynamic_cast<Utils::UI::AdvancedInputParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_BAG_TO_IMAGES:
         m_thread = new WriteToImageThread(dynamic_cast<Utils::UI::ImageInputParameters&>(parameters), this);
