@@ -23,6 +23,8 @@ target_sources(rt_thread INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/WriteToBagThread.hpp
     ${CMAKE_CURRENT_LIST_DIR}/WriteToImageThread.cpp
     ${CMAKE_CURRENT_LIST_DIR}/WriteToImageThread.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/WriteToPCDsThread.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/WriteToPCDsThread.hpp
 )
 
 target_link_libraries(rt_thread

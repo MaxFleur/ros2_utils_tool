@@ -92,7 +92,7 @@ TEST_CASE("Utils ROS Testing", "[utils]") {
         REQUIRE(topicName == std::nullopt);
     }
     SECTION("Video topics test") {
-        const auto videoTopics = Utils::ROS::getBagVideoTopics(qString);
+        const auto videoTopics = Utils::ROS::getBagTopics(qString, "sensor_msgs/msg/Image");
         REQUIRE(videoTopics.size() == 1);
         REQUIRE(videoTopics.at(0) == "/topic_image");
     }

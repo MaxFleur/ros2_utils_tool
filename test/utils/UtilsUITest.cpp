@@ -42,7 +42,7 @@ TEST_CASE("Utils UI Testing", "[utils]") {
         writer.close();
 
         auto* const comboBox = new QComboBox;
-        Utils::UI::fillComboBoxWithTopics(comboBox, QString::fromStdString(bagDirectory));
+        Utils::UI::fillComboBoxWithTopics(comboBox, QString::fromStdString(bagDirectory), "sensor_msgs/msg/Image");
 
         REQUIRE(comboBox->count() == 2);
         std::filesystem::remove_all(bagDirectory);
