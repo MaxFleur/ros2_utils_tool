@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
-project(ros2_utils_tool LANGUAGES CXX)
+project(ros2_utils_tool LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -11,6 +11,7 @@ set(CMAKE_AUTORCC ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(cv_bridge REQUIRED)
+find_package(pcl_conversions REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rosbag2_cpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
@@ -28,6 +29,8 @@ else()
     find_package(QT NAMES Qt5 COMPONENTS Widgets REQUIRED)
     find_package(Qt5 COMPONENTS Widgets REQUIRED)
 endif()
+
+find_package(PCL REQUIRED)
 
 add_subdirectory(src)
 add_subdirectory(test)
@@ -57,14 +60,14 @@ add_executable(tool_video_to_bag
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/VideoToBag.cpp
 )
 
-ament_target_dependencies(tool_ui cv_bridge rclcpp rosbag2_cpp sensor_msgs)
-ament_target_dependencies(tool_bag_to_images cv_bridge rclcpp rosbag2_cpp sensor_msgs)
-ament_target_dependencies(tool_bag_to_video cv_bridge rclcpp rosbag2_cpp sensor_msgs)
-ament_target_dependencies(tool_dummy_bag cv_bridge rclcpp rosbag2_cpp sensor_msgs)
-ament_target_dependencies(tool_merge_bags cv_bridge rclcpp rosbag2_cpp sensor_msgs)
-ament_target_dependencies(tool_publish_images cv_bridge rclcpp rosbag2_cpp sensor_msgs)
-ament_target_dependencies(tool_publish_video cv_bridge rclcpp rosbag2_cpp sensor_msgs)
-ament_target_dependencies(tool_video_to_bag cv_bridge rclcpp rosbag2_cpp sensor_msgs)
+ament_target_dependencies(tool_ui cv_bridge pcl_conversions rclcpp rosbag2_cpp sensor_msgs)
+ament_target_dependencies(tool_bag_to_images cv_bridge pcl_conversions rclcpp rosbag2_cpp sensor_msgs)
+ament_target_dependencies(tool_bag_to_video cv_bridge pcl_conversions rclcpp rosbag2_cpp sensor_msgs)
+ament_target_dependencies(tool_dummy_bag cv_bridge pcl_conversions rclcpp rosbag2_cpp sensor_msgs)
+ament_target_dependencies(tool_merge_bags cv_bridge pcl_conversions rclcpp rosbag2_cpp sensor_msgs)
+ament_target_dependencies(tool_publish_images cv_bridge pcl_conversions rclcpp rosbag2_cpp sensor_msgs)
+ament_target_dependencies(tool_publish_video cv_bridge pcl_conversions rclcpp rosbag2_cpp sensor_msgs)
+ament_target_dependencies(tool_video_to_bag cv_bridge pcl_conversions rclcpp rosbag2_cpp sensor_msgs)
 
 target_link_libraries(tool_ui
     Qt::Widgets rt_ui

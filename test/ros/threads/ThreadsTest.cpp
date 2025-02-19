@@ -17,6 +17,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rosbag2_cpp/reader.hpp"
 #include "sensor_msgs/msg/image.hpp"
+#include "sensor_msgs/msg/point_cloud2.hpp"
 
 #include <filesystem>
 
@@ -50,6 +51,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.topics.push_back({ "Image", "/dummy_image" });
         parameters.topics.push_back({ "Integer", "/dummy_integer" });
         parameters.topics.push_back({ "String", "/dummy_string" });
+        parameters.topics.push_back({ "Point Cloud", "/dummy_point_cloud" });
 
         auto* const thread = new DummyBagThread(parameters);
         QObject::connect(thread, &DummyBagThread::finished, thread, &QObject::deleteLater);
@@ -59,22 +61,26 @@ TEST_CASE("Threads Testing", "[threads]") {
         }
 
         const auto& metaData = Utils::ROS::getBagMetadata("./dummy_bag");
-        REQUIRE(metaData.message_count == 600);
+        REQUIRE(metaData.message_count == 800);
         const auto& topics = metaData.topics_with_message_count;
-        REQUIRE(topics.size() == 3);
+        REQUIRE(topics.size() == 4);
         REQUIRE(topics.at(0).message_count == 200);
         REQUIRE(topics.at(1).message_count == 200);
         REQUIRE(topics.at(2).message_count == 200);
+        REQUIRE(topics.at(3).message_count == 200);
 
         auto topicIndex = getTopicIndex(topics, "/dummy_image");
-        REQUIRE(topicIndex < 3);
+        REQUIRE(topicIndex < 4);
         REQUIRE(topics.at(topicIndex).topic_metadata.type == "sensor_msgs/msg/Image");
         topicIndex = getTopicIndex(topics, "/dummy_string");
-        REQUIRE(topicIndex < 3);
+        REQUIRE(topicIndex < 4);
         REQUIRE(topics.at(topicIndex).topic_metadata.type == "std_msgs/msg/String");
         topicIndex = getTopicIndex(topics, "/dummy_integer");
-        REQUIRE(topicIndex < 3);
+        REQUIRE(topicIndex < 4);
         REQUIRE(topics.at(topicIndex).topic_metadata.type == "std_msgs/msg/Int32");
+        topicIndex = getTopicIndex(topics, "/dummy_point_cloud");
+        REQUIRE(topicIndex < 4);
+        REQUIRE(topics.at(topicIndex).topic_metadata.type == "sensor_msgs/msg/PointCloud2");
     }
     // Create edited bag out of dummy bag
     SECTION("Edit Bag Thread Test") {

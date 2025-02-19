@@ -35,7 +35,7 @@ DummyBagWidget::DummyBagWidget(Utils::UI::DummyBagInputParameters& parameters,
     m_minusButton = new QToolButton;
     m_minusButton->setToolTip("Remove the topic above.");
     m_plusButton = new QToolButton;
-    m_plusButton->setToolTip("Add another topic. Currently, a maximum of 3 topics can be added.");
+    m_plusButton->setToolTip("Add another topic. Currently, a maximum of four topics can be added.");
 
     auto* const plusMinusButtonLayout = new QHBoxLayout;
     plusMinusButtonLayout->addStretch();

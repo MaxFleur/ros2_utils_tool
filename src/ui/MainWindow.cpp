@@ -94,35 +94,39 @@ MainWindow::setProgressWidget(int mode)
 {
     QPointer<ProgressWidget> progressWidget;
     switch (mode) {
-    case 0:
+    case Utils::UI::TOOL_BAG_TO_VIDEO:
         progressWidget = new ProgressWidget(":/icons/bag_to_video_black.svg", ":/icons/bag_to_video_white.svg",
                                             "Encoding Video...", m_parametersBagToVideo, mode);
         break;
-    case 1:
+    case Utils::UI::TOOL_VIDEO_TO_BAG:
         progressWidget = new ProgressWidget(":/icons/video_to_bag_black.svg", ":/icons/video_to_bag_white.svg",
                                             "Writing to Bag...", m_parametersVideoToBag, mode);
         break;
-    case 2:
+    case Utils::UI::TOOL_BAG_TO_PCDS:
+        progressWidget = new ProgressWidget(":/icons/bag_to_pcd_black.svg", ":/icons/bag_to_pcd_white.svg",
+                                            "Writing PCD files...", m_parametersBagToPCDs, mode);
+        break;
+    case Utils::UI::TOOL_BAG_TO_IMAGES:
         progressWidget = new ProgressWidget(":/icons/bag_to_images_black.svg", ":/icons/bag_to_images_white.svg",
                                             "Writing Images...", m_parametersBagToImages, mode);
         break;
-    case 3:
+    case Utils::UI::TOOL_EDIT_BAG:
         progressWidget = new ProgressWidget(":/icons/edit_bag_black.svg", ":/icons/edit_bag_white.svg",
                                             "Writing to edited ROSBag...", m_editBagParameters, mode);
         break;
-    case 4:
+    case Utils::UI::TOOL_MERGE_BAGS:
         progressWidget = new ProgressWidget(":/icons/merge_bags_black.svg", ":/icons/merge_bags_white.svg",
                                             "Writing merged ROSBag...", m_mergeBagsParameters, mode);
         break;
-    case 5:
+    case Utils::UI::TOOL_DUMMY_BAG:
         progressWidget = new ProgressWidget(":/icons/dummy_bag_black.svg", ":/icons/dummy_bag_white.svg",
                                             "Creating Bag...", m_dummyBagParameters, mode);
         break;
-    case 7:
+    case Utils::UI::TOOL_PUBLISH_VIDEO:
         progressWidget = new ProgressWidget(":/icons/publish_video_black.svg", ":/icons/publish_video_white.svg",
                                             "Publishing Video...", m_publishParametersVideo, mode);
         break;
-    case 8:
+    case Utils::UI::TOOL_PUBLISH_IMAGES:
         progressWidget = new ProgressWidget(":/icons/publish_images_black.svg", ":/icons/publish_images_white.svg",
                                             "Publishing Images...", m_publishParametersImages, mode);
         break;
