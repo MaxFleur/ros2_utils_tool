@@ -38,9 +38,21 @@ checkArgumentValidity(const QStringList& argumentsList,
 bool
 shouldContinue(const std::string& message);
 
+// Checks if the topic name is at a valid position in the args list
+bool
+isTopicParameterAtValidPosition(const QStringList& argumentsList);
+
+// If a topic name is existent and the corresponding topic in the according format
 bool
 isTopicNameValid(const QStringList& argumentsList,
-                 QString&           parameterTopicName);
+                 const QString&     bagDirectory,
+                 const QString&     topicType,
+                 QString&           topicNameToSet);
+
+// If we should continue with an invalid ROS2 name
+bool
+continueWithInvalidROS2Name(const QStringList& argumentsList,
+                            QString&           parameterTopicName);
 
 // Draws a small progress string in the following format:
 // ############################--------------------

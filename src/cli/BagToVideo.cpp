@@ -69,25 +69,9 @@ main(int argc, char* argv[])
     // Check for optional arguments
     if (arguments.size() > 3) {
         // Topic name
-        if (Utils::CLI::containsArguments(arguments, "-t", "--topic_name")) {
-            const auto topicNameIndex = Utils::CLI::getArgumentsIndex(arguments, "-t", "--topic_name");
-            if (arguments.at(topicNameIndex) == arguments.last()) {
-                std::cerr << "Please enter the bag topic name!" << std::endl;
-                return 0;
-            }
-
-            const auto& topicName = arguments.at(topicNameIndex + 1);
-            if (!Utils::ROS::doesBagContainTopicName(inputParameters.sourceDirectory, topicName)) {
-                std::cerr << "Topic has not been found in the bag file!" << std::endl;
-                return 0;
-            }
-            if (Utils::ROS::getTopicType(inputParameters.sourceDirectory, topicName) != "sensor_msgs/msg/Image") {
-                std::cerr << "The entered topic is not in sensor message format!" << std::endl;
-                return 0;
-            }
-            inputParameters.topicName = topicName;
+        if (!Utils::CLI::isTopicNameValid(arguments, inputParameters.sourceDirectory, "sensor_msgs/msg/Image", inputParameters.topicName)) {
+            return 0;
         }
-
         // Framerate
         if (!Utils::CLI::checkArgumentValidity(arguments, "-r", "--rate", inputParameters.fps, 10, 60)) {
             std::cerr << "Please enter a framerate in the range of 10 to 60!" << std::endl;

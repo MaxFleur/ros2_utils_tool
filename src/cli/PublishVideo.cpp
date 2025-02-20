@@ -59,7 +59,7 @@ main(int argc, char* argv[])
     // Check for optional arguments
     if (arguments.size() > 2) {
         // Topic name
-        if (!Utils::CLI::isTopicNameValid(arguments, publishParameters.topicName)) {
+        if (!Utils::CLI::continueWithInvalidROS2Name(arguments, publishParameters.topicName)) {
             return 0;
         }
         // Scale

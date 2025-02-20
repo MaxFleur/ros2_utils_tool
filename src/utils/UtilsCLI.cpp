@@ -60,16 +60,49 @@ shouldContinue(const std::string& message)
 
 
 bool
-isTopicNameValid(const QStringList& argumentsList, QString& parameterTopicName)
+isTopicParameterAtValidPosition(const QStringList& argumentsList)
 {
-    if (containsArguments(argumentsList, "-t", "--topic_name")) {
-        const auto topicNameIndex = Utils::CLI::getArgumentsIndex(argumentsList, "-t", "--topic_name");
-        if (argumentsList.at(topicNameIndex) == argumentsList.last()) {
-            std::cerr << "Please enter a valid topic name!" << std::endl;
+    const auto topicNameIndex = Utils::CLI::getArgumentsIndex(argumentsList, "-t", "--topic_name");
+    if (argumentsList.at(topicNameIndex) == argumentsList.last()) {
+        std::cerr << "Please enter a valid topic name!" << std::endl;
+        return false;
+    }
+    return true;
+}
+
+
+bool
+isTopicNameValid(const QStringList& argumentsList, const QString& bagDirectory, const QString& topicType, QString& topicNameToSet)
+{
+    if (Utils::CLI::containsArguments(argumentsList, "-t", "--topic_name")) {
+        if (!isTopicParameterAtValidPosition(argumentsList)) {
             return false;
         }
 
-        const auto& topicName = argumentsList.at(topicNameIndex + 1);
+        const auto& topicName = argumentsList.at(Utils::CLI::getArgumentsIndex(argumentsList, "-t", "--topic_name") + 1);
+        if (!Utils::ROS::doesBagContainTopicName(bagDirectory, topicName)) {
+            std::cerr << "Topic '" + topicName.toStdString() + "' has not been found in the bag file!" << std::endl;
+            return false;
+        }
+        if (Utils::ROS::getTopicType(bagDirectory, topicName) != topicType) {
+            std::cerr << "Topic '" + topicName.toStdString() + "' doesn't have the correct type!" << std::endl;
+            return false;
+        }
+        topicNameToSet = topicName;
+    }
+    return true;
+}
+
+
+bool
+continueWithInvalidROS2Name(const QStringList& argumentsList, QString& parameterTopicName)
+{
+    if (Utils::CLI::containsArguments(argumentsList, "-t", "--topic_name")) {
+        if (!isTopicParameterAtValidPosition(argumentsList)) {
+            return false;
+        }
+
+        const auto& topicName = argumentsList.at(Utils::CLI::getArgumentsIndex(argumentsList, "-t", "--topic_name") + 1);
         if (!Utils::ROS::isNameROS2Conform(topicName)) {
             const auto errorString = "The topic name does not follow the ROS2 naming convention! More information on ROS2 naming convention is found here:\n"
                                      "https://design.ros2.org/articles/topic_and_service_names.html\n"
@@ -80,7 +113,6 @@ isTopicNameValid(const QStringList& argumentsList, QString& parameterTopicName)
         }
         parameterTopicName = topicName;
     }
-
     return true;
 }
 
