@@ -47,6 +47,22 @@ getTopicIndex(const std::vector<rosbag2_storage::TopicInformation>& topics,
 }
 
 
+std::array<int, 2>
+getDirFileCountWithExtensions(const std::string& dir, const std::string& extension)
+{
+    auto numberOfFiles = 0;
+    auto numberOfExtension = 0;
+    for (const auto& entry : std::filesystem::directory_iterator(dir)) {
+        numberOfFiles++;
+        if (entry.path().extension() == extension) {
+            numberOfExtension++;
+        }
+    }
+
+    return { numberOfFiles, numberOfExtension };
+}
+
+
 TEST_CASE("Threads Testing", "[threads]") {
     auto shouldDelete = false;
 
@@ -186,28 +202,32 @@ TEST_CASE("Threads Testing", "[threads]") {
         auto* const thread = new EncodingThread(parameters);
         QObject::connect(thread, &EncodingThread::finished, thread, &QObject::deleteLater);
 
-        SECTION("Default Parameter Values") {
-            thread->start();
-            while (!thread->isFinished()) {
-            }
-
-            auto videoCapture = cv::VideoCapture("./video.mp4");
+        const auto performVideoCheck = [] (const std::string& fileExtension, int codec, int fps, int blueValue, int greenValue, int redValue) {
+            auto videoCapture = cv::VideoCapture("./video" + fileExtension);
             REQUIRE(videoCapture.get(cv::CAP_PROP_FRAME_COUNT) == 200);
             REQUIRE(videoCapture.get(cv::CAP_PROP_FRAME_WIDTH) == 1280);
             REQUIRE(videoCapture.get(cv::CAP_PROP_FRAME_HEIGHT) == 720);
-            REQUIRE(videoCapture.get(cv::CAP_PROP_FOURCC) == 1983148141.0);
-            REQUIRE(videoCapture.get(cv::CAP_PROP_FPS) == 30);
+            REQUIRE(videoCapture.get(cv::CAP_PROP_FOURCC) == codec);
+            REQUIRE(videoCapture.get(cv::CAP_PROP_FPS) == fps);
             // Read the first frame and check its color values
             cv::Mat frame;
             videoCapture >> frame;
             const auto& color = frame.at<cv::Vec3b>(cv::Point(0, 0));
-            // Should be mostly blue
             // For whatever reasons, OpenCV does not generate the expected blue and red values
             // which were initalliy passed into the dummy bag file. Thus, I had to figure them out
-            // manually. These values might changer for newer OpenCV versions...
-            REQUIRE(static_cast<int>(color[0]) == 252);
-            REQUIRE(static_cast<int>(color[1]) == 0);
-            REQUIRE(static_cast<int>(color[2]) == 0);
+            // manually. These values might change for newer OpenCV versions...
+            REQUIRE(static_cast<int>(color[0]) == blueValue);
+            REQUIRE(static_cast<int>(color[1]) == greenValue);
+            REQUIRE(static_cast<int>(color[2]) == redValue);
+        };
+
+        SECTION("Default Parameter Values") {
+            thread->start();
+            while (!thread->isFinished()) {
+            }
+            // Codecs are generated out of char sequences, that's why we have these weird numbers
+            // Codec number represents mp4v
+            performVideoCheck(".mp4", 1983148141, 30, 252, 0, 0);
         }
         SECTION("Modified Parameter Values") {
             parameters.fps = 60;
@@ -217,16 +237,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             while (!thread->isFinished()) {
             }
 
-            auto videoCapture = cv::VideoCapture("./video.mp4");
-            REQUIRE(videoCapture.get(cv::CAP_PROP_FPS) == 60);
-            // Read the first frame and check its color values
-            cv::Mat frame;
-            videoCapture >> frame;
-            const auto& color = frame.at<cv::Vec3b>(cv::Point(0, 0));
-            // Should be mostly blue
-            REQUIRE(static_cast<int>(color[0]) == 0);
-            REQUIRE(static_cast<int>(color[1]) == 0);
-            REQUIRE(static_cast<int>(color[2]) == 252);
+            performVideoCheck(".mp4", 1983148141, 60, 0, 0, 252);
         }
         SECTION("MKV BW Values") {
             parameters.targetDirectory = "./video.mkv";
@@ -235,17 +246,8 @@ TEST_CASE("Threads Testing", "[threads]") {
             thread->start();
             while (!thread->isFinished()) {
             }
-
-            auto videoCapture = cv::VideoCapture("./video.mkv");
-            REQUIRE(videoCapture.get(cv::CAP_PROP_FOURCC) == 1734701165.0);
-            // Read the first frame and check its color values
-            cv::Mat frame;
-            videoCapture >> frame;
-            const auto& color = frame.at<cv::Vec3b>(cv::Point(0, 0));
-            // Should be mostly blue
-            REQUIRE(static_cast<int>(color[0]) == 29);
-            REQUIRE(static_cast<int>(color[1]) == 29);
-            REQUIRE(static_cast<int>(color[2]) == 29);
+            // Codec number represents x264
+            performVideoCheck(".mkv", 1734701165, 30, 29, 29, 29);
         }
     }
     SECTION("Video to Bag Thread Test") {
@@ -260,6 +262,26 @@ TEST_CASE("Threads Testing", "[threads]") {
         auto* const thread = new WriteToBagThread(parameters);
         QObject::connect(thread, &WriteToBagThread::finished, thread, &QObject::deleteLater);
 
+        const auto performBagCheck = [&reader, &serialization] (unsigned int width, unsigned int height,
+                                                                int redValue, int greenValue, int blueValue) {
+            reader.open("./video_bag");
+            // Check first message values
+            auto msg = reader.read_next();
+            rclcpp::SerializedMessage serializedMessage(*msg->serialized_data);
+            auto rosMsg = std::make_shared<sensor_msgs::msg::Image>();
+            serialization.deserialize_message(&serializedMessage, rosMsg.get());
+            REQUIRE(rosMsg->width == width);
+            REQUIRE(rosMsg->height == height);
+
+            auto cvPointer = cv_bridge::toCvCopy(*rosMsg, rosMsg->encoding);
+            const auto& color = cvPointer->image.at<cv::Vec3b>(cv::Point(0, 0));
+            REQUIRE(static_cast<int>(color[0]) == redValue);
+            REQUIRE(static_cast<int>(color[1]) == greenValue);
+            REQUIRE(static_cast<int>(color[2]) == blueValue);
+
+            reader.close();
+        };
+
         SECTION("Default Parameter Values") {
             thread->start();
             while (!thread->isFinished()) {
@@ -273,22 +295,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             REQUIRE(topics.at(0).topic_metadata.type == "sensor_msgs/msg/Image");
             REQUIRE(topics.at(0).message_count == 200);
 
-            reader.open("./video_bag");
-            // Check first message values
-            auto msg = reader.read_next();
-            rclcpp::SerializedMessage serializedMessage(*msg->serialized_data);
-            auto rosMsg = std::make_shared<sensor_msgs::msg::Image>();
-            serialization.deserialize_message(&serializedMessage, rosMsg.get());
-            REQUIRE(rosMsg->width == 1280);
-            REQUIRE(rosMsg->height == 720);
-
-            auto cvPointer = cv_bridge::toCvCopy(*rosMsg, rosMsg->encoding);
-            const auto& color = cvPointer->image.at<cv::Vec3b>(cv::Point(0, 0));
-            REQUIRE(static_cast<int>(color[0]) == 0);
-            REQUIRE(static_cast<int>(color[1]) == 0);
-            REQUIRE(static_cast<int>(color[2]) == 252);
-
-            reader.close();
+            performBagCheck(1280, 720, 0, 0, 252);
         }
         SECTION("Changed Parameter Values") {
             parameters.exchangeRedBlueValues = true;
@@ -297,20 +304,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             while (!thread->isFinished()) {
             }
 
-            reader.open("./video_bag");
-            // Check first message values
-            auto msg = reader.read_next();
-            rclcpp::SerializedMessage serializedMessage(*msg->serialized_data);
-            auto rosMsg = std::make_shared<sensor_msgs::msg::Image>();
-            serialization.deserialize_message(&serializedMessage, rosMsg.get());
-
-            auto cvPointer = cv_bridge::toCvCopy(*rosMsg, rosMsg->encoding);
-            const auto& color = cvPointer->image.at<cv::Vec3b>(cv::Point(0, 0));
-            REQUIRE(static_cast<int>(color[0]) == 252);
-            REQUIRE(static_cast<int>(color[1]) == 0);
-            REQUIRE(static_cast<int>(color[2]) == 0);
-
-            reader.close();
+            performBagCheck(1280, 720, 252, 0, 0);
         }
         SECTION("MKV Values") {
             parameters.sourceDirectory = "./video.mkv";
@@ -327,21 +321,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             while (!thread->isFinished()) {
             }
 
-            reader.open("./video_bag");
-            // Check first message values
-            auto msg = reader.read_next();
-            rclcpp::SerializedMessage serializedMessage(*msg->serialized_data);
-            auto rosMsg = std::make_shared<sensor_msgs::msg::Image>();
-            serialization.deserialize_message(&serializedMessage, rosMsg.get());
-
-            auto cvPointer = cv_bridge::toCvCopy(*rosMsg, rosMsg->encoding);
-            const auto& color = cvPointer->image.at<cv::Vec3b>(cv::Point(0, 0));
-            REQUIRE(static_cast<int>(color[0]) == 29);
-            REQUIRE(static_cast<int>(color[1]) == 29);
-            REQUIRE(static_cast<int>(color[2]) == 29);
-
-            reader.close();
-
+            performBagCheck(1280, 720, 29, 29, 29);
             std::filesystem::remove("./video.mkv");
             std::filesystem::remove_all("./video_bag");
         }
@@ -352,6 +332,20 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.targetDirectory = "./images";
         parameters.topicName = "/dummy_image";
 
+        const auto performImageCheck = [] (const std::string& fileExtension, int valueBlue, int valueGreen, int valueRed) {
+            const auto extensionCheckValues = getDirFileCountWithExtensions("./images", fileExtension);
+            REQUIRE(extensionCheckValues[0] == 200);
+            REQUIRE(extensionCheckValues[1] == 200);
+
+            const auto mat = cv::imread("./images/001" + fileExtension);
+            REQUIRE(mat.rows == 720);
+            REQUIRE(mat.cols == 1280);
+            const auto& color = mat.at<cv::Vec3b>(cv::Point(0, 0));
+            REQUIRE(static_cast<int>(color[0]) == valueBlue);
+            REQUIRE(static_cast<int>(color[1]) == valueGreen);
+            REQUIRE(static_cast<int>(color[2]) == valueRed);
+        };
+
         auto* const thread = new WriteToImageThread(parameters);
         QObject::connect(thread, &WriteToImageThread::finished, thread, &QObject::deleteLater);
 
@@ -360,26 +354,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             while (!thread->isFinished()) {
             }
 
-            auto numberOfFiles = 0;
-            auto numberOfJPGExtension = 0;
-            for (const auto& entry : std::filesystem::directory_iterator("./images")) {
-                numberOfFiles++;
-                if (entry.path().extension() == ".jpg") {
-                    numberOfJPGExtension++;
-                }
-            }
-            REQUIRE(numberOfFiles == 200);
-            REQUIRE(numberOfJPGExtension == 200);
-
-            const auto mat = cv::imread("./images/001.jpg");
-            REQUIRE(mat.rows == 720);
-            REQUIRE(mat.cols == 1280);
-            // Same thing as described above: No idea why OpenCV generates these values,
-            // I had to figure them out manually
-            const auto& color = mat.at<cv::Vec3b>(cv::Point(0, 0));
-            REQUIRE(static_cast<int>(color[0]) == 254);
-            REQUIRE(static_cast<int>(color[1]) == 0);
-            REQUIRE(static_cast<int>(color[2]) == 1);
+            performImageCheck(".jpg", 254, 0, 1);
         }
         SECTION("PNG with RB exchanged Values") {
             parameters.format = "png";
@@ -389,24 +364,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             while (!thread->isFinished()) {
             }
 
-            auto numberOfFiles = 0;
-            auto numberOfPNGExtension = 0;
-            for (const auto& entry : std::filesystem::directory_iterator("./images")) {
-                numberOfFiles++;
-                if (entry.path().extension() == ".png") {
-                    numberOfPNGExtension++;
-                }
-            }
-            REQUIRE(numberOfFiles == 200);
-            REQUIRE(numberOfPNGExtension == 200);
-
-            const auto mat = cv::imread("./images/001.png");
-            REQUIRE(mat.rows == 720);
-            REQUIRE(mat.cols == 1280);
-            const auto& color = mat.at<cv::Vec3b>(cv::Point(0, 0));
-            REQUIRE(static_cast<int>(color[0]) == 1);
-            REQUIRE(static_cast<int>(color[1]) == 0);
-            REQUIRE(static_cast<int>(color[2]) == 255);
+            performImageCheck(".png", 1, 0, 255);
         }
         SECTION("BMP with gray exchanged Values") {
             parameters.format = "bmp";
@@ -416,24 +374,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             while (!thread->isFinished()) {
             }
 
-            auto numberOfFiles = 0;
-            auto numberOfBMPExtension = 0;
-            for (const auto& entry : std::filesystem::directory_iterator("./images")) {
-                numberOfFiles++;
-                if (entry.path().extension() == ".bmp") {
-                    numberOfBMPExtension++;
-                }
-            }
-            REQUIRE(numberOfFiles == 200);
-            REQUIRE(numberOfBMPExtension == 200);
-
-            const auto mat = cv::imread("./images/001.bmp");
-            REQUIRE(mat.rows == 720);
-            REQUIRE(mat.cols == 1280);
-            const auto& color = mat.at<cv::Vec3b>(cv::Point(0, 0));
-            REQUIRE(static_cast<int>(color[0]) == 29);
-            REQUIRE(static_cast<int>(color[1]) == 29);
-            REQUIRE(static_cast<int>(color[2]) == 29);
+            performImageCheck(".bmp", 29, 29, 29);
         }
     }
     SECTION("Bag to PCDs Thread Test") {
@@ -449,16 +390,9 @@ TEST_CASE("Threads Testing", "[threads]") {
         while (!thread->isFinished()) {
         }
 
-        auto numberOfFiles = 0;
-        auto numberOfPCDExtension = 0;
-        for (const auto& entry : std::filesystem::directory_iterator("./pcds")) {
-            numberOfFiles++;
-            if (entry.path().extension() == ".pcd") {
-                numberOfPCDExtension++;
-            }
-        }
-        REQUIRE(numberOfFiles == 200);
-        REQUIRE(numberOfPCDExtension == 200);
+        const auto extensionCheckValues = getDirFileCountWithExtensions("./pcds", ".pcd");
+        REQUIRE(extensionCheckValues[0] == 200);
+        REQUIRE(extensionCheckValues[1] == 200);
 
         pcl::PointCloud<pcl::PointXYZRGB>::Ptr fileCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
         // Read the value of a point cloud in between
