@@ -65,7 +65,7 @@ main(int argc, char* argv[])
     // Check for optional arguments
     if (arguments.size() > 3) {
         // Topic name
-        if (!Utils::CLI::isTopicNameValid(arguments, inputParameters.topicName)) {
+        if (!Utils::CLI::continueWithInvalidROS2Name(arguments, inputParameters.topicName)) {
             return 0;
         }
         // Framerate
