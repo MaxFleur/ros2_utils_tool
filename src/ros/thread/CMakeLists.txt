@@ -15,6 +15,8 @@ target_sources(rt_thread INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/DummyBagThread.hpp
     ${CMAKE_CURRENT_LIST_DIR}/MergeBagsThread.cpp
     ${CMAKE_CURRENT_LIST_DIR}/MergeBagsThread.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/PCDsToBagThread.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/PCDsToBagThread.hpp
     ${CMAKE_CURRENT_LIST_DIR}/PublishImagesThread.cpp
     ${CMAKE_CURRENT_LIST_DIR}/PublishImagesThread.hpp
     ${CMAKE_CURRENT_LIST_DIR}/PublishVideoThread.cpp

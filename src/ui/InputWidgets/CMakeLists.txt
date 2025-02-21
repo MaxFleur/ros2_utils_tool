@@ -23,6 +23,8 @@ target_sources(rt_input_widgets INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/EditBagWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/MergeBagsWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/MergeBagsWidget.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/PCDsToBagWidget.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/PCDsToBagWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/PublishWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/PublishWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/VideoToBagWidget.cpp

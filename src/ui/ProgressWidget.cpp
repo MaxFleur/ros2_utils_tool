@@ -1,5 +1,6 @@
 #include "ProgressWidget.hpp"
 
+#include "PCDsToBagThread.hpp"
 #include "BasicThread.hpp"
 #include "DummyBagThread.hpp"
 #include "EditBagThread.hpp"
@@ -33,6 +34,9 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
         break;
     case Utils::UI::TOOL_BAG_TO_PCDS:
         m_thread = new WriteToPCDsThread(dynamic_cast<Utils::UI::AdvancedInputParameters&>(parameters), this);
+        break;
+    case Utils::UI::TOOL_PCDS_TO_BAG:
+        m_thread = new PCDsToBagThread(dynamic_cast<Utils::UI::AdvancedInputParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_BAG_TO_IMAGES:
         m_thread = new WriteToImageThread(dynamic_cast<Utils::UI::ImageInputParameters&>(parameters), this);

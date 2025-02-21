@@ -98,10 +98,17 @@ void
 AdvancedInputWidget::targetLocationButtonPressed()
 {
     QString fileName;
-    if (m_outputFormat == OUTPUT_VIDEO) {
+    switch (m_outputFormat) {
+    case OUTPUT_VIDEO:
         fileName = QFileDialog::getSaveFileName(this, "Save Video", "", m_videoFormat + " files (*." + m_videoFormat + ")");
-    } else {
+        break;
+    case OUTPUT_IMAGES:
+    case OUTPUT_PCDS:
         fileName = QFileDialog::getExistingDirectory(this, "Save Files", "", QFileDialog::ShowDirsOnly);
+        break;
+    case OUTPUT_BAG:
+        fileName = QFileDialog::getSaveFileName(this, "Save Bag");
+        break;
     }
     if (fileName.isEmpty()) {
         return;

@@ -53,6 +53,9 @@ add_executable(tool_dummy_bag
 add_executable(tool_merge_bags
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/MergeBags.cpp
 )
+add_executable(tool_pcds_to_bag
+    ${CMAKE_CURRENT_LIST_DIR}/src/cli/PCDsToBag.cpp
+)
 add_executable(tool_publish_images
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/PublishImages.cpp
 )
@@ -69,6 +72,7 @@ ament_target_dependencies(tool_bag_to_pcds cv_bridge pcl_conversions rclcpp rosb
 ament_target_dependencies(tool_bag_to_video cv_bridge pcl_conversions rclcpp rosbag2_cpp sensor_msgs)
 ament_target_dependencies(tool_dummy_bag cv_bridge pcl_conversions rclcpp rosbag2_cpp sensor_msgs)
 ament_target_dependencies(tool_merge_bags cv_bridge pcl_conversions rclcpp rosbag2_cpp sensor_msgs)
+ament_target_dependencies(tool_pcds_to_bag cv_bridge pcl_conversions rclcpp rosbag2_cpp sensor_msgs)
 ament_target_dependencies(tool_publish_images cv_bridge pcl_conversions rclcpp rosbag2_cpp sensor_msgs)
 ament_target_dependencies(tool_publish_video cv_bridge pcl_conversions rclcpp rosbag2_cpp sensor_msgs)
 ament_target_dependencies(tool_video_to_bag cv_bridge pcl_conversions rclcpp rosbag2_cpp sensor_msgs)
@@ -91,6 +95,9 @@ target_link_libraries(tool_dummy_bag
 target_link_libraries(tool_merge_bags
     Qt::Widgets rt_thread rt_utils
 )
+target_link_libraries(tool_pcds_to_bag
+    Qt::Widgets rt_thread rt_utils
+)
 target_link_libraries(tool_publish_images
     Qt::Widgets rt_thread rt_utils
 )
@@ -108,6 +115,7 @@ install(TARGETS
     tool_bag_to_video
     tool_dummy_bag
     tool_merge_bags
+    tool_pcds_to_bag
     tool_publish_images
     tool_publish_video
     tool_video_to_bag

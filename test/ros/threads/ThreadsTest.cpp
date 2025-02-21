@@ -4,6 +4,7 @@
 #include "EditBagThread.hpp"
 #include "EncodingThread.hpp"
 #include "MergeBagsThread.hpp"
+#include "PCDsToBagThread.hpp"
 #include "PublishImagesThread.hpp"
 #include "PublishVideoThread.hpp"
 #include "UtilsROS.hpp"
@@ -428,6 +429,59 @@ TEST_CASE("Threads Testing", "[threads]") {
         REQUIRE_THAT(fileCloud->at(0).b, Catch::Matchers::WithinAbs(messageCloud->at(0).b, 0.001));
 
         reader.close();
+    }
+    SECTION("PCD to Bag Thread Test") {
+        Utils::UI::AdvancedInputParameters parameters;
+        parameters.sourceDirectory = "./pcds";
+        parameters.targetDirectory = "./bag_pcd";
+        parameters.topicName = "/point_clouds_are_awesome";
+
+        auto* const thread = new PCDsToBagThread(parameters);
+        QObject::connect(thread, &PCDsToBagThread::finished, thread, &QObject::deleteLater);
+
+        thread->start();
+        while (!thread->isFinished()) {
+        }
+
+        const auto& metaData = Utils::ROS::getBagMetadata("./bag_pcd");
+        REQUIRE(metaData.message_count == 200);
+        const auto& topics = metaData.topics_with_message_count;
+        REQUIRE(topics.size() == 1);
+        REQUIRE(topics.at(0).topic_metadata.name == "/point_clouds_are_awesome");
+        REQUIRE(topics.at(0).message_count == 200);
+
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr fileCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+        // Read the values using a stored point cloud
+        // Compare the file with a message inside the newly created bag
+        pcl::io::loadPCDFile<pcl::PointXYZRGB>("./pcds/100.pcd", *fileCloud);
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr messageCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+
+        rosbag2_cpp::Reader reader;
+        reader.open("./bag_pcd");
+        rclcpp::Serialization<sensor_msgs::msg::PointCloud2> serialization;
+        auto i = 0;
+        while (reader.has_next()) {
+            auto msg = reader.read_next();
+            if (i == 99) {
+                rclcpp::SerializedMessage serializedMessage(*msg->serialized_data);
+                auto rosMsg = std::make_shared<sensor_msgs::msg::PointCloud2>();
+                serialization.deserialize_message(&serializedMessage, rosMsg.get());
+                pcl::fromROSMsg(*rosMsg, *messageCloud);
+                break;
+            }
+
+            i++;
+        }
+
+        REQUIRE_THAT(fileCloud->at(0).x, Catch::Matchers::WithinAbs(messageCloud->at(0).x, 0.001));
+        REQUIRE_THAT(fileCloud->at(0).y, Catch::Matchers::WithinAbs(messageCloud->at(0).y, 0.001));
+        REQUIRE_THAT(fileCloud->at(0).z, Catch::Matchers::WithinAbs(messageCloud->at(0).z, 0.001));
+        REQUIRE_THAT(fileCloud->at(0).r, Catch::Matchers::WithinAbs(messageCloud->at(0).r, 0.001));
+        REQUIRE_THAT(fileCloud->at(0).g, Catch::Matchers::WithinAbs(messageCloud->at(0).g, 0.001));
+        REQUIRE_THAT(fileCloud->at(0).b, Catch::Matchers::WithinAbs(messageCloud->at(0).b, 0.001));
+
+        reader.close();
+        std::filesystem::remove_all("./bag_pcd");
         std::filesystem::remove_all("./pcds");
     }
     SECTION("Video as ROS Topic Test") {
