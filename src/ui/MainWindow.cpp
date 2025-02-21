@@ -7,6 +7,7 @@
 #include "DummyBagWidget.hpp"
 #include "EditBagWidget.hpp"
 #include "MergeBagsWidget.hpp"
+#include "PCDsToBagWidget.hpp"
 #include "ProgressWidget.hpp"
 #include "PublishWidget.hpp"
 #include "StartWidget.hpp"
@@ -56,6 +57,10 @@ MainWindow::setInputWidget(int mode)
         break;
     case Utils::UI::TOOL_BAG_TO_PCDS:
         basicInputWidget = new BagToPCDsWidget(m_parametersBagToPCDs);
+        break;
+    case Utils::UI::TOOL_PCDS_TO_BAG:
+        basicInputWidget = new PCDsToBagWidget(m_parametersPCDsToBag, m_dialogParameters.usePredefinedTopicNames,
+                                               m_dialogParameters.checkROS2NameConform);
         break;
     case Utils::UI::TOOL_BAG_TO_IMAGES:
         basicInputWidget = new BagToImagesWidget(m_parametersBagToImages);
@@ -109,6 +114,10 @@ MainWindow::setProgressWidget(int mode)
     case Utils::UI::TOOL_BAG_TO_PCDS:
         progressWidget = new ProgressWidget(":/icons/bag_to_pcd_black.svg", ":/icons/bag_to_pcd_white.svg",
                                             "Writing PCD files...", m_parametersBagToPCDs, mode);
+        break;
+    case Utils::UI::TOOL_PCDS_TO_BAG:
+        progressWidget = new ProgressWidget(":/icons/pcd_to_bag_black.svg", ":/icons/pcd_to_bag_white.svg",
+                                            "Writing to Bag...", m_parametersPCDsToBag, mode);
         break;
     case Utils::UI::TOOL_BAG_TO_IMAGES:
         progressWidget = new ProgressWidget(":/icons/bag_to_images_black.svg", ":/icons/bag_to_images_white.svg",

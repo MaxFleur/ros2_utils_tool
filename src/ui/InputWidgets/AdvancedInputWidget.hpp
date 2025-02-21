@@ -21,13 +21,13 @@ public:
                         QWidget*                            parent = 0);
 
 protected slots:
-    void
+    virtual void
     searchButtonPressed();
 
     void
     targetLocationButtonPressed();
 
-    void
+    virtual void
     okButtonPressed();
 
     void
@@ -43,6 +43,7 @@ protected:
     static constexpr int OUTPUT_VIDEO = 0;
     static constexpr int OUTPUT_IMAGES = 1;
     static constexpr int OUTPUT_PCDS = 2;
+    static constexpr int OUTPUT_BAG = 3;
 
 private:
     Utils::UI::AdvancedInputParameters& m_parameters;
