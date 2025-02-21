@@ -1,48 +1,24 @@
 #include "BagToImagesWidget.hpp"
 
-#include "UtilsROS.hpp"
-
 #include <QCheckBox>
 #include <QComboBox>
-#include <QDialogButtonBox>
-#include <QFileDialog>
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QLineEdit>
-#include <QMessageBox>
 #include <QPushButton>
 #include <QSlider>
-#include <QShortcut>
 #include <QToolButton>
 #include <QVBoxLayout>
 
-#include <filesystem>
-
 BagToImagesWidget::BagToImagesWidget(Utils::UI::ImageInputParameters& parameters, QWidget *parent) :
-    BasicInputWidget("Write Images from Bag", ":/icons/bag_to_images", parent),
+    AdvancedInputWidget(parameters, "Write Images from Bag", ":/icons/bag_to_images", "bag_to_images", OUTPUT_IMAGES, parent),
     m_parameters(parameters), m_settings(parameters, "bag_to_images")
 {
-    m_sourceLineEdit->setText(parameters.sourceDirectory);
-    m_sourceLineEdit->setToolTip("The directory of the ROSBag source file.");
-
-    m_topicNameComboBox = new QComboBox;
-    m_topicNameComboBox->setMinimumWidth(200);
-    m_topicNameComboBox->setToolTip("The ROSBag topic of the video file.\nIf the Bag contains multiple video topics, you can choose one of them.");
-
-    if (!m_parameters.sourceDirectory.isEmpty()) {
-        Utils::UI::fillComboBoxWithTopics(m_topicNameComboBox, m_parameters.sourceDirectory, "sensor_msgs/msg/Image");
-
-        if (!m_parameters.topicName.isEmpty()) {
-            m_topicNameComboBox->setCurrentText(m_parameters.topicName);
-        }
-    }
-
-    m_imagesNameLineEdit = new QLineEdit(m_parameters.targetDirectory);
-    m_imagesNameLineEdit->setToolTip("The directory where the images should be stored.");
+    m_topicNameComboBox->setToolTip("The image messages topic.\nIf the bag contains multiple video topics, you can choose one of them.");
+    m_targetLineEdit->setToolTip("The directory where the images should be stored.");
 
     auto* const imagesLocationButton = new QToolButton;
-    auto* const searchImagesPathLayout = Utils::UI::createLineEditButtonLayout(m_imagesNameLineEdit, imagesLocationButton);
+    auto* const searchImagesPathLayout = Utils::UI::createLineEditButtonLayout(m_targetLineEdit, imagesLocationButton);
 
     auto* const formatComboBox = new QComboBox;
     formatComboBox->addItem("jpg", 0);
@@ -96,17 +72,11 @@ BagToImagesWidget::BagToImagesWidget(Utils::UI::ImageInputParameters& parameters
     mainLayout->addLayout(m_buttonLayout);
     setLayout(mainLayout);
 
-    auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
     // Generally, only enable this if the source bag, topic name and target dir line edit contain text
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() &&
                    !m_parameters.topicName.isEmpty() && !m_parameters.targetDirectory.isEmpty());
 
-
-    connect(m_findSourceButton, &QPushButton::clicked, this, &BagToImagesWidget::searchButtonPressed);
-    connect(m_topicNameComboBox, &QComboBox::currentTextChanged, this, [this] (const QString& text) {
-        writeParameterToSettings(m_parameters.topicName, text, m_settings);
-    });
-    connect(imagesLocationButton, &QPushButton::clicked, this, &BagToImagesWidget::imagesLocationButtonPressed);
+    connect(imagesLocationButton, &QPushButton::clicked, this, &BagToImagesWidget::targetLocationButtonPressed);
     connect(formatComboBox, &QComboBox::currentTextChanged, this, &BagToImagesWidget::adjustWidgetsToChangedFormat);
     connect(advancedOptionsCheckBox, &QCheckBox::stateChanged, this, [this, advancedOptionsWidget] (int state) {
         m_parameters.showAdvancedOptions = state == Qt::Checked;
@@ -118,55 +88,6 @@ BagToImagesWidget::BagToImagesWidget(Utils::UI::ImageInputParameters& parameters
     connect(useBWCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.useBWImages, state == Qt::Checked, m_settings);
     });
-    connect(m_dialogButtonBox, &QDialogButtonBox::accepted, this, &BagToImagesWidget::okButtonPressed);
-    connect(okShortCut, &QShortcut::activated, this, &BagToImagesWidget::okButtonPressed);
-}
-
-
-void
-BagToImagesWidget::searchButtonPressed()
-{
-    const auto bagDirectory = QFileDialog::getExistingDirectory(this, "Open ROSBag", "",
-                                                                QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-    if (bagDirectory.isEmpty()) {
-        return;
-    }
-    // Automatically fill with available topic names
-    if (const auto containsVideoTopics = Utils::UI::fillComboBoxWithTopics(m_topicNameComboBox, bagDirectory, "sensor_msgs/msg/Image");
-        !containsVideoTopics) {
-        Utils::UI::createCriticalMessageBox("Topic not found!", "The bag file does not contain any image/video topics!");
-        return;
-    }
-
-    m_sourceLineEdit->setText(bagDirectory);
-    writeParameterToSettings(m_parameters.sourceDirectory, bagDirectory, m_settings);
-
-    QDir bagDirectoryDir(bagDirectory);
-    // Automatically fill up the image target dir if there isn't an already existing name
-    bagDirectoryDir.cdUp();
-    if (const auto autoImageDirectory = bagDirectoryDir.path() + "/bag_images"; !std::filesystem::exists(autoImageDirectory.toStdString())) {
-        m_imagesNameLineEdit->setText(autoImageDirectory);
-        writeParameterToSettings(m_parameters.targetDirectory, autoImageDirectory, m_settings);
-    }
-
-    enableOkButton(!m_parameters.sourceDirectory.isEmpty() &&
-                   !m_parameters.topicName.isEmpty() && !m_parameters.targetDirectory.isEmpty());
-}
-
-
-void
-BagToImagesWidget::imagesLocationButtonPressed()
-{
-    const auto fileName = QFileDialog::getExistingDirectory(this, "Save Images", "", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-    if (fileName.isEmpty()) {
-        return;
-    }
-
-    m_fileDialogOpened = true;
-    writeParameterToSettings(m_parameters.targetDirectory, fileName, m_settings);
-    m_imagesNameLineEdit->setText(fileName);
-    enableOkButton(!m_parameters.sourceDirectory.isEmpty() &&
-                   !m_parameters.topicName.isEmpty() && !m_parameters.targetDirectory.isEmpty());
 }
 
 
@@ -208,23 +129,4 @@ BagToImagesWidget::adjustWidgetsToChangedFormat(const QString& text)
         writeParameterToSettings(m_parameters.jpgOptimize, state == Qt::Checked, m_settings) :
         writeParameterToSettings(m_parameters.pngBilevel, state == Qt::Checked, m_settings);
     });
-}
-
-
-void
-BagToImagesWidget::okButtonPressed()
-{
-    if (!m_okButton->isEnabled()) {
-        return;
-    }
-
-    if (!Utils::ROS::doesDirectoryContainBagFile(m_parameters.sourceDirectory)) {
-        Utils::UI::createCriticalMessageBox("Invalid bag file!", "The source bag file seems to be invalid or broken!");
-        return;
-    }
-    if (!Utils::UI::continueForExistingTarget(m_parameters.targetDirectory, "Directory", "directory")) {
-        return;
-    }
-
-    emit okPressed();
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BasicInputWidget.hpp"
+#include "AdvancedInputWidget.hpp"
 #include "UtilsUI.hpp"
 #include "VideoInputSettings.hpp"
 
@@ -10,10 +10,9 @@
 class QCheckBox;
 class QComboBox;
 class QFormLayout;
-class QLineEdit;
 
 // Widget used to configure a video encoding out of a ros bag
-class BagToVideoWidget : public BasicInputWidget
+class BagToVideoWidget : public AdvancedInputWidget
 {
     Q_OBJECT
 
@@ -23,20 +22,9 @@ public:
 
 private slots:
     void
-    searchButtonPressed();
-
-    void
-    videoLocationButtonPressed();
-
-    void
     formatComboBoxTextChanged(const QString& text);
 
-    void
-    okButtonPressed();
-
 private:
-    QPointer<QComboBox> m_topicNameComboBox;
-    QPointer<QLineEdit> m_videoNameLineEdit;
     QPointer<QComboBox> m_formatComboBox;
     QPointer<QFormLayout> m_advancedOptionsFormLayout;
     QPointer<QCheckBox> m_useLosslessCheckBox;
