@@ -142,3 +142,8 @@ The ros2_utils_tool package is licensed under [EUPLv1.2](https://interoperable-e
 
 If you discover a new bug or wish for a new feature, feel free to open a new issue.\
 If you want to contribute another feature, please use the provided Uncrustify file for code formatting. As the `main` branch is only updated for new versions or critical bugfixes, the `develop` branch is the most current one, providing the newest updates and features. So please open a merge request with `develop` as the target branch.
+
+## Star History
+
+We are very happy about the impact this package has. Keep it going! 
+[![Star History Chart](https://api.star-history.com/svg?repos=MaxFleur/ros2_utils_tool&type=Date)](https://star-history.com/#MaxFleur/ros2_utils_tool&Date)
