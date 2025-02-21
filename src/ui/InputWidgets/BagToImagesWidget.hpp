@@ -1,17 +1,16 @@
 #pragma once
 
-#include "BasicInputWidget.hpp"
+#include "AdvancedInputWidget.hpp"
 #include "ImageInputSettings.hpp"
 #include "UtilsUI.hpp"
 
 class QCheckBox;
-class QComboBox;
 class QFormLayout;
 class QLineEdit;
 class QSlider;
 
 // The widget used to manage writing images out of a ROS bag
-class BagToImagesWidget : public BasicInputWidget
+class BagToImagesWidget : public AdvancedInputWidget
 {
     Q_OBJECT
 
@@ -21,20 +20,9 @@ public:
 
 private slots:
     void
-    searchButtonPressed();
-
-    void
-    imagesLocationButtonPressed();
-
-    void
     adjustWidgetsToChangedFormat(const QString& text);
 
-    void
-    okButtonPressed();
-
 private:
-    QPointer<QComboBox> m_topicNameComboBox;
-    QPointer<QLineEdit> m_imagesNameLineEdit;
     QPointer<QSlider> m_qualitySlider;
     QPointer<QCheckBox> m_optimizeOrBilevelCheckBox;
 
@@ -43,6 +31,4 @@ private:
     Utils::UI::ImageInputParameters& m_parameters;
 
     ImageInputSettings m_settings;
-
-    bool m_fileDialogOpened = false;
 };
