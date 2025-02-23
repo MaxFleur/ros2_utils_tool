@@ -10,9 +10,9 @@ concept SettingsParameter = std::same_as<T, int> || std::same_as<T, size_t> ||
 // Each setting as write and read functions. Read functions are called automatically
 // in the ctor, while the writing is called every time a parameter is changed.
 // Settings for the input widgets follow the parameter hierarchy structure defined in Utils/UI
-class BasicSettings {
+class GeneralSettings {
 public:
-    BasicSettings(const QString& groupName) : m_groupName(groupName)
+    GeneralSettings(const QString& groupName) : m_groupName(groupName)
     {
     }
 

@@ -20,9 +20,9 @@
 
 #include <filesystem>
 
-VideoToBagWidget::VideoToBagWidget(Utils::UI::BagInputParameters& parameters,
+VideoToBagWidget::VideoToBagWidget(Utils::UI::VideoToBagParameters& parameters,
                                    bool usePredefinedTopicName, bool checkROS2NameConform, QWidget *parent) :
-    BasicInputWidget("Write Video to Bag", ":/icons/video_to_bag", parent),
+    BasicInputWidget("Video to Bag", ":/icons/video_to_bag", parent),
     m_parameters(parameters), m_settings(parameters, "vid_to_bag"),
     m_checkROS2NameConform(checkROS2NameConform)
 {

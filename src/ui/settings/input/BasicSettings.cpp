@@ -1,15 +1,15 @@
-#include "InputSettings.hpp"
+#include "BasicSettings.hpp"
 
 #include "DialogSettings.hpp"
 
-InputSettings::InputSettings(Utils::UI::InputParameters& parameters, const QString& groupName) :
-    BasicSettings(groupName), m_parameters(parameters)
+BasicSettings::BasicSettings(Utils::UI::BasicParameters& parameters, const QString& groupName) :
+    GeneralSettings(groupName), m_parameters(parameters)
 {
 }
 
 
 bool
-InputSettings::write()
+BasicSettings::write()
 {
     if (const auto areParametersSaved = DialogSettings::areParametersSaved(); !areParametersSaved) {
         return false;
@@ -26,7 +26,7 @@ InputSettings::write()
 
 
 bool
-InputSettings::read()
+BasicSettings::read()
 {
     if (const auto areParametersSaved = DialogSettings::areParametersSaved(); !areParametersSaved) {
         return false;

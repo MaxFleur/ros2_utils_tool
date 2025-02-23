@@ -1,7 +1,7 @@
 #include "DialogSettings.hpp"
 
 DialogSettings::DialogSettings(Utils::UI::DialogParameters& parameters, const QString& groupName) :
-    BasicSettings(groupName), m_parameters(parameters)
+    GeneralSettings(groupName), m_parameters(parameters)
 {
     read();
 }

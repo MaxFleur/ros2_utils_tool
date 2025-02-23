@@ -18,7 +18,7 @@ public:
     ProgressWidget(const QString&              headerPixmapLabelTextBlack,
                    const QString&              headerPixmapLabelTextWhite,
                    const QString&              headerLabelText,
-                   Utils::UI::InputParameters& parameters,
+                   Utils::UI::BasicParameters& parameters,
                    const int                   threadTypeId,
                    QWidget*                    parent = 0);
 

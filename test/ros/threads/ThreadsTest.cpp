@@ -1,17 +1,17 @@
 #include "catch_ros2/catch_ros2.hpp"
 
+#include "BagToImagesThread.hpp"
+#include "BagToPCDsThread.hpp"
+#include "BagToVideoThread.hpp"
 #include "DummyBagThread.hpp"
 #include "EditBagThread.hpp"
-#include "EncodingThread.hpp"
 #include "MergeBagsThread.hpp"
 #include "PCDsToBagThread.hpp"
 #include "PublishImagesThread.hpp"
 #include "PublishVideoThread.hpp"
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
-#include "WriteToBagThread.hpp"
-#include "WriteToImageThread.hpp"
-#include "WriteToPCDsThread.hpp"
+#include "VideoToBagThread.hpp"
 
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/videoio.hpp>
@@ -68,7 +68,7 @@ TEST_CASE("Threads Testing", "[threads]") {
     auto shouldDelete = false;
 
     SECTION("Dummy Bag Thread Test") {
-        Utils::UI::DummyBagInputParameters parameters;
+        Utils::UI::DummyBagParameters parameters;
         parameters.sourceDirectory = "./dummy_bag";
         parameters.messageCount = 200;
         parameters.topics.push_back({ "Image", "/dummy_image" });
@@ -107,7 +107,7 @@ TEST_CASE("Threads Testing", "[threads]") {
     }
     // Create edited bag out of dummy bag
     SECTION("Edit Bag Thread Test") {
-        Utils::UI::EditBagInputParameters parameters;
+        Utils::UI::EditBagParameters parameters;
         parameters.sourceDirectory = "./dummy_bag";
         parameters.targetDirectory = "./edited_bag";
         parameters.updateTimestamps = true;
@@ -137,7 +137,7 @@ TEST_CASE("Threads Testing", "[threads]") {
     }
     // Merge edited and dummy bag
     SECTION("Merge Bags Thread Test") {
-        Utils::UI::MergeBagsInputParameters parameters;
+        Utils::UI::MergeBagsParameters parameters;
         parameters.sourceDirectory = "./dummy_bag";
         parameters.secondSourceDirectory = "./edited_bag";
         parameters.targetDirectory = "./merged_bag";
@@ -194,14 +194,14 @@ TEST_CASE("Threads Testing", "[threads]") {
         std::filesystem::remove_all("./merged_bag");
     }
 
-    SECTION("Encode Video Thread Test") {
-        Utils::UI::VideoInputParameters parameters;
+    SECTION("Bag to Video Thread Test") {
+        Utils::UI::BagToVideoParameters parameters;
         parameters.sourceDirectory = "./dummy_bag";
         parameters.targetDirectory = "./video.mp4";
         parameters.topicName = "/dummy_image";
 
-        auto* const thread = new EncodingThread(parameters);
-        QObject::connect(thread, &EncodingThread::finished, thread, &QObject::deleteLater);
+        auto* const thread = new BagToVideoThread(parameters);
+        QObject::connect(thread, &BagToVideoThread::finished, thread, &QObject::deleteLater);
 
         const auto performVideoCheck = [] (const std::string& fileExtension, int codec, int fps, int blueValue, int greenValue, int redValue) {
             auto videoCapture = cv::VideoCapture("./video" + fileExtension);
@@ -252,7 +252,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         }
     }
     SECTION("Video to Bag Thread Test") {
-        Utils::UI::BagInputParameters parameters;
+        Utils::UI::VideoToBagParameters parameters;
         parameters.sourceDirectory = "./video.mp4";
         parameters.targetDirectory = "./video_bag";
         parameters.topicName = "/video_topic";
@@ -260,8 +260,8 @@ TEST_CASE("Threads Testing", "[threads]") {
         rosbag2_cpp::Reader reader;
         rclcpp::Serialization<sensor_msgs::msg::Image> serialization;
 
-        auto* const thread = new WriteToBagThread(parameters);
-        QObject::connect(thread, &WriteToBagThread::finished, thread, &QObject::deleteLater);
+        auto* const thread = new VideoToBagThread(parameters);
+        QObject::connect(thread, &VideoToBagThread::finished, thread, &QObject::deleteLater);
 
         const auto performBagCheck = [&reader, &serialization] (unsigned int width, unsigned int height,
                                                                 int redValue, int greenValue, int blueValue) {
@@ -315,8 +315,8 @@ TEST_CASE("Threads Testing", "[threads]") {
             if (thread) {
                 delete thread;
             }
-            auto* const thread = new WriteToBagThread(parameters);
-            QObject::connect(thread, &WriteToBagThread::finished, thread, &QObject::deleteLater);
+            auto* const thread = new VideoToBagThread(parameters);
+            QObject::connect(thread, &VideoToBagThread::finished, thread, &QObject::deleteLater);
 
             thread->start();
             while (!thread->isFinished()) {
@@ -328,7 +328,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         }
     }
     SECTION("Bag to Images Thread Test") {
-        Utils::UI::ImageInputParameters parameters;
+        Utils::UI::BagToImagesParameters parameters;
         parameters.sourceDirectory = "./dummy_bag";
         parameters.targetDirectory = "./images";
         parameters.topicName = "/dummy_image";
@@ -347,8 +347,8 @@ TEST_CASE("Threads Testing", "[threads]") {
             REQUIRE(static_cast<int>(color[2]) == valueRed);
         };
 
-        auto* const thread = new WriteToImageThread(parameters);
-        QObject::connect(thread, &WriteToImageThread::finished, thread, &QObject::deleteLater);
+        auto* const thread = new BagToImagesThread(parameters);
+        QObject::connect(thread, &BagToImagesThread::finished, thread, &QObject::deleteLater);
 
         SECTION("Default Parameter Values") {
             thread->start();
@@ -379,13 +379,13 @@ TEST_CASE("Threads Testing", "[threads]") {
         }
     }
     SECTION("Bag to PCDs Thread Test") {
-        Utils::UI::AdvancedInputParameters parameters;
+        Utils::UI::AdvancedParameters parameters;
         parameters.sourceDirectory = "./dummy_bag";
         parameters.targetDirectory = "./pcds";
         parameters.topicName = "/dummy_points";
 
-        auto* const thread = new WriteToPCDsThread(parameters);
-        QObject::connect(thread, &WriteToPCDsThread::finished, thread, &QObject::deleteLater);
+        auto* const thread = new BagToPCDsThread(parameters);
+        QObject::connect(thread, &BagToPCDsThread::finished, thread, &QObject::deleteLater);
 
         thread->start();
         while (!thread->isFinished()) {
@@ -431,7 +431,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         reader.close();
     }
     SECTION("PCD to Bag Thread Test") {
-        Utils::UI::AdvancedInputParameters parameters;
+        Utils::UI::AdvancedParameters parameters;
         parameters.sourceDirectory = "./pcds";
         parameters.targetDirectory = "./bag_pcd";
         parameters.topicName = "/point_clouds_are_awesome";

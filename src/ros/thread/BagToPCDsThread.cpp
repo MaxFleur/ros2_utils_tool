@@ -1,4 +1,4 @@
-#include "WriteToPCDsThread.hpp"
+#include "BagToPCDsThread.hpp"
 
 #include "UtilsROS.hpp"
 
@@ -10,8 +10,8 @@
 
 #include <filesystem>
 
-WriteToPCDsThread::WriteToPCDsThread(const Utils::UI::AdvancedInputParameters& parameters,
-                                     QObject*                                  parent) :
+BagToPCDsThread::BagToPCDsThread(const Utils::UI::AdvancedParameters& parameters,
+                                 QObject*                             parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),
     m_parameters(parameters)
 {
@@ -19,7 +19,7 @@ WriteToPCDsThread::WriteToPCDsThread(const Utils::UI::AdvancedInputParameters& p
 
 
 void
-WriteToPCDsThread::run()
+BagToPCDsThread::run()
 {
     const auto targetDirectoryStd = m_parameters.targetDirectory.toStdString();
 

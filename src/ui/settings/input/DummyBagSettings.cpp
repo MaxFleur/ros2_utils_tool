@@ -1,16 +1,16 @@
-#include "DummyBagInputSettings.hpp"
+#include "DummyBagSettings.hpp"
 
-DummyBagInputSettings::DummyBagInputSettings(Utils::UI::DummyBagInputParameters& parameters, const QString& groupName) :
-    InputSettings(parameters, groupName), m_parameters(parameters)
+DummyBagSettings::DummyBagSettings(Utils::UI::DummyBagParameters& parameters, const QString& groupName) :
+    BasicSettings(parameters, groupName), m_parameters(parameters)
 {
     read();
 }
 
 
 bool
-DummyBagInputSettings::write()
+DummyBagSettings::write()
 {
-    if (!InputSettings::write()) {
+    if (!BasicSettings::write()) {
         return false;
     }
 
@@ -33,9 +33,9 @@ DummyBagInputSettings::write()
 
 
 bool
-DummyBagInputSettings::read()
+DummyBagSettings::read()
 {
-    if (!InputSettings::read()) {
+    if (!BasicSettings::read()) {
         return false;
     }
 

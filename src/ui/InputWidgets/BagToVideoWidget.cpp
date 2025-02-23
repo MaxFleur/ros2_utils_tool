@@ -10,8 +10,8 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-BagToVideoWidget::BagToVideoWidget(Utils::UI::VideoInputParameters& parameters, QWidget *parent) :
-    AdvancedInputWidget(parameters, "Encode Video from Bag", ":/icons/bag_to_video", "bag_to_video", OUTPUT_VIDEO, parent),
+BagToVideoWidget::BagToVideoWidget(Utils::UI::BagToVideoParameters& parameters, QWidget *parent) :
+    AdvancedInputWidget(parameters, "Bag to Video", ":/icons/bag_to_video", "bag_to_video", OUTPUT_VIDEO, parent),
     m_parameters(parameters), m_settings(parameters, "bag_to_video")
 {
     m_topicNameComboBox->setToolTip("The image messages topic.\nIf the bag contains multiple video topics, you can choose one of them.");

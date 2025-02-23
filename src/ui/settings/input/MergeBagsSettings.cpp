@@ -1,17 +1,17 @@
-#include "MergeBagsInputSettings.hpp"
+#include "MergeBagsSettings.hpp"
 
-MergeBagsInputSettings::MergeBagsInputSettings(Utils::UI::MergeBagsInputParameters& parameters,
-                                               const QString&                       groupName) :
-    AdvancedInputSettings(parameters, groupName), m_parameters(parameters)
+MergeBagsSettings::MergeBagsSettings(Utils::UI::MergeBagsParameters& parameters,
+                                     const QString&                  groupName) :
+    AdvancedSettings(parameters, groupName), m_parameters(parameters)
 {
     read();
 }
 
 
 bool
-MergeBagsInputSettings::write()
+MergeBagsSettings::write()
 {
-    if (!AdvancedInputSettings::write()) {
+    if (!AdvancedSettings::write()) {
         return false;
     }
 
@@ -34,9 +34,9 @@ MergeBagsInputSettings::write()
 
 
 bool
-MergeBagsInputSettings::read()
+MergeBagsSettings::read()
 {
-    if (!AdvancedInputSettings::read()) {
+    if (!AdvancedSettings::read()) {
         return false;
     }
 

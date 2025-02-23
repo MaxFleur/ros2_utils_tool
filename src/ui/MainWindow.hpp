@@ -34,17 +34,17 @@ private:
 private:
     // Parameters storing all configurations done by a user in the input widgets.
     // The parameters are transferred to the progress widget and their thread.
-    Utils::UI::VideoInputParameters m_parametersBagToVideo;
-    Utils::UI::BagInputParameters m_parametersVideoToBag;
-    Utils::UI::AdvancedInputParameters m_parametersBagToPCDs;
-    Utils::UI::AdvancedInputParameters m_parametersPCDsToBag;
-    Utils::UI::ImageInputParameters m_parametersBagToImages;
-    Utils::UI::EditBagInputParameters m_editBagParameters;
-    Utils::UI::MergeBagsInputParameters m_mergeBagsParameters;
-    Utils::UI::DummyBagInputParameters m_dummyBagParameters;
+    Utils::UI::BagToVideoParameters m_parametersBagToVideo;
+    Utils::UI::VideoToBagParameters m_parametersVideoToBag;
+    Utils::UI::AdvancedParameters m_parametersBagToPCDs;
+    Utils::UI::AdvancedParameters m_parametersPCDsToBag;
+    Utils::UI::BagToImagesParameters m_parametersBagToImages;
+    Utils::UI::EditBagParameters m_parametersEditBag;
+    Utils::UI::MergeBagsParameters m_parametersMergeBags;
+    Utils::UI::DummyBagParameters m_parametersDummyBag;
 
-    Utils::UI::PublishParameters m_publishParametersVideo;
-    Utils::UI::PublishParameters m_publishParametersImages;
+    Utils::UI::PublishParameters m_parametersPublishVideo;
+    Utils::UI::PublishParameters m_parametersPublishImages;
     // Parameters for settings dialog
     Utils::UI::DialogParameters m_dialogParameters;
 

@@ -18,8 +18,7 @@
 
 #include <filesystem>
 
-DummyBagWidget::DummyBagWidget(Utils::UI::DummyBagInputParameters& parameters,
-                               bool checkROS2NameConform, QWidget *parent) :
+DummyBagWidget::DummyBagWidget(Utils::UI::DummyBagParameters& parameters, bool checkROS2NameConform, QWidget *parent) :
     BasicInputWidget("Create Dummy Bag", ":/icons/dummy_bag", parent),
     m_parameters(parameters), m_settings(parameters, "dummy_bag"),
     m_checkROS2NameConform(checkROS2NameConform)
@@ -123,7 +122,7 @@ DummyBagWidget::removeDummyTopicWidget()
 
 
 void
-DummyBagWidget::createNewDummyTopicWidget(const Utils::UI::DummyBagInputParameters::DummyBagTopic& topic, int index)
+DummyBagWidget::createNewDummyTopicWidget(const Utils::UI::DummyBagParameters::DummyBagTopic& topic, int index)
 {
     auto* const dummyTopicWidget = new DummyTopicWidget(topic.type, topic.name);
 

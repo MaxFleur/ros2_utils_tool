@@ -53,11 +53,11 @@ StartWidget::StartWidget(Utils::UI::DialogParameters& dialogParameters, QWidget 
     overallToolsWidget->setLayout(overallToolsMainLayout);
 
     // Conversion tools widget
-    m_bagToVideoPushButton = createToolButton("Encode Video\nfrom Bag");
-    m_videoToBagPushButton = createToolButton("Write Video\nto Bag");
-    m_bagToPCDsPushButton = createToolButton("Write PCD Files\nfrom Bag");
-    m_PCDsToBagPushButton = createToolButton("Create Bag\nfrom PCD files");
-    m_bagToImagesPushButton = createToolButton("Write Images\nfrom Bag");
+    m_bagToVideoPushButton = createToolButton("Bag to Video");
+    m_videoToBagPushButton = createToolButton("Video to Bag");
+    m_bagToPCDsPushButton = createToolButton("Bag to\nPCD Files");
+    m_PCDsToBagPushButton = createToolButton("PCD Files\nto Bag");
+    m_bagToImagesPushButton = createToolButton("Bag to Images");
 
     auto* const conversionToolsUpperLayout = new QHBoxLayout;
     conversionToolsUpperLayout->addStretch();

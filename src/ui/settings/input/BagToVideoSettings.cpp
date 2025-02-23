@@ -1,16 +1,16 @@
-#include "VideoInputSettings.hpp"
+#include "BagToVideoSettings.hpp"
 
-VideoInputSettings::VideoInputSettings(Utils::UI::VideoInputParameters& parameters, const QString& groupName) :
-    AdvancedInputSettings(parameters, groupName), m_parameters(parameters)
+BagToVideoSettings::BagToVideoSettings(Utils::UI::BagToVideoParameters& parameters, const QString& groupName) :
+    AdvancedSettings(parameters, groupName), m_parameters(parameters)
 {
     read();
 }
 
 
 bool
-VideoInputSettings::write()
+BagToVideoSettings::write()
 {
-    if (!AdvancedInputSettings::write()) {
+    if (!AdvancedSettings::write()) {
         return false;
     }
 
@@ -29,9 +29,9 @@ VideoInputSettings::write()
 
 
 bool
-VideoInputSettings::read()
+BagToVideoSettings::read()
 {
-    if (!AdvancedInputSettings::read()) {
+    if (!AdvancedSettings::read()) {
         return false;
     }
 

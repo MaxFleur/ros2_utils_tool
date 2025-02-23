@@ -1,7 +1,7 @@
 #pragma once
 
+#include "AdvancedSettings.hpp"
 #include "BasicInputWidget.hpp"
-#include "AdvancedInputSettings.hpp"
 #include "UtilsUI.hpp"
 
 #include <QLineEdit>
@@ -18,11 +18,11 @@ class BasicBagWidget : public BasicInputWidget
     Q_OBJECT
 public:
     explicit
-    BasicBagWidget(Utils::UI::AdvancedInputParameters& parameters,
-                   const QString&                      titleText,
-                   const QString&                      iconText,
-                   const QString&                      settingsIdentifierText,
-                   QWidget*                            parent = 0);
+    BasicBagWidget(Utils::UI::AdvancedParameters& parameters,
+                   const QString&                 titleText,
+                   const QString&                 iconText,
+                   const QString&                 settingsIdentifierText,
+                   QWidget*                       parent = 0);
 
 protected slots:
     virtual void
@@ -50,7 +50,7 @@ protected:
     static constexpr int COL_TOPIC_TYPE = 2;
 
 private:
-    Utils::UI::AdvancedInputParameters& m_parameters;
+    Utils::UI::AdvancedParameters& m_parameters;
 
-    AdvancedInputSettings m_settings;
+    AdvancedSettings m_settings;
 };

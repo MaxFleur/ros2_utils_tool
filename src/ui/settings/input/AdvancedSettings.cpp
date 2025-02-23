@@ -1,16 +1,16 @@
-#include "AdvancedInputSettings.hpp"
+#include "AdvancedSettings.hpp"
 
-AdvancedInputSettings::AdvancedInputSettings(Utils::UI::AdvancedInputParameters& parameters, const QString& groupName) :
-    InputSettings(parameters, groupName), m_parameters(parameters)
+AdvancedSettings::AdvancedSettings(Utils::UI::AdvancedParameters& parameters, const QString& groupName) :
+    BasicSettings(parameters, groupName), m_parameters(parameters)
 {
     read();
 }
 
 
 bool
-AdvancedInputSettings::write()
+AdvancedSettings::write()
 {
-    if (!InputSettings::write()) {
+    if (!BasicSettings::write()) {
         return false;
     }
 
@@ -24,9 +24,9 @@ AdvancedInputSettings::write()
 
 
 bool
-AdvancedInputSettings::read()
+AdvancedSettings::read()
 {
-    if (!InputSettings::read()) {
+    if (!BasicSettings::read()) {
         return false;
     }
 

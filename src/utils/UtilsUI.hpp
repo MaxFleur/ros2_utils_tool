@@ -12,16 +12,16 @@
 // Util functions for user interface related things
 namespace Utils::UI
 {
-// Parameters used to store input widget input if the widget is closed and then reopened
-// or if the application is restarted (if the user configured it like that)
-struct InputParameters {
+// Parameters used to configure the threads and
+// store information in case an input widget is closed and reopened
+struct BasicParameters {
     virtual
-    ~InputParameters() = default;
+    ~BasicParameters() = default;
 
     QString sourceDirectory = "";
     QString topicName = "";
 };
-struct DummyBagInputParameters : InputParameters {
+struct DummyBagParameters : BasicParameters {
     struct DummyBagTopic {
         QString type;
         QString name;
@@ -31,11 +31,11 @@ struct DummyBagInputParameters : InputParameters {
     int                    messageCount = 100;
 };
 
-struct AdvancedInputParameters : InputParameters {
+struct AdvancedParameters : BasicParameters {
     QString targetDirectory = "";
     bool    showAdvancedOptions = false;
 };
-struct ImageInputParameters : AdvancedInputParameters {
+struct BagToImagesParameters : AdvancedParameters {
     QString format = "jpg";
     int     quality = 8;
     bool    exchangeRedBlueValues = false;
@@ -43,7 +43,7 @@ struct ImageInputParameters : AdvancedInputParameters {
     bool    jpgOptimize = false;
     bool    pngBilevel = false;
 };
-struct VideoInputParameters : AdvancedInputParameters {
+struct BagToVideoParameters : AdvancedParameters {
     QString format = "mp4";
     int     fps = 30;
     bool    useHardwareAcceleration = false;
@@ -51,13 +51,13 @@ struct VideoInputParameters : AdvancedInputParameters {
     bool    useBWImages = false;
     bool    lossless = false;
 };
-struct BagInputParameters : AdvancedInputParameters {
+struct VideoToBagParameters : AdvancedParameters {
     int  fps = 30;
     bool useCustomFPS = false;
     bool useHardwareAcceleration = false;
     bool exchangeRedBlueValues = false;
 };
-struct EditBagInputParameters : AdvancedInputParameters {
+struct EditBagParameters : AdvancedParameters {
     struct EditBagTopic {
         QString renamedTopicName = "";
         QString originalTopicName;
@@ -70,7 +70,7 @@ struct EditBagInputParameters : AdvancedInputParameters {
     bool                  deleteSource = false;
     bool                  updateTimestamps = false;
 };
-struct MergeBagsInputParameters : AdvancedInputParameters {
+struct MergeBagsParameters : AdvancedParameters {
     struct MergeBagTopic {
         QString name = "";
         // Topic names might be identical across bags, but cannot be identical in the same bag.
@@ -83,7 +83,7 @@ struct MergeBagsInputParameters : AdvancedInputParameters {
     QString                secondSourceDirectory = "";
 };
 
-struct PublishParameters : AdvancedInputParameters {
+struct PublishParameters : AdvancedParameters {
     int  fps = 30;
     int  width = 1280;
     int  height = 720;

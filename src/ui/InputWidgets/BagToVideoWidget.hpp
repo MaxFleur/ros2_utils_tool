@@ -1,8 +1,8 @@
 #pragma once
 
 #include "AdvancedInputWidget.hpp"
+#include "BagToVideoSettings.hpp"
 #include "UtilsUI.hpp"
-#include "VideoInputSettings.hpp"
 
 #include <QPointer>
 #include <QWidget>
@@ -17,7 +17,7 @@ class BagToVideoWidget : public AdvancedInputWidget
     Q_OBJECT
 
 public:
-    BagToVideoWidget(Utils::UI::VideoInputParameters& parameters,
+    BagToVideoWidget(Utils::UI::BagToVideoParameters& parameters,
                      QWidget*                         parent = 0);
 
 private slots:
@@ -29,7 +29,7 @@ private:
     QPointer<QFormLayout> m_advancedOptionsFormLayout;
     QPointer<QCheckBox> m_useLosslessCheckBox;
 
-    Utils::UI::VideoInputParameters& m_parameters;
+    Utils::UI::BagToVideoParameters& m_parameters;
 
-    VideoInputSettings m_settings;
+    BagToVideoSettings m_settings;
 };

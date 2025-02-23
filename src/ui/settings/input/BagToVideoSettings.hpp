@@ -1,11 +1,11 @@
 #pragma once
 
-#include "AdvancedInputSettings.hpp"
+#include "AdvancedSettings.hpp"
 
 // Store video out of ROS bag creation parameters
-class VideoInputSettings : public AdvancedInputSettings {
+class BagToVideoSettings : public AdvancedSettings {
 public:
-    VideoInputSettings(Utils::UI::VideoInputParameters& parameters,
+    BagToVideoSettings(Utils::UI::BagToVideoParameters& parameters,
                        const QString&                   groupName);
 
     bool
@@ -16,5 +16,5 @@ private:
     read() override;
 
 private:
-    Utils::UI::VideoInputParameters& m_parameters;
+    Utils::UI::BagToVideoParameters& m_parameters;
 };

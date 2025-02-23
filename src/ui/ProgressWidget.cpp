@@ -1,16 +1,16 @@
 #include "ProgressWidget.hpp"
 
-#include "PCDsToBagThread.hpp"
+#include "BagToImagesThread.hpp"
+#include "BagToPCDsThread.hpp"
+#include "BagToVideoThread.hpp"
 #include "BasicThread.hpp"
 #include "DummyBagThread.hpp"
 #include "EditBagThread.hpp"
-#include "EncodingThread.hpp"
 #include "MergeBagsThread.hpp"
+#include "PCDsToBagThread.hpp"
 #include "PublishImagesThread.hpp"
 #include "PublishVideoThread.hpp"
-#include "WriteToBagThread.hpp"
-#include "WriteToImageThread.hpp"
-#include "WriteToPCDsThread.hpp"
+#include "VideoToBagThread.hpp"
 
 #include <QLabel>
 #include <QMessageBox>
@@ -21,34 +21,34 @@
 #include <QVBoxLayout>
 
 ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const QString& headerPixmapLabelTextWhite,
-                               const QString& headerLabelText, Utils::UI::InputParameters& parameters,
+                               const QString& headerLabelText, Utils::UI::BasicParameters& parameters,
                                const int threadTypeId, QWidget *parent) :
     QWidget(parent)
 {
     switch (threadTypeId) {
     case Utils::UI::TOOL_BAG_TO_VIDEO:
-        m_thread = new EncodingThread(dynamic_cast<Utils::UI::VideoInputParameters&>(parameters), this);
+        m_thread = new BagToVideoThread(dynamic_cast<Utils::UI::BagToVideoParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_VIDEO_TO_BAG:
-        m_thread = new WriteToBagThread(dynamic_cast<Utils::UI::BagInputParameters&>(parameters), this);
+        m_thread = new VideoToBagThread(dynamic_cast<Utils::UI::VideoToBagParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_BAG_TO_PCDS:
-        m_thread = new WriteToPCDsThread(dynamic_cast<Utils::UI::AdvancedInputParameters&>(parameters), this);
+        m_thread = new BagToPCDsThread(dynamic_cast<Utils::UI::AdvancedParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_PCDS_TO_BAG:
-        m_thread = new PCDsToBagThread(dynamic_cast<Utils::UI::AdvancedInputParameters&>(parameters), this);
+        m_thread = new PCDsToBagThread(dynamic_cast<Utils::UI::AdvancedParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_BAG_TO_IMAGES:
-        m_thread = new WriteToImageThread(dynamic_cast<Utils::UI::ImageInputParameters&>(parameters), this);
+        m_thread = new BagToImagesThread(dynamic_cast<Utils::UI::BagToImagesParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_EDIT_BAG:
-        m_thread = new EditBagThread(dynamic_cast<Utils::UI::EditBagInputParameters&>(parameters), this);
+        m_thread = new EditBagThread(dynamic_cast<Utils::UI::EditBagParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_MERGE_BAGS:
-        m_thread = new MergeBagsThread(dynamic_cast<Utils::UI::MergeBagsInputParameters&>(parameters), this);
+        m_thread = new MergeBagsThread(dynamic_cast<Utils::UI::MergeBagsParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_DUMMY_BAG:
-        m_thread = new DummyBagThread(dynamic_cast<Utils::UI::DummyBagInputParameters&>(parameters), this);
+        m_thread = new DummyBagThread(dynamic_cast<Utils::UI::DummyBagParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_PUBLISH_VIDEO:
         m_thread = new PublishVideoThread(dynamic_cast<Utils::UI::PublishParameters&>(parameters), this);

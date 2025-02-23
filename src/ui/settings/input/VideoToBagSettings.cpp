@@ -1,17 +1,17 @@
-#include "BagInputSettings.hpp"
+#include "VideoToBagSettings.hpp"
 
-BagInputSettings::BagInputSettings(Utils::UI::BagInputParameters& parameters,
-                                   const QString&                 groupName) :
-    AdvancedInputSettings(parameters, groupName), m_parameters(parameters)
+VideoToBagSettings::VideoToBagSettings(Utils::UI::VideoToBagParameters& parameters,
+                                       const QString&                   groupName) :
+    AdvancedSettings(parameters, groupName), m_parameters(parameters)
 {
     read();
 }
 
 
 bool
-BagInputSettings::write()
+VideoToBagSettings::write()
 {
-    if (!AdvancedInputSettings::write()) {
+    if (!AdvancedSettings::write()) {
         return false;
     }
 
@@ -28,9 +28,9 @@ BagInputSettings::write()
 
 
 bool
-BagInputSettings::read()
+VideoToBagSettings::read()
 {
-    if (!AdvancedInputSettings::read()) {
+    if (!AdvancedSettings::read()) {
         return false;
     }
 

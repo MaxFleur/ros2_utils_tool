@@ -1,4 +1,4 @@
-#include "EncodingThread.hpp"
+#include "BagToVideoThread.hpp"
 
 #include "UtilsROS.hpp"
 #include "VideoEncoder.hpp"
@@ -13,8 +13,8 @@
 #include <cv_bridge/cv_bridge.h>
 #endif
 
-EncodingThread::EncodingThread(const Utils::UI::VideoInputParameters& parameters,
-                               QObject*                               parent) :
+BagToVideoThread::BagToVideoThread(const Utils::UI::BagToVideoParameters& parameters,
+                                   QObject*                               parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),
     m_parameters(parameters)
 {
@@ -22,7 +22,7 @@ EncodingThread::EncodingThread(const Utils::UI::VideoInputParameters& parameters
 
 
 void
-EncodingThread::run()
+BagToVideoThread::run()
 {
     rosbag2_cpp::Reader reader;
     reader.open(m_sourceDirectory);

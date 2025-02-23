@@ -1,7 +1,7 @@
 #pragma once
 
+#include "AdvancedSettings.hpp"
 #include "BasicInputWidget.hpp"
-#include "AdvancedInputSettings.hpp"
 #include "UtilsUI.hpp"
 
 class QComboBox;
@@ -13,12 +13,12 @@ class AdvancedInputWidget : public BasicInputWidget
     Q_OBJECT
 
 public:
-    AdvancedInputWidget(Utils::UI::AdvancedInputParameters& parameters,
-                        const QString&                      headerText,
-                        const QString&                      iconPath,
-                        const QString&                      settingsIdentifier,
-                        int                                 outputFormat,
-                        QWidget*                            parent = 0);
+    AdvancedInputWidget(Utils::UI::AdvancedParameters& parameters,
+                        const QString&                 headerText,
+                        const QString&                 iconPath,
+                        const QString&                 settingsIdentifier,
+                        int                            outputFormat,
+                        QWidget*                       parent = 0);
 
 protected slots:
     virtual void
@@ -46,9 +46,9 @@ protected:
     static constexpr int OUTPUT_BAG = 3;
 
 private:
-    Utils::UI::AdvancedInputParameters& m_parameters;
+    Utils::UI::AdvancedParameters& m_parameters;
 
-    AdvancedInputSettings m_settings;
+    AdvancedSettings m_settings;
 
     QString m_videoFormat;
 

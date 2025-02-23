@@ -1,16 +1,16 @@
-#include "ImageInputSettings.hpp"
+#include "BagToImagesSettings.hpp"
 
-ImageInputSettings::ImageInputSettings(Utils::UI::ImageInputParameters& parameters, const QString& groupName) :
-    AdvancedInputSettings(parameters, groupName), m_parameters(parameters)
+BagToImagesSettings::BagToImagesSettings(Utils::UI::BagToImagesParameters& parameters, const QString& groupName) :
+    AdvancedSettings(parameters, groupName), m_parameters(parameters)
 {
     read();
 }
 
 
 bool
-ImageInputSettings::write()
+BagToImagesSettings::write()
 {
-    if (!AdvancedInputSettings::write()) {
+    if (!AdvancedSettings::write()) {
         return false;
     }
 
@@ -29,9 +29,9 @@ ImageInputSettings::write()
 
 
 bool
-ImageInputSettings::read()
+BagToImagesSettings::read()
 {
-    if (!AdvancedInputSettings::read()) {
+    if (!AdvancedSettings::read()) {
         return false;
     }
 

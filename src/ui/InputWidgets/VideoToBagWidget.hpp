@@ -1,8 +1,8 @@
 #pragma once
 
-#include "BagInputSettings.hpp"
 #include "BasicInputWidget.hpp"
 #include "UtilsUI.hpp"
+#include "VideoToBagSettings.hpp"
 
 #include <QPointer>
 #include <QWidget>
@@ -17,10 +17,10 @@ class VideoToBagWidget : public BasicInputWidget
     Q_OBJECT
 
 public:
-    VideoToBagWidget(Utils::UI::BagInputParameters& parameters,
-                     bool                           usePredefinedTopicName,
-                     bool                           checkROS2NameConform,
-                     QWidget*                       parent = 0);
+    VideoToBagWidget(Utils::UI::VideoToBagParameters& parameters,
+                     bool                             usePredefinedTopicName,
+                     bool                             checkROS2NameConform,
+                     QWidget*                         parent = 0);
 
 private slots:
     void
@@ -40,9 +40,9 @@ private:
     QPointer<QFormLayout> m_advancedOptionsFormLayout;
     QPointer<QSpinBox> m_fpsSpinBox;
 
-    Utils::UI::BagInputParameters& m_parameters;
+    Utils::UI::VideoToBagParameters& m_parameters;
 
-    BagInputSettings m_settings;
+    VideoToBagSettings m_settings;
 
     const bool m_checkROS2NameConform;
 };

@@ -18,8 +18,8 @@
 #include <cv_bridge/cv_bridge.h>
 #endif
 
-DummyBagThread::DummyBagThread(const Utils::UI::DummyBagInputParameters& parameters,
-                               QObject*                                  parent) :
+DummyBagThread::DummyBagThread(const Utils::UI::DummyBagParameters& parameters,
+                               QObject*                             parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),
     m_parameters(parameters)
 {

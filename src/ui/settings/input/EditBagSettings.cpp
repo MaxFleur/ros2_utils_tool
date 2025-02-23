@@ -1,17 +1,17 @@
-#include "EditBagInputSettings.hpp"
+#include "EditBagSettings.hpp"
 
-EditBagInputSettings::EditBagInputSettings(Utils::UI::EditBagInputParameters& parameters,
-                                           const QString&                     groupName) :
-    AdvancedInputSettings(parameters, groupName), m_parameters(parameters)
+EditBagSettings::EditBagSettings(Utils::UI::EditBagParameters& parameters,
+                                 const QString&                groupName) :
+    AdvancedSettings(parameters, groupName), m_parameters(parameters)
 {
     read();
 }
 
 
 bool
-EditBagInputSettings::write()
+EditBagSettings::write()
 {
-    if (!AdvancedInputSettings::write()) {
+    if (!AdvancedSettings::write()) {
         return false;
     }
 
@@ -37,9 +37,9 @@ EditBagInputSettings::write()
 
 
 bool
-EditBagInputSettings::read()
+EditBagSettings::read()
 {
-    if (!AdvancedInputSettings::read()) {
+    if (!AdvancedSettings::read()) {
         return false;
     }
 

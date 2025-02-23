@@ -16,9 +16,9 @@
 
 #include <filesystem>
 
-PCDsToBagWidget::PCDsToBagWidget(Utils::UI::AdvancedInputParameters& parameters,
+PCDsToBagWidget::PCDsToBagWidget(Utils::UI::AdvancedParameters& parameters,
                                  bool usePredefinedTopicName, bool checkROS2NameConform, QWidget *parent) :
-    AdvancedInputWidget(parameters, "Create Bag from PCD files", ":/icons/pcd_to_bag", "pcd_to_bag", OUTPUT_BAG, parent),
+    AdvancedInputWidget(parameters, "PCD Files to Bag", ":/icons/pcd_to_bag", "pcd_to_bag", OUTPUT_BAG, parent),
     m_parameters(parameters), m_settings(parameters, "pcd_to_bag"),
     m_checkROS2NameConform(checkROS2NameConform)
 {

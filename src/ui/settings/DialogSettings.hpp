@@ -1,10 +1,10 @@
 #pragma once
 
-#include "BasicSettings.hpp"
+#include "GeneralSettings.hpp"
 #include "UtilsUI.hpp"
 
 // Settings modified from settings dialog
-class DialogSettings : public BasicSettings {
+class DialogSettings : public GeneralSettings {
 public:
     DialogSettings(Utils::UI::DialogParameters& parameters,
                    const QString&               groupName);

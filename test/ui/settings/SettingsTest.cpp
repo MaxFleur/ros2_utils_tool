@@ -1,16 +1,16 @@
 #include "catch_ros2/catch_ros2.hpp"
 
-#include "AdvancedInputSettings.hpp"
-#include "BagInputSettings.hpp"
-#include "InputSettings.hpp"
+#include "AdvancedSettings.hpp"
+#include "BagToImagesSettings.hpp"
+#include "BagToVideoSettings.hpp"
+#include "BasicSettings.hpp"
 #include "DialogSettings.hpp"
-#include "DummyBagInputSettings.hpp"
-#include "EditBagInputSettings.hpp"
-#include "ImageInputSettings.hpp"
-#include "MergeBagsInputSettings.hpp"
+#include "DummyBagSettings.hpp"
+#include "EditBagSettings.hpp"
+#include "MergeBagsSettings.hpp"
 #include "PublishSettings.hpp"
 #include "UtilsUI.hpp"
-#include "VideoInputSettings.hpp"
+#include "VideoToBagSettings.hpp"
 
 #include <QSettings>
 
@@ -38,8 +38,8 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
         SECTION("Write") {
-            Utils::UI::InputParameters parameters;
-            InputSettings settings(parameters, "basic");
+            Utils::UI::BasicParameters parameters;
+            BasicSettings settings(parameters, "basic");
 
             parameters.sourceDirectory = "/source/dir";
             parameters.topicName = "/test_topic_name";
@@ -60,8 +60,8 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
         SECTION("Write") {
-            Utils::UI::AdvancedInputParameters parameters;
-            AdvancedInputSettings settings(parameters, "advanced");
+            Utils::UI::AdvancedParameters parameters;
+            AdvancedSettings settings(parameters, "advanced");
 
             parameters.targetDirectory = "/target/dir";
             settings.write();
@@ -72,7 +72,7 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
     }
-    SECTION("Image Input Params Test") {
+    SECTION("Bag to Images Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("images");
             REQUIRE(!qSettings.value("format").isValid());
@@ -84,8 +84,8 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
         SECTION("Write") {
-            Utils::UI::ImageInputParameters parameters;
-            ImageInputSettings settings(parameters, "images");
+            Utils::UI::BagToImagesParameters parameters;
+            BagToImagesSettings settings(parameters, "images");
 
             parameters.format = "jpg";
             parameters.quality = 10;
@@ -111,7 +111,7 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
     }
-    SECTION("Video Input Params Test") {
+    SECTION("Bag to Video Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("video");
             REQUIRE(!qSettings.value("format").isValid());
@@ -123,8 +123,8 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
         SECTION("Write") {
-            Utils::UI::VideoInputParameters parameters;
-            VideoInputSettings settings(parameters, "video");
+            Utils::UI::BagToVideoParameters parameters;
+            BagToVideoSettings settings(parameters, "video");
 
             parameters.format = "mkv";
             parameters.fps = 20;
@@ -150,7 +150,7 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
     }
-    SECTION("Bag Input Params Test") {
+    SECTION("Video to Bag Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("bag");
             REQUIRE(!qSettings.value("fps").isValid());
@@ -160,8 +160,8 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
         SECTION("Write") {
-            Utils::UI::BagInputParameters parameters;
-            BagInputSettings settings(parameters, "bag");
+            Utils::UI::VideoToBagParameters parameters;
+            VideoToBagSettings settings(parameters, "bag");
 
             parameters.fps = 40;
             parameters.useCustomFPS = true;
@@ -181,7 +181,7 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
     }
-    SECTION("Dummmy Bag Input Params Test") {
+    SECTION("Dummmy Bag Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("dummy");
             REQUIRE(!qSettings.value("topics").isValid());
@@ -189,8 +189,8 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
         SECTION("Write") {
-            Utils::UI::DummyBagInputParameters parameters;
-            DummyBagInputSettings settings(parameters, "dummy");
+            Utils::UI::DummyBagParameters parameters;
+            DummyBagSettings settings(parameters, "dummy");
 
             parameters.messageCount = 250;
             parameters.topics.push_back({ "string", "example_name" });
@@ -214,7 +214,7 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
     }
-    SECTION("Edit Bag Input Params Test") {
+    SECTION("Merge Bags Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("merge");
             REQUIRE(!qSettings.value("topics").isValid());
@@ -222,8 +222,8 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
         SECTION("Write") {
-            Utils::UI::MergeBagsInputParameters parameters;
-            MergeBagsInputSettings settings(parameters, "merge");
+            Utils::UI::MergeBagsParameters parameters;
+            MergeBagsSettings settings(parameters, "merge");
 
             parameters.secondSourceDirectory = "/path/to/other/bag";
             parameters.topics.push_back({ "topic", "/path/to/other/bag", true });
@@ -258,8 +258,8 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
         SECTION("Write") {
-            Utils::UI::EditBagInputParameters parameters;
-            EditBagInputSettings settings(parameters, "edit");
+            Utils::UI::EditBagParameters parameters;
+            EditBagSettings settings(parameters, "edit");
 
             parameters.deleteSource = true;
             parameters.updateTimestamps = true;

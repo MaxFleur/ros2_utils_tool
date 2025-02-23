@@ -8,12 +8,12 @@ class MergeBagsThread : public BasicThread {
     Q_OBJECT
 public:
     explicit
-    MergeBagsThread(const Utils::UI::MergeBagsInputParameters& parameters,
-                    QObject*                                   parent = nullptr);
+    MergeBagsThread(const Utils::UI::MergeBagsParameters& parameters,
+                    QObject*                              parent = nullptr);
 
     void
     run() override;
 
 private:
-    const Utils::UI::MergeBagsInputParameters& m_parameters;
+    const Utils::UI::MergeBagsParameters& m_parameters;
 };

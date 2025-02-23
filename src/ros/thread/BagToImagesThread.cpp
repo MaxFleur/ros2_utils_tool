@@ -1,4 +1,4 @@
-#include "WriteToImageThread.hpp"
+#include "BagToImagesThread.hpp"
 
 #include "UtilsROS.hpp"
 
@@ -17,8 +17,8 @@
 #include <cv_bridge/cv_bridge.h>
 #endif
 
-WriteToImageThread::WriteToImageThread(const Utils::UI::ImageInputParameters& parameters,
-                                       QObject*                               parent) :
+BagToImagesThread::BagToImagesThread(const Utils::UI::BagToImagesParameters& parameters,
+                                     QObject*                                parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),
     m_parameters(parameters)
 {
@@ -26,7 +26,7 @@ WriteToImageThread::WriteToImageThread(const Utils::UI::ImageInputParameters& pa
 
 
 void
-WriteToImageThread::run()
+BagToImagesThread::run()
 {
     const auto targetDirectoryStd = m_parameters.targetDirectory.toStdString();
 

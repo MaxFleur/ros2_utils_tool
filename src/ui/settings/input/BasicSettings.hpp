@@ -1,12 +1,12 @@
 #pragma once
 
-#include "BasicSettings.hpp"
+#include "GeneralSettings.hpp"
 #include "UtilsUI.hpp"
 
 // Store parameters used by all input widgets
-class InputSettings : public BasicSettings {
+class BasicSettings : public GeneralSettings {
 public:
-    InputSettings(Utils::UI::InputParameters& parameters,
+    BasicSettings(Utils::UI::BasicParameters& parameters,
                   const QString&              groupName);
 
     bool
@@ -17,5 +17,5 @@ protected:
     read() override;
 
 private:
-    Utils::UI::InputParameters& m_parameters;
+    Utils::UI::BasicParameters& m_parameters;
 };

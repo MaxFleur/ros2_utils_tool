@@ -1,7 +1,7 @@
 #pragma once
 
 #include "BasicBagWidget.hpp"
-#include "EditBagInputSettings.hpp"
+#include "EditBagSettings.hpp"
 #include "UtilsUI.hpp"
 
 #include <QPointer>
@@ -16,9 +16,9 @@ class EditBagWidget : public BasicBagWidget
     Q_OBJECT
 public:
     explicit
-    EditBagWidget(Utils::UI::EditBagInputParameters& parameters,
-                  bool                               checkROS2NameConform,
-                  QWidget*                           parent = 0);
+    EditBagWidget(Utils::UI::EditBagParameters& parameters,
+                  bool                          checkROS2NameConform,
+                  QWidget*                      parent = 0);
 
 private slots:
     void
@@ -38,9 +38,9 @@ private:
     QPointer<QCheckBox> m_deleteSourceCheckBox;
     QPointer<QCheckBox> m_updateTimestampsCheckBox;
 
-    Utils::UI::EditBagInputParameters& m_parameters;
+    Utils::UI::EditBagParameters& m_parameters;
 
-    EditBagInputSettings m_settings;
+    EditBagSettings m_settings;
 
     const bool m_checkROS2NameConform;
 

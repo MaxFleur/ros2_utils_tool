@@ -7,8 +7,8 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-BagToPCDsWidget::BagToPCDsWidget(Utils::UI::AdvancedInputParameters& parameters, QWidget *parent) :
-    AdvancedInputWidget(parameters, "Write PCD Files from Bag", ":/icons/bag_to_pcd", "bag_to_pcds", OUTPUT_PCDS, parent),
+BagToPCDsWidget::BagToPCDsWidget(Utils::UI::AdvancedParameters& parameters, QWidget *parent) :
+    AdvancedInputWidget(parameters, "Bag to PCD Files", ":/icons/bag_to_pcd", "bag_to_pcds", OUTPUT_PCDS, parent),
     m_parameters(parameters), m_settings(parameters, "bag_to_pcds")
 {
     m_topicNameComboBox->setToolTip("The point cloud bag topic.\nIf the bag contains multiple point cloud topics, you can choose one of them.");

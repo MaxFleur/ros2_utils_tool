@@ -3,13 +3,12 @@
 #include "BasicThread.hpp"
 #include "UtilsUI.hpp"
 
-// Thread used to weite a video to a bag
-class PCDsToBagThread : public BasicThread {
+// Thread used to write images out of a ROS bag
+class BagToPCDsThread : public BasicThread {
     Q_OBJECT
-
 public:
     explicit
-    PCDsToBagThread(const Utils::UI::AdvancedParameters& parameters,
+    BagToPCDsThread(const Utils::UI::AdvancedParameters& parameters,
                     QObject*                             parent = nullptr);
 
     void

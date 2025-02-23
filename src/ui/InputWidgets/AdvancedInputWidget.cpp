@@ -12,7 +12,7 @@
 
 #include <filesystem>
 
-AdvancedInputWidget::AdvancedInputWidget(Utils::UI::AdvancedInputParameters& parameters, const QString& headerText,
+AdvancedInputWidget::AdvancedInputWidget(Utils::UI::AdvancedParameters& parameters, const QString& headerText,
                                          const QString& iconPath, const QString& settingsIdentifier,
                                          int outputFormat, QWidget *parent) :
     BasicInputWidget(headerText, iconPath, parent),

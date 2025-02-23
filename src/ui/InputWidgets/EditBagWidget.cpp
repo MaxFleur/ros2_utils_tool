@@ -16,8 +16,7 @@
 
 #include <filesystem>
 
-EditBagWidget::EditBagWidget(Utils::UI::EditBagInputParameters& parameters,
-                             bool checkROS2NameConform, QWidget *parent) :
+EditBagWidget::EditBagWidget(Utils::UI::EditBagParameters& parameters, bool checkROS2NameConform, QWidget *parent) :
     BasicBagWidget(parameters, "Edit Bag", ":/icons/edit_bag", "edit_bag", parent),
     m_parameters(parameters), m_settings(parameters, "edit_bag"),
     m_checkROS2NameConform(checkROS2NameConform)
@@ -128,7 +127,7 @@ EditBagWidget::createTopicTree(bool newTreeRequested)
         // If the settings do not contain any topic items, create them
         const auto itemAlreadyExists = it != m_parameters.topics.end();
         if (!itemAlreadyExists) {
-            Utils::UI::EditBagInputParameters::EditBagTopic editBagTopic;
+            Utils::UI::EditBagParameters::EditBagTopic editBagTopic;
             editBagTopic.originalTopicName = QString::fromStdString(topicMetaData.name);
             editBagTopic.upperBoundary = topicWithMessageCount.message_count;
             m_parameters.topics.push_back(editBagTopic);

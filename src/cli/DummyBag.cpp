@@ -36,12 +36,12 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    Utils::UI::DummyBagInputParameters inputParameters;
-    inputParameters.topicName = "";
+    Utils::UI::DummyBagParameters parameters;
+    parameters.topicName = "";
 
     // Bag directory
-    inputParameters.sourceDirectory = arguments.at(1);
-    auto dirPath = inputParameters.sourceDirectory;
+    parameters.sourceDirectory = arguments.at(1);
+    auto dirPath = parameters.sourceDirectory;
     dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
     if (!std::filesystem::exists(dirPath.toStdString())) {
         std::cerr << "The entered directory for the bag file does not exist. Please specify a correct directory!" << std::endl;
@@ -49,8 +49,8 @@ main(int argc, char* argv[])
     }
 
     // Message count
-    inputParameters.messageCount = arguments.at(arguments.size() - 1).toInt();
-    if (inputParameters.messageCount < 1 || inputParameters.messageCount > 1000) {
+    parameters.messageCount = arguments.at(arguments.size() - 1).toInt();
+    if (parameters.messageCount < 1 || parameters.messageCount > 1000) {
         std::cerr << "Please enter a number between 1 and 1000 for the message count value!" << std::endl;
         return 0;
     }
@@ -94,20 +94,20 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    // Create thread inputParameters
-    QVector<Utils::UI::DummyBagInputParameters::DummyBagTopic> topics;
+    // Create thread parameters
+    QVector<Utils::UI::DummyBagParameters::DummyBagTopic> topics;
     for (auto i = 0; i < topicTypes.size(); i++) {
-        inputParameters.topics.push_back({ topicTypes.at(i), topicNames.at(i) });
+        parameters.topics.push_back({ topicTypes.at(i), topicNames.at(i) });
     }
 
-    if (std::filesystem::exists(inputParameters.sourceDirectory.toStdString())) {
+    if (std::filesystem::exists(parameters.sourceDirectory.toStdString())) {
         if (!Utils::CLI::shouldContinue("The dummy bag file already exists. Continue? [y/n]")) {
             return 0;
         }
     }
 
     // Create thread and connect to its informations
-    auto* const dummyBagThread = new DummyBagThread(inputParameters);
+    auto* const dummyBagThread = new DummyBagThread(parameters);
 
     QObject::connect(dummyBagThread, &DummyBagThread::progressChanged, [] (const QString& progressString, int progress) {
         const auto progressStringCMD = Utils::CLI::drawProgressString(progress);

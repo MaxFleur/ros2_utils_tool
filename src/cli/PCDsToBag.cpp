@@ -32,11 +32,11 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    Utils::UI::AdvancedInputParameters inputParameters;
+    Utils::UI::AdvancedParameters parameters;
 
     // PCDs directory
-    inputParameters.sourceDirectory = arguments.at(1);
-    auto dirPath = inputParameters.sourceDirectory;
+    parameters.sourceDirectory = arguments.at(1);
+    auto dirPath = parameters.sourceDirectory;
     dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
     if (!std::filesystem::exists(dirPath.toStdString())) {
         std::cerr << "The entered directory for the pcd files does not exist. Please specify a correct directory!" << std::endl;
@@ -44,7 +44,7 @@ main(int argc, char* argv[])
     }
 
     auto containsPCDFiles = false;
-    for (auto const& entry : std::filesystem::directory_iterator(inputParameters.sourceDirectory.toStdString())) {
+    for (auto const& entry : std::filesystem::directory_iterator(parameters.sourceDirectory.toStdString())) {
         if (entry.path().extension() == ".pcd") {
             containsPCDFiles = true;
             break;
@@ -56,8 +56,8 @@ main(int argc, char* argv[])
     }
 
     // Handle bag directory
-    inputParameters.targetDirectory = arguments.at(2);
-    dirPath = inputParameters.targetDirectory;
+    parameters.targetDirectory = arguments.at(2);
+    dirPath = parameters.targetDirectory;
     dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
     if (!std::filesystem::exists(dirPath.toStdString())) {
         std::cerr << "Invalid target directory. Please enter a valid one!" << std::endl;
@@ -67,26 +67,26 @@ main(int argc, char* argv[])
     // Check for optional arguments
     if (arguments.size() > 3) {
         // Topic name
-        if (!Utils::CLI::continueWithInvalidROS2Name(arguments, inputParameters.topicName)) {
+        if (!Utils::CLI::continueWithInvalidROS2Name(arguments, parameters.topicName)) {
             return 0;
         }
     }
     // Apply default topic name if not assigned
-    if (inputParameters.topicName.isEmpty()) {
-        inputParameters.topicName = "/topic_point_cloud";
+    if (parameters.topicName.isEmpty()) {
+        parameters.topicName = "/topic_point_cloud";
     }
 
-    if (std::filesystem::exists(inputParameters.targetDirectory.toStdString())) {
+    if (std::filesystem::exists(parameters.targetDirectory.toStdString())) {
         if (!Utils::CLI::shouldContinue("The bag file already exists. Continue? [y/n]")) {
             return 0;
         }
     }
 
     // Create thread and connect to its informations
-    auto* const pcdsToBagThread = new PCDsToBagThread(inputParameters);
+    auto* const pcdsToBagThread = new PCDsToBagThread(parameters);
 
     QObject::connect(pcdsToBagThread, &PCDsToBagThread::openingCVInstanceFailed, [] {
-        std::cerr << "The bag creation failed. Please make sure that all inputParameters are set correctly." << std::endl;
+        std::cerr << "The bag creation failed. Please make sure that all parameters are set correctly." << std::endl;
         return 0;
     });
     QObject::connect(pcdsToBagThread, &PCDsToBagThread::progressChanged, [] (const QString& progressString, int progress) {

@@ -16,7 +16,7 @@
 
 #include <filesystem>
 
-BasicBagWidget::BasicBagWidget(Utils::UI::AdvancedInputParameters& parameters,
+BasicBagWidget::BasicBagWidget(Utils::UI::AdvancedParameters& parameters,
                                const QString& titleText, const QString& iconText, const QString& settingsIdentifierText,
                                QWidget *parent) :
     BasicInputWidget(titleText, iconText, parent),

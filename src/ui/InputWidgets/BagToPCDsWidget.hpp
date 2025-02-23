@@ -1,7 +1,7 @@
 #pragma once
 
 #include "AdvancedInputWidget.hpp"
-#include "AdvancedInputSettings.hpp"
+#include "AdvancedSettings.hpp"
 #include "UtilsUI.hpp"
 
 class QComboBox;
@@ -13,11 +13,11 @@ class BagToPCDsWidget : public AdvancedInputWidget
     Q_OBJECT
 
 public:
-    BagToPCDsWidget(Utils::UI::AdvancedInputParameters& parameters,
-                    QWidget*                            parent = 0);
+    BagToPCDsWidget(Utils::UI::AdvancedParameters& parameters,
+                    QWidget*                       parent = 0);
 
 private:
-    Utils::UI::AdvancedInputParameters& m_parameters;
+    Utils::UI::AdvancedParameters& m_parameters;
 
-    AdvancedInputSettings m_settings;
+    AdvancedSettings m_settings;
 };

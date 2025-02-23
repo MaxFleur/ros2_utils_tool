@@ -1,4 +1,4 @@
-#include "WriteToBagThread.hpp"
+#include "VideoToBagThread.hpp"
 
 #include <opencv2/videoio.hpp>
 
@@ -13,8 +13,8 @@
 #include <cv_bridge/cv_bridge.h>
 #endif
 
-WriteToBagThread::WriteToBagThread(const Utils::UI::BagInputParameters& parameters,
-                                   QObject*                             parent) :
+VideoToBagThread::VideoToBagThread(const Utils::UI::VideoToBagParameters& parameters,
+                                   QObject*                               parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),
     m_parameters(parameters)
 {
@@ -22,7 +22,7 @@ WriteToBagThread::WriteToBagThread(const Utils::UI::BagInputParameters& paramete
 
 
 void
-WriteToBagThread::run()
+VideoToBagThread::run()
 {
     auto videoCapture = cv::VideoCapture(m_sourceDirectory, cv::CAP_ANY, {
         cv::CAP_PROP_HW_ACCELERATION, m_parameters.useHardwareAcceleration ? cv::VIDEO_ACCELERATION_ANY : cv::VIDEO_ACCELERATION_NONE

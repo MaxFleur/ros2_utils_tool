@@ -2,10 +2,10 @@
 
 #include "AdvancedSettings.hpp"
 
-// Store publishing parameters
-class PublishSettings : public AdvancedSettings {
+// Store bag editing parameters
+class EditBagSettings : public AdvancedSettings {
 public:
-    PublishSettings(Utils::UI::PublishParameters& parameters,
+    EditBagSettings(Utils::UI::EditBagParameters& parameters,
                     const QString&                groupName);
 
     bool
@@ -16,5 +16,5 @@ private:
     read() override;
 
 private:
-    Utils::UI::PublishParameters& m_parameters;
+    Utils::UI::EditBagParameters& m_parameters;
 };

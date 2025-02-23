@@ -1,7 +1,7 @@
 #pragma once
 
 #include "BasicInputWidget.hpp"
-#include "DummyBagInputSettings.hpp"
+#include "DummyBagSettings.hpp"
 #include "UtilsUI.hpp"
 
 #include <QPointer>
@@ -18,9 +18,9 @@ class DummyBagWidget : public BasicInputWidget
     Q_OBJECT
 
 public:
-    DummyBagWidget(Utils::UI::DummyBagInputParameters& parameters,
-                   bool                                checkROS2NameConform,
-                   QWidget*                            parent = 0);
+    DummyBagWidget(Utils::UI::DummyBagParameters& parameters,
+                   bool                           checkROS2NameConform,
+                   QWidget*                       parent = 0);
 
 private slots:
     void
@@ -30,8 +30,8 @@ private slots:
     removeDummyTopicWidget();
 
     void
-    createNewDummyTopicWidget(const Utils::UI::DummyBagInputParameters::DummyBagTopic& topics,
-                              int                                                      index);
+    createNewDummyTopicWidget(const Utils::UI::DummyBagParameters::DummyBagTopic& topics,
+                              int                                                 index);
 
     void
     okButtonPressed();
@@ -52,9 +52,9 @@ private:
     QPointer<QToolButton> m_minusButton;
     QPointer<QToolButton> m_plusButton;
 
-    Utils::UI::DummyBagInputParameters& m_parameters;
+    Utils::UI::DummyBagParameters& m_parameters;
 
-    DummyBagInputSettings m_settings;
+    DummyBagSettings m_settings;
 
     int m_numberOfTopics = 0;
 

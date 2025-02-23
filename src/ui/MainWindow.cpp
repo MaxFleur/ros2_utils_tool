@@ -66,23 +66,23 @@ MainWindow::setInputWidget(int mode)
         basicInputWidget = new BagToImagesWidget(m_parametersBagToImages);
         break;
     case Utils::UI::TOOL_EDIT_BAG:
-        basicInputWidget = new EditBagWidget(m_editBagParameters, m_dialogParameters.checkROS2NameConform);
+        basicInputWidget = new EditBagWidget(m_parametersEditBag, m_dialogParameters.checkROS2NameConform);
         break;
     case Utils::UI::TOOL_MERGE_BAGS:
-        basicInputWidget = new MergeBagsWidget(m_mergeBagsParameters);
+        basicInputWidget = new MergeBagsWidget(m_parametersMergeBags);
         break;
     case Utils::UI::TOOL_DUMMY_BAG:
-        basicInputWidget = new DummyBagWidget(m_dummyBagParameters, m_dialogParameters.checkROS2NameConform);
+        basicInputWidget = new DummyBagWidget(m_parametersDummyBag, m_dialogParameters.checkROS2NameConform);
         break;
     case Utils::UI::TOOL_BAG_INFO:
         basicInputWidget = new BagInfoWidget;
         break;
     case Utils::UI::TOOL_PUBLISH_VIDEO:
-        basicInputWidget = new PublishWidget(m_publishParametersVideo, m_dialogParameters.usePredefinedTopicNames,
+        basicInputWidget = new PublishWidget(m_parametersPublishVideo, m_dialogParameters.usePredefinedTopicNames,
                                              m_dialogParameters.checkROS2NameConform, true);
         break;
     case Utils::UI::TOOL_PUBLISH_IMAGES:
-        basicInputWidget = new PublishWidget(m_publishParametersImages, m_dialogParameters.usePredefinedTopicNames,
+        basicInputWidget = new PublishWidget(m_parametersPublishImages, m_dialogParameters.usePredefinedTopicNames,
                                              m_dialogParameters.checkROS2NameConform, false);
         break;
     }
@@ -125,23 +125,23 @@ MainWindow::setProgressWidget(int mode)
         break;
     case Utils::UI::TOOL_EDIT_BAG:
         progressWidget = new ProgressWidget(":/icons/edit_bag_black.svg", ":/icons/edit_bag_white.svg",
-                                            "Writing to edited ROSBag...", m_editBagParameters, mode);
+                                            "Writing to edited ROSBag...", m_parametersEditBag, mode);
         break;
     case Utils::UI::TOOL_MERGE_BAGS:
         progressWidget = new ProgressWidget(":/icons/merge_bags_black.svg", ":/icons/merge_bags_white.svg",
-                                            "Writing merged ROSBag...", m_mergeBagsParameters, mode);
+                                            "Writing merged ROSBag...", m_parametersMergeBags, mode);
         break;
     case Utils::UI::TOOL_DUMMY_BAG:
         progressWidget = new ProgressWidget(":/icons/dummy_bag_black.svg", ":/icons/dummy_bag_white.svg",
-                                            "Creating Bag...", m_dummyBagParameters, mode);
+                                            "Creating Bag...", m_parametersDummyBag, mode);
         break;
     case Utils::UI::TOOL_PUBLISH_VIDEO:
         progressWidget = new ProgressWidget(":/icons/publish_video_black.svg", ":/icons/publish_video_white.svg",
-                                            "Publishing Video...", m_publishParametersVideo, mode);
+                                            "Publishing Video...", m_parametersPublishVideo, mode);
         break;
     case Utils::UI::TOOL_PUBLISH_IMAGES:
         progressWidget = new ProgressWidget(":/icons/publish_images_black.svg", ":/icons/publish_images_white.svg",
-                                            "Publishing Images...", m_publishParametersImages, mode);
+                                            "Publishing Images...", m_parametersPublishImages, mode);
         break;
     }
     // Resize event is not called inside the function, so use a delay
