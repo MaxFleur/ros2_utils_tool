@@ -4,8 +4,6 @@
 #include "UtilsUI.hpp"
 
 #include <QCheckBox>
-#include <QComboBox>
-#include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QFormLayout>
@@ -23,17 +21,14 @@
 
 VideoToBagWidget::VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
                                    bool usePredefinedTopicName, bool checkROS2NameConform, QWidget *parent) :
-    BasicInputWidget("Video to Bag", ":/icons/video_to_bag", parent),
+    AdvancedInputWidget(parameters, "Video to Bag", ":/icons/video_to_bag", "vid_to_bag", OUTPUT_BAG, parent),
     m_parameters(parameters), m_settings(parameters, "vid_to_bag"),
     m_checkROS2NameConform(checkROS2NameConform)
 {
-    m_sourceLineEdit->setText(parameters.sourceDirectory);
-    m_sourceLineEdit->setToolTip("The directory of the source video file.");
+    m_targetLineEdit->setToolTip("The directory where the ROSBag should be stored.");
 
-    m_bagNameLineEdit = new QLineEdit(m_parameters.targetDirectory);
-    m_bagNameLineEdit->setToolTip("The directory where the ROSBag should be stored.");
     auto* const bagLocationButton = new QToolButton;
-    auto* const storeBagLayout = Utils::UI::createLineEditButtonLayout(m_bagNameLineEdit, bagLocationButton);
+    auto* const storeBagLayout = Utils::UI::createLineEditButtonLayout(m_targetLineEdit, bagLocationButton);
 
     auto* const topicNameLineEdit = new QLineEdit(m_parameters.topicName);
     topicNameLineEdit->setToolTip("The video's topic name inside the ROSBag.");
@@ -92,8 +87,7 @@ VideoToBagWidget::VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
     // Generally, enable ok only if we have a source and target dir and an existing topic name
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.targetDirectory.isEmpty() && !m_parameters.topicName.isEmpty());
 
-    connect(m_findSourceButton, &QPushButton::clicked, this, &VideoToBagWidget::searchButtonPressed);
-    connect(bagLocationButton, &QPushButton::clicked, this, &VideoToBagWidget::bagLocationButtonPressed);
+    connect(bagLocationButton, &QPushButton::clicked, this, &VideoToBagWidget::targetLocationButtonPressed);
     connect(topicNameLineEdit, &QLineEdit::textChanged, this, [this, topicNameLineEdit] {
         writeParameterToSettings(m_parameters.topicName, topicNameLineEdit->text(), m_settings);
         enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.targetDirectory.isEmpty() && !m_parameters.topicName.isEmpty());
@@ -109,7 +103,6 @@ VideoToBagWidget::VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
     connect(switchRedBlueCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.exchangeRedBlueValues, state == Qt::Checked, m_settings);
     });
-    connect(m_dialogButtonBox, &QDialogButtonBox::accepted, this, &VideoToBagWidget::okButtonPressed);
     connect(okShortCut, &QShortcut::activated, this, &VideoToBagWidget::okButtonPressed);
 
     useCustomFPSCheckBoxPressed(m_parameters.useCustomFPS);
@@ -139,24 +132,10 @@ VideoToBagWidget::searchButtonPressed()
     QDir videoDirectoryDir(videoDir);
     videoDirectoryDir.cdUp();
     if (const auto autoBagDirectory = videoDirectoryDir.path() + "/video_bag"; !std::filesystem::exists(autoBagDirectory.toStdString())) {
-        m_bagNameLineEdit->setText(autoBagDirectory);
+        m_targetLineEdit->setText(autoBagDirectory);
         writeParameterToSettings(m_parameters.targetDirectory, autoBagDirectory, m_settings);
     }
 
-    enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.targetDirectory.isEmpty() && !m_parameters.topicName.isEmpty());
-}
-
-
-void
-VideoToBagWidget::bagLocationButtonPressed()
-{
-    const auto fileName = QFileDialog::getSaveFileName(this, "Save ROSBag");
-    if (fileName.isEmpty()) {
-        return;
-    }
-
-    writeParameterToSettings(m_parameters.targetDirectory, fileName, m_settings);
-    m_bagNameLineEdit->setText(fileName);
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.targetDirectory.isEmpty() && !m_parameters.topicName.isEmpty());
 }
 

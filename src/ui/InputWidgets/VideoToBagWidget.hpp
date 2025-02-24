@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BasicInputWidget.hpp"
+#include "AdvancedInputWidget.hpp"
 #include "Parameters.hpp"
 #include "VideoToBagSettings.hpp"
 
@@ -8,11 +8,10 @@
 #include <QWidget>
 
 class QFormLayout;
-class QLineEdit;
 class QSpinBox;
 
 // Widget used to write a video file into a ROSBag
-class VideoToBagWidget : public BasicInputWidget
+class VideoToBagWidget : public AdvancedInputWidget
 {
     Q_OBJECT
 
@@ -24,19 +23,15 @@ public:
 
 private slots:
     void
-    searchButtonPressed();
-
-    void
-    bagLocationButtonPressed();
+    searchButtonPressed() override;
 
     void
     useCustomFPSCheckBoxPressed(int state);
 
     void
-    okButtonPressed();
+    okButtonPressed() override;
 
 private:
-    QPointer<QLineEdit> m_bagNameLineEdit;
     QPointer<QFormLayout> m_advancedOptionsFormLayout;
     QPointer<QSpinBox> m_fpsSpinBox;
 
