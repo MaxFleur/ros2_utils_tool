@@ -98,6 +98,12 @@ main(int argc, char* argv[])
 
     // Target file
     parameters.targetDirectory = arguments.back();
+    auto dirPath = parameters.targetDirectory;
+    dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
+    if (!std::filesystem::exists(dirPath.toStdString())) {
+        std::cerr << "Invalid target directory. Please enter a valid one!" << std::endl;
+        return 0;
+    }
     if (parameters.targetDirectory == parameters.sourceDirectory || parameters.targetDirectory == parameters.secondSourceDirectory) {
         std::cerr << "The target file must have a different name then both input bag files!" << std::endl;
         return 0;

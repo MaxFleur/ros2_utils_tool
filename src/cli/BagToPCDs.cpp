@@ -55,8 +55,14 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    // Images directory
+    // PCD files directory
     parameters.targetDirectory = arguments.at(2);
+    auto dirPath = parameters.targetDirectory;
+    dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
+    if (!std::filesystem::exists(dirPath.toStdString())) {
+        std::cerr << "Invalid target directory. Please enter a valid one!" << std::endl;
+        return 0;
+    }
 
     // Check for optional arguments
     if (arguments.size() > 3) {

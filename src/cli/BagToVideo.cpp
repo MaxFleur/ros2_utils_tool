@@ -65,7 +65,7 @@ main(int argc, char* argv[])
     dirPath = parameters.targetDirectory;
     dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
     if (!std::filesystem::exists(dirPath.toStdString())) {
-        std::cerr << "The entered directory for the video file does not exist. Please specify a correct directory!" << std::endl;
+        std::cerr << "Invalid target directory. Please enter a valid one!" << std::endl;
         return 0;
     }
     parameters.format = parameters.targetDirectory.right(3);
