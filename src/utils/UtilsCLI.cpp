@@ -7,6 +7,19 @@
 namespace Utils::CLI
 {
 bool
+containsInvalidArguments(const QStringList& argumentsList, const QStringList& checkList)
+{
+    for (const auto& argument : argumentsList) {
+        if ((argument.startsWith("-") || argument.startsWith("--")) && !checkList.contains(argument)) {
+            std::cerr << "Unrecognized argument '" << argument.toStdString() << "'!" << std::endl;
+            return true;
+        }
+    }
+    return false;
+}
+
+
+bool
 containsArguments(const QStringList& argumentsList, const QString& shortArg, const QString& longArg)
 {
     return argumentsList.contains(shortArg) || argumentsList.contains(longArg);

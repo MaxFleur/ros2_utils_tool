@@ -13,6 +13,21 @@
 TEST_CASE("Utils CLI Testing", "[utils]") {
     QStringList arguments { "argument1", "arg2", "test_3" };
 
+    SECTION("Contains invalid test") {
+        arguments.append("-h");
+        REQUIRE(Utils::CLI::containsInvalidArguments(arguments, { "-h", "--help" }) == false);
+
+        arguments.pop_back();
+        arguments.append("--help");
+        REQUIRE(Utils::CLI::containsInvalidArguments(arguments, { "-h", "--help" }) == false);
+
+        arguments.append("-t");
+        REQUIRE(Utils::CLI::containsInvalidArguments(arguments, { "-h", "--help" }) == true);
+
+        arguments.pop_back();
+        arguments.append("--test");
+        REQUIRE(Utils::CLI::containsInvalidArguments(arguments, { "-h", "--help" }) == true);
+    }
     SECTION("Contains test") {
         REQUIRE(Utils::CLI::containsArguments(arguments, "-t", "--test") == false);
 
