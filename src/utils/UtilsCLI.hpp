@@ -14,8 +14,8 @@ namespace Utils::CLI
 // Determines if an argument list contains invalid arguments
 // by comparing it with a matching checklist
 bool
-containsInvalidArguments(const QStringList& argumentsList,
-                         const QStringList& checkList);
+containsInvalidParameters(const QStringList& argumentsList,
+                          const QStringList& checkList);
 
 // Checks if the command arguments stringlist contains either a specific
 // short or long argument and returns the index

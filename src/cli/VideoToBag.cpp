@@ -34,12 +34,8 @@ main(int argc, char* argv[])
 
     const auto arguments = app.arguments();
     const QStringList checkList{ "-t", "-r", "-a", "-e", "-h", "--topic_name", "--rate", "--accelerate", "--exchange", "--help" };
-    if (Utils::CLI::containsInvalidArguments(arguments, checkList)) {
-        showHelp();
-        return 0;
-    }
-
-    if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
+    if (Utils::CLI::containsInvalidParameters(arguments, checkList) ||
+        arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
     }

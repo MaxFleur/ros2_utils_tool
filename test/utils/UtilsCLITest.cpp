@@ -15,18 +15,18 @@ TEST_CASE("Utils CLI Testing", "[utils]") {
 
     SECTION("Contains invalid test") {
         arguments.append("-h");
-        REQUIRE(Utils::CLI::containsInvalidArguments(arguments, { "-h", "--help" }) == false);
+        REQUIRE(Utils::CLI::containsInvalidParameters(arguments, { "-h", "--help" }) == false);
 
         arguments.pop_back();
         arguments.append("--help");
-        REQUIRE(Utils::CLI::containsInvalidArguments(arguments, { "-h", "--help" }) == false);
+        REQUIRE(Utils::CLI::containsInvalidParameters(arguments, { "-h", "--help" }) == false);
 
         arguments.append("-t");
-        REQUIRE(Utils::CLI::containsInvalidArguments(arguments, { "-h", "--help" }) == true);
+        REQUIRE(Utils::CLI::containsInvalidParameters(arguments, { "-h", "--help" }) == true);
 
         arguments.pop_back();
         arguments.append("--test");
-        REQUIRE(Utils::CLI::containsInvalidArguments(arguments, { "-h", "--help" }) == true);
+        REQUIRE(Utils::CLI::containsInvalidParameters(arguments, { "-h", "--help" }) == true);
     }
     SECTION("Contains test") {
         REQUIRE(Utils::CLI::containsArguments(arguments, "-t", "--test") == false);

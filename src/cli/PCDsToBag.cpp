@@ -28,12 +28,8 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto arguments = app.arguments();
-    if (Utils::CLI::containsInvalidArguments(arguments, { "-h", "--help", "-t1", "--topic_name" })) {
-        showHelp();
-        return 0;
-    }
-
-    if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
+    if (Utils::CLI::containsInvalidParameters(arguments, { "-h", "--help", "-t1", "--topic_name", "-r", "--rate" }) ||
+        arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
     }

@@ -7,7 +7,7 @@
 namespace Utils::CLI
 {
 bool
-containsInvalidArguments(const QStringList& argumentsList, const QStringList& checkList)
+containsInvalidParameters(const QStringList& argumentsList, const QStringList& checkList)
 {
     for (const auto& argument : argumentsList) {
         if ((argument.startsWith("-") || argument.startsWith("--")) && !checkList.contains(argument)) {
