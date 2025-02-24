@@ -6,21 +6,23 @@
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QFileDialog>
+#include <QFormLayout>
+#include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QShortcut>
 #include <QToolButton>
+#include <QVBoxLayout>
 
 #include <filesystem>
 
 AdvancedInputWidget::AdvancedInputWidget(Parameters::AdvancedParameters& parameters, const QString& headerText,
-                                         const QString& iconPath, const QString& settingsIdentifier,
-                                         int outputFormat, QWidget *parent) :
+                                         const QString& iconPath, const QString& sourceFormLayoutName, const QString& targetFormLayoutName,
+                                         const QString& settingsIdentifier, int outputFormat, QWidget *parent) :
     BasicInputWidget(headerText, iconPath, parent),
     m_parameters(parameters), m_settings(parameters, settingsIdentifier), m_outputFormat(outputFormat)
 {
     m_sourceLineEdit->setText(parameters.sourceDirectory);
-    m_sourceLineEdit->setToolTip("The directory of the source bag file.");
 
     m_topicNameComboBox = new QComboBox;
     m_topicNameComboBox->setMinimumWidth(200);
@@ -35,6 +37,30 @@ AdvancedInputWidget::AdvancedInputWidget(Parameters::AdvancedParameters& paramet
     }
 
     m_targetLineEdit = new QLineEdit(m_parameters.targetDirectory);
+    auto* const targetLocationButton = new QToolButton;
+    auto* const targetLocationLayout = Utils::UI::createLineEditButtonLayout(m_targetLineEdit, targetLocationButton);
+
+    m_basicOptionsFormLayout = new QFormLayout;
+    m_basicOptionsFormLayout->addRow(sourceFormLayoutName, m_findSourceLayout);
+    m_basicOptionsFormLayout->addRow(targetFormLayoutName, targetLocationLayout);
+
+    m_controlsLayout = new QVBoxLayout;
+    m_controlsLayout->addStretch();
+    m_controlsLayout->addWidget(m_headerPixmapLabel);
+    m_controlsLayout->addWidget(m_headerLabel);
+    m_controlsLayout->addSpacing(40);
+    m_controlsLayout->addLayout(m_basicOptionsFormLayout);
+    m_controlsLayout->addSpacing(5);
+
+    auto* const controlsSqueezedLayout = new QHBoxLayout;
+    controlsSqueezedLayout->addStretch();
+    controlsSqueezedLayout->addLayout(m_controlsLayout);
+    controlsSqueezedLayout->addStretch();
+
+    auto* const mainLayout = new QVBoxLayout;
+    mainLayout->addLayout(controlsSqueezedLayout);
+    mainLayout->addLayout(m_buttonLayout);
+    setLayout(mainLayout);
 
     auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
 
@@ -42,6 +68,7 @@ AdvancedInputWidget::AdvancedInputWidget(Parameters::AdvancedParameters& paramet
     connect(m_topicNameComboBox, &QComboBox::currentTextChanged, this, [this] (const QString& text) {
         writeParameterToSettings(m_parameters.topicName, text, m_settings);
     });
+    connect(targetLocationButton, &QPushButton::clicked, this, &AdvancedInputWidget::targetLocationButtonPressed);
     connect(m_dialogButtonBox, &QDialogButtonBox::accepted, this, &AdvancedInputWidget::okButtonPressed);
     connect(okShortCut, &QShortcut::activated, this, &AdvancedInputWidget::okButtonPressed);
 }

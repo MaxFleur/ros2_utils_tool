@@ -14,21 +14,17 @@
 #include <QPushButton>
 #include <QShortcut>
 #include <QSpinBox>
-#include <QToolButton>
-#include <QVBoxLayout>
 
 #include <filesystem>
 
 VideoToBagWidget::VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
                                    bool usePredefinedTopicName, bool checkROS2NameConform, QWidget *parent) :
-    AdvancedInputWidget(parameters, "Video to Bag", ":/icons/video_to_bag", "vid_to_bag", OUTPUT_BAG, parent),
+    AdvancedInputWidget(parameters, "Video to Bag", ":/icons/video_to_bag", "Video Dir:", "Bag Location:", "vid_to_bag", OUTPUT_BAG, parent),
     m_parameters(parameters), m_settings(parameters, "vid_to_bag"),
     m_checkROS2NameConform(checkROS2NameConform)
 {
+    m_sourceLineEdit->setToolTip("The video files directory.");
     m_targetLineEdit->setToolTip("The directory where the ROSBag should be stored.");
-
-    auto* const bagLocationButton = new QToolButton;
-    auto* const storeBagLayout = Utils::UI::createLineEditButtonLayout(m_targetLineEdit, bagLocationButton);
 
     auto* const topicNameLineEdit = new QLineEdit(m_parameters.topicName);
     topicNameLineEdit->setToolTip("The video's topic name inside the ROSBag.");
@@ -37,10 +33,7 @@ VideoToBagWidget::VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
         topicNameLineEdit->setText("/topic_video");
     }
 
-    auto* const basicOptionsFormLayout = new QFormLayout;
-    basicOptionsFormLayout->addRow("Video File:", m_findSourceLayout);
-    basicOptionsFormLayout->addRow("Bag Location:", storeBagLayout);
-    basicOptionsFormLayout->addRow("Topic Name:", topicNameLineEdit);
+    m_basicOptionsFormLayout->insertRow(1, "Topic Name:", topicNameLineEdit);
 
     auto* const advancedOptionsCheckBox = new QCheckBox;
     advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions ? Qt::Checked : Qt::Unchecked);
@@ -61,33 +54,15 @@ VideoToBagWidget::VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
     advancedOptionsWidget->setLayout(m_advancedOptionsFormLayout);
     advancedOptionsWidget->setVisible(m_parameters.showAdvancedOptions);
 
-    auto* const controlsLayout = new QVBoxLayout;
-    controlsLayout->addStretch();
-    controlsLayout->addWidget(m_headerPixmapLabel);
-    controlsLayout->addWidget(m_headerLabel);
-    controlsLayout->addSpacing(40);
-    controlsLayout->addLayout(basicOptionsFormLayout);
-    controlsLayout->addSpacing(5);
-    controlsLayout->addWidget(advancedOptionsCheckBox);
-    controlsLayout->addSpacing(10);
-    controlsLayout->addWidget(advancedOptionsWidget);
-    controlsLayout->addStretch();
-
-    auto* const controlsSqueezedLayout = new QHBoxLayout;
-    controlsSqueezedLayout->addStretch();
-    controlsSqueezedLayout->addLayout(controlsLayout);
-    controlsSqueezedLayout->addStretch();
-
-    auto* const mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(controlsSqueezedLayout);
-    mainLayout->addLayout(m_buttonLayout);
-    setLayout(mainLayout);
+    m_controlsLayout->addWidget(advancedOptionsCheckBox);
+    m_controlsLayout->addSpacing(10);
+    m_controlsLayout->addWidget(advancedOptionsWidget);
+    m_controlsLayout->addStretch();
 
     auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
     // Generally, enable ok only if we have a source and target dir and an existing topic name
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.targetDirectory.isEmpty() && !m_parameters.topicName.isEmpty());
 
-    connect(bagLocationButton, &QPushButton::clicked, this, &VideoToBagWidget::targetLocationButtonPressed);
     connect(topicNameLineEdit, &QLineEdit::textChanged, this, [this, topicNameLineEdit] {
         writeParameterToSettings(m_parameters.topicName, topicNameLineEdit->text(), m_settings);
         enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.targetDirectory.isEmpty() && !m_parameters.topicName.isEmpty());

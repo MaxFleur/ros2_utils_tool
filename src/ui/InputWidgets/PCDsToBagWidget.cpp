@@ -12,21 +12,17 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QShortcut>
-#include <QToolButton>
-#include <QVBoxLayout>
 
 #include <filesystem>
 
 PCDsToBagWidget::PCDsToBagWidget(Parameters::AdvancedParameters& parameters,
                                  bool usePredefinedTopicName, bool checkROS2NameConform, QWidget *parent) :
-    AdvancedInputWidget(parameters, "PCD Files to Bag", ":/icons/pcd_to_bag", "pcd_to_bag", OUTPUT_BAG, parent),
+    AdvancedInputWidget(parameters, "PCD Files to Bag", ":/icons/pcd_to_bag", "Files Dir:", "Bag Location:", "pcd_to_bag", OUTPUT_BAG, parent),
     m_parameters(parameters), m_settings(parameters, "pcd_to_bag"),
     m_checkROS2NameConform(checkROS2NameConform)
 {
+    m_sourceLineEdit->setToolTip("The pcd files directory.");
     m_targetLineEdit->setToolTip("The directory where the bag should be stored.");
-
-    auto* const bagLocationButton = new QToolButton;
-    auto* const storeBagLayout = Utils::UI::createLineEditButtonLayout(m_targetLineEdit, bagLocationButton);
 
     auto* const topicNameLineEdit = new QLineEdit(m_parameters.topicName);
     topicNameLineEdit->setToolTip("The topic name in the target bag file.");
@@ -35,34 +31,14 @@ PCDsToBagWidget::PCDsToBagWidget(Parameters::AdvancedParameters& parameters,
         topicNameLineEdit->setText("/topic_point_cloud");
     }
 
-    auto* const formLayout = new QFormLayout;
-    formLayout->addRow("PCD Files:", m_findSourceLayout);
-    formLayout->addRow("Bag Location:", storeBagLayout);
-    formLayout->addRow("Topic Name:", topicNameLineEdit);
+    m_basicOptionsFormLayout->addRow("Topic Name:", topicNameLineEdit);
 
-    auto* const controlsLayout = new QVBoxLayout;
-    controlsLayout->addStretch();
-    controlsLayout->addWidget(m_headerPixmapLabel);
-    controlsLayout->addWidget(m_headerLabel);
-    controlsLayout->addSpacing(40);
-    controlsLayout->addLayout(formLayout);
-    controlsLayout->addStretch();
-
-    auto* const controlsSqueezedLayout = new QHBoxLayout;
-    controlsSqueezedLayout->addStretch();
-    controlsSqueezedLayout->addLayout(controlsLayout);
-    controlsSqueezedLayout->addStretch();
-
-    auto* const mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(controlsSqueezedLayout);
-    mainLayout->addLayout(m_buttonLayout);
-    setLayout(mainLayout);
+    m_controlsLayout->addStretch();
 
     auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
     // Generally, enable ok only if we have a source and target dir and an existing topic name
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.targetDirectory.isEmpty() && !m_parameters.topicName.isEmpty());
 
-    connect(bagLocationButton, &QPushButton::clicked, this, &PCDsToBagWidget::targetLocationButtonPressed);
     connect(topicNameLineEdit, &QLineEdit::textChanged, this, [this, topicNameLineEdit] {
         writeParameterToSettings(m_parameters.topicName, topicNameLineEdit->text(), m_settings);
         enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.targetDirectory.isEmpty() && !m_parameters.topicName.isEmpty());

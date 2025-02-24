@@ -7,20 +7,15 @@
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QPushButton>
 #include <QSlider>
-#include <QToolButton>
-#include <QVBoxLayout>
 
 BagToImagesWidget::BagToImagesWidget(Parameters::BagToImagesParameters& parameters, QWidget *parent) :
-    AdvancedInputWidget(parameters, "Bag to Images", ":/icons/bag_to_images", "bag_to_images", OUTPUT_IMAGES, parent),
+    AdvancedInputWidget(parameters, "Bag to Images", ":/icons/bag_to_images", "Bag File:", "Images Location:", "bag_to_images", OUTPUT_IMAGES, parent),
     m_parameters(parameters), m_settings(parameters, "bag_to_images")
 {
+    m_sourceLineEdit->setToolTip("The source bag file directory.");
     m_topicNameComboBox->setToolTip("The image messages topic.\nIf the bag contains multiple video topics, you can choose one of them.");
     m_targetLineEdit->setToolTip("The directory where the images should be stored.");
-
-    auto* const imagesLocationButton = new QToolButton;
-    auto* const searchImagesPathLayout = Utils::UI::createLineEditButtonLayout(m_targetLineEdit, imagesLocationButton);
 
     auto* const formatComboBox = new QComboBox;
     formatComboBox->addItem("jpg", 0);
@@ -29,11 +24,8 @@ BagToImagesWidget::BagToImagesWidget(Parameters::BagToImagesParameters& paramete
     formatComboBox->setToolTip("The format of the written images.");
     formatComboBox->setCurrentText(m_parameters.format);
 
-    auto* const basicOptionsFormLayout = new QFormLayout;
-    basicOptionsFormLayout->addRow("Bag File:", m_findSourceLayout);
-    basicOptionsFormLayout->addRow("Topic Name:", m_topicNameComboBox);
-    basicOptionsFormLayout->addRow("Images Location:", searchImagesPathLayout);
-    basicOptionsFormLayout->addRow("Format:", formatComboBox);
+    m_basicOptionsFormLayout->insertRow(1, "Topic Name:", m_topicNameComboBox);
+    m_basicOptionsFormLayout->addRow("Format:", formatComboBox);
 
     auto* const advancedOptionsCheckBox = new QCheckBox;
     advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions ? Qt::Checked : Qt::Unchecked);
@@ -50,35 +42,17 @@ BagToImagesWidget::BagToImagesWidget(Parameters::BagToImagesParameters& paramete
     advancedOptionsWidget->setLayout(m_advancedOptionsFormLayout);
     advancedOptionsWidget->setVisible(m_parameters.showAdvancedOptions);
 
-    auto* const controlsLayout = new QVBoxLayout;
-    controlsLayout->addStretch();
-    controlsLayout->addWidget(m_headerPixmapLabel);
-    controlsLayout->addWidget(m_headerLabel);
-    controlsLayout->addSpacing(40);
-    controlsLayout->addLayout(basicOptionsFormLayout);
-    controlsLayout->addSpacing(5);
-    controlsLayout->addWidget(advancedOptionsCheckBox);
-    controlsLayout->addSpacing(10);
-    controlsLayout->addWidget(advancedOptionsWidget);
-    controlsLayout->addStretch();
-
-    auto* const controlsSqueezedLayout = new QHBoxLayout;
-    controlsSqueezedLayout->addStretch();
-    controlsSqueezedLayout->addLayout(controlsLayout);
-    controlsSqueezedLayout->addStretch();
+    m_controlsLayout->addWidget(advancedOptionsCheckBox);
+    m_controlsLayout->addSpacing(10);
+    m_controlsLayout->addWidget(advancedOptionsWidget);
+    m_controlsLayout->addStretch();
 
     adjustWidgetsToChangedFormat(m_parameters.format);
-
-    auto* const mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(controlsSqueezedLayout);
-    mainLayout->addLayout(m_buttonLayout);
-    setLayout(mainLayout);
 
     // Generally, only enable this if the source bag, topic name and target dir line edit contain text
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() &&
                    !m_parameters.topicName.isEmpty() && !m_parameters.targetDirectory.isEmpty());
 
-    connect(imagesLocationButton, &QPushButton::clicked, this, &BagToImagesWidget::targetLocationButtonPressed);
     connect(formatComboBox, &QComboBox::currentTextChanged, this, &BagToImagesWidget::adjustWidgetsToChangedFormat);
     connect(advancedOptionsCheckBox, &QCheckBox::stateChanged, this, [this, advancedOptionsWidget] (int state) {
         m_parameters.showAdvancedOptions = state == Qt::Checked;

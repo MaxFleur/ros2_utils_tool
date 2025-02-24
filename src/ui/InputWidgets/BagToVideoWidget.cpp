@@ -7,20 +7,15 @@
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QPushButton>
 #include <QSpinBox>
-#include <QToolButton>
-#include <QVBoxLayout>
 
 BagToVideoWidget::BagToVideoWidget(Parameters::BagToVideoParameters& parameters, QWidget *parent) :
-    AdvancedInputWidget(parameters, "Bag to Video", ":/icons/bag_to_video", "bag_to_video", OUTPUT_VIDEO, parent),
+    AdvancedInputWidget(parameters, "Bag to Video", ":/icons/bag_to_video", "Bag File:", "Video Location:", "bag_to_video", OUTPUT_VIDEO, parent),
     m_parameters(parameters), m_settings(parameters, "bag_to_video")
 {
+    m_sourceLineEdit->setToolTip("The source bag file directory.");
     m_topicNameComboBox->setToolTip("The image messages topic.\nIf the bag contains multiple video topics, you can choose one of them.");
     m_targetLineEdit->setToolTip("The directory where the video file should be stored.");
-
-    auto* const videoLocationButton = new QToolButton;
-    auto* const searchVideoPathLayout = Utils::UI::createLineEditButtonLayout(m_targetLineEdit, videoLocationButton);
 
     m_formatComboBox = new QComboBox;
     m_formatComboBox->addItem("mp4", 0);
@@ -28,11 +23,8 @@ BagToVideoWidget::BagToVideoWidget(Parameters::BagToVideoParameters& parameters,
     m_formatComboBox->setToolTip("The video format file.");
     m_formatComboBox->setCurrentText(m_parameters.format);
 
-    auto* const basicOptionsFormLayout = new QFormLayout;
-    basicOptionsFormLayout->addRow("Bag File:", m_findSourceLayout);
-    basicOptionsFormLayout->addRow("Topic Name:", m_topicNameComboBox);
-    basicOptionsFormLayout->addRow("Video Location:", searchVideoPathLayout);
-    basicOptionsFormLayout->addRow("Format:", m_formatComboBox);
+    m_basicOptionsFormLayout->insertRow(1, "Topic Name:", m_topicNameComboBox);
+    m_basicOptionsFormLayout->addRow("Format:", m_formatComboBox);
 
     auto* const advancedOptionsCheckBox = new QCheckBox;
     advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions ? Qt::Checked : Qt::Unchecked);
@@ -58,27 +50,10 @@ BagToVideoWidget::BagToVideoWidget(Parameters::BagToVideoParameters& parameters,
     advancedOptionsWidget->setLayout(m_advancedOptionsFormLayout);
     advancedOptionsWidget->setVisible(m_parameters.showAdvancedOptions);
 
-    auto* const controlsLayout = new QVBoxLayout;
-    controlsLayout->addStretch();
-    controlsLayout->addWidget(m_headerPixmapLabel);
-    controlsLayout->addWidget(m_headerLabel);
-    controlsLayout->addSpacing(40);
-    controlsLayout->addLayout(basicOptionsFormLayout);
-    controlsLayout->addSpacing(5);
-    controlsLayout->addWidget(advancedOptionsCheckBox);
-    controlsLayout->addSpacing(10);
-    controlsLayout->addWidget(advancedOptionsWidget);
-    controlsLayout->addStretch();
-
-    auto* const controlsSqueezedLayout = new QHBoxLayout;
-    controlsSqueezedLayout->addStretch();
-    controlsSqueezedLayout->addLayout(controlsLayout);
-    controlsSqueezedLayout->addStretch();
-
-    auto* const mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(controlsSqueezedLayout);
-    mainLayout->addLayout(m_buttonLayout);
-    setLayout(mainLayout);
+    m_controlsLayout->addWidget(advancedOptionsCheckBox);
+    m_controlsLayout->addSpacing(10);
+    m_controlsLayout->addWidget(advancedOptionsWidget);
+    m_controlsLayout->addStretch();
 
     // Generally, enable ok only if we have a source and target directory and a topic name
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() &&
@@ -87,7 +62,6 @@ BagToVideoWidget::BagToVideoWidget(Parameters::BagToVideoParameters& parameters,
     // Call once to potentially enable lossless images checkbox
     formatComboBoxTextChanged(m_formatComboBox->currentText());
 
-    connect(videoLocationButton, &QPushButton::clicked, this, &BagToVideoWidget::targetLocationButtonPressed);
     connect(m_formatComboBox, &QComboBox::currentTextChanged, this, &BagToVideoWidget::formatComboBoxTextChanged);
     connect(advancedOptionsCheckBox, &QCheckBox::stateChanged, this, [this, advancedOptionsWidget] (int state) {
         m_parameters.showAdvancedOptions = state == Qt::Checked;

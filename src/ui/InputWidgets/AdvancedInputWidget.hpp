@@ -5,7 +5,9 @@
 #include "Parameters.hpp"
 
 class QComboBox;
+class QFormLayout;
 class QLineEdit;
+class QVBoxLayout;
 
 // Derived from basic input, provides functions to search for an input bag or a target directory
 class AdvancedInputWidget : public BasicInputWidget
@@ -16,6 +18,8 @@ public:
     AdvancedInputWidget(Parameters::AdvancedParameters& parameters,
                         const QString&                  headerText,
                         const QString&                  iconPath,
+                        const QString&                  sourceFormLayoutName,
+                        const QString&                  targetFormLayoutName,
                         const QString&                  settingsIdentifier,
                         int                             outputFormat,
                         QWidget*                        parent = 0);
@@ -39,6 +43,9 @@ protected slots:
 protected:
     QPointer<QComboBox> m_topicNameComboBox;
     QPointer<QLineEdit> m_targetLineEdit;
+
+    QPointer<QFormLayout> m_basicOptionsFormLayout;
+    QPointer<QVBoxLayout> m_controlsLayout;
 
     static constexpr int OUTPUT_VIDEO = 0;
     static constexpr int OUTPUT_IMAGES = 1;
