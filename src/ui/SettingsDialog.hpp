@@ -1,7 +1,7 @@
 #pragma once
 
 #include "DialogSettings.hpp"
-#include "UtilsUI.hpp"
+#include "Parameters.hpp"
 
 #include <QDialog>
 #include <QPointer>
@@ -13,8 +13,8 @@ class SettingsDialog : public QDialog {
     Q_OBJECT
 
 public:
-    SettingsDialog(Utils::UI::DialogParameters& dialogParameters,
-                   QWidget*                     parent = 0);
+    SettingsDialog(Parameters::DialogParameters& dialogParameters,
+                   QWidget*                      parent = 0);
 
 private:
     void
@@ -29,5 +29,5 @@ private:
     QPointer<QCheckBox> m_checkROS2NamingConventionCheckBox;
 
     DialogSettings m_dialogSettings;
-    Utils::UI::DialogParameters& m_dialogParameters;
+    Parameters::DialogParameters& m_dialogParameters;
 };

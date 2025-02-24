@@ -1,8 +1,8 @@
 #include "BagToImagesThread.hpp"
 
+#include "Parameters.hpp"
 #include "UtilsCLI.hpp"
 #include "UtilsROS.hpp"
-#include "UtilsUI.hpp"
 
 #include <QCoreApplication>
 #include <QObject>
@@ -41,7 +41,7 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    Utils::UI::BagToImagesParameters parameters;
+    Parameters::BagToImagesParameters parameters;
 
     // Handle bag directory
     parameters.sourceDirectory = arguments.at(1);

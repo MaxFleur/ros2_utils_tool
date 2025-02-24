@@ -1,7 +1,7 @@
 #pragma once
 
 #include "BasicThread.hpp"
-#include "UtilsUI.hpp"
+#include "Parameters.hpp"
 
 // Thread used to weite a video to a bag
 class VideoToBagThread : public BasicThread {
@@ -9,12 +9,12 @@ class VideoToBagThread : public BasicThread {
 
 public:
     explicit
-    VideoToBagThread(const Utils::UI::VideoToBagParameters& parameters,
-                     QObject*                               parent = nullptr);
+    VideoToBagThread(const Parameters::VideoToBagParameters& parameters,
+                     QObject*                                parent = nullptr);
 
     void
     run() override;
 
 private:
-    const Utils::UI::VideoToBagParameters& m_parameters;
+    const Parameters::VideoToBagParameters& m_parameters;
 };

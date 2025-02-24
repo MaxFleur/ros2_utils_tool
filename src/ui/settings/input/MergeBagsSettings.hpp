@@ -5,8 +5,8 @@
 // Store bag editing parameters
 class MergeBagsSettings : public AdvancedSettings {
 public:
-    MergeBagsSettings(Utils::UI::MergeBagsParameters& parameters,
-                      const QString&                  groupName);
+    MergeBagsSettings(Parameters::MergeBagsParameters& parameters,
+                      const QString&                   groupName);
 
     bool
     write() override;
@@ -16,5 +16,5 @@ private:
     read() override;
 
 private:
-    Utils::UI::MergeBagsParameters& m_parameters;
+    Parameters::MergeBagsParameters& m_parameters;
 };

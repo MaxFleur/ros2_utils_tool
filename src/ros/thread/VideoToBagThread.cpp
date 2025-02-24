@@ -13,8 +13,8 @@
 #include <cv_bridge/cv_bridge.h>
 #endif
 
-VideoToBagThread::VideoToBagThread(const Utils::UI::VideoToBagParameters& parameters,
-                                   QObject*                               parent) :
+VideoToBagThread::VideoToBagThread(const Parameters::VideoToBagParameters& parameters,
+                                   QObject*                                parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),
     m_parameters(parameters)
 {

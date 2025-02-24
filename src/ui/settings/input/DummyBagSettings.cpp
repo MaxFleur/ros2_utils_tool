@@ -1,6 +1,6 @@
 #include "DummyBagSettings.hpp"
 
-DummyBagSettings::DummyBagSettings(Utils::UI::DummyBagParameters& parameters, const QString& groupName) :
+DummyBagSettings::DummyBagSettings(Parameters::DummyBagParameters& parameters, const QString& groupName) :
     BasicSettings(parameters, groupName), m_parameters(parameters)
 {
     read();

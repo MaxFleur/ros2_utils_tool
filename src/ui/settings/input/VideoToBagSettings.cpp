@@ -1,7 +1,7 @@
 #include "VideoToBagSettings.hpp"
 
-VideoToBagSettings::VideoToBagSettings(Utils::UI::VideoToBagParameters& parameters,
-                                       const QString&                   groupName) :
+VideoToBagSettings::VideoToBagSettings(Parameters::VideoToBagParameters& parameters,
+                                       const QString&                    groupName) :
     AdvancedSettings(parameters, groupName), m_parameters(parameters)
 {
     read();

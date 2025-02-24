@@ -5,8 +5,8 @@
 // Store video out of ROS bag creation parameters
 class BagToVideoSettings : public AdvancedSettings {
 public:
-    BagToVideoSettings(Utils::UI::BagToVideoParameters& parameters,
-                       const QString&                   groupName);
+    BagToVideoSettings(Parameters::BagToVideoParameters& parameters,
+                       const QString&                    groupName);
 
     bool
     write() override;
@@ -16,5 +16,5 @@ private:
     read() override;
 
 private:
-    Utils::UI::BagToVideoParameters& m_parameters;
+    Parameters::BagToVideoParameters& m_parameters;
 };

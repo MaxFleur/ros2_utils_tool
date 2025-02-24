@@ -1,5 +1,7 @@
 #include "BagToImagesWidget.hpp"
 
+#include "UtilsUI.hpp"
+
 #include <QCheckBox>
 #include <QComboBox>
 #include <QFormLayout>
@@ -10,7 +12,7 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-BagToImagesWidget::BagToImagesWidget(Utils::UI::BagToImagesParameters& parameters, QWidget *parent) :
+BagToImagesWidget::BagToImagesWidget(Parameters::BagToImagesParameters& parameters, QWidget *parent) :
     AdvancedInputWidget(parameters, "Bag to Images", ":/icons/bag_to_images", "bag_to_images", OUTPUT_IMAGES, parent),
     m_parameters(parameters), m_settings(parameters, "bag_to_images")
 {

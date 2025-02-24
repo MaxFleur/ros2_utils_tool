@@ -5,8 +5,8 @@
 // Store bag editing parameters
 class EditBagSettings : public AdvancedSettings {
 public:
-    EditBagSettings(Utils::UI::EditBagParameters& parameters,
-                    const QString&                groupName);
+    EditBagSettings(Parameters::EditBagParameters& parameters,
+                    const QString&                 groupName);
 
     bool
     write() override;
@@ -16,5 +16,5 @@ private:
     read() override;
 
 private:
-    Utils::UI::EditBagParameters& m_parameters;
+    Parameters::EditBagParameters& m_parameters;
 };

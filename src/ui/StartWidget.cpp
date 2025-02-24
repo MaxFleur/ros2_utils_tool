@@ -1,6 +1,7 @@
 #include "StartWidget.hpp"
 
 #include "SettingsDialog.hpp"
+#include "UtilsUI.hpp"
 
 #include <QEvent>
 #include <QHBoxLayout>
@@ -9,7 +10,7 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-StartWidget::StartWidget(Utils::UI::DialogParameters& dialogParameters, QWidget *parent) :
+StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget *parent) :
     QWidget(parent), m_dialogParameters(dialogParameters)
 {
     m_headerLabel = new QLabel("ROS TOOLS");

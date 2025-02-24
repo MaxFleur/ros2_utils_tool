@@ -1,7 +1,7 @@
 #include "PublishVideoThread.hpp"
 
 #include "UtilsCLI.hpp"
-#include "UtilsROS.hpp"
+#include "Parameters.hpp"
 #include "UtilsUI.hpp"
 
 #include <QCoreApplication>
@@ -42,7 +42,7 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    Utils::UI::PublishParameters parameters;
+    Parameters::PublishParameters parameters;
 
     // Video directory
     parameters.sourceDirectory = arguments.at(1);

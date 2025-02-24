@@ -2,7 +2,7 @@
 
 #include "BasicBagWidget.hpp"
 #include "MergeBagsSettings.hpp"
-#include "UtilsUI.hpp"
+#include "Parameters.hpp"
 
 #include <QLabel>
 #include <QLineEdit>
@@ -14,8 +14,8 @@ class MergeBagsWidget : public BasicBagWidget
     Q_OBJECT
 public:
     explicit
-    MergeBagsWidget(Utils::UI::MergeBagsParameters& mergeBagParameters,
-                    QWidget*                        parent = 0);
+    MergeBagsWidget(Parameters::MergeBagsParameters& mergeBagParameters,
+                    QWidget*                         parent = 0);
 
 private slots:
     void
@@ -36,7 +36,7 @@ private:
 
     QPointer<QLabel> m_sufficientSpaceLabel;
 
-    Utils::UI::MergeBagsParameters& m_parameters;
+    Parameters::MergeBagsParameters& m_parameters;
 
     MergeBagsSettings m_settings;
 };

@@ -1,8 +1,8 @@
 #include "DummyBagThread.hpp"
 
 #include "UtilsCLI.hpp"
+#include "Parameters.hpp"
 #include "UtilsROS.hpp"
-#include "UtilsUI.hpp"
 
 #include <QCoreApplication>
 #include <QObject>
@@ -36,7 +36,7 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    Utils::UI::DummyBagParameters parameters;
+    Parameters::DummyBagParameters parameters;
     parameters.topicName = "";
 
     // Bag directory
@@ -95,7 +95,7 @@ main(int argc, char* argv[])
     }
 
     // Create thread parameters
-    QVector<Utils::UI::DummyBagParameters::DummyBagTopic> topics;
+    QVector<Parameters::DummyBagParameters::DummyBagTopic> topics;
     for (auto i = 0; i < topicTypes.size(); i++) {
         parameters.topics.push_back({ topicTypes.at(i), topicNames.at(i) });
     }

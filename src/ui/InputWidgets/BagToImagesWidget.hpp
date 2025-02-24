@@ -2,7 +2,7 @@
 
 #include "AdvancedInputWidget.hpp"
 #include "BagToImagesSettings.hpp"
-#include "UtilsUI.hpp"
+#include "Parameters.hpp"
 
 class QCheckBox;
 class QFormLayout;
@@ -15,8 +15,8 @@ class BagToImagesWidget : public AdvancedInputWidget
     Q_OBJECT
 
 public:
-    BagToImagesWidget(Utils::UI::BagToImagesParameters& parameters,
-                      QWidget*                          parent = 0);
+    BagToImagesWidget(Parameters::BagToImagesParameters& parameters,
+                      QWidget*                           parent = 0);
 
 private slots:
     void
@@ -28,7 +28,7 @@ private:
 
     QPointer<QFormLayout> m_advancedOptionsFormLayout;
 
-    Utils::UI::BagToImagesParameters& m_parameters;
+    Parameters::BagToImagesParameters& m_parameters;
 
     BagToImagesSettings m_settings;
 };

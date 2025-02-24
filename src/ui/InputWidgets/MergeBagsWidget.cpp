@@ -1,6 +1,7 @@
 #include "MergeBagsWidget.hpp"
 
 #include "UtilsROS.hpp"
+#include "UtilsUI.hpp"
 
 #include <QDialogButtonBox>
 #include <QFileDialog>
@@ -14,7 +15,7 @@
 
 #include <filesystem>
 
-MergeBagsWidget::MergeBagsWidget(Utils::UI::MergeBagsParameters& parameters, QWidget *parent) :
+MergeBagsWidget::MergeBagsWidget(Parameters::MergeBagsParameters& parameters, QWidget *parent) :
     BasicBagWidget(parameters, "Merge Bags", ":/icons/merge_bags", "merge_bags", parent),
     m_parameters(parameters), m_settings(parameters, "merge_bags")
 {
@@ -138,7 +139,7 @@ MergeBagsWidget::createTopicTree(bool resetTopicsParameter)
 
             const auto itemAlreadyExists = it != m_parameters.topics.end();
             if (!itemAlreadyExists) {
-                Utils::UI::MergeBagsParameters::MergeBagTopic mergeBagTopic;
+                Parameters::MergeBagsParameters::MergeBagTopic mergeBagTopic;
                 mergeBagTopic.name = QString::fromStdString(topicMetaData.name);
                 mergeBagTopic.bagDir = bagFilePath;
                 m_parameters.topics.push_back(mergeBagTopic);

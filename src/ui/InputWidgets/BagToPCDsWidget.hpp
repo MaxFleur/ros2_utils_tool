@@ -2,7 +2,7 @@
 
 #include "AdvancedInputWidget.hpp"
 #include "AdvancedSettings.hpp"
-#include "UtilsUI.hpp"
+#include "Parameters.hpp"
 
 class QComboBox;
 class QLineEdit;
@@ -13,11 +13,11 @@ class BagToPCDsWidget : public AdvancedInputWidget
     Q_OBJECT
 
 public:
-    BagToPCDsWidget(Utils::UI::AdvancedParameters& parameters,
-                    QWidget*                       parent = 0);
+    BagToPCDsWidget(Parameters::AdvancedParameters& parameters,
+                    QWidget*                        parent = 0);
 
 private:
-    Utils::UI::AdvancedParameters& m_parameters;
+    Parameters::AdvancedParameters& m_parameters;
 
     AdvancedSettings m_settings;
 };

@@ -5,8 +5,8 @@
 // Store parameters for image sequence out of ROS bag creation
 class BagToImagesSettings : public AdvancedSettings {
 public:
-    BagToImagesSettings(Utils::UI::BagToImagesParameters& parameters,
-                        const QString&                    groupName);
+    BagToImagesSettings(Parameters::BagToImagesParameters& parameters,
+                        const QString&                     groupName);
 
     bool
     write() override;
@@ -16,5 +16,5 @@ private:
     read() override;
 
 private:
-    Utils::UI::BagToImagesParameters& m_parameters;
+    Parameters::BagToImagesParameters& m_parameters;
 };

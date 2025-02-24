@@ -1,7 +1,7 @@
 #pragma once
 
 #include "BasicInputWidget.hpp"
-#include "UtilsUI.hpp"
+#include "Parameters.hpp"
 #include "VideoToBagSettings.hpp"
 
 #include <QPointer>
@@ -17,10 +17,10 @@ class VideoToBagWidget : public BasicInputWidget
     Q_OBJECT
 
 public:
-    VideoToBagWidget(Utils::UI::VideoToBagParameters& parameters,
-                     bool                             usePredefinedTopicName,
-                     bool                             checkROS2NameConform,
-                     QWidget*                         parent = 0);
+    VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
+                     bool                              usePredefinedTopicName,
+                     bool                              checkROS2NameConform,
+                     QWidget*                          parent = 0);
 
 private slots:
     void
@@ -40,7 +40,7 @@ private:
     QPointer<QFormLayout> m_advancedOptionsFormLayout;
     QPointer<QSpinBox> m_fpsSpinBox;
 
-    Utils::UI::VideoToBagParameters& m_parameters;
+    Parameters::VideoToBagParameters& m_parameters;
 
     VideoToBagSettings m_settings;
 

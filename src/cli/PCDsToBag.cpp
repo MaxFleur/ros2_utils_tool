@@ -32,7 +32,7 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    Utils::UI::AdvancedParameters parameters;
+    Parameters::AdvancedParameters parameters;
 
     // PCDs directory
     parameters.sourceDirectory = arguments.at(1);

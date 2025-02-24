@@ -10,8 +10,8 @@
 
 #include <filesystem>
 
-PublishImagesThread::PublishImagesThread(const Utils::UI::PublishParameters& parameters,
-                                         QObject*                            parent) :
+PublishImagesThread::PublishImagesThread(const Parameters::PublishParameters& parameters,
+                                         QObject*                             parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),
     m_parameters(parameters)
 {

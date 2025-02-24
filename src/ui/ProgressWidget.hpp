@@ -1,6 +1,6 @@
 #pragma once
 
-#include "UtilsUI.hpp"
+#include "Parameters.hpp"
 
 #include <QPointer>
 #include <QWidget>
@@ -15,12 +15,12 @@ class ProgressWidget : public QWidget
     Q_OBJECT
 
 public:
-    ProgressWidget(const QString&              headerPixmapLabelTextBlack,
-                   const QString&              headerPixmapLabelTextWhite,
-                   const QString&              headerLabelText,
-                   Utils::UI::BasicParameters& parameters,
-                   const int                   threadTypeId,
-                   QWidget*                    parent = 0);
+    ProgressWidget(const QString&               headerPixmapLabelTextBlack,
+                   const QString&               headerPixmapLabelTextWhite,
+                   const QString&               headerLabelText,
+                   Parameters::BasicParameters& parameters,
+                   const int                    threadTypeId,
+                   QWidget*                     parent = 0);
 
     ~ProgressWidget();
 

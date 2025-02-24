@@ -1,6 +1,6 @@
 #include "BagToImagesSettings.hpp"
 
-BagToImagesSettings::BagToImagesSettings(Utils::UI::BagToImagesParameters& parameters, const QString& groupName) :
+BagToImagesSettings::BagToImagesSettings(Parameters::BagToImagesParameters& parameters, const QString& groupName) :
     AdvancedSettings(parameters, groupName), m_parameters(parameters)
 {
     read();

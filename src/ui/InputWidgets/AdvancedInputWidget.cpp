@@ -1,6 +1,7 @@
 #include "AdvancedInputWidget.hpp"
 
 #include "UtilsROS.hpp"
+#include "UtilsUI.hpp"
 
 #include <QComboBox>
 #include <QDialogButtonBox>
@@ -12,7 +13,7 @@
 
 #include <filesystem>
 
-AdvancedInputWidget::AdvancedInputWidget(Utils::UI::AdvancedParameters& parameters, const QString& headerText,
+AdvancedInputWidget::AdvancedInputWidget(Parameters::AdvancedParameters& parameters, const QString& headerText,
                                          const QString& iconPath, const QString& settingsIdentifier,
                                          int outputFormat, QWidget *parent) :
     BasicInputWidget(headerText, iconPath, parent),

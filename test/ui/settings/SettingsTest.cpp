@@ -8,8 +8,8 @@
 #include "DummyBagSettings.hpp"
 #include "EditBagSettings.hpp"
 #include "MergeBagsSettings.hpp"
+#include "Parameters.hpp"
 #include "PublishSettings.hpp"
-#include "UtilsUI.hpp"
 #include "VideoToBagSettings.hpp"
 
 #include <QSettings>
@@ -38,7 +38,7 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
         SECTION("Write") {
-            Utils::UI::BasicParameters parameters;
+            Parameters::BasicParameters parameters;
             BasicSettings settings(parameters, "basic");
 
             parameters.sourceDirectory = "/source/dir";
@@ -60,7 +60,7 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
         SECTION("Write") {
-            Utils::UI::AdvancedParameters parameters;
+            Parameters::AdvancedParameters parameters;
             AdvancedSettings settings(parameters, "advanced");
 
             parameters.targetDirectory = "/target/dir";
@@ -84,7 +84,7 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
         SECTION("Write") {
-            Utils::UI::BagToImagesParameters parameters;
+            Parameters::BagToImagesParameters parameters;
             BagToImagesSettings settings(parameters, "images");
 
             parameters.format = "jpg";
@@ -123,7 +123,7 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
         SECTION("Write") {
-            Utils::UI::BagToVideoParameters parameters;
+            Parameters::BagToVideoParameters parameters;
             BagToVideoSettings settings(parameters, "video");
 
             parameters.format = "mkv";
@@ -160,7 +160,7 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
         SECTION("Write") {
-            Utils::UI::VideoToBagParameters parameters;
+            Parameters::VideoToBagParameters parameters;
             VideoToBagSettings settings(parameters, "bag");
 
             parameters.fps = 40;
@@ -189,7 +189,7 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
         SECTION("Write") {
-            Utils::UI::DummyBagParameters parameters;
+            Parameters::DummyBagParameters parameters;
             DummyBagSettings settings(parameters, "dummy");
 
             parameters.messageCount = 250;
@@ -222,7 +222,7 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
         SECTION("Write") {
-            Utils::UI::MergeBagsParameters parameters;
+            Parameters::MergeBagsParameters parameters;
             MergeBagsSettings settings(parameters, "merge");
 
             parameters.secondSourceDirectory = "/path/to/other/bag";
@@ -258,7 +258,7 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
         SECTION("Write") {
-            Utils::UI::EditBagParameters parameters;
+            Parameters::EditBagParameters parameters;
             EditBagSettings settings(parameters, "edit");
 
             parameters.deleteSource = true;
@@ -305,7 +305,7 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
         SECTION("Write") {
-            Utils::UI::PublishParameters parameters;
+            Parameters::PublishParameters parameters;
             PublishSettings settings(parameters, "publish");
 
             parameters.fps = 40;
@@ -345,7 +345,7 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
         SECTION("Write") {
-            Utils::UI::DialogParameters parameters;
+            Parameters::DialogParameters parameters;
             DialogSettings settings(parameters, "dialog");
 
             parameters.usePredefinedTopicNames = false;

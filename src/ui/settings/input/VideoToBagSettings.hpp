@@ -5,8 +5,8 @@
 // Store bag creation parameters
 class VideoToBagSettings : public AdvancedSettings {
 public:
-    VideoToBagSettings(Utils::UI::VideoToBagParameters& parameters,
-                       const QString&                   groupName);
+    VideoToBagSettings(Parameters::VideoToBagParameters& parameters,
+                       const QString&                    groupName);
 
     bool
     write() override;
@@ -16,5 +16,5 @@ private:
     read() override;
 
 private:
-    Utils::UI::VideoToBagParameters& m_parameters;
+    Parameters::VideoToBagParameters& m_parameters;
 };

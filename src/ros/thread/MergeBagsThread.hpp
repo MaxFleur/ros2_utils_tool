@@ -1,19 +1,19 @@
 #pragma once
 
 #include "BasicThread.hpp"
-#include "UtilsUI.hpp"
+#include "Parameters.hpp"
 
 // Thread used to write an edited ROS bag file
 class MergeBagsThread : public BasicThread {
     Q_OBJECT
 public:
     explicit
-    MergeBagsThread(const Utils::UI::MergeBagsParameters& parameters,
-                    QObject*                              parent = nullptr);
+    MergeBagsThread(const Parameters::MergeBagsParameters& parameters,
+                    QObject*                               parent = nullptr);
 
     void
     run() override;
 
 private:
-    const Utils::UI::MergeBagsParameters& m_parameters;
+    const Parameters::MergeBagsParameters& m_parameters;
 };

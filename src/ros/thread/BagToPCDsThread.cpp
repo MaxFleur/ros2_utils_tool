@@ -10,8 +10,8 @@
 
 #include <filesystem>
 
-BagToPCDsThread::BagToPCDsThread(const Utils::UI::AdvancedParameters& parameters,
-                                 QObject*                             parent) :
+BagToPCDsThread::BagToPCDsThread(const Parameters::AdvancedParameters& parameters,
+                                 QObject*                              parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),
     m_parameters(parameters)
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "UtilsUI.hpp"
+#include "Parameters.hpp"
 
 #include <QMainWindow>
 
@@ -34,19 +34,19 @@ private:
 private:
     // Parameters storing all configurations done by a user in the input widgets.
     // The parameters are transferred to the progress widget and their thread.
-    Utils::UI::BagToVideoParameters m_parametersBagToVideo;
-    Utils::UI::VideoToBagParameters m_parametersVideoToBag;
-    Utils::UI::AdvancedParameters m_parametersBagToPCDs;
-    Utils::UI::AdvancedParameters m_parametersPCDsToBag;
-    Utils::UI::BagToImagesParameters m_parametersBagToImages;
-    Utils::UI::EditBagParameters m_parametersEditBag;
-    Utils::UI::MergeBagsParameters m_parametersMergeBags;
-    Utils::UI::DummyBagParameters m_parametersDummyBag;
+    Parameters::BagToVideoParameters m_parametersBagToVideo;
+    Parameters::VideoToBagParameters m_parametersVideoToBag;
+    Parameters::AdvancedParameters m_parametersBagToPCDs;
+    Parameters::AdvancedParameters m_parametersPCDsToBag;
+    Parameters::BagToImagesParameters m_parametersBagToImages;
+    Parameters::EditBagParameters m_parametersEditBag;
+    Parameters::MergeBagsParameters m_parametersMergeBags;
+    Parameters::DummyBagParameters m_parametersDummyBag;
 
-    Utils::UI::PublishParameters m_parametersPublishVideo;
-    Utils::UI::PublishParameters m_parametersPublishImages;
+    Parameters::PublishParameters m_parametersPublishVideo;
+    Parameters::PublishParameters m_parametersPublishImages;
     // Parameters for settings dialog
-    Utils::UI::DialogParameters m_dialogParameters;
+    Parameters::DialogParameters m_dialogParameters;
 
     static constexpr int DEFAULT_WIDTH = 450;
     static constexpr int DEFAULT_HEIGHT = 600;

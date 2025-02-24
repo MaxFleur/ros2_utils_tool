@@ -2,7 +2,7 @@
 
 #include "AdvancedInputWidget.hpp"
 #include "AdvancedSettings.hpp"
-#include "UtilsUI.hpp"
+#include "Parameters.hpp"
 
 #include <QPointer>
 #include <QWidget>
@@ -13,10 +13,10 @@ class PCDsToBagWidget : public AdvancedInputWidget
     Q_OBJECT
 
 public:
-    PCDsToBagWidget(Utils::UI::AdvancedParameters& parameters,
-                    bool                           usePredefinedTopicName,
-                    bool                           checkROS2NameConform,
-                    QWidget*                       parent = 0);
+    PCDsToBagWidget(Parameters::AdvancedParameters& parameters,
+                    bool                            usePredefinedTopicName,
+                    bool                            checkROS2NameConform,
+                    QWidget*                        parent = 0);
 
 private slots:
     void
@@ -26,7 +26,7 @@ private slots:
     okButtonPressed() override;
 
 private:
-    Utils::UI::AdvancedParameters& m_parameters;
+    Parameters::AdvancedParameters& m_parameters;
 
     AdvancedSettings m_settings;
 

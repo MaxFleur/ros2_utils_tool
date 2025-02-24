@@ -1,7 +1,7 @@
 #include "EditBagSettings.hpp"
 
-EditBagSettings::EditBagSettings(Utils::UI::EditBagParameters& parameters,
-                                 const QString&                groupName) :
+EditBagSettings::EditBagSettings(Parameters::EditBagParameters& parameters,
+                                 const QString&                 groupName) :
     AdvancedSettings(parameters, groupName), m_parameters(parameters)
 {
     read();

@@ -1,19 +1,19 @@
 #pragma once
 
 #include "BasicThread.hpp"
-#include "UtilsUI.hpp"
+#include "Parameters.hpp"
 
 // Thread used to write an edited ROS bag file
 class EditBagThread : public BasicThread {
     Q_OBJECT
 public:
     explicit
-    EditBagThread(const Utils::UI::EditBagParameters& parameters,
-                  QObject*                            parent = nullptr);
+    EditBagThread(const Parameters::EditBagParameters& parameters,
+                  QObject*                             parent = nullptr);
 
     void
     run() override;
 
 private:
-    const Utils::UI::EditBagParameters& m_parameters;
+    const Parameters::EditBagParameters& m_parameters;
 };

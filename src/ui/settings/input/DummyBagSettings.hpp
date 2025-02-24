@@ -5,8 +5,8 @@
 // Store dummy bag creation parameters
 class DummyBagSettings : public BasicSettings {
 public:
-    DummyBagSettings(Utils::UI::DummyBagParameters& parameters,
-                     const QString&                 groupName);
+    DummyBagSettings(Parameters::DummyBagParameters& parameters,
+                     const QString&                  groupName);
 
     bool
     write() override;
@@ -16,5 +16,5 @@ private:
     read() override;
 
 private:
-    Utils::UI::DummyBagParameters& m_parameters;
+    Parameters::DummyBagParameters& m_parameters;
 };

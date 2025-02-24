@@ -2,7 +2,7 @@
 
 #include "BasicBagWidget.hpp"
 #include "EditBagSettings.hpp"
-#include "UtilsUI.hpp"
+#include "Parameters.hpp"
 
 #include <QPointer>
 #include <QWidget>
@@ -16,9 +16,9 @@ class EditBagWidget : public BasicBagWidget
     Q_OBJECT
 public:
     explicit
-    EditBagWidget(Utils::UI::EditBagParameters& parameters,
-                  bool                          checkROS2NameConform,
-                  QWidget*                      parent = 0);
+    EditBagWidget(Parameters::EditBagParameters& parameters,
+                  bool                           checkROS2NameConform,
+                  QWidget*                       parent = 0);
 
 private slots:
     void
@@ -38,7 +38,7 @@ private:
     QPointer<QCheckBox> m_deleteSourceCheckBox;
     QPointer<QCheckBox> m_updateTimestampsCheckBox;
 
-    Utils::UI::EditBagParameters& m_parameters;
+    Parameters::EditBagParameters& m_parameters;
 
     EditBagSettings m_settings;
 

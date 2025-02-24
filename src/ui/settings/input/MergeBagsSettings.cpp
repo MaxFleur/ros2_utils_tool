@@ -1,7 +1,7 @@
 #include "MergeBagsSettings.hpp"
 
-MergeBagsSettings::MergeBagsSettings(Utils::UI::MergeBagsParameters& parameters,
-                                     const QString&                  groupName) :
+MergeBagsSettings::MergeBagsSettings(Parameters::MergeBagsParameters& parameters,
+                                     const QString&                   groupName) :
     AdvancedSettings(parameters, groupName), m_parameters(parameters)
 {
     read();

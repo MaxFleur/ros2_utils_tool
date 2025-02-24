@@ -1,6 +1,6 @@
 #include "BagToVideoSettings.hpp"
 
-BagToVideoSettings::BagToVideoSettings(Utils::UI::BagToVideoParameters& parameters, const QString& groupName) :
+BagToVideoSettings::BagToVideoSettings(Parameters::BagToVideoParameters& parameters, const QString& groupName) :
     AdvancedSettings(parameters, groupName), m_parameters(parameters)
 {
     read();

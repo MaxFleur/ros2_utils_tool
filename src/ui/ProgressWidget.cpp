@@ -10,6 +10,7 @@
 #include "PCDsToBagThread.hpp"
 #include "PublishImagesThread.hpp"
 #include "PublishVideoThread.hpp"
+#include "UtilsUI.hpp"
 #include "VideoToBagThread.hpp"
 
 #include <QLabel>
@@ -21,40 +22,40 @@
 #include <QVBoxLayout>
 
 ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const QString& headerPixmapLabelTextWhite,
-                               const QString& headerLabelText, Utils::UI::BasicParameters& parameters,
+                               const QString& headerLabelText, Parameters::BasicParameters& parameters,
                                const int threadTypeId, QWidget *parent) :
     QWidget(parent)
 {
     switch (threadTypeId) {
     case Utils::UI::TOOL_BAG_TO_VIDEO:
-        m_thread = new BagToVideoThread(dynamic_cast<Utils::UI::BagToVideoParameters&>(parameters), this);
+        m_thread = new BagToVideoThread(dynamic_cast<Parameters::BagToVideoParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_VIDEO_TO_BAG:
-        m_thread = new VideoToBagThread(dynamic_cast<Utils::UI::VideoToBagParameters&>(parameters), this);
+        m_thread = new VideoToBagThread(dynamic_cast<Parameters::VideoToBagParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_BAG_TO_PCDS:
-        m_thread = new BagToPCDsThread(dynamic_cast<Utils::UI::AdvancedParameters&>(parameters), this);
+        m_thread = new BagToPCDsThread(dynamic_cast<Parameters::AdvancedParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_PCDS_TO_BAG:
-        m_thread = new PCDsToBagThread(dynamic_cast<Utils::UI::AdvancedParameters&>(parameters), this);
+        m_thread = new PCDsToBagThread(dynamic_cast<Parameters::AdvancedParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_BAG_TO_IMAGES:
-        m_thread = new BagToImagesThread(dynamic_cast<Utils::UI::BagToImagesParameters&>(parameters), this);
+        m_thread = new BagToImagesThread(dynamic_cast<Parameters::BagToImagesParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_EDIT_BAG:
-        m_thread = new EditBagThread(dynamic_cast<Utils::UI::EditBagParameters&>(parameters), this);
+        m_thread = new EditBagThread(dynamic_cast<Parameters::EditBagParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_MERGE_BAGS:
-        m_thread = new MergeBagsThread(dynamic_cast<Utils::UI::MergeBagsParameters&>(parameters), this);
+        m_thread = new MergeBagsThread(dynamic_cast<Parameters::MergeBagsParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_DUMMY_BAG:
-        m_thread = new DummyBagThread(dynamic_cast<Utils::UI::DummyBagParameters&>(parameters), this);
+        m_thread = new DummyBagThread(dynamic_cast<Parameters::DummyBagParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_PUBLISH_VIDEO:
-        m_thread = new PublishVideoThread(dynamic_cast<Utils::UI::PublishParameters&>(parameters), this);
+        m_thread = new PublishVideoThread(dynamic_cast<Parameters::PublishParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_PUBLISH_IMAGES:
-        m_thread = new PublishImagesThread(dynamic_cast<Utils::UI::PublishParameters&>(parameters), this);
+        m_thread = new PublishImagesThread(dynamic_cast<Parameters::PublishParameters&>(parameters), this);
         break;
     }
 

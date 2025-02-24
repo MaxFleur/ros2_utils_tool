@@ -8,7 +8,7 @@
 #include <QSettings>
 #include <QVBoxLayout>
 
-SettingsDialog::SettingsDialog(Utils::UI::DialogParameters& dialogParameters, QWidget* parent) :
+SettingsDialog::SettingsDialog(Parameters::DialogParameters& dialogParameters, QWidget* parent) :
     QDialog(parent), m_dialogSettings(dialogParameters, "dialog"), m_dialogParameters(dialogParameters)
 {
     setWindowTitle("Options");

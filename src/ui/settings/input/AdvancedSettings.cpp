@@ -1,6 +1,6 @@
 #include "AdvancedSettings.hpp"
 
-AdvancedSettings::AdvancedSettings(Utils::UI::AdvancedParameters& parameters, const QString& groupName) :
+AdvancedSettings::AdvancedSettings(Parameters::AdvancedParameters& parameters, const QString& groupName) :
     BasicSettings(parameters, groupName), m_parameters(parameters)
 {
     read();

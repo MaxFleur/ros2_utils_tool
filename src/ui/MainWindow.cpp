@@ -11,6 +11,7 @@
 #include "ProgressWidget.hpp"
 #include "PublishWidget.hpp"
 #include "StartWidget.hpp"
+#include "UtilsUI.hpp"
 #include "VideoToBagWidget.hpp"
 
 #include "DialogSettings.hpp"

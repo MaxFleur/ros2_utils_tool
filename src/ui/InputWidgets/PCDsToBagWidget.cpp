@@ -1,6 +1,7 @@
 #include "PCDsToBagWidget.hpp"
 
 #include "UtilsROS.hpp"
+#include "UtilsUI.hpp"
 
 #include <QFileDialog>
 #include <QFileInfo>
@@ -16,7 +17,7 @@
 
 #include <filesystem>
 
-PCDsToBagWidget::PCDsToBagWidget(Utils::UI::AdvancedParameters& parameters,
+PCDsToBagWidget::PCDsToBagWidget(Parameters::AdvancedParameters& parameters,
                                  bool usePredefinedTopicName, bool checkROS2NameConform, QWidget *parent) :
     AdvancedInputWidget(parameters, "PCD Files to Bag", ":/icons/pcd_to_bag", "pcd_to_bag", OUTPUT_BAG, parent),
     m_parameters(parameters), m_settings(parameters, "pcd_to_bag"),

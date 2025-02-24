@@ -5,8 +5,8 @@
 // Store publishing parameters
 class PublishSettings : public AdvancedSettings {
 public:
-    PublishSettings(Utils::UI::PublishParameters& parameters,
-                    const QString&                groupName);
+    PublishSettings(Parameters::PublishParameters& parameters,
+                    const QString&                 groupName);
 
     bool
     write() override;
@@ -16,5 +16,5 @@ private:
     read() override;
 
 private:
-    Utils::UI::PublishParameters& m_parameters;
+    Parameters::PublishParameters& m_parameters;
 };

@@ -1,5 +1,7 @@
 #include "BagToPCDsWidget.hpp"
 
+#include "UtilsUI.hpp"
+
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -7,7 +9,7 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-BagToPCDsWidget::BagToPCDsWidget(Utils::UI::AdvancedParameters& parameters, QWidget *parent) :
+BagToPCDsWidget::BagToPCDsWidget(Parameters::AdvancedParameters& parameters, QWidget *parent) :
     AdvancedInputWidget(parameters, "Bag to PCD Files", ":/icons/bag_to_pcd", "bag_to_pcds", OUTPUT_PCDS, parent),
     m_parameters(parameters), m_settings(parameters, "bag_to_pcds")
 {

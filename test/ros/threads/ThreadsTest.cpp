@@ -68,7 +68,7 @@ TEST_CASE("Threads Testing", "[threads]") {
     auto shouldDelete = false;
 
     SECTION("Dummy Bag Thread Test") {
-        Utils::UI::DummyBagParameters parameters;
+        Parameters::DummyBagParameters parameters;
         parameters.sourceDirectory = "./dummy_bag";
         parameters.messageCount = 200;
         parameters.topics.push_back({ "Image", "/dummy_image" });
@@ -107,7 +107,7 @@ TEST_CASE("Threads Testing", "[threads]") {
     }
     // Create edited bag out of dummy bag
     SECTION("Edit Bag Thread Test") {
-        Utils::UI::EditBagParameters parameters;
+        Parameters::EditBagParameters parameters;
         parameters.sourceDirectory = "./dummy_bag";
         parameters.targetDirectory = "./edited_bag";
         parameters.updateTimestamps = true;
@@ -137,7 +137,7 @@ TEST_CASE("Threads Testing", "[threads]") {
     }
     // Merge edited and dummy bag
     SECTION("Merge Bags Thread Test") {
-        Utils::UI::MergeBagsParameters parameters;
+        Parameters::MergeBagsParameters parameters;
         parameters.sourceDirectory = "./dummy_bag";
         parameters.secondSourceDirectory = "./edited_bag";
         parameters.targetDirectory = "./merged_bag";
@@ -195,7 +195,7 @@ TEST_CASE("Threads Testing", "[threads]") {
     }
 
     SECTION("Bag to Video Thread Test") {
-        Utils::UI::BagToVideoParameters parameters;
+        Parameters::BagToVideoParameters parameters;
         parameters.sourceDirectory = "./dummy_bag";
         parameters.targetDirectory = "./video.mp4";
         parameters.topicName = "/dummy_image";
@@ -252,7 +252,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         }
     }
     SECTION("Video to Bag Thread Test") {
-        Utils::UI::VideoToBagParameters parameters;
+        Parameters::VideoToBagParameters parameters;
         parameters.sourceDirectory = "./video.mp4";
         parameters.targetDirectory = "./video_bag";
         parameters.topicName = "/video_topic";
@@ -328,7 +328,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         }
     }
     SECTION("Bag to Images Thread Test") {
-        Utils::UI::BagToImagesParameters parameters;
+        Parameters::BagToImagesParameters parameters;
         parameters.sourceDirectory = "./dummy_bag";
         parameters.targetDirectory = "./images";
         parameters.topicName = "/dummy_image";
@@ -379,7 +379,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         }
     }
     SECTION("Bag to PCDs Thread Test") {
-        Utils::UI::AdvancedParameters parameters;
+        Parameters::AdvancedParameters parameters;
         parameters.sourceDirectory = "./dummy_bag";
         parameters.targetDirectory = "./pcds";
         parameters.topicName = "/dummy_points";
@@ -431,7 +431,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         reader.close();
     }
     SECTION("PCD to Bag Thread Test") {
-        Utils::UI::AdvancedParameters parameters;
+        Parameters::AdvancedParameters parameters;
         parameters.sourceDirectory = "./pcds";
         parameters.targetDirectory = "./bag_pcd";
         parameters.topicName = "/point_clouds_are_awesome";
@@ -485,7 +485,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         std::filesystem::remove_all("./pcds");
     }
     SECTION("Video as ROS Topic Test") {
-        Utils::UI::PublishParameters parameters;
+        Parameters::PublishParameters parameters;
         parameters.sourceDirectory = "./video.mp4";
         parameters.loop = true;
         parameters.topicName = "/test_publish_video";

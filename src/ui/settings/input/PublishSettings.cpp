@@ -1,6 +1,6 @@
 #include "PublishSettings.hpp"
 
-PublishSettings::PublishSettings(Utils::UI::PublishParameters& parameters, const QString& groupName) :
+PublishSettings::PublishSettings(Parameters::PublishParameters& parameters, const QString& groupName) :
     AdvancedSettings(parameters, groupName), m_parameters(parameters)
 {
     read();

@@ -5,6 +5,7 @@ target_include_directories (rt_utils
 ) 
 
 target_sources(rt_utils INTERFACE
+    ${CMAKE_CURRENT_LIST_DIR}/Parameters.hpp
     ${CMAKE_CURRENT_LIST_DIR}/UtilsCLI.cpp
     ${CMAKE_CURRENT_LIST_DIR}/UtilsCLI.hpp
     ${CMAKE_CURRENT_LIST_DIR}/UtilsROS.cpp

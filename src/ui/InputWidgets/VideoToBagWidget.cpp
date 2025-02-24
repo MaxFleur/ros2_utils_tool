@@ -1,6 +1,7 @@
 #include "VideoToBagWidget.hpp"
 
 #include "UtilsROS.hpp"
+#include "UtilsUI.hpp"
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -20,7 +21,7 @@
 
 #include <filesystem>
 
-VideoToBagWidget::VideoToBagWidget(Utils::UI::VideoToBagParameters& parameters,
+VideoToBagWidget::VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
                                    bool usePredefinedTopicName, bool checkROS2NameConform, QWidget *parent) :
     BasicInputWidget("Video to Bag", ":/icons/video_to_bag", parent),
     m_parameters(parameters), m_settings(parameters, "vid_to_bag"),

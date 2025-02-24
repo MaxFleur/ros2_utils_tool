@@ -17,8 +17,8 @@
 #include <cv_bridge/cv_bridge.h>
 #endif
 
-BagToImagesThread::BagToImagesThread(const Utils::UI::BagToImagesParameters& parameters,
-                                     QObject*                                parent) :
+BagToImagesThread::BagToImagesThread(const Parameters::BagToImagesParameters& parameters,
+                                     QObject*                                 parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),
     m_parameters(parameters)
 {

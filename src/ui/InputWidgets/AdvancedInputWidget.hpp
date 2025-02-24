@@ -2,7 +2,7 @@
 
 #include "AdvancedSettings.hpp"
 #include "BasicInputWidget.hpp"
-#include "UtilsUI.hpp"
+#include "Parameters.hpp"
 
 class QComboBox;
 class QLineEdit;
@@ -13,12 +13,12 @@ class AdvancedInputWidget : public BasicInputWidget
     Q_OBJECT
 
 public:
-    AdvancedInputWidget(Utils::UI::AdvancedParameters& parameters,
-                        const QString&                 headerText,
-                        const QString&                 iconPath,
-                        const QString&                 settingsIdentifier,
-                        int                            outputFormat,
-                        QWidget*                       parent = 0);
+    AdvancedInputWidget(Parameters::AdvancedParameters& parameters,
+                        const QString&                  headerText,
+                        const QString&                  iconPath,
+                        const QString&                  settingsIdentifier,
+                        int                             outputFormat,
+                        QWidget*                        parent = 0);
 
 protected slots:
     virtual void
@@ -46,7 +46,7 @@ protected:
     static constexpr int OUTPUT_BAG = 3;
 
 private:
-    Utils::UI::AdvancedParameters& m_parameters;
+    Parameters::AdvancedParameters& m_parameters;
 
     AdvancedSettings m_settings;
 

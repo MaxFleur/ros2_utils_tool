@@ -2,7 +2,7 @@
 
 #include "DialogSettings.hpp"
 
-BasicSettings::BasicSettings(Utils::UI::BasicParameters& parameters, const QString& groupName) :
+BasicSettings::BasicSettings(Parameters::BasicParameters& parameters, const QString& groupName) :
     GeneralSettings(groupName), m_parameters(parameters)
 {
 }

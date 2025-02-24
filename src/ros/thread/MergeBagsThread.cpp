@@ -7,8 +7,8 @@
 
 #include <filesystem>
 
-MergeBagsThread::MergeBagsThread(const Utils::UI::MergeBagsParameters& parameters,
-                                 QObject*                              parent) :
+MergeBagsThread::MergeBagsThread(const Parameters::MergeBagsParameters& parameters,
+                                 QObject*                               parent) :
     BasicThread(parameters.sourceDirectory, "", parent),
     m_parameters(parameters)
 {
