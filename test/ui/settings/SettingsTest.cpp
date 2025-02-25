@@ -9,6 +9,7 @@
 #include "EditBagSettings.hpp"
 #include "MergeBagsSettings.hpp"
 #include "Parameters.hpp"
+#include "PCDsToBagSettings.hpp"
 #include "PublishSettings.hpp"
 #include "VideoToBagSettings.hpp"
 
@@ -147,6 +148,25 @@ TEST_CASE("Settings Testing", "[ui]") {
             REQUIRE(qSettings.value("bw_images").toBool() == true);
             REQUIRE(qSettings.value("lossless_images").isValid());
             REQUIRE(qSettings.value("lossless_images").toBool() == true);
+            qSettings.endGroup();
+        }
+    }
+    SECTION("Video to Bag Params Test") {
+        SECTION("Read") {
+            qSettings.beginGroup("pcds_to_bag");
+            REQUIRE(!qSettings.value("rate").isValid());
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Parameters::PCDsToBagParameters parameters;
+            PCDsToBagSettings settings(parameters, "pcds_to_bag");
+
+            parameters.rate = 10;
+            settings.write();
+
+            qSettings.beginGroup("pcds_to_bag");
+            REQUIRE(qSettings.value("rate").isValid());
+            REQUIRE(qSettings.value("rate").toInt() == 10);
             qSettings.endGroup();
         }
     }

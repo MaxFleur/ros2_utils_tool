@@ -9,12 +9,12 @@ class PCDsToBagThread : public BasicThread {
 
 public:
     explicit
-    PCDsToBagThread(const Parameters::AdvancedParameters& parameters,
-                    QObject*                              parent = nullptr);
+    PCDsToBagThread(const Parameters::PCDsToBagParameters& parameters,
+                    QObject*                               parent = nullptr);
 
     void
     run() override;
 
 private:
-    const Parameters::AdvancedParameters& m_parameters;
+    const Parameters::PCDsToBagParameters& m_parameters;
 };

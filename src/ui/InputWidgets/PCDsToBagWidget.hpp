@@ -1,7 +1,7 @@
 #pragma once
 
 #include "AdvancedInputWidget.hpp"
-#include "AdvancedSettings.hpp"
+#include "PCDsToBagSettings.hpp"
 #include "Parameters.hpp"
 
 #include <QPointer>
@@ -13,10 +13,10 @@ class PCDsToBagWidget : public AdvancedInputWidget
     Q_OBJECT
 
 public:
-    PCDsToBagWidget(Parameters::AdvancedParameters& parameters,
-                    bool                            usePredefinedTopicName,
-                    bool                            checkROS2NameConform,
-                    QWidget*                        parent = 0);
+    PCDsToBagWidget(Parameters::PCDsToBagParameters& parameters,
+                    bool                             usePredefinedTopicName,
+                    bool                             checkROS2NameConform,
+                    QWidget*                         parent = 0);
 
 private slots:
     void
@@ -26,9 +26,9 @@ private slots:
     okButtonPressed() override;
 
 private:
-    Parameters::AdvancedParameters& m_parameters;
+    Parameters::PCDsToBagParameters& m_parameters;
 
-    AdvancedSettings m_settings;
+    PCDsToBagSettings m_settings;
 
     const bool m_checkROS2NameConform;
 };

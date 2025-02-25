@@ -431,10 +431,11 @@ TEST_CASE("Threads Testing", "[threads]") {
         reader.close();
     }
     SECTION("PCD to Bag Thread Test") {
-        Parameters::AdvancedParameters parameters;
+        Parameters::PCDsToBagParameters parameters;
         parameters.sourceDirectory = "./pcds";
         parameters.targetDirectory = "./bag_pcd";
         parameters.topicName = "/point_clouds_are_awesome";
+        parameters.rate = 2;
 
         auto* const thread = new PCDsToBagThread(parameters);
         QObject::connect(thread, &PCDsToBagThread::finished, thread, &QObject::deleteLater);

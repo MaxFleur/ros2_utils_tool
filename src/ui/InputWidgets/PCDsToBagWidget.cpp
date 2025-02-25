@@ -12,10 +12,11 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QShortcut>
+#include <QSpinBox>
 
 #include <filesystem>
 
-PCDsToBagWidget::PCDsToBagWidget(Parameters::AdvancedParameters& parameters,
+PCDsToBagWidget::PCDsToBagWidget(Parameters::PCDsToBagParameters& parameters,
                                  bool usePredefinedTopicName, bool checkROS2NameConform, QWidget *parent) :
     AdvancedInputWidget(parameters, "PCD Files to Bag", ":/icons/pcd_to_bag", "Files Dir:", "Bag Location:", "pcd_to_bag", OUTPUT_BAG, parent),
     m_parameters(parameters), m_settings(parameters, "pcd_to_bag"),
@@ -31,7 +32,13 @@ PCDsToBagWidget::PCDsToBagWidget(Parameters::AdvancedParameters& parameters,
         topicNameLineEdit->setText("/topic_point_cloud");
     }
 
+    auto* const rateSpinBox = new QSpinBox;
+    rateSpinBox->setRange(1, 30);
+    rateSpinBox->setValue(m_parameters.rate);
+    rateSpinBox->setToolTip("The rate ('clouds per second') stored in the bag.");
+
     m_basicOptionsFormLayout->addRow("Topic Name:", topicNameLineEdit);
+    m_basicOptionsFormLayout->addRow("Rate:", rateSpinBox);
 
     m_controlsLayout->addStretch();
 
@@ -42,6 +49,9 @@ PCDsToBagWidget::PCDsToBagWidget(Parameters::AdvancedParameters& parameters,
     connect(topicNameLineEdit, &QLineEdit::textChanged, this, [this, topicNameLineEdit] {
         writeParameterToSettings(m_parameters.topicName, topicNameLineEdit->text(), m_settings);
         enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.targetDirectory.isEmpty() && !m_parameters.topicName.isEmpty());
+    });
+    connect(rateSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [this] (int value) {
+        writeParameterToSettings(m_parameters.rate, value, m_settings);
     });
     connect(okShortCut, &QShortcut::activated, this, &PCDsToBagWidget::okButtonPressed);
 }

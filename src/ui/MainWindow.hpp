@@ -37,7 +37,7 @@ private:
     Parameters::BagToVideoParameters m_parametersBagToVideo;
     Parameters::VideoToBagParameters m_parametersVideoToBag;
     Parameters::AdvancedParameters m_parametersBagToPCDs;
-    Parameters::AdvancedParameters m_parametersPCDsToBag;
+    Parameters::PCDsToBagParameters m_parametersPCDsToBag;
     Parameters::BagToImagesParameters m_parametersBagToImages;
     Parameters::EditBagParameters m_parametersEditBag;
     Parameters::MergeBagsParameters m_parametersMergeBags;

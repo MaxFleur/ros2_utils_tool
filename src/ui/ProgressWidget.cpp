@@ -37,7 +37,7 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
         m_thread = new BagToPCDsThread(dynamic_cast<Parameters::AdvancedParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_PCDS_TO_BAG:
-        m_thread = new PCDsToBagThread(dynamic_cast<Parameters::AdvancedParameters&>(parameters), this);
+        m_thread = new PCDsToBagThread(dynamic_cast<Parameters::PCDsToBagParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_BAG_TO_IMAGES:
         m_thread = new BagToImagesThread(dynamic_cast<Parameters::BagToImagesParameters&>(parameters), this);

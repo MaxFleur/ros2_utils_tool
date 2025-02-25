@@ -44,6 +44,9 @@ struct BagToVideoParameters : AdvancedParameters {
     bool    useBWImages = false;
     bool    lossless = false;
 };
+struct PCDsToBagParameters : AdvancedParameters {
+    int rate = 5;
+};
 struct VideoToBagParameters : AdvancedParameters {
     int  fps = 30;
     bool useCustomFPS = false;

@@ -8,8 +8,8 @@
 
 #include <filesystem>
 
-PCDsToBagThread::PCDsToBagThread(const Parameters::AdvancedParameters& parameters,
-                                 QObject*                              parent) :
+PCDsToBagThread::PCDsToBagThread(const Parameters::PCDsToBagParameters& parameters,
+                                 QObject*                               parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),
     m_parameters(parameters)
 {
@@ -53,7 +53,7 @@ PCDsToBagThread::run()
 
             sensor_msgs::msg::PointCloud2 message;
             // Nanoseconds directly
-            rclcpp::Time time(static_cast<uint64_t>(((float) iterationCount / 2) * 1e9));
+            rclcpp::Time time(static_cast<uint64_t>(((float) iterationCount / m_parameters.rate) * 1e9));
 
             pcl::PCDReader reader;
             pcl::PCLPointCloud2 cloud;
