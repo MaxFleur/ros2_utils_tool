@@ -30,6 +30,7 @@ PCDsToBagWidget::PCDsToBagWidget(Parameters::PCDsToBagParameters& parameters,
     // Use a predefined name if set in the settings
     if (usePredefinedTopicName && m_parameters.topicName.isEmpty()) {
         topicNameLineEdit->setText("/topic_point_cloud");
+        writeParameterToSettings(m_parameters.topicName, topicNameLineEdit->text(), m_settings);
     }
 
     auto* const rateSpinBox = new QSpinBox;

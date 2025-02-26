@@ -34,6 +34,7 @@ PublishWidget::PublishWidget(Parameters::PublishParameters& parameters, bool use
     // Use a predefined name if set in the settings
     if (usePredefinedTopicName && m_parameters.topicName.isEmpty()) {
         topicNameLineEdit->setText("/topic_video");
+        writeParameterToSettings(m_parameters.topicName, topicNameLineEdit->text(), m_settings);
     }
 
     auto* const basicOptionsFormLayout = new QFormLayout;

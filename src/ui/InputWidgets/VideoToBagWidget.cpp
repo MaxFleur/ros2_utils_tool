@@ -31,6 +31,7 @@ VideoToBagWidget::VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
     // Use a predefined name if set in the settings
     if (usePredefinedTopicName && m_parameters.topicName.isEmpty()) {
         topicNameLineEdit->setText("/topic_video");
+        writeParameterToSettings(m_parameters.topicName, topicNameLineEdit->text(), m_settings);
     }
 
     m_basicOptionsFormLayout->insertRow(1, "Topic Name:", topicNameLineEdit);
