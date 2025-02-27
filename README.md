@@ -70,7 +70,7 @@ cd path/to/your/workspace/src
 
 2. Clone this repository:
 ```
-git clone https://gitlab.com/nct_tso_public/mediassist4/ros2_utils_tool.git
+git clone https://github.com/MaxFleur/ros2_utils_tool.git
 ```
 
 3. Navigate back to your workspace:
