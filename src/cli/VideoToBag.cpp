@@ -72,6 +72,7 @@ main(int argc, char* argv[])
             return 0;
         }
         // Framerate
+        parameters.useCustomFPS = Utils::CLI::containsArguments(arguments, "-r", "--rate");
         if (!Utils::CLI::checkArgumentValidity(arguments, "-r", "--rate", parameters.fps, 10, 60)) {
             std::cerr << "Please enter a framerate in the range of 10 to 60!" << std::endl;
             return 0;
