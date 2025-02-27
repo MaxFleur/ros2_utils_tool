@@ -130,7 +130,7 @@ ros2 run ros2_utils_tool tool_merge_bags path/to/first_bag path/to/second_bag -t
 ```
 ros2 run ros2_utils_tool tool_dummy_bag path/to/bag_file topic_type_1 topic_name_1 ... message_count
 ```
-(Topic type needs to be `String`, `Integer` or `Image`, up to three topics can be written, `message_count` needs to be a value from 1 to 1000).
+(Topic type needs to be `String`, `Integer`, `Image` or `PointCloud`, up to four topics can be written, `message_count` needs to be a value from 1 to 1000).
 
 **Publish-Video-Tool**:
 ```
