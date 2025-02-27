@@ -6,8 +6,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_compile_options(-Wall -Wextra -Wpedantic)
 
+find_package(PCL REQUIRED)
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
+
+find_package(QT NAMES Qt6 COMPONENTS Widgets REQUIRED)
+find_package(Qt6 COMPONENTS Widgets REQUIRED)
 
 find_package(ament_cmake REQUIRED)
 find_package(cv_bridge REQUIRED)
@@ -21,16 +26,6 @@ if($ENV{ROS_DISTRO} STREQUAL "jazzy")
 else()
     add_definitions(-DROS_HUMBLE)
 endif()
-
-if(${Qt6_FOUND})
-    find_package(QT NAMES Qt6 COMPONENTS Widgets REQUIRED)
-    find_package(Qt6 COMPONENTS Widgets REQUIRED)
-else()
-    find_package(QT NAMES Qt5 COMPONENTS Widgets REQUIRED)
-    find_package(Qt5 COMPONENTS Widgets REQUIRED)
-endif()
-
-find_package(PCL REQUIRED)
 
 add_subdirectory(src)
 add_subdirectory(test)

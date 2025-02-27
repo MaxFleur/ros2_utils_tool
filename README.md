@@ -45,19 +45,17 @@ The following packages are required:
 - [OpenCV](https://opencv.org/) for writing video files.
 - [cv_bridge](https://index.ros.org/p/cv_bridge/) for converting ROS sensor images to cv matrices and vice versa.
 - [PCL](https://pointclouds.org/) for creating point clouds and converting them from and to ROS messages.
-- [Qt6/Qt5](https://doc.qt.io/) for all UI as well as some convenience functionalities.
-    - The application uses Qt6 by default. If no Qt6 installation is found on the system, Qt5 is used instead.
-    - **Due to Qt5 going end-of-life on May 26th 2025, support for it will be dropped soon**.
+- [Qt6](https://doc.qt.io/) for all UI as well as some convenience functionalities.
 - [catch2_ROS](https://index.ros.org/p/catch_ros2/) for Catch2-based unit tests with ROS2.
 - (Optional) [uncrustify](https://github.com/uncrustify/uncrustify) for code formatting.
 
 The following command installs all additional dependencies at once:
 
 **Humble**:\
-`sudo apt install libopencv-dev ros-humble-cv-bridge libpcl-dev qt6-base-dev qtbase5-dev ros-humble-catch-ros2`
+`sudo apt install libopencv-dev ros-humble-cv-bridge libpcl-dev qt6-base-dev ros-humble-catch-ros2`
 
 **Jazzy**:\
-`sudo apt install libopencv-dev ros-jazzy-cv-bridge libpcl-dev qt6-base-dev qtbase5-dev ros-jazzy-catch-ros2`
+`sudo apt install libopencv-dev ros-jazzy-cv-bridge libpcl-dev qt6-base-dev ros-jazzy-catch-ros2`
 
 Alternatively, use `rosdep` to install all dependencies.
 
