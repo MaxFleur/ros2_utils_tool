@@ -37,7 +37,7 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto arguments = app.arguments();
-    const QStringList checkList{ "-t", "-s", "-e", "-l", "-h", "--topic_name", "--scale", "--exchange", "--loop", "--help" };
+    const QStringList checkList{ "-t", "-s", "-a", "-e", "-l", "-h", "--topic_name", "--scale", "--accelerate", "--exchange", "--loop", "--help" };
     if (Utils::CLI::containsInvalidParameters(arguments, checkList) ||
         arguments.size() < 2 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
