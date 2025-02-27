@@ -43,7 +43,7 @@ DummyBagWidget::DummyBagWidget(Parameters::DummyBagParameters& parameters, bool 
     plusMinusButtonLayout->addWidget(m_plusButton);
 
     m_formLayout = new QFormLayout;
-    m_formLayout->addRow("Bag File:", m_findSourceLayout);
+    m_formLayout->addRow("Target Bag Location:", m_findSourceLayout);
     m_formLayout->addRow("", plusMinusButtonLayout);
     m_formLayout->addRow("Message Count:", messageCountSpinBox);
 
