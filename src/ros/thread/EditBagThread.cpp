@@ -8,8 +8,8 @@
 
 #include <filesystem>
 
-EditBagThread::EditBagThread(const Utils::UI::EditBagInputParameters& parameters,
-                             QObject*                                 parent) :
+EditBagThread::EditBagThread(const Parameters::EditBagParameters& parameters,
+                             QObject*                             parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),
     m_parameters(parameters)
 {

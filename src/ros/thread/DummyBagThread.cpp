@@ -2,9 +2,15 @@
 
 #include "UtilsROS.hpp"
 
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+#include <pcl_conversions/pcl_conversions.h>
+
 #include "sensor_msgs/msg/image.hpp"
+#include "sensor_msgs/msg/point_cloud2.hpp"
 
 #include <filesystem>
+#include <random>
 
 #ifdef ROS_JAZZY
 #include <cv_bridge/cv_bridge.hpp>
@@ -12,8 +18,8 @@
 #include <cv_bridge/cv_bridge.h>
 #endif
 
-DummyBagThread::DummyBagThread(const Utils::UI::DummyBagInputParameters& parameters,
-                               QObject*                                  parent) :
+DummyBagThread::DummyBagThread(const Parameters::DummyBagParameters& parameters,
+                               QObject*                              parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),
     m_parameters(parameters)
 {
@@ -57,6 +63,29 @@ DummyBagThread::run()
 
                 const auto cvBridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::BGR8, mat);
                 cvBridge.toImageMsg(message);
+                writer.write(message, name.toStdString(), timeStamp);
+            } else if (type == "Point Cloud" || type == "PointCloud") {
+                // Create a randomized point cloud with 10 points
+                pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>());
+                cloud->width = 10;
+                cloud->height = 1;
+                cloud->is_dense = false;
+                cloud->points.resize(10);
+
+                std::random_device randomDevice;
+                std::mt19937 generator(randomDevice());
+                std::uniform_real_distribution<> distribution(-1.0, 1.0);
+                for (auto j = 0; j < 10; j++) {
+                    (*cloud)[j].x = distribution(generator);
+                    (*cloud)[j].y = distribution(generator);
+                    (*cloud)[j].z = distribution(generator);
+                    (*cloud)[j].r = 255;
+                    (*cloud)[j].g = 255;
+                    (*cloud)[j].b = 0;
+                }
+
+                sensor_msgs::msg::PointCloud2 message;
+                pcl::toROSMsg(*cloud, message);
                 writer.write(message, name.toStdString(), timeStamp);
             }
 

@@ -1,7 +1,7 @@
 #include "PublishVideoThread.hpp"
 
 #include "UtilsCLI.hpp"
-#include "UtilsROS.hpp"
+#include "Parameters.hpp"
 #include "UtilsUI.hpp"
 
 #include <QCoreApplication>
@@ -37,20 +37,22 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto arguments = app.arguments();
-    if (arguments.size() < 2 || arguments.contains("--help") || arguments.contains("-h")) {
+    const QStringList checkList{ "-t", "-s", "-a", "-e", "-l", "-h", "--topic_name", "--scale", "--accelerate", "--exchange", "--loop", "--help" };
+    if (Utils::CLI::containsInvalidParameters(arguments, checkList) ||
+        arguments.size() < 2 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
     }
 
-    Utils::UI::PublishParameters publishParameters;
+    Parameters::PublishParameters parameters;
 
     // Video directory
-    publishParameters.sourceDirectory = arguments.at(1);
-    if (!std::filesystem::exists(publishParameters.sourceDirectory.toStdString())) {
+    parameters.sourceDirectory = arguments.at(1);
+    if (!std::filesystem::exists(parameters.sourceDirectory.toStdString())) {
         std::cerr << "The video file does not exist. Please enter a valid video path!" << std::endl;
         return 0;
     }
-    const auto fileEnding = publishParameters.sourceDirectory.right(3);
+    const auto fileEnding = parameters.sourceDirectory.right(3);
     if (fileEnding != "mp4" && fileEnding != "mkv") {
         std::cerr << "The entered video name is not in correct format. Please make sure that the video file ends in mp4 or mkv!" << std::endl;
         return 0;
@@ -59,35 +61,35 @@ main(int argc, char* argv[])
     // Check for optional arguments
     if (arguments.size() > 2) {
         // Topic name
-        if (!Utils::CLI::isTopicNameValid(arguments, publishParameters.topicName)) {
+        if (!Utils::CLI::continueWithInvalidROS2Name(arguments, parameters.topicName)) {
             return 0;
         }
         // Scale
-        publishParameters.scale = Utils::CLI::containsArguments(arguments, "-s", "--scale");
-        if (!Utils::CLI::checkArgumentValidity(arguments, "-s", "--scale", publishParameters.width, 1, 3840)) {
+        parameters.scale = Utils::CLI::containsArguments(arguments, "-s", "--scale");
+        if (!Utils::CLI::checkArgumentValidity(arguments, "-s", "--scale", parameters.width, 1, 3840)) {
             std::cerr << "Please enter a width value between 1 and 3840!" << std::endl;
             return 0;
         }
-        if (!Utils::CLI::checkArgumentValidity(arguments, "-s", "--scale", publishParameters.height, 1, 2160, 2)) {
+        if (!Utils::CLI::checkArgumentValidity(arguments, "-s", "--scale", parameters.height, 1, 2160, 2)) {
             std::cerr << "Please enter a height value between 1 and 2160!" << std::endl;
             return 0;
         }
-        publishParameters.scale = true;
+        parameters.scale = true;
         // Hardware acceleration
-        publishParameters.useHardwareAcceleration = Utils::CLI::containsArguments(arguments, "-a", "--accelerate");
+        parameters.useHardwareAcceleration = Utils::CLI::containsArguments(arguments, "-a", "--accelerate");
         // Exchange red and blue values
-        publishParameters.exchangeRedBlueValues = Utils::CLI::containsArguments(arguments, "-e", "--exchange");
+        parameters.exchangeRedBlueValues = Utils::CLI::containsArguments(arguments, "-e", "--exchange");
         // Loop
-        publishParameters.loop = Utils::CLI::containsArguments(arguments, "-l", "--loop");
+        parameters.loop = Utils::CLI::containsArguments(arguments, "-l", "--loop");
     }
 
     // Apply default topic name if not assigned
-    if (publishParameters.topicName.isEmpty()) {
-        publishParameters.topicName = "/topic_video";
+    if (parameters.topicName.isEmpty()) {
+        parameters.topicName = "/topic_video";
     }
 
     // Create thread and connect to its informations
-    auto* const publishVideoThread = new PublishVideoThread(publishParameters);
+    auto* const publishVideoThread = new PublishVideoThread(parameters);
     QObject::connect(publishVideoThread, &PublishVideoThread::openingCVInstanceFailed, [] {
         std::cerr << "Video publishing failed. Please make sure that the video file is valid and disable the hardware acceleration, if necessary." << std::endl;
         return 0;

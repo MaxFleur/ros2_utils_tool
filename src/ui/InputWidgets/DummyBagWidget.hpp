@@ -1,8 +1,8 @@
 #pragma once
 
 #include "BasicInputWidget.hpp"
-#include "DummyBagInputSettings.hpp"
-#include "UtilsUI.hpp"
+#include "DummyBagSettings.hpp"
+#include "Parameters.hpp"
 
 #include <QPointer>
 #include <QWidget>
@@ -18,9 +18,9 @@ class DummyBagWidget : public BasicInputWidget
     Q_OBJECT
 
 public:
-    DummyBagWidget(Utils::UI::DummyBagInputParameters& parameters,
-                   bool                                checkROS2NameConform,
-                   QWidget*                            parent = 0);
+    DummyBagWidget(Parameters::DummyBagParameters& parameters,
+                   bool                            checkROS2NameConform,
+                   QWidget*                        parent = 0);
 
 private slots:
     void
@@ -30,8 +30,8 @@ private slots:
     removeDummyTopicWidget();
 
     void
-    createNewDummyTopicWidget(const Utils::UI::DummyBagInputParameters::DummyBagTopic& topics,
-                              int                                                      index);
+    createNewDummyTopicWidget(const Parameters::DummyBagParameters::DummyBagTopic& topics,
+                              int                                                  index);
 
     void
     okButtonPressed();
@@ -52,13 +52,13 @@ private:
     QPointer<QToolButton> m_minusButton;
     QPointer<QToolButton> m_plusButton;
 
-    Utils::UI::DummyBagInputParameters& m_parameters;
+    Parameters::DummyBagParameters& m_parameters;
 
-    DummyBagInputSettings m_settings;
+    DummyBagSettings m_settings;
 
     int m_numberOfTopics = 0;
 
     const bool m_checkROS2NameConform;
 
-    static constexpr int MAXIMUM_NUMBER_OF_TOPICS = 3;
+    static constexpr int MAXIMUM_NUMBER_OF_TOPICS = 4;
 };

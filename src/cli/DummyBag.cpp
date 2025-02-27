@@ -1,8 +1,8 @@
 #include "DummyBagThread.hpp"
 
 #include "UtilsCLI.hpp"
+#include "Parameters.hpp"
 #include "UtilsROS.hpp"
-#include "UtilsUI.hpp"
 
 #include <QCoreApplication>
 #include <QObject>
@@ -15,9 +15,9 @@ void
 showHelp()
 {
     std::cout << "Usage: ros2 run mediassist4_ros_tools tool_dummy_bag path/to/ROSBag topic_name_1 topic_type_1 "
-        "(topic_name_2 topic_type_2 topic_name_3 topic_type_3) message_count\n" << std::endl;
-    std::cout << "Topic type is either 'String', 'Integer' or 'Image'." << std::endl;
-    std::cout << "You can write up to three topics." << std::endl;
+        "(...) message_count\n" << std::endl;
+    std::cout << "Topic type is either 'String', 'Integer', 'Image' or 'PointCloud'." << std::endl;
+    std::cout << "You can write up to four topics." << std::endl;
     std::cout << "The message count must be between 1 and 1000.\n" << std::endl;
     std::cout << "-h or --help: Show this help." << std::endl;
 }
@@ -30,27 +30,29 @@ main(int argc, char* argv[])
 {
     // Create application
     QCoreApplication app(argc, argv);
+
     const auto arguments = app.arguments();
-    if (arguments.size() < 4 || arguments.size() > 9 || arguments.contains("--help") || arguments.contains("-h")) {
+    if (Utils::CLI::containsInvalidParameters(arguments, { "-h", "--help" }) ||
+        arguments.size() < 4 || arguments.size() > 11 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
     }
 
-    Utils::UI::DummyBagInputParameters inputParameters;
-    inputParameters.topicName = "";
+    Parameters::DummyBagParameters parameters;
+    parameters.topicName = "";
 
     // Bag directory
-    inputParameters.sourceDirectory = arguments.at(1);
-    auto dirPath = inputParameters.sourceDirectory;
+    parameters.sourceDirectory = arguments.at(1);
+    auto dirPath = parameters.sourceDirectory;
     dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
     if (!std::filesystem::exists(dirPath.toStdString())) {
-        std::cerr << "The entered directory for the bag file does not exist. Please specify a correct directory!" << std::endl;
+        std::cerr << "Invalid target directory. Please enter a valid one!" << std::endl;
         return 0;
     }
 
     // Message count
-    inputParameters.messageCount = arguments.at(arguments.size() - 1).toInt();
-    if (inputParameters.messageCount < 1 || inputParameters.messageCount > 1000) {
+    parameters.messageCount = arguments.at(arguments.size() - 1).toInt();
+    if (parameters.messageCount < 1 || parameters.messageCount > 1000) {
         std::cerr << "Please enter a number between 1 and 1000 for the message count value!" << std::endl;
         return 0;
     }
@@ -77,8 +79,8 @@ main(int argc, char* argv[])
             topicNames.push_back(argument);
             topicNameSet.insert(argument);
         } else {
-            if (argument != "String" && argument != "Integer" && argument != "Image") {
-                std::cerr << "The topic type must be either 'String', 'Integer' or 'Image'!" << std::endl;
+            if (argument != "String" && argument != "Integer" && argument != "Image" && argument != "PointCloud") {
+                std::cerr << "The topic type must be either 'String', 'Integer', 'Image' or 'PointCloud'!" << std::endl;
                 return 0;
             }
             topicTypes.push_back(argument);
@@ -94,20 +96,20 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    // Create thread inputParameters
-    QVector<Utils::UI::DummyBagInputParameters::DummyBagTopic> topics;
+    // Create thread parameters
+    QVector<Parameters::DummyBagParameters::DummyBagTopic> topics;
     for (auto i = 0; i < topicTypes.size(); i++) {
-        inputParameters.topics.push_back({ topicTypes.at(i), topicNames.at(i) });
+        parameters.topics.push_back({ topicTypes.at(i), topicNames.at(i) });
     }
 
-    if (std::filesystem::exists(inputParameters.sourceDirectory.toStdString())) {
+    if (std::filesystem::exists(parameters.sourceDirectory.toStdString())) {
         if (!Utils::CLI::shouldContinue("The dummy bag file already exists. Continue? [y/n]")) {
             return 0;
         }
     }
 
     // Create thread and connect to its informations
-    auto* const dummyBagThread = new DummyBagThread(inputParameters);
+    auto* const dummyBagThread = new DummyBagThread(parameters);
 
     QObject::connect(dummyBagThread, &DummyBagThread::progressChanged, [] (const QString& progressString, int progress) {
         const auto progressStringCMD = Utils::CLI::drawProgressString(progress);

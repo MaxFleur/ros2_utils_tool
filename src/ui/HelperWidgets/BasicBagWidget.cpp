@@ -1,5 +1,9 @@
 #include "BasicBagWidget.hpp"
 
+#include "MessageCountWidget.hpp"
+#include "UtilsROS.hpp"
+#include "UtilsUI.hpp"
+
 #include <QCheckBox>
 #include <QDialogButtonBox>
 #include <QFileDialog>
@@ -11,12 +15,9 @@
 #include <QTreeWidget>
 #include <QVBoxLayout>
 
-#include "MessageCountWidget.hpp"
-#include "UtilsROS.hpp"
-
 #include <filesystem>
 
-BasicBagWidget::BasicBagWidget(Utils::UI::AdvancedInputParameters& parameters,
+BasicBagWidget::BasicBagWidget(Parameters::AdvancedParameters& parameters,
                                const QString& titleText, const QString& iconText, const QString& settingsIdentifierText,
                                QWidget *parent) :
     BasicInputWidget(titleText, iconText, parent),

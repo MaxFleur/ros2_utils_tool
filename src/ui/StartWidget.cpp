@@ -1,6 +1,7 @@
 #include "StartWidget.hpp"
 
 #include "SettingsDialog.hpp"
+#include "UtilsUI.hpp"
 
 #include <QEvent>
 #include <QHBoxLayout>
@@ -9,7 +10,7 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-StartWidget::StartWidget(Utils::UI::DialogParameters& dialogParameters, QWidget *parent) :
+StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget *parent) :
     QWidget(parent), m_dialogParameters(dialogParameters)
 {
     m_headerLabel = new QLabel("ROS TOOLS");
@@ -53,15 +54,23 @@ StartWidget::StartWidget(Utils::UI::DialogParameters& dialogParameters, QWidget 
     overallToolsWidget->setLayout(overallToolsMainLayout);
 
     // Conversion tools widget
-    m_bagToVideoPushButton = createToolButton("Encode Video\nfrom Bag");
-    m_videoToBagPushButton = createToolButton("Write Video\nto Bag");
-    m_bagToImagesPushButton = createToolButton("Write Images\nfrom Bag");
+    m_bagToVideoPushButton = createToolButton("Bag to Video");
+    m_videoToBagPushButton = createToolButton("Video to Bag");
+    m_bagToPCDsPushButton = createToolButton("Bag to\nPCD Files");
+    m_PCDsToBagPushButton = createToolButton("PCD Files\nto Bag");
+    m_bagToImagesPushButton = createToolButton("Bag to Images");
 
     auto* const conversionToolsUpperLayout = new QHBoxLayout;
     conversionToolsUpperLayout->addStretch();
     conversionToolsUpperLayout->addWidget(m_bagToVideoPushButton);
     conversionToolsUpperLayout->addWidget(m_videoToBagPushButton);
     conversionToolsUpperLayout->addStretch();
+
+    auto* const conversionToolsCenterLayout = new QHBoxLayout;
+    conversionToolsCenterLayout->addStretch();
+    conversionToolsCenterLayout->addWidget(m_bagToPCDsPushButton);
+    conversionToolsCenterLayout->addWidget(m_PCDsToBagPushButton);
+    conversionToolsCenterLayout->addStretch();
 
     auto* const conversionToolsLowerLayout = new QHBoxLayout;
     conversionToolsLowerLayout->addStretch();
@@ -71,6 +80,7 @@ StartWidget::StartWidget(Utils::UI::DialogParameters& dialogParameters, QWidget 
     auto* const conversionToolsMainLayout = new QVBoxLayout;
     conversionToolsMainLayout->addStretch();
     conversionToolsMainLayout->addLayout(conversionToolsUpperLayout);
+    conversionToolsMainLayout->addLayout(conversionToolsCenterLayout);
     conversionToolsMainLayout->addLayout(conversionToolsLowerLayout);
     conversionToolsMainLayout->addStretch();
 
@@ -126,8 +136,8 @@ StartWidget::StartWidget(Utils::UI::DialogParameters& dialogParameters, QWidget 
     backButtonLayout->addWidget(m_backButton);
     backButtonLayout->addStretch();
 
-    m_versionLabel = new QLabel("v0.8.0");
-    m_versionLabel->setToolTip("Merge bags, scale published image topics\nand various UI and CLI improvements!");
+    m_versionLabel = new QLabel("v0.9.0");
+    m_versionLabel->setToolTip("Bag to pcds/pcds to bag tool and more error messages for CLI tools!");
 
     auto* const versionLayout = new QHBoxLayout;
     versionLayout->addStretch();
@@ -180,6 +190,12 @@ StartWidget::StartWidget(Utils::UI::DialogParameters& dialogParameters, QWidget 
     });
     connect(m_videoToBagPushButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_VIDEO_TO_BAG);
+    });
+    connect(m_bagToPCDsPushButton, &QPushButton::clicked, this, [this] {
+        emit toolRequested(Utils::UI::TOOL_BAG_TO_PCDS);
+    });
+    connect(m_PCDsToBagPushButton, &QPushButton::clicked, this, [this] {
+        emit toolRequested(Utils::UI::TOOL_PCDS_TO_BAG);
     });
     connect(m_bagToImagesPushButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_BAG_TO_IMAGES);
@@ -287,6 +303,8 @@ StartWidget::setButtonIcons()
 
     m_bagToVideoPushButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_to_video_white.svg" : ":/icons/bag_to_video_black.svg"));
     m_videoToBagPushButton->setIcon(QIcon(isDarkMode ? ":/icons/video_to_bag_white.svg" : ":/icons/video_to_bag_black.svg"));
+    m_bagToPCDsPushButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_to_pcd_white.svg" : ":/icons/bag_to_pcd_black.svg"));
+    m_PCDsToBagPushButton->setIcon(QIcon(isDarkMode ? ":/icons/pcd_to_bag_white.svg" : ":/icons/pcd_to_bag_black.svg"));
     m_bagToImagesPushButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_to_images_white.svg" : ":/icons/bag_to_images_black.svg"));
 
     m_editBagButton->setIcon(QIcon(isDarkMode ? ":/icons/edit_bag_white.svg" : ":/icons/edit_bag_black.svg"));

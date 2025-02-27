@@ -1,8 +1,8 @@
-#include "WriteToImageThread.hpp"
+#include "BagToImagesThread.hpp"
 
+#include "Parameters.hpp"
 #include "UtilsCLI.hpp"
 #include "UtilsROS.hpp"
-#include "UtilsUI.hpp"
 
 #include <QCoreApplication>
 #include <QObject>
@@ -35,52 +35,46 @@ main(int argc, char* argv[])
 {
     // Create application
     QCoreApplication app(argc, argv);
+
     const auto& arguments = app.arguments();
-    if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
+    const QStringList checkList{ "-t", "-f", "-e", "-c", "-q", "-o", "-b", "-h",
+                                 "--topic_name", "--format", "--exchange", "--colorless", "--quality", "--optimize", "--binary", "--help" };
+    if (Utils::CLI::containsInvalidParameters(arguments, checkList) ||
+        arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
     }
 
-    Utils::UI::ImageInputParameters inputParameters;
+    Parameters::BagToImagesParameters parameters;
 
     // Handle bag directory
-    inputParameters.sourceDirectory = arguments.at(1);
-    if (!std::filesystem::exists(inputParameters.sourceDirectory.toStdString())) {
+    parameters.sourceDirectory = arguments.at(1);
+    if (!std::filesystem::exists(parameters.sourceDirectory.toStdString())) {
         std::cerr << "Bag file not found. Make sure that the bag file exists!" << std::endl;
         return 0;
     }
-    if (const auto doesDirContainBag = Utils::ROS::doesDirectoryContainBagFile(inputParameters.sourceDirectory); !doesDirContainBag) {
+    if (const auto doesDirContainBag = Utils::ROS::doesDirectoryContainBagFile(parameters.sourceDirectory); !doesDirContainBag) {
         std::cerr << "The directory does not contain a bag file!" << std::endl;
         return 0;
     }
 
     // Images directory
-    inputParameters.targetDirectory = arguments.at(2);
+    parameters.targetDirectory = arguments.at(2);
+    auto dirPath = parameters.targetDirectory;
+    dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
+    if (!std::filesystem::exists(dirPath.toStdString())) {
+        std::cerr << "Invalid target directory. Please enter a valid one!" << std::endl;
+        return 0;
+    }
 
     // Check for optional arguments
     if (arguments.size() > 3) {
         // Topic name
-        if (Utils::CLI::containsArguments(arguments, "-t", "--topic_name")) {
-            const auto topicNameIndex = Utils::CLI::getArgumentsIndex(arguments, "-t", "--topic_name");
-            if (arguments.at(topicNameIndex) == arguments.last()) {
-                std::cerr << "Please enter the bag topic name!" << std::endl;
-                return 0;
-            }
-
-            const auto& topicName = arguments.at(topicNameIndex + 1);
-            if (!Utils::ROS::doesBagContainTopicName(inputParameters.sourceDirectory, topicName)) {
-                std::cerr << "Topic has not been found in the bag file!" << std::endl;
-                return 0;
-            }
-            if (Utils::ROS::getTopicType(inputParameters.sourceDirectory, topicName) != "sensor_msgs/msg/Image") {
-                std::cerr << "The entered topic is not in sensor message format!" << std::endl;
-                return 0;
-            }
-            inputParameters.topicName = topicName;
+        if (!Utils::CLI::isTopicNameValid(arguments, parameters.sourceDirectory, "sensor_msgs/msg/Image", parameters.topicName)) {
+            return 0;
         }
-
         // Quality
-        if (!Utils::CLI::checkArgumentValidity(arguments, "-q", "--quality", inputParameters.quality, 0, 9)) {
+        if (!Utils::CLI::checkArgumentValidity(arguments, "-q", "--quality", parameters.quality, 0, 9)) {
             std::cerr << "Please enter a quality value in the range of 0 to 9!" << std::endl;
             return 0;
         }
@@ -92,56 +86,56 @@ main(int argc, char* argv[])
                 std::cerr << "Please enter either 'jpg', 'png' or 'bmp' for the format!" << std::endl;
                 return 0;
             }
-            inputParameters.format = arguments.at(qualityFormatIndex + 1);
+            parameters.format = arguments.at(qualityFormatIndex + 1);
         }
 
         // Exchange red and blue values
-        inputParameters.exchangeRedBlueValues = Utils::CLI::containsArguments(arguments, "-e", "--exchange");
+        parameters.exchangeRedBlueValues = Utils::CLI::containsArguments(arguments, "-e", "--exchange");
         // Black white images
-        inputParameters.useBWImages = Utils::CLI::containsArguments(arguments, "-c", "--colorless");
+        parameters.useBWImages = Utils::CLI::containsArguments(arguments, "-c", "--colorless");
         // Optimize for jpeg
-        inputParameters.jpgOptimize = inputParameters.format == "jpg" && Utils::CLI::containsArguments(arguments, "-o", "--optimize");
+        parameters.jpgOptimize = parameters.format == "jpg" && Utils::CLI::containsArguments(arguments, "-o", "--optimize");
         // Bilevel for png images
-        inputParameters.pngBilevel = inputParameters.format == "png" && Utils::CLI::containsArguments(arguments, "-b", "--binary");
+        parameters.pngBilevel = parameters.format == "png" && Utils::CLI::containsArguments(arguments, "-b", "--binary");
     }
 
     // Search for topic name in bag file if not specified
-    if (inputParameters.topicName.isEmpty()) {
-        const auto& firstTopicWithImageType = Utils::ROS::getFirstTopicWithCertainType(inputParameters.sourceDirectory, "sensor_msgs/msg/Image");
+    if (parameters.topicName.isEmpty()) {
+        const auto& firstTopicWithImageType = Utils::ROS::getFirstTopicWithCertainType(parameters.sourceDirectory, "sensor_msgs/msg/Image");
         if (firstTopicWithImageType == std::nullopt) {
             std::cerr << "The bag file does not contain any image topics!" << std::endl;
             return 0;
         }
 
-        inputParameters.topicName = *firstTopicWithImageType;
+        parameters.topicName = *firstTopicWithImageType;
     }
 
-    if (std::filesystem::exists(inputParameters.targetDirectory.toStdString())) {
+    if (std::filesystem::exists(parameters.targetDirectory.toStdString())) {
         if (!Utils::CLI::shouldContinue("The image directory already exists. Continue? [y/n]")) {
             return 0;
         }
     }
 
     // Create thread and connect to its informations
-    auto* const writeToImageThread = new WriteToImageThread(inputParameters);
-    QObject::connect(writeToImageThread, &WriteToImageThread::progressChanged, [] (const QString& progressString, int progress) {
+    auto* const bagToImagesThread = new BagToImagesThread(parameters);
+    QObject::connect(bagToImagesThread, &BagToImagesThread::progressChanged, [] (const QString& progressString, int progress) {
         const auto progressStringCMD = Utils::CLI::drawProgressString(progress);
         // Always clear the last line for a nice "progress bar" feeling
         std::cout << progressString.toStdString() << " " << progressStringCMD << " " << progress << "%" << "\r" << std::flush;
     });
-    QObject::connect(writeToImageThread, &WriteToImageThread::finished, [] {
+    QObject::connect(bagToImagesThread, &BagToImagesThread::finished, [] {
         std::cout << "" << std::endl; // Extra line to stop flushing
         std::cout << "Writing images finished!" << std::endl;
         return EXIT_SUCCESS;
     });
-    QObject::connect(writeToImageThread, &WriteToImageThread::finished, writeToImageThread, &QObject::deleteLater);
+    QObject::connect(bagToImagesThread, &BagToImagesThread::finished, bagToImagesThread, &QObject::deleteLater);
 
     signal(SIGINT, [] (int signal) {
         signalStatus = signal;
     });
 
     std::cout << "Writing images. Please wait..." << std::endl;
-    Utils::CLI::runThread(writeToImageThread, signalStatus);
+    Utils::CLI::runThread(bagToImagesThread, signalStatus);
 
     return EXIT_SUCCESS;
 }

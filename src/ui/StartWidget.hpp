@@ -1,6 +1,6 @@
 #pragma once
 
-#include "UtilsUI.hpp"
+#include "Parameters.hpp"
 
 #include <QPointer>
 #include <QWidget>
@@ -16,8 +16,8 @@ class StartWidget : public QWidget
     Q_OBJECT
 public:
     explicit
-    StartWidget(Utils::UI::DialogParameters& dialogParameters,
-                QWidget*                     parent = 0);
+    StartWidget(Parameters::DialogParameters& dialogParameters,
+                QWidget*                      parent = 0);
 
 signals:
     void
@@ -53,6 +53,8 @@ private:
 
     QPointer<QToolButton> m_bagToVideoPushButton;
     QPointer<QToolButton> m_videoToBagPushButton;
+    QPointer<QToolButton> m_bagToPCDsPushButton;
+    QPointer<QToolButton> m_PCDsToBagPushButton;
     QPointer<QToolButton> m_bagToImagesPushButton;
 
     QPointer<QToolButton> m_editBagButton;
@@ -70,7 +72,7 @@ private:
 
     QPointer<QVBoxLayout> m_mainLayout;
 
-    Utils::UI::DialogParameters& m_dialogParameters;
+    Parameters::DialogParameters& m_dialogParameters;
 
     // Used to remember which widget was active when we switch to the input widget, but cancel
     inline static int m_widgetOnInstantiation = 0;

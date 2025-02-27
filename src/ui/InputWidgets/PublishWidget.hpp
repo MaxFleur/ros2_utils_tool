@@ -1,8 +1,8 @@
 #pragma once
 
 #include "BasicInputWidget.hpp"
+#include "Parameters.hpp"
 #include "PublishSettings.hpp"
-#include "UtilsUI.hpp"
 
 #include <QPointer>
 #include <QWidget>
@@ -17,10 +17,11 @@ class PublishWidget : public BasicInputWidget
     Q_OBJECT
 
 public:
-    PublishWidget(Utils::UI::PublishParameters& parameters,
-                  bool                          checkROS2NameConform,
-                  bool                          publishVideo,
-                  QWidget*                      parent = 0);
+    PublishWidget(Parameters::PublishParameters& parameters,
+                  bool                           usePredefinedTopicName,
+                  bool                           checkROS2NameConform,
+                  bool                           publishVideo,
+                  QWidget*                       parent = 0);
 
 private slots:
     void
@@ -38,7 +39,7 @@ private:
     QPointer<QSpinBox> m_widthSpinBox;
     QPointer<QSpinBox> m_heightSpinBox;
 
-    Utils::UI::PublishParameters& m_parameters;
+    Parameters::PublishParameters& m_parameters;
 
     PublishSettings m_settings;
 

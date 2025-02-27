@@ -1,6 +1,6 @@
 #pragma once
 
-#include "InputSettings.hpp"
+#include "BasicSettings.hpp"
 
 #include <QPointer>
 #include <QWidget>
@@ -56,7 +56,7 @@ protected:
     void
     writeParameterToSettings(T&             settingsParameter,
                              const U&       newValue,
-                             InputSettings& inputSettings)
+                             BasicSettings& inputSettings)
     {
         settingsParameter = newValue;
         inputSettings.write();

@@ -4,7 +4,7 @@
    ![C++ badge](https://img.shields.io/badge/C++-20-blue.svg)
    ![CI Ubuntu badge](https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/humble.yml/badge.svg?event=push)
    ![CI Windows badge](https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/jazzy.yml/badge.svg?event=push)
-   ![Tag badge](https://img.shields.io/badge/Release-v0.8.0-blue.svg)
+   ![Tag badge](https://img.shields.io/badge/Release-v0.9.0-blue.svg)
 
 </div>
 
@@ -24,6 +24,8 @@ The ros2_utils_tool package provides a complete UI-based tool for the everyday-u
 |-------|-------------|:----------:|:-----------:|
 | Bag to Video | Export a ROS bag video topic to a video |  X  |  X  |
 | Video to Bag | Port a video file to a ROS bag |  X  |  X  |
+| Bag to PCDs | Export a ROS bag point cloud topic to a set of pcd files  |  X  |  X  |
+| PCDs to Bag | Port a set of PCD files to a ROS bag  |  X  |  X  |
 | Bag to Images | Export a ROS bag video topic to an image sequence |  X  |  X  |
 | Edit Bag | Rename, remove or crop topics in a ROS bag |  X  |    |
 | Merge Bags | Merge selected topics of two bags in a new ROS bag |  X  |  X  |
@@ -42,6 +44,7 @@ The following packages are required:
 - [ROS2](https://docs.ros.org/en/jazzy/index.html), both version **humble** and **jazzy** are supported.
 - [OpenCV](https://opencv.org/) for writing video files.
 - [cv_bridge](https://index.ros.org/p/cv_bridge/) for converting ROS sensor images to cv matrices and vice versa.
+- [PCL](https://pointclouds.org/) for creating point clouds and converting them from and to ROS messages.
 - [Qt6/Qt5](https://doc.qt.io/) for all UI as well as some convenience functionalities.
     - The application uses Qt6 by default. If no Qt6 installation is found on the system, Qt5 is used instead.
     - **Due to Qt5 going end-of-life on May 26th 2025, support for it will be dropped soon**.
@@ -51,10 +54,10 @@ The following packages are required:
 The following command installs all additional dependencies at once:
 
 **Humble**:\
-`sudo apt install libopencv-dev ros-humble-cv-bridge qt6-base-dev qtbase5-dev ros-humble-catch-ros2`
+`sudo apt install libopencv-dev ros-humble-cv-bridge libpcl-dev qt6-base-dev qtbase5-dev ros-humble-catch-ros2`
 
 **Jazzy**:\
-`sudo apt install libopencv-dev ros-jazzy-cv-bridge qt6-base-dev qtbase5-dev ros-jazzy-catch-ros2`
+`sudo apt install libopencv-dev ros-jazzy-cv-bridge libpcl-dev qt6-base-dev qtbase5-dev ros-jazzy-catch-ros2`
 
 Alternatively, use `rosdep` to install all dependencies.
 
@@ -90,19 +93,31 @@ ros2 run ros2_utils_tool tool_ui
 
 **Bag-to-Video-Tool**:
 ```
-ros2 run ros2_utils_tool tool_bag_to_video /path/to/bag_file /path/where/video/should/be/stored
+ros2 run ros2_utils_tool tool_bag_to_video /path/to/bag_file /path/to/target_video
 ```
 (Note that a topic can be specified optionally. If no topic is specified, the first available video topic is used. The video needs to have an .mp4 or .mkv appendix).
 
 **Video-to-Bag-Tool**:
 ```
-ros2 run ros2_utils_tool tool_video_to_bag /path/to/video_file /path/where/bag/should/be/stored
+ros2 run ros2_utils_tool tool_video_to_bag /path/to/video_file /path/to/target_bag
 ```
 (Note that a topic can be specified optionally. If no topic is specified, a predefined topic name will be taken. The video needs to have an .mp4 or .mkv appendix).
 
+**Bag-to-PCDs-Tool**:
+```
+ros2 run ros2_utils_tool tool_bag_to_pcds /path/to/bag_file /path/to/pcd_files
+```
+(Note that a topic can be specified optionally. If no topic is specified, the first available point cloud topic is used).
+
+**PCDs-to-Bag-Tool**:
+```
+ros2 run ros2_utils_tool tool_bag_to_pcds /path/to/pcd_files /path/to/target_bag
+```
+(Note that a topic can be specified optionally. If no topic is specified, a predefined topic name will be taken).
+
 **Bag-to-Images-Tool**:
 ```
-ros2 run ros2_utils_tool tool_bag_to_images /path/to/bag_file /path/where/images/should/be/stored
+ros2 run ros2_utils_tool tool_bag_to_images /path/to/bag_file /path/to/image_files
 ```
 (Note that a topic can be specified optionally. If no topic is specified, the first available video topic is used. `image_format` needs to be either `jpg`, `bmp` or `png`, jpg is default).
 
@@ -113,19 +128,19 @@ ros2 run ros2_utils_tool tool_merge_bags path/to/first_bag path/to/second_bag -t
 
 **Dummy-Bag-Tool**:
 ```
-ros2 run ros2_utils_tool tool_dummy_bag path/to/ROSBag topic_type_1 topic_name_1 ... message_count
+ros2 run ros2_utils_tool tool_dummy_bag path/to/bag_file topic_type_1 topic_name_1 ... message_count
 ```
 (Topic type needs to be `String`, `Integer` or `Image`, up to three topics can be written, `message_count` needs to be a value from 1 to 1000).
 
 **Publish-Video-Tool**:
 ```
-ros2 run ros2_utils_tool tool_publish_video path/to/video
+ros2 run ros2_utils_tool tool_publish_video path/to/video_file
 ```
 (Note that a topic can be specified optionally. If no topic is specified, a predefined topic name will be taken. The video needs to have an .mp4 or .mkv appendix).
 
 **Publish-Images-Tool**:
 ```
-ros2 run ros2_utils_tool tool_publish_images path/to/images/dir
+ros2 run ros2_utils_tool tool_publish_images path/to/images_files
 ```
 (Note that a topic can be specified optionally. If no topic is specified, a predefined topic name will be taken. Images need to be of format `jpg`, `bmp` or `png`).
 

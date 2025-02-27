@@ -1,49 +1,21 @@
 #include "BagToVideoWidget.hpp"
 
-#include "UtilsROS.hpp"
+#include "UtilsUI.hpp"
 
 #include <QCheckBox>
 #include <QComboBox>
-#include <QDialogButtonBox>
-#include <QEvent>
-#include <QFileDialog>
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QLineEdit>
-#include <QMessageBox>
-#include <QPushButton>
-#include <QShortcut>
 #include <QSpinBox>
-#include <QToolButton>
-#include <QVBoxLayout>
 
-#include <filesystem>
-
-BagToVideoWidget::BagToVideoWidget(Utils::UI::VideoInputParameters& parameters, QWidget *parent) :
-    BasicInputWidget("Encode Video from Bag", ":/icons/bag_to_video", parent),
+BagToVideoWidget::BagToVideoWidget(Parameters::BagToVideoParameters& parameters, QWidget *parent) :
+    AdvancedInputWidget(parameters, "Bag to Video", ":/icons/bag_to_video", "Bag File:", "Video Location:", "bag_to_video", OUTPUT_VIDEO, parent),
     m_parameters(parameters), m_settings(parameters, "bag_to_video")
 {
-    m_sourceLineEdit->setText(parameters.sourceDirectory);
-    m_sourceLineEdit->setToolTip("The directory of the ROSBag source file.");
-
-    m_topicNameComboBox = new QComboBox;
-    m_topicNameComboBox->setMinimumWidth(200);
-    m_topicNameComboBox->setToolTip("The ROSBag topic of the video file.\n"
-                                    "If the Bag contains multiple video topics, you can choose one of them.");
-    if (!m_parameters.sourceDirectory.isEmpty()) {
-        Utils::UI::fillComboBoxWithTopics(m_topicNameComboBox, m_parameters.sourceDirectory);
-
-        if (!m_parameters.topicName.isEmpty()) {
-            m_topicNameComboBox->setCurrentText(m_parameters.topicName);
-        }
-    }
-
-    m_videoNameLineEdit = new QLineEdit(m_parameters.targetDirectory);
-    m_videoNameLineEdit->setToolTip("The directory where the video file should be stored.");
-
-    auto* const videoLocationButton = new QToolButton;
-    auto* const searchVideoPathLayout = Utils::UI::createLineEditButtonLayout(m_videoNameLineEdit, videoLocationButton);
+    m_sourceLineEdit->setToolTip("The source bag file directory.");
+    m_topicNameComboBox->setToolTip("The image messages topic.\nIf the bag contains multiple video topics, you can choose one of them.");
+    m_targetLineEdit->setToolTip("The directory where the video file should be stored.");
 
     m_formatComboBox = new QComboBox;
     m_formatComboBox->addItem("mp4", 0);
@@ -51,11 +23,8 @@ BagToVideoWidget::BagToVideoWidget(Utils::UI::VideoInputParameters& parameters, 
     m_formatComboBox->setToolTip("The video format file.");
     m_formatComboBox->setCurrentText(m_parameters.format);
 
-    auto* const basicOptionsFormLayout = new QFormLayout;
-    basicOptionsFormLayout->addRow("Bag File:", m_findSourceLayout);
-    basicOptionsFormLayout->addRow("Topic Name:", m_topicNameComboBox);
-    basicOptionsFormLayout->addRow("Video Location:", searchVideoPathLayout);
-    basicOptionsFormLayout->addRow("Format:", m_formatComboBox);
+    m_basicOptionsFormLayout->insertRow(1, "Topic Name:", m_topicNameComboBox);
+    m_basicOptionsFormLayout->addRow("Format:", m_formatComboBox);
 
     auto* const advancedOptionsCheckBox = new QCheckBox;
     advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions ? Qt::Checked : Qt::Unchecked);
@@ -81,29 +50,11 @@ BagToVideoWidget::BagToVideoWidget(Utils::UI::VideoInputParameters& parameters, 
     advancedOptionsWidget->setLayout(m_advancedOptionsFormLayout);
     advancedOptionsWidget->setVisible(m_parameters.showAdvancedOptions);
 
-    auto* const controlsLayout = new QVBoxLayout;
-    controlsLayout->addStretch();
-    controlsLayout->addWidget(m_headerPixmapLabel);
-    controlsLayout->addWidget(m_headerLabel);
-    controlsLayout->addSpacing(40);
-    controlsLayout->addLayout(basicOptionsFormLayout);
-    controlsLayout->addSpacing(5);
-    controlsLayout->addWidget(advancedOptionsCheckBox);
-    controlsLayout->addSpacing(10);
-    controlsLayout->addWidget(advancedOptionsWidget);
-    controlsLayout->addStretch();
+    m_controlsLayout->addWidget(advancedOptionsCheckBox);
+    m_controlsLayout->addSpacing(10);
+    m_controlsLayout->addWidget(advancedOptionsWidget);
+    m_controlsLayout->addStretch();
 
-    auto* const controlsSqueezedLayout = new QHBoxLayout;
-    controlsSqueezedLayout->addStretch();
-    controlsSqueezedLayout->addLayout(controlsLayout);
-    controlsSqueezedLayout->addStretch();
-
-    auto* const mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(controlsSqueezedLayout);
-    mainLayout->addLayout(m_buttonLayout);
-    setLayout(mainLayout);
-
-    auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
     // Generally, enable ok only if we have a source and target directory and a topic name
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() &&
                    !m_parameters.topicName.isEmpty() && !m_parameters.targetDirectory.isEmpty());
@@ -111,11 +62,6 @@ BagToVideoWidget::BagToVideoWidget(Utils::UI::VideoInputParameters& parameters, 
     // Call once to potentially enable lossless images checkbox
     formatComboBoxTextChanged(m_formatComboBox->currentText());
 
-    connect(m_findSourceButton, &QPushButton::clicked, this, &BagToVideoWidget::searchButtonPressed);
-    connect(videoLocationButton, &QPushButton::clicked, this, &BagToVideoWidget::videoLocationButtonPressed);
-    connect(m_topicNameComboBox, &QComboBox::currentTextChanged, this, [this] (const QString& text) {
-        writeParameterToSettings(m_parameters.topicName, text, m_settings);
-    });
     connect(m_formatComboBox, &QComboBox::currentTextChanged, this, &BagToVideoWidget::formatComboBoxTextChanged);
     connect(advancedOptionsCheckBox, &QCheckBox::stateChanged, this, [this, advancedOptionsWidget] (int state) {
         m_parameters.showAdvancedOptions = state == Qt::Checked;
@@ -133,55 +79,8 @@ BagToVideoWidget::BagToVideoWidget(Utils::UI::VideoInputParameters& parameters, 
     connect(useBWImagesCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.useBWImages, state == Qt::Checked, m_settings);
     });
-    connect(m_dialogButtonBox, &QDialogButtonBox::accepted, this, &BagToVideoWidget::okButtonPressed);
-    connect(okShortCut, &QShortcut::activated, this, &BagToVideoWidget::okButtonPressed);
-}
 
-
-void
-BagToVideoWidget::searchButtonPressed()
-{
-    const auto bagDirectory = QFileDialog::getExistingDirectory(this, "Open ROSBag", "",
-                                                                QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-    if (bagDirectory.isEmpty()) {
-        return;
-    }
-    // Fill with topics automatically
-    if (const auto containsVideoTopics = Utils::UI::fillComboBoxWithTopics(m_topicNameComboBox, bagDirectory); !containsVideoTopics) {
-        Utils::UI::createCriticalMessageBox("Topic not found!", "The bag file does not contain any image/video topics!");
-        return;
-    }
-
-    m_sourceLineEdit->setText(bagDirectory);
-    writeParameterToSettings(m_parameters.sourceDirectory, bagDirectory, m_settings);
-
-    // Provide an automatic target video file name for lesser input
-    QDir bagDirectoryDir(bagDirectory);
-    bagDirectoryDir.cdUp();
-    if (const auto autoVideoDirectory = bagDirectoryDir.path() + "/bag_video." + m_formatComboBox->currentText();
-        !std::filesystem::exists(autoVideoDirectory.toStdString())) {
-        m_videoNameLineEdit->setText(autoVideoDirectory);
-        writeParameterToSettings(m_parameters.targetDirectory, autoVideoDirectory, m_settings);
-    }
-
-    enableOkButton(!m_parameters.sourceDirectory.isEmpty() &&
-                   !m_parameters.topicName.isEmpty() && !m_parameters.targetDirectory.isEmpty());
-}
-
-
-void
-BagToVideoWidget::videoLocationButtonPressed()
-{
-    const auto fileName = QFileDialog::getSaveFileName(this, "Save Video", "",
-                                                       m_formatComboBox->currentText() + " files (*." + m_formatComboBox->currentText() + ")");
-    if (fileName.isEmpty()) {
-        return;
-    }
-
-    writeParameterToSettings(m_parameters.targetDirectory, fileName, m_settings);
-    m_videoNameLineEdit->setText(fileName);
-    enableOkButton(!m_parameters.sourceDirectory.isEmpty() &&
-                   !m_parameters.topicName.isEmpty() && !m_parameters.targetDirectory.isEmpty());
+    setVideoFormat(m_formatComboBox->currentText());
 }
 
 
@@ -207,34 +106,16 @@ BagToVideoWidget::formatComboBoxTextChanged(const QString& text)
         });
     }
 
-    if (m_videoNameLineEdit->text().isEmpty()) {
+    if (m_targetLineEdit->text().isEmpty()) {
         return;
     }
 
     // If the combo box item changes, apply a different appendix to the text in the video line edit
-    auto newLineEditText = m_videoNameLineEdit->text();
+    auto newLineEditText = m_targetLineEdit->text();
     newLineEditText.truncate(newLineEditText.lastIndexOf(QChar('.')));
     newLineEditText += "." + text;
-    m_videoNameLineEdit->setText(newLineEditText);
+    m_targetLineEdit->setText(newLineEditText);
 
     writeParameterToSettings(m_parameters.targetDirectory, newLineEditText, m_settings);
-}
-
-
-void
-BagToVideoWidget::okButtonPressed()
-{
-    if (!m_okButton->isEnabled()) {
-        return;
-    }
-
-    if (!Utils::ROS::doesDirectoryContainBagFile(m_parameters.sourceDirectory)) {
-        Utils::UI::createCriticalMessageBox("Invalid bag file!", "The source bag file seems to be invalid or broken!");
-        return;
-    }
-    if (!Utils::UI::continueForExistingTarget(m_parameters.targetDirectory, "Video", "video")) {
-        return;
-    }
-
-    emit okPressed();
+    setVideoFormat(text);
 }

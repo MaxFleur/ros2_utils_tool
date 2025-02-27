@@ -5,6 +5,8 @@
 
         <file>icons/bag_info_black.svg</file>
         <file>icons/bag_info_white.svg</file>
+        <file>icons/bag_to_pcd_black.svg</file>
+        <file>icons/bag_to_pcd_white.svg</file>
         <file>icons/bag_to_images_black.svg</file>
         <file>icons/bag_to_images_white.svg</file>
         <file>icons/bag_to_video_black.svg</file>
@@ -23,6 +25,8 @@
         <file>icons/merge_bags_white.svg</file>
         <file>icons/minus_black.svg</file>
         <file>icons/minus_white.svg</file>
+        <file>icons/pcd_to_bag_black.svg</file>
+        <file>icons/pcd_to_bag_white.svg</file>
         <file>icons/plus_black.svg</file>
         <file>icons/plus_white.svg</file>
         <file>icons/publishing_tools_black.svg</file>

@@ -1,6 +1,7 @@
 #include "PublishWidget.hpp"
 
 #include "UtilsROS.hpp"
+#include "UtilsUI.hpp"
 
 #include <QCheckBox>
 #include <QDialogButtonBox>
@@ -18,7 +19,7 @@
 
 #include <filesystem>
 
-PublishWidget::PublishWidget(Utils::UI::PublishParameters& parameters,
+PublishWidget::PublishWidget(Parameters::PublishParameters& parameters, bool usePredefinedTopicName,
                              bool checkROS2NameConform, bool publishVideo, QWidget *parent) :
     BasicInputWidget(publishVideo ? "Publish Video as ROS Topic" : "Publish Images as ROS Topic",
                      publishVideo ? ":/icons/publish_video" : ":/icons/publish_images", parent),
@@ -30,6 +31,11 @@ PublishWidget::PublishWidget(Utils::UI::PublishParameters& parameters,
 
     auto* const topicNameLineEdit = new QLineEdit(m_parameters.topicName);
     topicNameLineEdit->setToolTip("Name of the topic to be published.");
+    // Use a predefined name if set in the settings
+    if (usePredefinedTopicName && m_parameters.topicName.isEmpty()) {
+        topicNameLineEdit->setText("/topic_video");
+        writeParameterToSettings(m_parameters.topicName, topicNameLineEdit->text(), m_settings);
+    }
 
     auto* const basicOptionsFormLayout = new QFormLayout;
     basicOptionsFormLayout->addRow(m_publishVideo ? "Video File:" : "Images Files:", m_findSourceLayout);

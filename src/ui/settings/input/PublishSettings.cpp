@@ -1,7 +1,7 @@
 #include "PublishSettings.hpp"
 
-PublishSettings::PublishSettings(Utils::UI::PublishParameters& parameters, const QString& groupName) :
-    AdvancedInputSettings(parameters, groupName), m_parameters(parameters)
+PublishSettings::PublishSettings(Parameters::PublishParameters& parameters, const QString& groupName) :
+    AdvancedSettings(parameters, groupName), m_parameters(parameters)
 {
     read();
 }
@@ -10,7 +10,7 @@ PublishSettings::PublishSettings(Utils::UI::PublishParameters& parameters, const
 bool
 PublishSettings::write()
 {
-    if (!AdvancedInputSettings::write()) {
+    if (!AdvancedSettings::write()) {
         return false;
     }
 
@@ -32,7 +32,7 @@ PublishSettings::write()
 bool
 PublishSettings::read()
 {
-    if (!AdvancedInputSettings::read()) {
+    if (!AdvancedSettings::read()) {
         return false;
     }
 

@@ -8,8 +8,8 @@
 #include <cv_bridge/cv_bridge.h>
 #endif
 
-PublishVideoThread::PublishVideoThread(const Utils::UI::PublishParameters& parameters,
-                                       QObject*                            parent) :
+PublishVideoThread::PublishVideoThread(const Parameters::PublishParameters& parameters,
+                                       QObject*                             parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),
     m_parameters(parameters)
 {

@@ -2,6 +2,7 @@
 
 #include "DummyTopicWidget.hpp"
 #include "UtilsROS.hpp"
+#include "UtilsUI.hpp"
 
 #include <QEvent>
 #include <QFileDialog>
@@ -18,8 +19,7 @@
 
 #include <filesystem>
 
-DummyBagWidget::DummyBagWidget(Utils::UI::DummyBagInputParameters& parameters,
-                               bool checkROS2NameConform, QWidget *parent) :
+DummyBagWidget::DummyBagWidget(Parameters::DummyBagParameters& parameters, bool checkROS2NameConform, QWidget *parent) :
     BasicInputWidget("Create Dummy Bag", ":/icons/dummy_bag", parent),
     m_parameters(parameters), m_settings(parameters, "dummy_bag"),
     m_checkROS2NameConform(checkROS2NameConform)
@@ -35,7 +35,7 @@ DummyBagWidget::DummyBagWidget(Utils::UI::DummyBagInputParameters& parameters,
     m_minusButton = new QToolButton;
     m_minusButton->setToolTip("Remove the topic above.");
     m_plusButton = new QToolButton;
-    m_plusButton->setToolTip("Add another topic. Currently, a maximum of 3 topics can be added.");
+    m_plusButton->setToolTip("Add another topic. Currently, a maximum of four topics can be added.");
 
     auto* const plusMinusButtonLayout = new QHBoxLayout;
     plusMinusButtonLayout->addStretch();
@@ -43,7 +43,7 @@ DummyBagWidget::DummyBagWidget(Utils::UI::DummyBagInputParameters& parameters,
     plusMinusButtonLayout->addWidget(m_plusButton);
 
     m_formLayout = new QFormLayout;
-    m_formLayout->addRow("Bag File:", m_findSourceLayout);
+    m_formLayout->addRow("Target Bag Location:", m_findSourceLayout);
     m_formLayout->addRow("", plusMinusButtonLayout);
     m_formLayout->addRow("Message Count:", messageCountSpinBox);
 
@@ -115,6 +115,7 @@ DummyBagWidget::removeDummyTopicWidget()
     m_dummyTopicWidgets.pop_back();
     m_parameters.topics.pop_back();
     m_settings.write();
+    m_numberOfTopics--;
 
     m_plusButton->setEnabled(m_numberOfTopics != MAXIMUM_NUMBER_OF_TOPICS);
     m_minusButton->setEnabled(m_parameters.topics.size() != 1);
@@ -122,7 +123,7 @@ DummyBagWidget::removeDummyTopicWidget()
 
 
 void
-DummyBagWidget::createNewDummyTopicWidget(const Utils::UI::DummyBagInputParameters::DummyBagTopic& topic, int index)
+DummyBagWidget::createNewDummyTopicWidget(const Parameters::DummyBagParameters::DummyBagTopic& topic, int index)
 {
     auto* const dummyTopicWidget = new DummyTopicWidget(topic.type, topic.name);
 
