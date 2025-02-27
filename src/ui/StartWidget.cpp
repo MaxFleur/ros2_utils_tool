@@ -136,8 +136,8 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     backButtonLayout->addWidget(m_backButton);
     backButtonLayout->addStretch();
 
-    m_versionLabel = new QLabel("v0.8.0");
-    m_versionLabel->setToolTip("Merge bags, scale published image topics\nand various UI and CLI improvements!");
+    m_versionLabel = new QLabel("v0.9.0");
+    m_versionLabel->setToolTip("Bag to pcds/pcds to bag tool and more error messages for CLI tools!");
 
     auto* const versionLayout = new QHBoxLayout;
     versionLayout->addStretch();
