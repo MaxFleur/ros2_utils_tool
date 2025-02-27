@@ -27,7 +27,7 @@ BagToVideoWidget::BagToVideoWidget(Parameters::BagToVideoParameters& parameters,
     m_basicOptionsFormLayout->addRow("Format:", m_formatComboBox);
 
     auto* const advancedOptionsCheckBox = new QCheckBox;
-    advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions ? Qt::Checked : Qt::Unchecked);
+    advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions);
     advancedOptionsCheckBox->setText("Show Advanced Options");
 
     auto* const fpsSpinBox = new QSpinBox;

@@ -37,7 +37,7 @@ VideoToBagWidget::VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
     m_basicOptionsFormLayout->insertRow(1, "Topic Name:", topicNameLineEdit);
 
     auto* const advancedOptionsCheckBox = new QCheckBox;
-    advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions ? Qt::Checked : Qt::Unchecked);
+    advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions);
     advancedOptionsCheckBox->setText("Show Advanced Options");
 
     auto* const useCustomFPSCheckBox = Utils::UI::createCheckBox("Use custom fps for the bag file. If this is unchecked, "
