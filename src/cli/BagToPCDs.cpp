@@ -7,8 +7,6 @@
 #include <QCoreApplication>
 #include <QObject>
 
-#include "rclcpp/rclcpp.hpp"
-
 #include <filesystem>
 #include <iostream>
 
