@@ -17,22 +17,13 @@ jobs:
           required-ros-distributions: jazzy
 
       - name: Install dependencies
-        run: sudo apt update && sudo apt install -y make cmake gcc libpcl-dev qtbase5-dev catch2 libopencv-dev ros-jazzy-catch-ros2
+        run: sudo apt update && sudo apt install -y make cmake gcc libpcl-dev qtbase5-dev qt6-base-dev catch2 libopencv-dev ros-jazzy-catch-ros2
 
       - name: Create workspace and copy repo there
         run: mkdir -p ros2_ws/src/ros2_utils_tool && cp -r resources src test CMakeLists.txt package.xml ros2_ws/src/ros2_utils_tool
 
-      - name: Source and build ws for Qt5
+      - name: Source ROS and build ws
         run: cd ros2_ws && source /opt/ros/jazzy/setup.bash && colcon build --packages-select ros2_utils_tool
 
-      - name: Source and run tests for Qt5
-        run: cd ros2_ws && source install/setup.bash && ros2 run ros2_utils_tool tool_tests
-
-      - name: Install Qt6
-        run: sudo apt install -y qt6-base-dev
-
-      - name: Build Qt6
-        run: cd ros2_ws && source /opt/ros/jazzy/setup.bash && colcon build --packages-select ros2_utils_tool
-
-      - name: Rerun tests for Qt6
+      - name: Source ws and run tests
         run: cd ros2_ws && source install/setup.bash && ros2 run ros2_utils_tool tool_tests
