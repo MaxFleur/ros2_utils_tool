@@ -20,5 +20,5 @@ target_sources(rt_ui INTERFACE
 )
 
 target_link_libraries(rt_ui
-    INTERFACE Qt::Widgets rt_input_widgets rt_settings rt_thread rt_utils
+    INTERFACE Qt::Widgets rt_all_threads rt_input_widgets rt_settings rt_utils
 ) 
