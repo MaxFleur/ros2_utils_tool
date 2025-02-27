@@ -28,7 +28,7 @@ BagToImagesWidget::BagToImagesWidget(Parameters::BagToImagesParameters& paramete
     m_basicOptionsFormLayout->addRow("Format:", formatComboBox);
 
     auto* const advancedOptionsCheckBox = new QCheckBox;
-    advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions ? Qt::Checked : Qt::Unchecked);
+    advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions);
     advancedOptionsCheckBox->setText("Show Advanced Options");
 
     auto* const switchRedBlueCheckBox = Utils::UI::createCheckBox("Switch the video's red and blue values.", m_parameters.exchangeRedBlueValues);
