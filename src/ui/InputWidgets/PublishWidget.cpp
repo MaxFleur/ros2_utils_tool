@@ -42,7 +42,7 @@ PublishWidget::PublishWidget(Parameters::PublishParameters& parameters, bool use
     basicOptionsFormLayout->addRow("Topic Name:", topicNameLineEdit);
 
     auto* const advancedOptionsCheckBox = new QCheckBox;
-    advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions ? Qt::Checked : Qt::Unchecked);
+    advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions);
     advancedOptionsCheckBox->setText("Show Advanced Options");
 
     auto* const scaleCheckBox = Utils::UI::createCheckBox("Scale the video to another width and height.", m_parameters.scale);
