@@ -17,7 +17,7 @@ jobs:
           required-ros-distributions: jazzy
 
       - name: Install dependencies
-        run: sudo apt update && sudo apt install -y make cmake gcc libpcl-dev qtbase5-dev qt6-base-dev catch2 libopencv-dev ros-jazzy-catch-ros2
+        run: sudo apt update && sudo apt install -y make cmake gcc qtbase5-dev qt6-base-dev ros-jazzy-catch-ros2
 
       - name: Create workspace and copy repo there
         run: mkdir -p ros2_ws/src/ros2_utils_tool && cp -r resources src test CMakeLists.txt package.xml ros2_ws/src/ros2_utils_tool
