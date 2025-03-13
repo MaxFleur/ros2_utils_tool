@@ -42,7 +42,7 @@ BagToVideoWidget::BagToVideoWidget(Parameters::BagToVideoParameters& parameters,
 
     m_advancedOptionsFormLayout = new QFormLayout;
     m_advancedOptionsFormLayout->addRow("FPS:", fpsSpinBox);
-    m_advancedOptionsFormLayout->addRow("HW Acceleration:", useHardwareAccCheckBox);
+    m_advancedOptionsFormLayout->addRow("Hardware Acceleration:", useHardwareAccCheckBox);
     m_advancedOptionsFormLayout->addRow("Switch Red and Blue Values:", switchRedBlueCheckBox);
     m_advancedOptionsFormLayout->addRow("Use Colorless Images:", useBWImagesCheckBox);
 
