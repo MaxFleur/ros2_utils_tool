@@ -17,6 +17,7 @@ AdvancedSettings::write()
     QSettings settings;
     settings.beginGroup(m_groupName);
     setSettingsParameter(settings, m_parameters.targetDirectory, "target_dir");
+    setSettingsParameter(settings, m_parameters.showAdvancedOptions, "show_advanced");
     settings.endGroup();
 
     return true;
@@ -33,6 +34,7 @@ AdvancedSettings::read()
     QSettings settings;
     settings.beginGroup(m_groupName);
     m_parameters.targetDirectory = settings.value("target_dir").isValid() ? settings.value("target_dir").toString() : "";
+    m_parameters.showAdvancedOptions = settings.value("show_advanced").isValid() ? settings.value("show_advanced").toBool() : false;
     settings.endGroup();
 
     return true;
