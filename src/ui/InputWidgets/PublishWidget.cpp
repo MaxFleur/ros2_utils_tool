@@ -59,7 +59,7 @@ PublishWidget::PublishWidget(Parameters::PublishParameters& parameters, bool use
         auto* const useHardwareAccCheckBox = Utils::UI::createCheckBox("Enable hardware acceleration for faster video decoding.",
                                                                        m_parameters.useHardwareAcceleration);
 
-        m_advancedOptionsFormLayout->addRow("Hardware Accleration:", useHardwareAccCheckBox);
+        m_advancedOptionsFormLayout->addRow("Hardware Acceleration:", useHardwareAccCheckBox);
         connect(useHardwareAccCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
             writeParameterToSettings(m_parameters.useHardwareAcceleration, state == Qt::Checked, m_settings);
         });
