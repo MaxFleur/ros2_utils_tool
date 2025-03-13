@@ -58,6 +58,7 @@ TEST_CASE("Settings Testing", "[ui]") {
         SECTION("Read") {
             qSettings.beginGroup("advanced");
             REQUIRE(!qSettings.value("target_dir").isValid());
+            REQUIRE(!qSettings.value("show_advanced").isValid());
             qSettings.endGroup();
         }
         SECTION("Write") {
@@ -65,11 +66,14 @@ TEST_CASE("Settings Testing", "[ui]") {
             AdvancedSettings settings(parameters, "advanced");
 
             parameters.targetDirectory = "/target/dir";
+            parameters.showAdvancedOptions = true;
             settings.write();
 
             qSettings.beginGroup("advanced");
             REQUIRE(qSettings.value("target_dir").isValid());
             REQUIRE(qSettings.value("target_dir").toString() == "/target/dir");
+            REQUIRE(qSettings.value("show_advanced").isValid());
+            REQUIRE(qSettings.value("show_advanced").toBool() == true);
             qSettings.endGroup();
         }
     }
