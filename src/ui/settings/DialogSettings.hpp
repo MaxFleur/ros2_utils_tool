@@ -14,6 +14,9 @@ public:
     [[nodiscard]] static bool
     areParametersSaved();
 
+    static int
+    maximumNumberOfThreads();
+
     bool
     write() override;
 

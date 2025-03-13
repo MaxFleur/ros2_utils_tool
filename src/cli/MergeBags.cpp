@@ -117,7 +117,7 @@ main(int argc, char* argv[])
     }
 
     // Create thread and connect to its informations
-    auto* const mergeBagsThread = new MergeBagsThread(parameters);
+    auto* const mergeBagsThread = new MergeBagsThread(parameters, std::thread::hardware_concurrency());
     std::mutex mutex;
 
     QObject::connect(mergeBagsThread, &MergeBagsThread::progressChanged, [&mutex] (const QString& progressString, int progress) {

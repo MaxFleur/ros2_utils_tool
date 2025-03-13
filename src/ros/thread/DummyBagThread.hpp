@@ -9,6 +9,7 @@ class DummyBagThread : public BasicThread {
 public:
     explicit
     DummyBagThread(const Parameters::DummyBagParameters& parameters,
+                   int                                   numberOfThreads,
                    QObject*                              parent = nullptr);
 
     void
@@ -16,4 +17,6 @@ public:
 
 private:
     const Parameters::DummyBagParameters& m_parameters;
+
+    const int m_numberOfThreads;
 };

@@ -7,10 +7,10 @@
 
 #include <filesystem>
 
-MergeBagsThread::MergeBagsThread(const Parameters::MergeBagsParameters& parameters,
+MergeBagsThread::MergeBagsThread(const Parameters::MergeBagsParameters& parameters, int numberOfThreads,
                                  QObject*                               parent) :
     BasicThread(parameters.sourceDirectory, "", parent),
-    m_parameters(parameters)
+    m_parameters(parameters), m_numberOfThreads(numberOfThreads)
 {
 }
 
@@ -19,6 +19,11 @@ void
 MergeBagsThread::run()
 {
     emit informOfGatheringData();
+
+    const auto targetDirectoryStd = m_parameters.targetDirectory.toStdString();
+    if (std::filesystem::exists(targetDirectoryStd)) {
+        std::filesystem::remove_all(targetDirectoryStd);
+    }
 
     auto totalInstances = 0;
     const auto& metadataFirstBag = Utils::ROS::getBagMetadata(m_parameters.sourceDirectory);
@@ -36,20 +41,18 @@ MergeBagsThread::run()
         return false;
     };
 
+    // Store selected topics in queue
+    std::deque<Parameters::MergeBagsParameters::MergeBagTopic> queue;
     for (const auto& topic : m_parameters.topics) {
         if (!topic.isSelected) {
             continue;
         }
 
+        queue.push_front(topic);
         if (canAddTopicCount(topic, metadataFirstBag, m_parameters.sourceDirectory.toStdString())) {
             continue;
         }
         canAddTopicCount(topic, metadataSecondBag, m_parameters.secondSourceDirectory.toStdString());
-    }
-
-    const auto targetDirectoryStd = m_parameters.targetDirectory.toStdString();
-    if (std::filesystem::exists(targetDirectoryStd)) {
-        std::filesystem::remove_all(targetDirectoryStd);
     }
 
     rosbag2_cpp::Writer writer;
@@ -58,51 +61,58 @@ MergeBagsThread::run()
     std::mutex mutex;
 
     // Move to own lambda for multithreading
-    const auto writeTopicToBag = [this, &writer, &instanceCount, &mutex, totalInstances] (const auto& topic) {
-        const auto topicNameStd = topic.name.toStdString();
+    const auto writeTopicToBag = [this, &queue, &writer, &instanceCount, &mutex, totalInstances] {
+        while (true) {
+            mutex.lock();
 
-        mutex.lock();
-        const auto& metadata = Utils::ROS::getBagMetadata(topic.bagDir);
-        // Create a new topic
-        for (const auto &topicMetaData : metadata.topics_with_message_count) {
-            if (topicMetaData.topic_metadata.name == topicNameStd) {
-                writer.create_topic(topicMetaData.topic_metadata);
+            // Take out and handle items out of the queue until it is empty
+            if (isInterruptionRequested() || queue.empty()) {
+                mutex.unlock();
                 break;
             }
-        }
 
-        rosbag2_cpp::Reader reader;
-        reader.open(topic.bagDir.toStdString());
-        mutex.unlock();
+            const auto topic = queue.back();
+            queue.pop_back();
 
-        while (reader.has_next()) {
-            if (isInterruptionRequested()) {
-                reader.close();
-                return;
+            const auto topicNameStd = topic.name.toStdString();
+            const auto& metadata = Utils::ROS::getBagMetadata(topic.bagDir);
+            // Create a new topic
+            for (const auto &topicMetaData : metadata.topics_with_message_count) {
+                if (topicMetaData.topic_metadata.name == topicNameStd) {
+                    writer.create_topic(topicMetaData.topic_metadata);
+                    break;
+                }
             }
-            // Read the original message
-            auto message = reader.read_next();
-            if (message->topic_name != topicNameStd) {
-                continue;
+
+            rosbag2_cpp::Reader reader;
+            reader.open(topic.bagDir.toStdString());
+            mutex.unlock();
+
+            while (reader.has_next()) {
+                if (isInterruptionRequested()) {
+                    reader.close();
+                    return;
+                }
+                // Read the original message
+                auto message = reader.read_next();
+                if (message->topic_name != topicNameStd) {
+                    continue;
+                }
+                writer.write(message);
+
+                emit progressChanged("Writing message " + QString::number(instanceCount) + " of " + QString::number(totalInstances) + "...",
+                                     ((float) instanceCount / (float) totalInstances) * 100);
+                instanceCount++;
             }
-            writer.write(message);
 
-            emit progressChanged("Writing message " + QString::number(instanceCount) + " of " + QString::number(totalInstances) + "...",
-                                 ((float) instanceCount / (float) totalInstances) * 100);
-            instanceCount++;
+            reader.close();
         }
-
-        reader.close();
     };
 
     // Parallelize the topic writing
     std::vector<std::thread> threadPool;
-    for (const auto& topic : m_parameters.topics) {
-        if (!topic.isSelected) {
-            continue;
-        }
-
-        threadPool.emplace_back(writeTopicToBag, topic);
+    for (int i = 0; i < m_numberOfThreads; ++i) {
+        threadPool.emplace_back(writeTopicToBag);
     }
     for (auto& thread : threadPool) {
         thread.join();

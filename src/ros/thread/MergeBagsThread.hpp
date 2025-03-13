@@ -9,6 +9,7 @@ class MergeBagsThread : public BasicThread {
 public:
     explicit
     MergeBagsThread(const Parameters::MergeBagsParameters& parameters,
+                    int                                    numberOfThreads,
                     QObject*                               parent = nullptr);
 
     void
@@ -16,4 +17,6 @@ public:
 
 private:
     const Parameters::MergeBagsParameters& m_parameters;
+
+    const int m_numberOfThreads;
 };
