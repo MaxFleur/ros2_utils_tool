@@ -91,7 +91,7 @@ main(int argc, char* argv[])
     }
 
     // Create thread and connect to its informations
-    auto* const pcdsToBagThread = new PCDsToBagThread(parameters);
+    auto* const pcdsToBagThread = new PCDsToBagThread(parameters, std::thread::hardware_concurrency());
 
     QObject::connect(pcdsToBagThread, &PCDsToBagThread::openingCVInstanceFailed, [] {
         std::cerr << "The bag creation failed. Please make sure that all parameters are set correctly." << std::endl;

@@ -128,7 +128,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.topics.push_back({ "String", "/dummy_string" });
         parameters.topics.push_back({ "Point Cloud", "/dummy_points" });
 
-        auto* const thread = new DummyBagThread(parameters);
+        auto* const thread = new DummyBagThread(parameters, std::thread::hardware_concurrency());
         QObject::connect(thread, &DummyBagThread::finished, thread, &QObject::deleteLater);
 
         thread->start();
@@ -173,7 +173,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.topics.push_back({ "", "/dummy_integer", 0, 200, false });
         parameters.topics.push_back({ "/renamed_string", "/dummy_string", 50, 150, true });
 
-        auto* const thread = new EditBagThread(parameters);
+        auto* const thread = new EditBagThread(parameters, std::thread::hardware_concurrency());
         QObject::connect(thread, &EditBagThread::finished, thread, &QObject::deleteLater);
 
         thread->start();
@@ -203,7 +203,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.secondSourceDirectory = "./edited_bag";
         parameters.targetDirectory = "./merged_bag";
 
-        auto* const thread = new MergeBagsThread(parameters);
+        auto* const thread = new MergeBagsThread(parameters, std::thread::hardware_concurrency());
         QObject::connect(thread, &MergeBagsThread::finished, thread, &QObject::deleteLater);
 
         SECTION("Unique Topics") {
@@ -417,7 +417,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             REQUIRE(static_cast<int>(color[2]) == valueRed);
         };
 
-        auto* const thread = new BagToImagesThread(parameters);
+        auto* const thread = new BagToImagesThread(parameters, std::thread::hardware_concurrency());
         QObject::connect(thread, &BagToImagesThread::finished, thread, &QObject::deleteLater);
 
         SECTION("Default Parameter Values") {
@@ -454,7 +454,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.targetDirectory = "./pcds";
         parameters.topicName = "/dummy_points";
 
-        auto* const thread = new BagToPCDsThread(parameters);
+        auto* const thread = new BagToPCDsThread(parameters, std::thread::hardware_concurrency());
         QObject::connect(thread, &BagToPCDsThread::finished, thread, &QObject::deleteLater);
 
         thread->start();
@@ -475,7 +475,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.topicName = "/point_clouds_are_awesome";
         parameters.rate = 2;
 
-        auto* const thread = new PCDsToBagThread(parameters);
+        auto* const thread = new PCDsToBagThread(parameters, std::thread::hardware_concurrency());
         QObject::connect(thread, &PCDsToBagThread::finished, thread, &QObject::deleteLater);
 
         thread->start();

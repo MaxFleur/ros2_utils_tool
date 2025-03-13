@@ -4,6 +4,7 @@
 #include "BagToPCDsThread.hpp"
 #include "BagToVideoThread.hpp"
 #include "BasicThread.hpp"
+#include "DialogSettings.hpp"
 #include "DummyBagThread.hpp"
 #include "EditBagThread.hpp"
 #include "MergeBagsThread.hpp"
@@ -34,22 +35,22 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
         m_thread = new VideoToBagThread(dynamic_cast<Parameters::VideoToBagParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_BAG_TO_PCDS:
-        m_thread = new BagToPCDsThread(dynamic_cast<Parameters::AdvancedParameters&>(parameters), this);
+        m_thread = new BagToPCDsThread(dynamic_cast<Parameters::AdvancedParameters&>(parameters), DialogSettings::maximumNumberOfThreads(), this);
         break;
     case Utils::UI::TOOL_PCDS_TO_BAG:
-        m_thread = new PCDsToBagThread(dynamic_cast<Parameters::PCDsToBagParameters&>(parameters), this);
+        m_thread = new PCDsToBagThread(dynamic_cast<Parameters::PCDsToBagParameters&>(parameters), DialogSettings::maximumNumberOfThreads(), this);
         break;
     case Utils::UI::TOOL_BAG_TO_IMAGES:
-        m_thread = new BagToImagesThread(dynamic_cast<Parameters::BagToImagesParameters&>(parameters), this);
+        m_thread = new BagToImagesThread(dynamic_cast<Parameters::BagToImagesParameters&>(parameters), DialogSettings::maximumNumberOfThreads(), this);
         break;
     case Utils::UI::TOOL_EDIT_BAG:
-        m_thread = new EditBagThread(dynamic_cast<Parameters::EditBagParameters&>(parameters), this);
+        m_thread = new EditBagThread(dynamic_cast<Parameters::EditBagParameters&>(parameters), DialogSettings::maximumNumberOfThreads(), this);
         break;
     case Utils::UI::TOOL_MERGE_BAGS:
-        m_thread = new MergeBagsThread(dynamic_cast<Parameters::MergeBagsParameters&>(parameters), this);
+        m_thread = new MergeBagsThread(dynamic_cast<Parameters::MergeBagsParameters&>(parameters), DialogSettings::maximumNumberOfThreads(), this);
         break;
     case Utils::UI::TOOL_DUMMY_BAG:
-        m_thread = new DummyBagThread(dynamic_cast<Parameters::DummyBagParameters&>(parameters), this);
+        m_thread = new DummyBagThread(dynamic_cast<Parameters::DummyBagParameters&>(parameters), DialogSettings::maximumNumberOfThreads(), this);
         break;
     case Utils::UI::TOOL_PUBLISH_VIDEO:
         m_thread = new PublishVideoThread(dynamic_cast<Parameters::PublishParameters&>(parameters), this);

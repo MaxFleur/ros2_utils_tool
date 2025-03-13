@@ -10,10 +10,10 @@
 
 #include <filesystem>
 
-BagToPCDsThread::BagToPCDsThread(const Parameters::AdvancedParameters& parameters,
+BagToPCDsThread::BagToPCDsThread(const Parameters::AdvancedParameters& parameters, int numberOfThreads,
                                  QObject*                              parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),
-    m_parameters(parameters)
+    m_parameters(parameters), m_numberOfThreads(numberOfThreads)
 {
 }
 
@@ -91,7 +91,7 @@ BagToPCDsThread::run()
         }
 
         std::vector<std::thread> threadPool;
-        for (unsigned int i = 0; i < std::thread::hardware_concurrency(); ++i) {
+        for (int i = 0; i < m_numberOfThreads; ++i) {
             threadPool.emplace_back(writePCD);
         }
         for (auto& thread : threadPool) {

@@ -9,6 +9,7 @@ class BagToImagesThread : public BasicThread {
 public:
     explicit
     BagToImagesThread(const Parameters::BagToImagesParameters& parameters,
+                      int                                      numberOfThreads,
                       QObject*                                 parent = nullptr);
 
     void
@@ -16,4 +17,6 @@ public:
 
 private:
     const Parameters::BagToImagesParameters& m_parameters;
+
+    const int m_numberOfThreads;
 };

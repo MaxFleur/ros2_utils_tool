@@ -3,6 +3,8 @@
 #include <QString>
 #include <QVector>
 
+#include <thread>
+
 // Parameters used to configure the threads and
 // store information in case an input widget is closed and reopened
 namespace Parameters
@@ -90,6 +92,7 @@ struct PublishParameters : AdvancedParameters {
 };
 
 struct DialogParameters {
+    int  maxNumberOfThreads = std::thread::hardware_concurrency();
     bool saveParameters = false;
     bool usePredefinedTopicNames = true;
     bool checkROS2NameConform = false;

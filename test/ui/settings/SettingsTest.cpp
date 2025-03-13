@@ -363,6 +363,7 @@ TEST_CASE("Settings Testing", "[ui]") {
         SECTION("Read") {
             qSettings.clear();
             qSettings.beginGroup("dialog");
+            REQUIRE(!qSettings.value("max_threads").isValid());
             REQUIRE(!qSettings.value("save_parameters").isValid());
             REQUIRE(!qSettings.value("predefined_topic_names").isValid());
             REQUIRE(!qSettings.value("check_ros2_naming_convention").isValid());
@@ -372,12 +373,15 @@ TEST_CASE("Settings Testing", "[ui]") {
             Parameters::DialogParameters parameters;
             DialogSettings settings(parameters, "dialog");
 
+            parameters.maxNumberOfThreads = 4;
             parameters.usePredefinedTopicNames = false;
             parameters.saveParameters = true;
             parameters.checkROS2NameConform = true;
             settings.write();
 
             qSettings.beginGroup("dialog");
+            REQUIRE(qSettings.value("max_threads").isValid());
+            REQUIRE(qSettings.value("max_threads").toInt() == 4);
             REQUIRE(qSettings.value("save_parameters").isValid());
             REQUIRE(qSettings.value("save_parameters").toBool() == true);
             REQUIRE(qSettings.value("predefined_topic_names").isValid());
