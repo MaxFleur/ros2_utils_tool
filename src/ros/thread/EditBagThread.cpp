@@ -58,10 +58,11 @@ EditBagThread::run()
                 break;
             }
         }
-        mutex.unlock();
 
         rosbag2_cpp::Reader reader;
         reader.open(m_sourceDirectory);
+        mutex.unlock();
+
         size_t boundaryCounter = 0;
 
         while (reader.has_next()) {
