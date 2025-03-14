@@ -71,6 +71,8 @@ main(int argc, char* argv[])
     }
 
     // Check for optional arguments
+    auto useHardwareAcceleration = false;
+
     if (arguments.size() > 3) {
         // Topic name
         if (!Utils::CLI::isTopicNameValid(arguments, parameters.sourceDirectory, "sensor_msgs/msg/Image", parameters.topicName)) {
@@ -83,7 +85,7 @@ main(int argc, char* argv[])
         }
 
         // Hardware acceleration
-        parameters.useHardwareAcceleration = Utils::CLI::containsArguments(arguments, "-a", "--accelerate");
+        useHardwareAcceleration = Utils::CLI::containsArguments(arguments, "-a", "--accelerate");
         // Exchange red and blue values
         parameters.exchangeRedBlueValues = Utils::CLI::containsArguments(arguments, "-e", "--exchange");
         // Colorless
@@ -110,7 +112,7 @@ main(int argc, char* argv[])
     }
 
     // Create encoding thread and connect to its informations
-    auto* const encodingThread = new BagToVideoThread(parameters);
+    auto* const encodingThread = new BagToVideoThread(parameters, useHardwareAcceleration);
     QObject::connect(encodingThread, &BagToVideoThread::openingCVInstanceFailed, [] {
         std::cerr << "The video writing failed. Please make sure that all parameters are set correctly and disable the hardware acceleration, if necessary." << std::endl;
         return 0;

@@ -271,7 +271,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.targetDirectory = "./video.mp4";
         parameters.topicName = "/dummy_image";
 
-        auto* const thread = new BagToVideoThread(parameters);
+        auto* const thread = new BagToVideoThread(parameters, false);
         QObject::connect(thread, &BagToVideoThread::finished, thread, &QObject::deleteLater);
 
         const auto performVideoCheck = [] (const std::string& fileExtension, int codec, int fps, int blueValue, int greenValue, int redValue) {
@@ -331,7 +331,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         rosbag2_cpp::Reader reader;
         rclcpp::Serialization<sensor_msgs::msg::Image> serialization;
 
-        auto* const thread = new VideoToBagThread(parameters);
+        auto* const thread = new VideoToBagThread(parameters, false);
         QObject::connect(thread, &VideoToBagThread::finished, thread, &QObject::deleteLater);
 
         const auto performBagCheck = [&reader, &serialization] (unsigned int width, unsigned int height,
@@ -386,7 +386,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             if (thread) {
                 delete thread;
             }
-            auto* const thread = new VideoToBagThread(parameters);
+            auto* const thread = new VideoToBagThread(parameters, false);
             QObject::connect(thread, &VideoToBagThread::finished, thread, &QObject::deleteLater);
 
             thread->start();
@@ -536,7 +536,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         };
 
         SECTION("Default Parameter Values - Video") {
-            auto* thread = new PublishVideoThread(parameters);
+            auto* thread = new PublishVideoThread(parameters, false);
             handleThread(thread, 1280, 720);
         }
         SECTION("Scaled Params Values - Video") {
@@ -544,7 +544,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             parameters.width = 800;
             parameters.height = 600;
 
-            auto* thread = new PublishVideoThread(parameters);
+            auto* thread = new PublishVideoThread(parameters, false);
             handleThread(thread, 800, 600);
         }
         SECTION("Default Parameter Values - Images") {

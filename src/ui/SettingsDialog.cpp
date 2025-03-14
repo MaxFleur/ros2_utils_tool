@@ -4,6 +4,7 @@
 
 #include <QCheckBox>
 #include <QDialogButtonBox>
+#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
@@ -29,6 +30,11 @@ SettingsDialog::SettingsDialog(Parameters::DialogParameters& dialogParameters, Q
     threadsLayout->addWidget(threadsLabel);
     threadsLayout->addWidget(maxNumberOfThreadsSpinBox);
 
+    auto* const useHardwareAccCheckBox = new QCheckBox("Use Hardware Acceleration");
+    useHardwareAccCheckBox->setTristate(false);
+    useHardwareAccCheckBox->setToolTip("Use hardware acceleration for some tools.");
+    useHardwareAccCheckBox->setCheckState(m_dialogParameters.useHardwareAcceleration ? Qt::Checked : Qt::Unchecked);
+
     auto* const storeParametersCheckBox = new QCheckBox("Save Input Parameters");
     storeParametersCheckBox->setTristate(false);
     storeParametersCheckBox->setToolTip("If this is checked, all input parameters are saved\n"
@@ -47,19 +53,32 @@ SettingsDialog::SettingsDialog(Parameters::DialogParameters& dialogParameters, Q
 
     auto* const buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
+    auto* const systemLayout = new QVBoxLayout;
+    systemLayout->addLayout(threadsLayout);
+    systemLayout->addWidget(useHardwareAccCheckBox);
+
+    auto* const systemGroupBox = new QGroupBox("System");
+    systemGroupBox->setLayout(systemLayout);
+
+    auto* const miscLayout = new QVBoxLayout;
+    miscLayout->addWidget(storeParametersCheckBox);
+    miscLayout->addWidget(usePredefinedTopicNamesCheckBox);
+    miscLayout->addWidget(checkROS2NamingConventionCheckBox);
+
+    auto* const miscGroupBox = new QGroupBox("Miscellaneous");
+    miscGroupBox->setLayout(miscLayout);
+
     // Set main layout
     auto* const mainLayout = new QVBoxLayout(this);
-    mainLayout->addLayout(threadsLayout);
-    mainLayout->addSpacing(10);
-    mainLayout->addWidget(storeParametersCheckBox);
-    mainLayout->addWidget(usePredefinedTopicNamesCheckBox);
-    mainLayout->addWidget(checkROS2NamingConventionCheckBox);
+    mainLayout->addWidget(systemGroupBox);
+    mainLayout->addWidget(miscGroupBox);
     mainLayout->addWidget(buttonBox);
     setLayout(mainLayout);
 
-    connect(buttonBox, &QDialogButtonBox::accepted, this, [this, maxNumberOfThreadsSpinBox, storeParametersCheckBox,
-                                                           usePredefinedTopicNamesCheckBox, checkROS2NamingConventionCheckBox] {
+    connect(buttonBox, &QDialogButtonBox::accepted, this, [this, maxNumberOfThreadsSpinBox, useHardwareAccCheckBox,
+                                                           storeParametersCheckBox, usePredefinedTopicNamesCheckBox, checkROS2NamingConventionCheckBox] {
         m_dialogParameters.maxNumberOfThreads = maxNumberOfThreadsSpinBox->value();
+        m_dialogParameters.useHardwareAcceleration = useHardwareAccCheckBox->checkState() == Qt::Checked;
         m_dialogParameters.saveParameters = storeParametersCheckBox->checkState() == Qt::Checked;
         m_dialogParameters.usePredefinedTopicNames = usePredefinedTopicNamesCheckBox->checkState() == Qt::Checked;
         m_dialogParameters.checkROS2NameConform = checkROS2NamingConventionCheckBox->checkState() == Qt::Checked;

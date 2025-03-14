@@ -55,15 +55,7 @@ PublishWidget::PublishWidget(Parameters::PublishParameters& parameters, bool use
     m_advancedOptionsFormLayout->addRow("Loop Video:", loopCheckBox);
 
     // Different input widgets are needed depending on if we want to publish a video or image sequences
-    if (m_publishVideo) {
-        auto* const useHardwareAccCheckBox = Utils::UI::createCheckBox("Enable hardware acceleration for faster video decoding.",
-                                                                       m_parameters.useHardwareAcceleration);
-
-        m_advancedOptionsFormLayout->addRow("Hardware Acceleration:", useHardwareAccCheckBox);
-        connect(useHardwareAccCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
-            writeParameterToSettings(m_parameters.useHardwareAcceleration, state == Qt::Checked, m_settings);
-        });
-    } else {
+    if (!m_publishVideo) {
         auto* const fpsSpinBox = new QSpinBox;
         fpsSpinBox->setRange(1, 60);
         fpsSpinBox->setValue(m_parameters.fps);

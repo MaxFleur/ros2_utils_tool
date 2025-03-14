@@ -66,6 +66,8 @@ main(int argc, char* argv[])
     }
 
     // Check for optional arguments
+    auto useHardwareAcceleration = false;
+
     if (arguments.size() > 3) {
         // Topic name
         if (!Utils::CLI::continueWithInvalidROS2Name(arguments, parameters.topicName)) {
@@ -78,7 +80,7 @@ main(int argc, char* argv[])
             return 0;
         }
         // Hardware acceleration
-        parameters.useHardwareAcceleration = Utils::CLI::containsArguments(arguments, "-a", "--accelerate");
+        useHardwareAcceleration = Utils::CLI::containsArguments(arguments, "-a", "--accelerate");
         // Exchange red and blue values
         parameters.exchangeRedBlueValues = Utils::CLI::containsArguments(arguments, "-e", "--exchange");
     }
@@ -95,7 +97,7 @@ main(int argc, char* argv[])
     }
 
     // Create thread and connect to its informations
-    auto* const videoToBagThread = new VideoToBagThread(parameters);
+    auto* const videoToBagThread = new VideoToBagThread(parameters, useHardwareAcceleration);
 
     QObject::connect(videoToBagThread, &VideoToBagThread::openingCVInstanceFailed, [] {
         std::cerr << "The bag creation failed. Please make sure that all parameters are set correctly "

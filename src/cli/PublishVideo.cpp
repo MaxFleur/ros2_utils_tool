@@ -59,6 +59,8 @@ main(int argc, char* argv[])
     }
 
     // Check for optional arguments
+    auto useHardwareAcceleration = false;
+
     if (arguments.size() > 2) {
         // Topic name
         if (!Utils::CLI::continueWithInvalidROS2Name(arguments, parameters.topicName)) {
@@ -76,7 +78,7 @@ main(int argc, char* argv[])
         }
         parameters.scale = true;
         // Hardware acceleration
-        parameters.useHardwareAcceleration = Utils::CLI::containsArguments(arguments, "-a", "--accelerate");
+        useHardwareAcceleration = Utils::CLI::containsArguments(arguments, "-a", "--accelerate");
         // Exchange red and blue values
         parameters.exchangeRedBlueValues = Utils::CLI::containsArguments(arguments, "-e", "--exchange");
         // Loop
@@ -89,7 +91,7 @@ main(int argc, char* argv[])
     }
 
     // Create thread and connect to its informations
-    auto* const publishVideoThread = new PublishVideoThread(parameters);
+    auto* const publishVideoThread = new PublishVideoThread(parameters, useHardwareAcceleration);
     QObject::connect(publishVideoThread, &PublishVideoThread::openingCVInstanceFailed, [] {
         std::cerr << "Video publishing failed. Please make sure that the video file is valid and disable the hardware acceleration, if necessary." << std::endl;
         return 0;

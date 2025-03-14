@@ -17,6 +17,9 @@ public:
     static int
     maximumNumberOfThreads();
 
+    static bool
+    useHardwareAcceleration();
+
     bool
     write() override;
 

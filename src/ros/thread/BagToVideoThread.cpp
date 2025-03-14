@@ -13,10 +13,10 @@
 #include <cv_bridge/cv_bridge.h>
 #endif
 
-BagToVideoThread::BagToVideoThread(const Parameters::BagToVideoParameters& parameters,
+BagToVideoThread::BagToVideoThread(const Parameters::BagToVideoParameters& parameters, bool useHardwareAcceleration,
                                    QObject*                                parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),
-    m_parameters(parameters)
+    m_parameters(parameters), m_useHardwareAcceleration(useHardwareAcceleration)
 {
 }
 
@@ -59,7 +59,7 @@ BagToVideoThread::run()
             const auto height = rosMsg->height;
 
             if (!videoEncoder->setVideoWriter(m_parameters.targetDirectory.toStdString(), m_parameters.fps, width, height,
-                                              m_parameters.useHardwareAcceleration, m_parameters.useBWImages)) {
+                                              m_useHardwareAcceleration, m_parameters.useBWImages)) {
                 emit openingCVInstanceFailed();
                 return;
             }
