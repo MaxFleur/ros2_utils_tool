@@ -3,8 +3,8 @@
 #include <QSettings>
 
 template<typename T>
-concept SettingsParameter = std::same_as<T, int> || std::same_as<T, size_t> ||
-                            std::same_as<T, bool> || std::same_as<T, QString>;
+concept GeneralSettingsParameter = std::same_as<T, int> || std::same_as<T, size_t> ||
+                                   std::same_as<T, bool> || std::same_as<T, QString>;
 
 // Basic settings, from which all other settings derive
 // Each setting as write and read functions. Read functions are called automatically
@@ -25,7 +25,7 @@ protected:
 
     // Called whenever we want to write values
     template<typename T>
-    requires SettingsParameter<T>
+    requires GeneralSettingsParameter<T>
     void
     setSettingsParameter(QSettings&     settings,
                          T              parameter,

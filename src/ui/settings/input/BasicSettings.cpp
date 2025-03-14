@@ -11,7 +11,7 @@ BasicSettings::BasicSettings(Parameters::BasicParameters& parameters, const QStr
 bool
 BasicSettings::write()
 {
-    if (const auto areParametersSaved = DialogSettings::areParametersSaved(); !areParametersSaved) {
+    if (!DialogSettings::getStaticParameter("save_parameters", false)) {
         return false;
     }
 
@@ -28,7 +28,7 @@ BasicSettings::write()
 bool
 BasicSettings::read()
 {
-    if (const auto areParametersSaved = DialogSettings::areParametersSaved(); !areParametersSaved) {
+    if (!DialogSettings::getStaticParameter("save_parameters", false)) {
         return false;
     }
 
