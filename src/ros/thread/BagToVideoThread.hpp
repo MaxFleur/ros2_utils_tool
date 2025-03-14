@@ -9,6 +9,7 @@ class BagToVideoThread : public BasicThread {
 public:
     explicit
     BagToVideoThread(const Parameters::BagToVideoParameters& parameters,
+                     bool                                    useHardwareAcceleration,
                      QObject*                                parent = nullptr);
 
     void
@@ -16,4 +17,6 @@ public:
 
 private:
     const Parameters::BagToVideoParameters& m_parameters;
+
+    const bool m_useHardwareAcceleration;
 };

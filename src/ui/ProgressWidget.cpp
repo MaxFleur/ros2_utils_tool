@@ -29,10 +29,10 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
 {
     switch (threadTypeId) {
     case Utils::UI::TOOL_BAG_TO_VIDEO:
-        m_thread = new BagToVideoThread(dynamic_cast<Parameters::BagToVideoParameters&>(parameters), this);
+        m_thread = new BagToVideoThread(dynamic_cast<Parameters::BagToVideoParameters&>(parameters), DialogSettings::useHardwareAcceleration(), this);
         break;
     case Utils::UI::TOOL_VIDEO_TO_BAG:
-        m_thread = new VideoToBagThread(dynamic_cast<Parameters::VideoToBagParameters&>(parameters), this);
+        m_thread = new VideoToBagThread(dynamic_cast<Parameters::VideoToBagParameters&>(parameters), DialogSettings::useHardwareAcceleration(), this);
         break;
     case Utils::UI::TOOL_BAG_TO_PCDS:
         m_thread = new BagToPCDsThread(dynamic_cast<Parameters::AdvancedParameters&>(parameters), DialogSettings::maximumNumberOfThreads(), this);
@@ -53,7 +53,7 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
         m_thread = new DummyBagThread(dynamic_cast<Parameters::DummyBagParameters&>(parameters), DialogSettings::maximumNumberOfThreads(), this);
         break;
     case Utils::UI::TOOL_PUBLISH_VIDEO:
-        m_thread = new PublishVideoThread(dynamic_cast<Parameters::PublishParameters&>(parameters), this);
+        m_thread = new PublishVideoThread(dynamic_cast<Parameters::PublishParameters&>(parameters), DialogSettings::useHardwareAcceleration(), this);
         break;
     case Utils::UI::TOOL_PUBLISH_IMAGES:
         m_thread = new PublishImagesThread(dynamic_cast<Parameters::PublishParameters&>(parameters), this);

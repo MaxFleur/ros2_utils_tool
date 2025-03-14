@@ -14,6 +14,7 @@ class PublishVideoThread : public BasicThread {
 public:
     explicit
     PublishVideoThread(const Parameters::PublishParameters& parameters,
+                       bool                                 useHardwareAcceleration,
                        QObject*                             parent = nullptr);
 
     void
@@ -24,6 +25,8 @@ private:
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr m_publisher;
 
     const Parameters::PublishParameters& m_parameters;
+
+    const bool m_useHardwareAcceleration;
 
     static constexpr int PROGRESS = 0;
 };

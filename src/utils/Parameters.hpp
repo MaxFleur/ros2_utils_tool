@@ -41,7 +41,6 @@ struct BagToImagesParameters : AdvancedParameters {
 struct BagToVideoParameters : AdvancedParameters {
     QString format = "mp4";
     int     fps = 30;
-    bool    useHardwareAcceleration = false;
     bool    exchangeRedBlueValues = false;
     bool    useBWImages = false;
     bool    lossless = false;
@@ -52,7 +51,6 @@ struct PCDsToBagParameters : AdvancedParameters {
 struct VideoToBagParameters : AdvancedParameters {
     int  fps = 30;
     bool useCustomFPS = false;
-    bool useHardwareAcceleration = false;
     bool exchangeRedBlueValues = false;
 };
 struct EditBagParameters : AdvancedParameters {
@@ -87,12 +85,12 @@ struct PublishParameters : AdvancedParameters {
     int  height = 720;
     bool exchangeRedBlueValues = false;
     bool loop = false;
-    bool useHardwareAcceleration = false;
     bool scale = false;
 };
 
 struct DialogParameters {
     int  maxNumberOfThreads = std::thread::hardware_concurrency();
+    bool useHardwareAcceleration = false;
     bool saveParameters = false;
     bool usePredefinedTopicNames = true;
     bool checkROS2NameConform = false;

@@ -42,13 +42,10 @@ VideoToBagWidget::VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
 
     auto* const useCustomFPSCheckBox = Utils::UI::createCheckBox("Use custom fps for the bag file. If this is unchecked, "
                                                                  "the video's fps will be used.", m_parameters.useCustomFPS);
-    auto* const useHardwareAccCheckBox = Utils::UI::createCheckBox("Enable hardware acceleration for faster video decoding and writing.",
-                                                                   m_parameters.useHardwareAcceleration);
     auto* const switchRedBlueCheckBox = Utils::UI::createCheckBox("Switch the video's red and blue values.", m_parameters.exchangeRedBlueValues);
 
     m_advancedOptionsFormLayout = new QFormLayout;
     m_advancedOptionsFormLayout->addRow("Use Custom FPS:", useCustomFPSCheckBox);
-    m_advancedOptionsFormLayout->addRow("Hardware Accleration:", useHardwareAccCheckBox);
     m_advancedOptionsFormLayout->addRow("Switch Red and Blue Values:", switchRedBlueCheckBox);
 
     auto* const advancedOptionsWidget = new QWidget;
@@ -73,9 +70,6 @@ VideoToBagWidget::VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
         advancedOptionsWidget->setVisible(state == Qt::Checked);
     });
     connect(useCustomFPSCheckBox, &QCheckBox::stateChanged, this, &VideoToBagWidget::useCustomFPSCheckBoxPressed);
-    connect(useHardwareAccCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
-        writeParameterToSettings(m_parameters.useHardwareAcceleration, state == Qt::Checked, m_settings);
-    });
     connect(switchRedBlueCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.exchangeRedBlueValues, state == Qt::Checked, m_settings);
     });

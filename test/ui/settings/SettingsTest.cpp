@@ -121,7 +121,6 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.beginGroup("video");
             REQUIRE(!qSettings.value("format").isValid());
             REQUIRE(!qSettings.value("fps").isValid());
-            REQUIRE(!qSettings.value("hw_acc").isValid());
             REQUIRE(!qSettings.value("switch_red_blue").isValid());
             REQUIRE(!qSettings.value("bw_images").isValid());
             REQUIRE(!qSettings.value("lossless_images").isValid());
@@ -133,7 +132,6 @@ TEST_CASE("Settings Testing", "[ui]") {
 
             parameters.format = "mkv";
             parameters.fps = 20;
-            parameters.useHardwareAcceleration = true;
             parameters.exchangeRedBlueValues = true;
             parameters.useBWImages = true;
             parameters.lossless = true;
@@ -144,8 +142,6 @@ TEST_CASE("Settings Testing", "[ui]") {
             REQUIRE(qSettings.value("format").toString() == "mkv");
             REQUIRE(qSettings.value("fps").isValid());
             REQUIRE(qSettings.value("fps").toInt() == 20);
-            REQUIRE(qSettings.value("hw_acc").isValid());
-            REQUIRE(qSettings.value("hw_acc").toBool() == true);
             REQUIRE(qSettings.value("switch_red_blue").isValid());
             REQUIRE(qSettings.value("switch_red_blue").toBool() == true);
             REQUIRE(qSettings.value("bw_images").isValid());
@@ -179,7 +175,6 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.beginGroup("bag");
             REQUIRE(!qSettings.value("fps").isValid());
             REQUIRE(!qSettings.value("custom_fps").isValid());
-            REQUIRE(!qSettings.value("hw_acc").isValid());
             REQUIRE(!qSettings.value("switch_red_blue").isValid());
             qSettings.endGroup();
         }
@@ -189,7 +184,6 @@ TEST_CASE("Settings Testing", "[ui]") {
 
             parameters.fps = 40;
             parameters.useCustomFPS = true;
-            parameters.useHardwareAcceleration = true;
             parameters.exchangeRedBlueValues = true;
             settings.write();
 
@@ -198,8 +192,6 @@ TEST_CASE("Settings Testing", "[ui]") {
             REQUIRE(qSettings.value("fps").toInt() == 40);
             REQUIRE(qSettings.value("custom_fps").isValid());
             REQUIRE(qSettings.value("custom_fps").toBool() == true);
-            REQUIRE(qSettings.value("hw_acc").isValid());
-            REQUIRE(qSettings.value("hw_acc").toBool() == true);
             REQUIRE(qSettings.value("switch_red_blue").isValid());
             REQUIRE(qSettings.value("switch_red_blue").toBool() == true);
             qSettings.endGroup();
@@ -324,7 +316,6 @@ TEST_CASE("Settings Testing", "[ui]") {
             REQUIRE(!qSettings.value("height").isValid());
             REQUIRE(!qSettings.value("switch_red_blue").isValid());
             REQUIRE(!qSettings.value("loop").isValid());
-            REQUIRE(!qSettings.value("hw_acc").isValid());
             REQUIRE(!qSettings.value("scale").isValid());
             qSettings.endGroup();
         }
@@ -337,7 +328,6 @@ TEST_CASE("Settings Testing", "[ui]") {
             parameters.height = 720;
             parameters.exchangeRedBlueValues = true;
             parameters.loop = true;
-            parameters.useHardwareAcceleration = true;
             parameters.scale = true;
             settings.write();
 
@@ -352,8 +342,6 @@ TEST_CASE("Settings Testing", "[ui]") {
             REQUIRE(qSettings.value("switch_red_blue").toBool() == true);
             REQUIRE(qSettings.value("loop").isValid());
             REQUIRE(qSettings.value("loop").toBool() == true);
-            REQUIRE(qSettings.value("hw_acc").isValid());
-            REQUIRE(qSettings.value("hw_acc").toBool() == true);
             REQUIRE(qSettings.value("scale").isValid());
             REQUIRE(qSettings.value("scale").toBool() == true);
             qSettings.endGroup();
@@ -364,6 +352,7 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.clear();
             qSettings.beginGroup("dialog");
             REQUIRE(!qSettings.value("max_threads").isValid());
+            REQUIRE(!qSettings.value("hw_acc").isValid());
             REQUIRE(!qSettings.value("save_parameters").isValid());
             REQUIRE(!qSettings.value("predefined_topic_names").isValid());
             REQUIRE(!qSettings.value("check_ros2_naming_convention").isValid());
@@ -374,6 +363,7 @@ TEST_CASE("Settings Testing", "[ui]") {
             DialogSettings settings(parameters, "dialog");
 
             parameters.maxNumberOfThreads = 4;
+            parameters.useHardwareAcceleration = true;
             parameters.usePredefinedTopicNames = false;
             parameters.saveParameters = true;
             parameters.checkROS2NameConform = true;
@@ -382,6 +372,8 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.beginGroup("dialog");
             REQUIRE(qSettings.value("max_threads").isValid());
             REQUIRE(qSettings.value("max_threads").toInt() == 4);
+            REQUIRE(qSettings.value("hw_acc").isValid());
+            REQUIRE(qSettings.value("hw_acc").toBool() == true);
             REQUIRE(qSettings.value("save_parameters").isValid());
             REQUIRE(qSettings.value("save_parameters").toBool() == true);
             REQUIRE(qSettings.value("predefined_topic_names").isValid());
