@@ -10,7 +10,7 @@ class SettingsDialog : public QDialog {
     Q_OBJECT
 
 public:
-    SettingsDialog(Parameters::DialogParameters& dialogParameters,
+    SettingsDialog(Parameters::DialogParameters& parameters,
                    QWidget*                      parent = 0);
 
 private:
@@ -18,6 +18,7 @@ private:
     storeParametersCheckStateChanged();
 
 private:
-    DialogSettings m_dialogSettings;
-    Parameters::DialogParameters& m_dialogParameters;
+    Parameters::DialogParameters& m_parameters;
+
+    DialogSettings m_settings;
 };
