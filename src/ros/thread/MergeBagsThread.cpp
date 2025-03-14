@@ -70,10 +70,10 @@ MergeBagsThread::run()
                 break;
             }
         }
-        mutex.unlock();
 
         rosbag2_cpp::Reader reader;
         reader.open(topic.bagDir.toStdString());
+        mutex.unlock();
 
         while (reader.has_next()) {
             if (isInterruptionRequested()) {

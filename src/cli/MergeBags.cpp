@@ -118,11 +118,14 @@ main(int argc, char* argv[])
 
     // Create thread and connect to its informations
     auto* const mergeBagsThread = new MergeBagsThread(parameters);
+    std::mutex mutex;
 
-    QObject::connect(mergeBagsThread, &MergeBagsThread::progressChanged, [] (const QString& progressString, int progress) {
+    QObject::connect(mergeBagsThread, &MergeBagsThread::progressChanged, [&mutex] (const QString& progressString, int progress) {
         const auto progressStringCMD = Utils::CLI::drawProgressString(progress);
         // Always clear the last line for a nice "progress bar" feeling
+        mutex.lock();
         std::cout << progressString.toStdString() << " " << progressStringCMD << " " << progress << "%" << "\r" << std::flush;
+        mutex.unlock();
     });
     QObject::connect(mergeBagsThread, &MergeBagsThread::finished, [] {
         // This signal is thrown even if SIGINT is called, but we haven't finished, only interrupted
