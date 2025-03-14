@@ -21,16 +21,6 @@ TEST_CASE("Settings Testing", "[ui]") {
     qSettings.setValue("save_parameters", true);
     qSettings.endGroup();
 
-    SECTION("Concept Test") {
-        REQUIRE(SettingsParameter<int>);
-        REQUIRE(SettingsParameter<bool>);
-        REQUIRE(SettingsParameter<QString>);
-
-        REQUIRE(!SettingsParameter<float>);
-        REQUIRE(!SettingsParameter<double>);
-        REQUIRE(!SettingsParameter<char>);
-        REQUIRE(!SettingsParameter<std::string>);
-    }
     SECTION("Input Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("basic");
@@ -348,8 +338,9 @@ TEST_CASE("Settings Testing", "[ui]") {
         }
     }
     SECTION("Dialog Settings Test") {
+        qSettings.clear();
+
         SECTION("Read") {
-            qSettings.clear();
             qSettings.beginGroup("dialog");
             REQUIRE(!qSettings.value("max_threads").isValid());
             REQUIRE(!qSettings.value("hw_acc").isValid());
@@ -364,8 +355,8 @@ TEST_CASE("Settings Testing", "[ui]") {
 
             parameters.maxNumberOfThreads = 4;
             parameters.useHardwareAcceleration = true;
-            parameters.usePredefinedTopicNames = false;
             parameters.saveParameters = true;
+            parameters.usePredefinedTopicNames = true;
             parameters.checkROS2NameConform = true;
             settings.write();
 
@@ -377,10 +368,15 @@ TEST_CASE("Settings Testing", "[ui]") {
             REQUIRE(qSettings.value("save_parameters").isValid());
             REQUIRE(qSettings.value("save_parameters").toBool() == true);
             REQUIRE(qSettings.value("predefined_topic_names").isValid());
-            REQUIRE(qSettings.value("predefined_topic_names").toBool() == false);
+            REQUIRE(qSettings.value("predefined_topic_names").toBool() == true);
             REQUIRE(qSettings.value("check_ros2_naming_convention").isValid());
             REQUIRE(qSettings.value("check_ros2_naming_convention").toBool() == true);
             qSettings.endGroup();
+
+            // Static functions
+            REQUIRE(DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()) == 4);
+            REQUIRE(DialogSettings::getStaticParameter("hw_acc", false) == true);
+            REQUIRE(DialogSettings::getStaticParameter("save_parameters", false) == true);
         }
     }
 

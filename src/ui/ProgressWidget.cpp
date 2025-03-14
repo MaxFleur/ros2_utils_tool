@@ -29,31 +29,40 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
 {
     switch (threadTypeId) {
     case Utils::UI::TOOL_BAG_TO_VIDEO:
-        m_thread = new BagToVideoThread(dynamic_cast<Parameters::BagToVideoParameters&>(parameters), DialogSettings::useHardwareAcceleration(), this);
+        m_thread = new BagToVideoThread(dynamic_cast<Parameters::BagToVideoParameters&>(parameters),
+                                        DialogSettings::getStaticParameter("hw_acc", false), this);
         break;
     case Utils::UI::TOOL_VIDEO_TO_BAG:
-        m_thread = new VideoToBagThread(dynamic_cast<Parameters::VideoToBagParameters&>(parameters), DialogSettings::useHardwareAcceleration(), this);
+        m_thread = new VideoToBagThread(dynamic_cast<Parameters::VideoToBagParameters&>(parameters),
+                                        DialogSettings::getStaticParameter("hw_acc", false), this);
         break;
     case Utils::UI::TOOL_BAG_TO_PCDS:
-        m_thread = new BagToPCDsThread(dynamic_cast<Parameters::AdvancedParameters&>(parameters), DialogSettings::maximumNumberOfThreads(), this);
+        m_thread = new BagToPCDsThread(dynamic_cast<Parameters::AdvancedParameters&>(parameters),
+                                       DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
         break;
     case Utils::UI::TOOL_PCDS_TO_BAG:
-        m_thread = new PCDsToBagThread(dynamic_cast<Parameters::PCDsToBagParameters&>(parameters), DialogSettings::maximumNumberOfThreads(), this);
+        m_thread = new PCDsToBagThread(dynamic_cast<Parameters::PCDsToBagParameters&>(parameters),
+                                       DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
         break;
     case Utils::UI::TOOL_BAG_TO_IMAGES:
-        m_thread = new BagToImagesThread(dynamic_cast<Parameters::BagToImagesParameters&>(parameters), DialogSettings::maximumNumberOfThreads(), this);
+        m_thread = new BagToImagesThread(dynamic_cast<Parameters::BagToImagesParameters&>(parameters),
+                                         DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
         break;
     case Utils::UI::TOOL_EDIT_BAG:
-        m_thread = new EditBagThread(dynamic_cast<Parameters::EditBagParameters&>(parameters), DialogSettings::maximumNumberOfThreads(), this);
+        m_thread = new EditBagThread(dynamic_cast<Parameters::EditBagParameters&>(parameters),
+                                     DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
         break;
     case Utils::UI::TOOL_MERGE_BAGS:
-        m_thread = new MergeBagsThread(dynamic_cast<Parameters::MergeBagsParameters&>(parameters), DialogSettings::maximumNumberOfThreads(), this);
+        m_thread = new MergeBagsThread(dynamic_cast<Parameters::MergeBagsParameters&>(parameters),
+                                       DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
         break;
     case Utils::UI::TOOL_DUMMY_BAG:
-        m_thread = new DummyBagThread(dynamic_cast<Parameters::DummyBagParameters&>(parameters), DialogSettings::maximumNumberOfThreads(), this);
+        m_thread = new DummyBagThread(dynamic_cast<Parameters::DummyBagParameters&>(parameters),
+                                      DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
         break;
     case Utils::UI::TOOL_PUBLISH_VIDEO:
-        m_thread = new PublishVideoThread(dynamic_cast<Parameters::PublishParameters&>(parameters), DialogSettings::useHardwareAcceleration(), this);
+        m_thread = new PublishVideoThread(dynamic_cast<Parameters::PublishParameters&>(parameters),
+                                          DialogSettings::getStaticParameter("hw_acc", false), this);
         break;
     case Utils::UI::TOOL_PUBLISH_IMAGES:
         m_thread = new PublishImagesThread(dynamic_cast<Parameters::PublishParameters&>(parameters), this);
