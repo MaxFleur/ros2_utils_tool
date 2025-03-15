@@ -1,9 +1,9 @@
 #pragma once
 
-#include "AdvancedSettings.hpp"
+#include "VideoSettings.hpp"
 
 // Store publishing parameters
-class PublishSettings : public AdvancedSettings {
+class PublishSettings : public VideoSettings {
 public:
     PublishSettings(Parameters::PublishParameters& parameters,
                     const QString&                 groupName);

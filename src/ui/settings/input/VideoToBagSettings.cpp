@@ -2,7 +2,7 @@
 
 VideoToBagSettings::VideoToBagSettings(Parameters::VideoToBagParameters& parameters,
                                        const QString&                    groupName) :
-    AdvancedSettings(parameters, groupName), m_parameters(parameters)
+    VideoSettings(parameters, groupName), m_parameters(parameters)
 {
     read();
 }
@@ -11,7 +11,7 @@ VideoToBagSettings::VideoToBagSettings(Parameters::VideoToBagParameters& paramet
 bool
 VideoToBagSettings::write()
 {
-    if (!AdvancedSettings::write()) {
+    if (!VideoSettings::write()) {
         return false;
     }
 
@@ -19,7 +19,6 @@ VideoToBagSettings::write()
     settings.beginGroup(m_groupName);
     setSettingsParameter(settings, m_parameters.fps, "fps");
     setSettingsParameter(settings, m_parameters.useCustomFPS, "custom_fps");
-    setSettingsParameter(settings, m_parameters.exchangeRedBlueValues, "switch_red_blue");
     settings.endGroup();
 
     return true;
@@ -29,7 +28,7 @@ VideoToBagSettings::write()
 bool
 VideoToBagSettings::read()
 {
-    if (!AdvancedSettings::read()) {
+    if (!VideoSettings::read()) {
         return false;
     }
 
@@ -37,7 +36,6 @@ VideoToBagSettings::read()
     settings.beginGroup(m_groupName);
     m_parameters.fps = settings.value("fps").isValid() ? settings.value("fps").toInt() : 30;
     m_parameters.useCustomFPS = settings.value("custom_fps").isValid() ? settings.value("custom_fps").toBool() : false;
-    m_parameters.exchangeRedBlueValues = settings.value("switch_red_blue").isValid() ? settings.value("switch_red_blue").toBool() : false;
     settings.endGroup();
 
     return true;

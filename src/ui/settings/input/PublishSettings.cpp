@@ -1,7 +1,7 @@
 #include "PublishSettings.hpp"
 
 PublishSettings::PublishSettings(Parameters::PublishParameters& parameters, const QString& groupName) :
-    AdvancedSettings(parameters, groupName), m_parameters(parameters)
+    VideoSettings(parameters, groupName), m_parameters(parameters)
 {
     read();
 }
@@ -10,13 +10,12 @@ PublishSettings::PublishSettings(Parameters::PublishParameters& parameters, cons
 bool
 PublishSettings::write()
 {
-    if (!AdvancedSettings::write()) {
+    if (!VideoSettings::write()) {
         return false;
     }
 
     QSettings settings;
     settings.beginGroup(m_groupName);
-    setSettingsParameter(settings, m_parameters.exchangeRedBlueValues, "switch_red_blue");
     setSettingsParameter(settings, m_parameters.loop, "loop");
     setSettingsParameter(settings, m_parameters.scale, "scale");
     setSettingsParameter(settings, m_parameters.fps, "fps");
@@ -31,13 +30,12 @@ PublishSettings::write()
 bool
 PublishSettings::read()
 {
-    if (!AdvancedSettings::read()) {
+    if (!VideoSettings::read()) {
         return false;
     }
 
     QSettings settings;
     settings.beginGroup(m_groupName);
-    m_parameters.exchangeRedBlueValues = settings.value("switch_red_blue").isValid() ? settings.value("switch_red_blue").toBool() : false;
     m_parameters.loop = settings.value("loop").isValid() ? settings.value("loop").toBool() : false;
     m_parameters.scale = settings.value("scale").isValid() ? settings.value("scale").toBool() : false;
     m_parameters.fps = settings.value("fps").isValid() ? settings.value("fps").toInt() : 30;
