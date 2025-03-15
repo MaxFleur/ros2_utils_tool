@@ -14,10 +14,7 @@ RGBSettings::write()
         return false;
     }
 
-    QSettings settings;
-    settings.beginGroup(m_groupName);
-    setSettingsParameter(settings, m_parameters.exchangeRedBlueValues, "switch_red_blue");
-    settings.endGroup();
+    writeParameter(m_groupName, "switch_red_blue", m_parameters.exchangeRedBlueValues);
 
     return true;
 }
@@ -30,10 +27,7 @@ RGBSettings::read()
         return false;
     }
 
-    QSettings settings;
-    settings.beginGroup(m_groupName);
-    m_parameters.exchangeRedBlueValues = settings.value("switch_red_blue").isValid() ? settings.value("switch_red_blue").toBool() : false;
-    settings.endGroup();
+    m_parameters.exchangeRedBlueValues = readParameter(m_groupName, "switch_red_blue", false);
 
     return true;
 }

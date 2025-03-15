@@ -14,13 +14,10 @@ PublishSettings::write()
         return false;
     }
 
-    QSettings settings;
-    settings.beginGroup(m_groupName);
-    setSettingsParameter(settings, m_parameters.loop, "loop");
-    setSettingsParameter(settings, m_parameters.scale, "scale");
-    setSettingsParameter(settings, m_parameters.width, "width");
-    setSettingsParameter(settings, m_parameters.height, "height");
-    settings.endGroup();
+    writeParameter(m_groupName, "loop", m_parameters.loop);
+    writeParameter(m_groupName, "scale", m_parameters.scale);
+    writeParameter(m_groupName, "width", m_parameters.width);
+    writeParameter(m_groupName, "height", m_parameters.height);
 
     return true;
 }
@@ -33,13 +30,10 @@ PublishSettings::read()
         return false;
     }
 
-    QSettings settings;
-    settings.beginGroup(m_groupName);
-    m_parameters.loop = settings.value("loop").isValid() ? settings.value("loop").toBool() : false;
-    m_parameters.scale = settings.value("scale").isValid() ? settings.value("scale").toBool() : false;
-    m_parameters.width = settings.value("width").isValid() ? settings.value("width").toInt() : 1280;
-    m_parameters.height = settings.value("height").isValid() ? settings.value("height").toInt() : 720;
-    settings.endGroup();
+    m_parameters.loop = readParameter(m_groupName, "loop", false);
+    m_parameters.scale = readParameter(m_groupName, "scale", false);
+    m_parameters.width = readParameter(m_groupName, "width", 1280);
+    m_parameters.height = readParameter(m_groupName, "height", 720);
 
     return true;
 }

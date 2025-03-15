@@ -15,10 +15,7 @@ VideoToBagSettings::write()
         return false;
     }
 
-    QSettings settings;
-    settings.beginGroup(m_groupName);
-    setSettingsParameter(settings, m_parameters.useCustomFPS, "custom_fps");
-    settings.endGroup();
+    writeParameter(m_groupName, "custom_fps", m_parameters.useCustomFPS);
 
     return true;
 }
@@ -31,10 +28,7 @@ VideoToBagSettings::read()
         return false;
     }
 
-    QSettings settings;
-    settings.beginGroup(m_groupName);
-    m_parameters.useCustomFPS = settings.value("custom_fps").isValid() ? settings.value("custom_fps").toBool() : false;
-    settings.endGroup();
+    m_parameters.useCustomFPS = readParameter(m_groupName, "custom_fps", false);
 
     return true;
 }
