@@ -30,29 +30,6 @@ struct AdvancedParameters : BasicParameters {
     QString targetDirectory = "";
     bool    showAdvancedOptions = false;
 };
-struct BagToImagesParameters : AdvancedParameters {
-    QString format = "jpg";
-    int     quality = 8;
-    bool    exchangeRedBlueValues = false;
-    bool    useBWImages = false;
-    bool    jpgOptimize = false;
-    bool    pngBilevel = false;
-};
-struct BagToVideoParameters : AdvancedParameters {
-    QString format = "mp4";
-    int     fps = 30;
-    bool    exchangeRedBlueValues = false;
-    bool    useBWImages = false;
-    bool    lossless = false;
-};
-struct PCDsToBagParameters : AdvancedParameters {
-    int rate = 5;
-};
-struct VideoToBagParameters : AdvancedParameters {
-    int  fps = 30;
-    bool useCustomFPS = false;
-    bool exchangeRedBlueValues = false;
-};
 struct EditBagParameters : AdvancedParameters {
     struct EditBagTopic {
         QString renamedTopicName = "";
@@ -78,12 +55,35 @@ struct MergeBagsParameters : AdvancedParameters {
     QVector<MergeBagTopic> topics = {};
     QString                secondSourceDirectory = "";
 };
+struct PCDsToBagParameters : AdvancedParameters {
+    int rate = 5;
+};
 
-struct PublishParameters : AdvancedParameters {
-    int  fps = 30;
+struct RGBParameters : AdvancedParameters {
+    bool exchangeRedBlueValues = false;
+};
+struct BagToImagesParameters : RGBParameters {
+    QString format = "jpg";
+    int     quality = 8;
+    bool    useBWImages = false;
+    bool    jpgOptimize = false;
+    bool    pngBilevel = false;
+};
+
+struct VideoParameters : RGBParameters {
+    int fps = 30;
+};
+struct BagToVideoParameters : VideoParameters {
+    QString format = "mp4";
+    bool    useBWImages = false;
+    bool    lossless = false;
+};
+struct VideoToBagParameters : VideoParameters {
+    bool useCustomFPS = false;
+};
+struct PublishParameters : VideoParameters {
     int  width = 1280;
     int  height = 720;
-    bool exchangeRedBlueValues = false;
     bool loop = false;
     bool scale = false;
 };
