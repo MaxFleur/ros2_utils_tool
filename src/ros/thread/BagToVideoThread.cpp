@@ -60,7 +60,7 @@ BagToVideoThread::run()
 
             if (!videoEncoder->setVideoWriter(m_parameters.targetDirectory.toStdString(), m_parameters.fps, width, height,
                                               m_useHardwareAcceleration, m_parameters.useBWImages)) {
-                emit openingCVInstanceFailed();
+                emit failed();
                 return;
             }
         }

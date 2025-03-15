@@ -28,7 +28,7 @@ VideoToBagThread::run()
         cv::CAP_PROP_HW_ACCELERATION, m_useHardwareAcceleration ? cv::VIDEO_ACCELERATION_ANY : cv::VIDEO_ACCELERATION_NONE
     });
     if (!videoCapture.isOpened()) {
-        emit openingCVInstanceFailed();
+        emit failed();
         return;
     }
 
