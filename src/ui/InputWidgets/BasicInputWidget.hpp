@@ -13,9 +13,9 @@ class QPushButton;
 class QToolButton;
 
 template<typename T, typename U>
-concept writeParameterToSettings = (std::same_as<T, U> &&
-                                    (std::same_as<T, QString> || std::same_as<T, int> ||
-                                     std::same_as<T, size_t> || std::same_as<T, bool>));
+concept InputParameterSetting = (std::same_as<T, U> &&
+                                 (std::same_as<T, QString> || std::same_as<T, int> ||
+                                  std::same_as<T, size_t> || std::same_as<T, bool>));
 
 // The basic input widget all other input widgets derive from
 // Each input widget uses a corresponding parameter and settings member.
@@ -52,7 +52,7 @@ protected:
     event(QEvent *event) override;
 
     template<typename T, typename U>
-    requires writeParameterToSettings<T, U>
+    requires InputParameterSetting<T, U>
     void
     writeParameterToSettings(T&             settingsParameter,
                              const U&       newValue,
