@@ -120,10 +120,11 @@ MergeBagsWidget::createTopicTree(bool resetTopicsParameter)
     // Fill tree widget with topics
     const auto fillTreeWithBagTopics = [this, &topicIndex] (const auto& bagFilePath, const auto& topLevelItemText) {
         auto* const topLevelItem = new QTreeWidgetItem;
+        topLevelItem->setText(COL_CHECKBOXES, topLevelItemText);
+
         auto font = topLevelItem->font(COL_CHECKBOXES);
         font.setBold(true);
         topLevelItem->setFont(COL_CHECKBOXES, font);
-        topLevelItem->setText(COL_CHECKBOXES, topLevelItemText);
         m_treeWidget->addTopLevelItem(topLevelItem);
 
         const auto& bagMetaData = Utils::ROS::getBagMetadata(bagFilePath);
@@ -203,7 +204,17 @@ MergeBagsWidget::itemCheckStateChanged(QTreeWidgetItem* item, int column)
 
     BasicBagWidget::itemCheckStateChanged(item, column);
 
-    const auto rowIndex = item->data(COL_TOPIC_NAME, Qt::UserRole).toInt();
+    // Find corresponding row index in parameters
+    auto rowIndex = 0;
+    const auto bagDir = item->parent()->text(COL_CHECKBOXES) == "First:" ? m_parameters.sourceDirectory : m_parameters.secondSourceDirectory;
+    for (auto i = 0; i < m_parameters.topics.size(); i++) {
+        auto* const nameLabel = static_cast<QLabel*>(m_treeWidget->itemWidget(item, COL_TOPIC_NAME));
+        // Equal name and bag dir required to find the correct topic
+        if (m_parameters.topics.at(i).name == nameLabel->text() && m_parameters.topics.at(i).bagDir == bagDir) {
+            rowIndex = i;
+            break;
+        }
+    }
     writeParameterToSettings(m_parameters.topics[rowIndex].isSelected, item->checkState(COL_CHECKBOXES) == Qt::Checked, m_settings);
 }
 
