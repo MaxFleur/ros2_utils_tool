@@ -14,10 +14,7 @@ VideoSettings::write()
         return false;
     }
 
-    QSettings settings;
-    settings.beginGroup(m_groupName);
-    setSettingsParameter(settings, m_parameters.fps, "fps");
-    settings.endGroup();
+    writeParameter(m_groupName, "fps", m_parameters.fps);
 
     return true;
 }
@@ -30,10 +27,7 @@ VideoSettings::read()
         return false;
     }
 
-    QSettings settings;
-    settings.beginGroup(m_groupName);
-    m_parameters.fps = settings.value("fps").isValid() ? settings.value("fps").toInt() : 30;
-    settings.endGroup();
+    m_parameters.fps = readParameter(m_groupName, "fps", 30);
 
     return true;
 }
