@@ -99,11 +99,6 @@ main(int argc, char* argv[])
     // Create thread and connect to its informations
     auto* const videoToBagThread = new VideoToBagThread(parameters, useHardwareAcceleration);
 
-    QObject::connect(videoToBagThread, &VideoToBagThread::openingCVInstanceFailed, [] {
-        std::cerr << "The bag creation failed. Please make sure that all parameters are set correctly "
-            "and disable the hardware acceleration, if necessary." << std::endl;
-        return 0;
-    });
     QObject::connect(videoToBagThread, &VideoToBagThread::progressChanged, [] (const QString& progressString, int progress) {
         const auto progressStringCMD = Utils::CLI::drawProgressString(progress);
         // Always clear the last line for a nice "progress bar" feeling
@@ -115,6 +110,11 @@ main(int argc, char* argv[])
         return EXIT_SUCCESS;
     });
     QObject::connect(videoToBagThread, &VideoToBagThread::finished, videoToBagThread, &QObject::deleteLater);
+    QObject::connect(videoToBagThread, &VideoToBagThread::failed, [] {
+        std::cerr << "The bag creation failed. Please make sure that all parameters are set correctly "
+            "and disable the hardware acceleration, if necessary." << std::endl;
+        return 0;
+    });
 
     signal(SIGINT, [] (int signal) {
         signalStatus = signal;

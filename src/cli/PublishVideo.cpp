@@ -92,14 +92,15 @@ main(int argc, char* argv[])
 
     // Create thread and connect to its informations
     auto* const publishVideoThread = new PublishVideoThread(parameters, useHardwareAcceleration);
-    QObject::connect(publishVideoThread, &PublishVideoThread::openingCVInstanceFailed, [] {
-        std::cerr << "Video publishing failed. Please make sure that the video file is valid and disable the hardware acceleration, if necessary." << std::endl;
-        return 0;
-    });
     QObject::connect(publishVideoThread, &PublishVideoThread::progressChanged, [] (const QString& progressString, int /* progress */) {
         std::cout << progressString.toStdString() << "\r" << std::flush;
     });
     QObject::connect(publishVideoThread, &PublishVideoThread::finished, publishVideoThread, &QObject::deleteLater);
+    QObject::connect(publishVideoThread, &PublishVideoThread::failed, [] {
+        std::cerr << "Video publishing failed. Please make sure that the video file is valid "
+            "and disable the hardware acceleration, if necessary." << std::endl;
+        return 0;
+    });
 
     signal(SIGINT, [] (int signal) {
         signalStatus = signal;

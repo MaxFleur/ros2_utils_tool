@@ -93,19 +93,7 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
 
     // Display a progress bar or play a gif depending on if we are doing bag or publishing stuff
     QWidget* progressWidget;
-    if (threadTypeId != Utils::UI::TOOL_PUBLISH_VIDEO && threadTypeId != Utils::UI::TOOL_PUBLISH_IMAGES) {
-        auto* const progressBar = new QProgressBar;
-        progressBar->setVisible(false);
-        progressWidget = progressBar;
-
-        connect(m_thread, &BasicThread::progressChanged, this, [progressLabel, progressBar] (const QString& progressString, int progress) {
-            if (!progressBar->isVisible()) {
-                progressBar->setVisible(true);
-            }
-            progressBar->setValue(progress);
-            progressLabel->setText(progressString);
-        });
-    } else {
+    if (threadTypeId == Utils::UI::TOOL_PUBLISH_VIDEO || threadTypeId == Utils::UI::TOOL_PUBLISH_IMAGES) {
         auto* const movie = new QMovie(isDarkMode? ":/gifs/publishing_white.gif" : ":/gifs/publishing_black.gif");
         movie->setScaledSize(QSize(120, 100));
 
@@ -114,14 +102,22 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
         movieLabel->setAlignment(Qt::AlignHCenter);
         progressWidget = movieLabel;
 
-        connect(m_thread, &BasicThread::progressChanged, this, [progressLabel] (const QString& progressString, int /* progress */) {
-            progressLabel->setText(progressString);
-        });
         connect(m_thread, &BasicThread::finished, this, [movie] {
             movie->stop();
         });
 
         movie->start();
+    } else {
+        auto* const progressBar = new QProgressBar;
+        progressBar->setVisible(false);
+        progressWidget = progressBar;
+
+        connect(m_thread, &BasicThread::progressChanged, this, [progressBar] (const QString& /*progressString*/, int progress) {
+            if (!progressBar->isVisible()) {
+                progressBar->setVisible(true);
+            }
+            progressBar->setValue(progress);
+        });
     }
 
     auto* const uiLayout = new QVBoxLayout;
@@ -165,16 +161,19 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
     connect(m_thread, &BasicThread::informOfGatheringData, this, [progressLabel] () {
         progressLabel->setText("Collecting necessary data...");
     });
-    connect(m_thread, &BasicThread::openingCVInstanceFailed, this, [this] {
+    connect(m_thread, &BasicThread::progressChanged, this, [progressLabel] (const QString& progressString, int /* progress */) {
+        progressLabel->setText(progressString);
+    });
+    connect(m_thread, &BasicThread::finished, this, [cancelButton, finishedButton] {
+        cancelButton->setVisible(false);
+        finishedButton->setVisible(true);
+    });
+    connect(m_thread, &BasicThread::failed, this, [this] {
         auto* const messageBox = new QMessageBox(QMessageBox::Warning, "Failed processing files!",
                                                  "The file processing failed. Please make sure that all input parameters are set correctly, "
                                                  "that the input data is valid and disable the hardware acceleration, if necessary.");
         messageBox->exec();
         emit progressStopped();
-    });
-    connect(m_thread, &BasicThread::finished, this, [cancelButton, finishedButton] {
-        cancelButton->setVisible(false);
-        finishedButton->setVisible(true);
     });
 }
 

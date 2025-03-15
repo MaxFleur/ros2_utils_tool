@@ -15,10 +15,6 @@ signals:
     void
     informOfGatheringData();
 
-    // OpenCV video writer or capture opening might fail
-    void
-    openingCVInstanceFailed();
-
     // Update progress displayal in widget
     void
     progressChanged(const QString& progressString,
@@ -26,6 +22,9 @@ signals:
 
     void
     finished();
+
+    void
+    failed();
 
 protected:
     const std::string m_sourceDirectory;
