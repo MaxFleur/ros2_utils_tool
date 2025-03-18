@@ -2,6 +2,7 @@
 
 #include "MessageCountWidget.hpp"
 #include "UtilsROS.hpp"
+#include "UtilsROSCompression.hpp"
 #include "UtilsUI.hpp"
 
 #include <QCheckBox>
@@ -90,7 +91,7 @@ BasicBagWidget::areIOParametersValid(int topicSize, int topicSizeWithOutDuplicat
     }
 
     const auto containsBagFile = [] (const auto& directory) {
-        return !Utils::ROS::doesDirectoryContainBagFile(directory);
+        return !Utils::ROS::doesDirectoryContainBagFile(directory) && !Utils::ROS::Compression::doesDirectoryContainBagFile(directory);
     };
     // Critical errors first, then messageboxes allowing to continue
     if (std::any_of(sourceParameters.begin(), sourceParameters.end(), containsBagFile)) {

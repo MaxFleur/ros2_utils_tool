@@ -42,6 +42,9 @@ struct EditBagParameters : AdvancedParameters {
     QVector<EditBagTopic> topics = {};
     bool                  deleteSource = false;
     bool                  updateTimestamps = false;
+    bool                  isSourceCompressed = false;
+    bool                  compressTarget = false;
+    bool                  compressByFile = true;
 };
 struct MergeBagsParameters : AdvancedParameters {
     struct MergeBagTopic {

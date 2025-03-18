@@ -13,6 +13,7 @@ find_package(ament_cmake REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(pcl_conversions REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rosbag2_compression REQUIRED)
 find_package(rosbag2_cpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
@@ -64,7 +65,7 @@ add_executable(tool_video_to_bag
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/VideoToBag.cpp
 )
 
-ament_target_dependencies(tool_ui cv_bridge pcl_conversions rclcpp rosbag2_cpp sensor_msgs)
+ament_target_dependencies(tool_ui cv_bridge pcl_conversions rclcpp rosbag2_compression rosbag2_cpp sensor_msgs)
 ament_target_dependencies(tool_bag_to_images cv_bridge rosbag2_cpp sensor_msgs)
 ament_target_dependencies(tool_bag_to_pcds pcl_conversions rosbag2_cpp sensor_msgs)
 ament_target_dependencies(tool_bag_to_video cv_bridge rosbag2_cpp sensor_msgs)

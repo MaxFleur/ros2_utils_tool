@@ -2,12 +2,16 @@
 
 #include "MessageCountWidget.hpp"
 #include "UtilsROS.hpp"
+#include "UtilsROSCompression.hpp"
 #include "UtilsUI.hpp"
 
 #include <QCheckBox>
+#include <QComboBox>
+#include <QDebug>
 #include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QFormLayout>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
@@ -53,6 +57,24 @@ EditBagWidget::EditBagWidget(Parameters::EditBagParameters& parameters, bool che
     m_updateTimestampsCheckBox->setChecked(m_parameters.updateTimestamps);
     m_updateTimestampsCheckBox->setVisible(false);
 
+    m_compressionLabel = new QLabel("Compression Mode:");
+    m_compressionLabel->setVisible(false);
+
+    m_compressionModeComboBox = new QComboBox;
+    m_compressionModeComboBox->addItem("No Compression");
+    m_compressionModeComboBox->addItem("Compress by File");
+    m_compressionModeComboBox->addItem("Compress per Message");
+    m_compressionModeComboBox->setCurrentIndex(COMPRESSION_NONE);
+    if (m_parameters.compressTarget) {
+        m_compressionModeComboBox->setCurrentIndex(m_parameters.compressByFile ? COMPRESSION_FILE : COMPRESSION_MESSAGE);
+    }
+    m_compressionModeComboBox->setVisible(false);
+
+    auto* const compressionLayout = new QHBoxLayout;
+    compressionLayout->addWidget(m_compressionLabel);
+    compressionLayout->addWidget(m_compressionModeComboBox);
+    compressionLayout->addStretch();
+
     auto* const controlsLayout = new QVBoxLayout;
     controlsLayout->addStretch();
     controlsLayout->addWidget(m_headerPixmapLabel);
@@ -64,8 +86,10 @@ EditBagWidget::EditBagWidget(Parameters::EditBagParameters& parameters, bool che
     controlsLayout->addWidget(m_treeWidget);
     controlsLayout->addWidget(m_targetBagNameWidget);
     controlsLayout->addWidget(m_differentDirsLabel);
+    controlsLayout->addSpacing(10);
     controlsLayout->addWidget(m_deleteSourceCheckBox);
     controlsLayout->addWidget(m_updateTimestampsCheckBox);
+    controlsLayout->addLayout(compressionLayout);
     // Give it a more "squishy" look
     controlsLayout->setContentsMargins(30, 30, 30, 30);
     controlsLayout->addStretch();
@@ -77,6 +101,10 @@ EditBagWidget::EditBagWidget(Parameters::EditBagParameters& parameters, bool che
 
     connect(m_findSourceButton, &QPushButton::clicked, this, [this] {
         createTopicTree(true);
+    });
+    connect(m_compressionModeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this] (int index) {
+        writeParameterToSettings(m_parameters.compressTarget, index != COMPRESSION_NONE, m_settings);
+        writeParameterToSettings(m_parameters.compressByFile, index == COMPRESSION_FILE, m_settings);
     });
     connect(m_deleteSourceCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.deleteSource, state == Qt::Checked, m_settings);
@@ -102,7 +130,9 @@ EditBagWidget::createTopicTree(bool newTreeRequested)
         if (bagDirectory.isEmpty()) {
             return;
         }
-        if (!Utils::ROS::doesDirectoryContainBagFile(bagDirectory)) {
+
+        m_parameters.isSourceCompressed = Utils::ROS::Compression::doesDirectoryContainBagFile(bagDirectory);
+        if (!m_parameters.isSourceCompressed && !Utils::ROS::doesDirectoryContainBagFile(bagDirectory)) {
             Utils::UI::createCriticalMessageBox("Invalid bag file!", "The source bag file seems to be invalid or broken!");
             return;
         }
@@ -114,9 +144,11 @@ EditBagWidget::createTopicTree(bool newTreeRequested)
     }
 
     m_treeWidget->clear();
+    m_treeWidget->update();
     m_treeWidget->blockSignals(true);
 
-    const auto& bagMetaData = Utils::ROS::getBagMetadata(m_parameters.sourceDirectory);
+    const auto& bagMetaData = m_parameters.isSourceCompressed ? Utils::ROS::Compression::getBagMetadata(m_parameters.sourceDirectory)
+                                                              : Utils::ROS::getBagMetadata(m_parameters.sourceDirectory);
     // Fill tree widget with topics
     for (size_t i = 0; i < bagMetaData.topics_with_message_count.size(); i++) {
         const auto topicWithMessageCount = bagMetaData.topics_with_message_count.at(i);
@@ -189,6 +221,8 @@ EditBagWidget::createTopicTree(bool newTreeRequested)
     m_treeWidget->setVisible(true);
     m_targetBagNameWidget->setVisible(true);
     m_differentDirsLabel->setVisible(true);
+    m_compressionLabel->setVisible(true);
+    m_compressionModeComboBox->setVisible(true);
     m_deleteSourceCheckBox->setVisible(true);
     m_updateTimestampsCheckBox->setVisible(true);
     m_okButton->setVisible(true);
@@ -244,7 +278,6 @@ EditBagWidget::okButtonPressed()
         topicNameSet.insert(topic.renamedTopicName.isEmpty() ? topic.originalTopicName : topic.renamedTopicName);
         sizeOfSelectedTopics++;
     }
-
     if (const auto ioParamsValid = areIOParametersValid(sizeOfSelectedTopics, topicNameSet.size()); !ioParamsValid) {
         return;
     }

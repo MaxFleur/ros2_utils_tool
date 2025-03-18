@@ -8,6 +8,7 @@
 #include <QWidget>
 
 class QCheckBox;
+class QComboBox;
 class QLabel;
 
 // Widget for editing a bag file
@@ -35,6 +36,8 @@ private:
     QPointer<QLabel> m_editLabel;
     QPointer<QLabel> m_differentDirsLabel;
 
+    QPointer<QLabel> m_compressionLabel;
+    QPointer<QComboBox> m_compressionModeComboBox;
     QPointer<QCheckBox> m_deleteSourceCheckBox;
     QPointer<QCheckBox> m_updateTimestampsCheckBox;
 
@@ -43,6 +46,10 @@ private:
     EditBagSettings m_settings;
 
     const bool m_checkROS2NameConform;
+
+    static constexpr int COMPRESSION_NONE = 0;
+    static constexpr int COMPRESSION_FILE = 1;
+    static constexpr int COMPRESSION_MESSAGE = 2;
 
     static constexpr int COL_MESSAGE_COUNT = 3;
     static constexpr int COL_RENAMING = 4;

@@ -32,7 +32,7 @@ target_sources(rt_all_threads INTERFACE
 )
 
 target_link_libraries(rt_all_threads
-    INTERFACE Qt::Widgets rt_utils
+    INTERFACE Qt::Widgets rt_utils rt_utils_ros_compression
 )
 
 # Libs for CLI tools

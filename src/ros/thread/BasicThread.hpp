@@ -21,6 +21,9 @@ signals:
                     int            progress);
 
     void
+    compressing();
+
+    void
     finished();
 
     void

@@ -164,7 +164,11 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
     connect(m_thread, &BasicThread::progressChanged, this, [progressLabel] (const QString& progressString, int /* progress */) {
         progressLabel->setText(progressString);
     });
-    connect(m_thread, &BasicThread::finished, this, [cancelButton, finishedButton] {
+    connect(m_thread, &BasicThread::compressing, this, [progressLabel] () {
+        progressLabel->setText("Compressing data, this might take a while...");
+    });
+    connect(m_thread, &BasicThread::finished, this, [progressLabel, cancelButton, finishedButton] {
+        progressLabel->setVisible(false);
         cancelButton->setVisible(false);
         finishedButton->setVisible(true);
     });
