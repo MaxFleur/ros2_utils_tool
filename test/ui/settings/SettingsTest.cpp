@@ -5,6 +5,7 @@
 #include "BagToVideoSettings.hpp"
 #include "BasicSettings.hpp"
 #include "DialogSettings.hpp"
+#include "CompressBagSettings.hpp"
 #include "DummyBagSettings.hpp"
 #include "EditBagSettings.hpp"
 #include "MergeBagsSettings.hpp"
@@ -197,6 +198,29 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.beginGroup("pcds_to_bag");
             REQUIRE(qSettings.value("rate").isValid());
             REQUIRE(qSettings.value("rate").toInt() == 10);
+            qSettings.endGroup();
+        }
+    }
+    SECTION("Compress Bag Params Test") {
+        SECTION("Read") {
+            qSettings.beginGroup("compress_bag");
+            REQUIRE(!qSettings.value("compress_per_message").isValid());
+            REQUIRE(!qSettings.value("delete_source").isValid());
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Parameters::CompressBagParameters parameters;
+            CompressBagSettings settings(parameters, "compress_bag");
+
+            parameters.compressPerMessage = true;
+            parameters.deleteSource = true;
+            settings.write();
+
+            qSettings.beginGroup("compress_bag");
+            REQUIRE(qSettings.value("compress_per_message").isValid());
+            REQUIRE(qSettings.value("compress_per_message").toBool() == true);
+            REQUIRE(qSettings.value("delete_source").isValid());
+            REQUIRE(qSettings.value("delete_source").toBool() == true);
             qSettings.endGroup();
         }
     }

@@ -5,6 +5,7 @@
 #include "BagToVideoThread.hpp"
 #include "BasicThread.hpp"
 #include "DialogSettings.hpp"
+#include "CompressBagThread.hpp"
 #include "DummyBagThread.hpp"
 #include "EditBagThread.hpp"
 #include "MergeBagsThread.hpp"
@@ -60,6 +61,10 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
         m_thread = new DummyBagThread(dynamic_cast<Parameters::DummyBagParameters&>(parameters),
                                       DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
         break;
+    case Utils::UI::TOOL_COMPRESS_BAG:
+        m_thread = new CompressBagThread(dynamic_cast<Parameters::CompressBagParameters&>(parameters),
+                                         DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
+        break;
     case Utils::UI::TOOL_PUBLISH_VIDEO:
         m_thread = new PublishVideoThread(dynamic_cast<Parameters::PublishParameters&>(parameters),
                                           DialogSettings::getStaticParameter("hw_acc", false), this);
@@ -93,17 +98,24 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
 
     // Display a progress bar or play a gif depending on if we are doing bag or publishing stuff
     QWidget* progressWidget;
-    if (threadTypeId == Utils::UI::TOOL_PUBLISH_VIDEO || threadTypeId == Utils::UI::TOOL_PUBLISH_IMAGES) {
-        auto* const movie = new QMovie(isDarkMode? ":/gifs/publishing_white.gif" : ":/gifs/publishing_black.gif");
-        movie->setScaledSize(QSize(120, 100));
+    if (threadTypeId == Utils::UI::TOOL_COMPRESS_BAG || threadTypeId == Utils::UI::TOOL_PUBLISH_VIDEO ||
+        threadTypeId == Utils::UI::TOOL_PUBLISH_IMAGES) {
+        QMovie* movie;
+        if (threadTypeId == Utils::UI::TOOL_COMPRESS_BAG) {
+            movie = new QMovie(isDarkMode? ":/gifs/processing_white.gif" : ":/gifs/processing_black.gif");
+        } else {
+            movie = new QMovie(isDarkMode? ":/gifs/publishing_white.gif" : ":/gifs/publishing_black.gif");
+        }
+        movie->setScaledSize(QSize(120, threadTypeId == Utils::UI::TOOL_COMPRESS_BAG ? 120 : 100));
 
         auto* const movieLabel = new QLabel;
         movieLabel->setMovie(movie);
         movieLabel->setAlignment(Qt::AlignHCenter);
         progressWidget = movieLabel;
 
-        connect(m_thread, &BasicThread::finished, this, [movie] {
+        connect(m_thread, &BasicThread::finished, this, [movie, progressLabel] {
             movie->stop();
+            progressLabel->setText("Done!");
         });
 
         movie->start();
@@ -167,6 +179,9 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
     connect(m_thread, &BasicThread::finished, this, [cancelButton, finishedButton] {
         cancelButton->setVisible(false);
         finishedButton->setVisible(true);
+    });
+    connect(m_thread, &BasicThread::compressing, this, [progressLabel] () {
+        progressLabel->setText("Compressing, this might take a while...");
     });
     connect(m_thread, &BasicThread::failed, this, [this] {
         auto* const messageBox = new QMessageBox(QMessageBox::Warning, "Failed processing files!",

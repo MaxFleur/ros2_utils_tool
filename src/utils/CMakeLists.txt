@@ -19,3 +19,18 @@ target_sources(rt_utils INTERFACE
 target_link_libraries(rt_utils
     INTERFACE ${OpenCV_LIBS} Qt::Widgets
 )
+
+add_library (rt_utils_ros_compression INTERFACE)
+
+target_include_directories (rt_utils_ros_compression
+    INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_sources(rt_utils_ros_compression INTERFACE
+    ${CMAKE_CURRENT_LIST_DIR}/UtilsROSCompression.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/UtilsROSCompression.hpp
+)
+
+target_link_libraries(rt_utils_ros_compression
+    INTERFACE Qt::Widgets
+)

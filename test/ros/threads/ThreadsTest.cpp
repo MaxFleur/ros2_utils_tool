@@ -3,6 +3,7 @@
 #include "BagToImagesThread.hpp"
 #include "BagToPCDsThread.hpp"
 #include "BagToVideoThread.hpp"
+#include "CompressBagThread.hpp"
 #include "DummyBagThread.hpp"
 #include "EditBagThread.hpp"
 #include "MergeBagsThread.hpp"
@@ -10,6 +11,7 @@
 #include "PublishImagesThread.hpp"
 #include "PublishVideoThread.hpp"
 #include "UtilsROS.hpp"
+#include "UtilsROSCompression.hpp"
 #include "UtilsUI.hpp"
 #include "VideoToBagThread.hpp"
 
@@ -263,6 +265,74 @@ TEST_CASE("Threads Testing", "[threads]") {
         }
 
         std::filesystem::remove_all("./merged_bag");
+    }
+    // Compress Dummy Bag
+    SECTION("Compress Bags Test") {
+        Parameters::CompressBagParameters parameters;
+        parameters.sourceDirectory = "./dummy_bag";
+        parameters.targetDirectory = "./compressed_bag";
+
+        auto* const thread = new CompressBagThread(parameters, std::thread::hardware_concurrency());
+        QObject::connect(thread, &CompressBagThread::finished, thread, &QObject::deleteLater);
+
+        SECTION("By File") {
+            thread->start();
+            while (!thread->isFinished()) {
+            }
+
+            const auto& metadata = Utils::ROS::Compression::getCompressedBagMetadata("./compressed_bag");
+            REQUIRE(metadata.message_count == 800);
+            const auto& topics = metadata.topics_with_message_count;
+            REQUIRE(topics.size() == 4);
+            REQUIRE(topics.at(0).message_count == 200);
+            REQUIRE(topics.at(1).message_count == 200);
+            REQUIRE(topics.at(2).message_count == 200);
+            REQUIRE(topics.at(3).message_count == 200);
+
+            auto topicIndex = getTopicIndex(topics, "/dummy_image");
+            REQUIRE(topicIndex < 4);
+            REQUIRE(topics.at(topicIndex).topic_metadata.type == "sensor_msgs/msg/Image");
+            topicIndex = getTopicIndex(topics, "/dummy_string");
+            REQUIRE(topicIndex < 4);
+            REQUIRE(topics.at(topicIndex).topic_metadata.type == "std_msgs/msg/String");
+            topicIndex = getTopicIndex(topics, "/dummy_integer");
+            REQUIRE(topicIndex < 4);
+            REQUIRE(topics.at(topicIndex).topic_metadata.type == "std_msgs/msg/Int32");
+            topicIndex = getTopicIndex(topics, "/dummy_points");
+            REQUIRE(topicIndex < 4);
+            REQUIRE(topics.at(topicIndex).topic_metadata.type == "sensor_msgs/msg/PointCloud2");
+        }
+        SECTION("Per Message") {
+            parameters.compressPerMessage = true;
+
+            thread->start();
+            while (!thread->isFinished()) {
+            }
+
+            const auto& metadata = Utils::ROS::Compression::getCompressedBagMetadata("./compressed_bag");
+            REQUIRE(metadata.message_count == 800);
+            const auto& topics = metadata.topics_with_message_count;
+            REQUIRE(topics.size() == 4);
+            REQUIRE(topics.at(0).message_count == 200);
+            REQUIRE(topics.at(1).message_count == 200);
+            REQUIRE(topics.at(2).message_count == 200);
+            REQUIRE(topics.at(3).message_count == 200);
+
+            auto topicIndex = getTopicIndex(topics, "/dummy_image");
+            REQUIRE(topicIndex < 4);
+            REQUIRE(topics.at(topicIndex).topic_metadata.type == "sensor_msgs/msg/Image");
+            topicIndex = getTopicIndex(topics, "/dummy_string");
+            REQUIRE(topicIndex < 4);
+            REQUIRE(topics.at(topicIndex).topic_metadata.type == "std_msgs/msg/String");
+            topicIndex = getTopicIndex(topics, "/dummy_integer");
+            REQUIRE(topicIndex < 4);
+            REQUIRE(topics.at(topicIndex).topic_metadata.type == "std_msgs/msg/Int32");
+            topicIndex = getTopicIndex(topics, "/dummy_points");
+            REQUIRE(topicIndex < 4);
+            REQUIRE(topics.at(topicIndex).topic_metadata.type == "sensor_msgs/msg/PointCloud2");
+        }
+
+        std::filesystem::remove_all("./compressed_bag");
     }
 
     SECTION("Bag to Video Thread Test") {

@@ -1,5 +1,7 @@
 <RCC>
     <qresource>
+        <file>gifs/processing_black.gif</file>
+        <file>gifs/processing_white.gif</file>
         <file>gifs/publishing_black.gif</file>
         <file>gifs/publishing_white.gif</file>
 
@@ -13,6 +15,8 @@
         <file>icons/bag_to_video_white.svg</file>
         <file>icons/bag_tools_black.svg</file>
         <file>icons/bag_tools_white.svg</file>
+        <file>icons/compress_bag_black.svg</file>
+        <file>icons/compress_bag_white.svg</file>
         <file>icons/conversion_tools_black.svg</file>
         <file>icons/conversion_tools_white.svg</file>
         <file>icons/dummy_bag_black.svg</file>

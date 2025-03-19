@@ -24,6 +24,9 @@ signals:
     finished();
 
     void
+    compressing();
+
+    void
     failed();
 
 protected:

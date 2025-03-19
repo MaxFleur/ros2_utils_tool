@@ -58,6 +58,10 @@ struct MergeBagsParameters : AdvancedParameters {
 struct PCDsToBagParameters : AdvancedParameters {
     int rate = 5;
 };
+struct CompressBagParameters : AdvancedParameters {
+    bool compressPerMessage = false;
+    bool deleteSource = false;
+};
 
 struct RGBParameters : AdvancedParameters {
     bool exchangeRedBlueValues = false;
