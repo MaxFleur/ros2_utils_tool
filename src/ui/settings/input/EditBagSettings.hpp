@@ -1,9 +1,9 @@
 #pragma once
 
-#include "AdvancedSettings.hpp"
+#include "DeleteSourceSettings.hpp"
 
 // Store bag editing parameters
-class EditBagSettings : public AdvancedSettings {
+class EditBagSettings : public DeleteSourceSettings {
 public:
     EditBagSettings(Parameters::EditBagParameters& parameters,
                     const QString&                 groupName);

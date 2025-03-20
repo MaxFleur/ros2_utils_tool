@@ -30,19 +30,6 @@ struct AdvancedParameters : BasicParameters {
     QString targetDirectory = "";
     bool    showAdvancedOptions = false;
 };
-struct EditBagParameters : AdvancedParameters {
-    struct EditBagTopic {
-        QString renamedTopicName = "";
-        QString originalTopicName;
-        size_t  lowerBoundary = 0;
-        size_t  upperBoundary;
-        bool    isSelected = true;
-    };
-
-    QVector<EditBagTopic> topics = {};
-    bool                  deleteSource = false;
-    bool                  updateTimestamps = false;
-};
 struct MergeBagsParameters : AdvancedParameters {
     struct MergeBagTopic {
         QString name = "";
@@ -58,9 +45,24 @@ struct MergeBagsParameters : AdvancedParameters {
 struct PCDsToBagParameters : AdvancedParameters {
     int rate = 5;
 };
-struct CompressBagParameters : AdvancedParameters {
-    bool compressPerMessage = false;
+
+struct DeleteSourceParameters : AdvancedParameters {
     bool deleteSource = false;
+};
+struct EditBagParameters : DeleteSourceParameters {
+    struct EditBagTopic {
+        QString renamedTopicName = "";
+        QString originalTopicName;
+        size_t  lowerBoundary = 0;
+        size_t  upperBoundary;
+        bool    isSelected = true;
+    };
+
+    QVector<EditBagTopic> topics = {};
+    bool                  updateTimestamps = false;
+};
+struct CompressBagParameters : DeleteSourceParameters {
+    bool compressPerMessage = false;
 };
 
 struct RGBParameters : AdvancedParameters {

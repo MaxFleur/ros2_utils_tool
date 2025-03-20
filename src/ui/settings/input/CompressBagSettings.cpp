@@ -2,7 +2,7 @@
 
 CompressBagSettings::CompressBagSettings(Parameters::CompressBagParameters& parameters,
                                          const QString&                     groupName) :
-    AdvancedSettings(parameters, groupName), m_parameters(parameters)
+    DeleteSourceSettings(parameters, groupName), m_parameters(parameters)
 {
     read();
 }
@@ -11,12 +11,11 @@ CompressBagSettings::CompressBagSettings(Parameters::CompressBagParameters& para
 bool
 CompressBagSettings::write()
 {
-    if (!AdvancedSettings::write()) {
+    if (!DeleteSourceSettings::write()) {
         return false;
     }
 
     writeParameter(m_groupName, "compress_per_message", m_parameters.compressPerMessage);
-    writeParameter(m_groupName, "delete_source", m_parameters.deleteSource);
 
     return true;
 }
@@ -25,12 +24,11 @@ CompressBagSettings::write()
 bool
 CompressBagSettings::read()
 {
-    if (!AdvancedSettings::read()) {
+    if (!DeleteSourceSettings::read()) {
         return false;
     }
 
     m_parameters.compressPerMessage = readParameter(m_groupName, "compress_per_message", false);
-    m_parameters.deleteSource = readParameter(m_groupName, "delete_source", false);
 
     return true;
 }

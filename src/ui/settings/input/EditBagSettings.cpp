@@ -2,7 +2,7 @@
 
 EditBagSettings::EditBagSettings(Parameters::EditBagParameters& parameters,
                                  const QString&                 groupName) :
-    AdvancedSettings(parameters, groupName), m_parameters(parameters)
+    DeleteSourceSettings(parameters, groupName), m_parameters(parameters)
 {
     read();
 }
@@ -11,7 +11,7 @@ EditBagSettings::EditBagSettings(Parameters::EditBagParameters& parameters,
 bool
 EditBagSettings::write()
 {
-    if (!AdvancedSettings::write()) {
+    if (!DeleteSourceSettings::write()) {
         return false;
     }
 
@@ -30,7 +30,6 @@ EditBagSettings::write()
     settings.endArray();
     settings.endGroup();
 
-    writeParameter(m_groupName, "delete_source", m_parameters.deleteSource);
     writeParameter(m_groupName, "update_timestamps", m_parameters.updateTimestamps);
 
     return true;
@@ -40,7 +39,7 @@ EditBagSettings::write()
 bool
 EditBagSettings::read()
 {
-    if (!AdvancedSettings::read()) {
+    if (!DeleteSourceSettings::read()) {
         return false;
     }
 
@@ -59,7 +58,6 @@ EditBagSettings::read()
     settings.endArray();
     settings.endGroup();
 
-    m_parameters.deleteSource = readParameter(m_groupName, "delete_source", false);
     m_parameters.updateTimestamps = readParameter(m_groupName, "update_timestamps", false);
 
     return true;

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "AdvancedSettings.hpp"
+#include "DeleteSourceSettings.hpp"
 
 // Store bag editing parameters
-class CompressBagSettings : public AdvancedSettings {
+class CompressBagSettings : public DeleteSourceSettings {
 public:
     CompressBagSettings(Parameters::CompressBagParameters& parameters,
                         const QString&                     groupName);

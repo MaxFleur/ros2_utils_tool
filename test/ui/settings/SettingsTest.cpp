@@ -6,6 +6,7 @@
 #include "BasicSettings.hpp"
 #include "DialogSettings.hpp"
 #include "CompressBagSettings.hpp"
+#include "DeleteSourceSettings.hpp"
 #include "DummyBagSettings.hpp"
 #include "EditBagSettings.hpp"
 #include "MergeBagsSettings.hpp"
@@ -104,49 +105,6 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
     }
-    SECTION("Edit Bag Input Params Test") {
-        SECTION("Read") {
-            qSettings.beginGroup("edit");
-            REQUIRE(!qSettings.value("topics").isValid());
-            REQUIRE(!qSettings.value("delete_source").isValid());
-            REQUIRE(!qSettings.value("update_timestamps").isValid());
-            qSettings.endGroup();
-        }
-        SECTION("Write") {
-            Parameters::EditBagParameters parameters;
-            EditBagSettings settings(parameters, "edit");
-
-            parameters.deleteSource = true;
-            parameters.updateTimestamps = true;
-            parameters.topics.push_back({ "renamed_topic", "original_topic", 42, 1337, true });
-            settings.write();
-
-            qSettings.beginGroup("edit");
-            REQUIRE(qSettings.value("delete_source").isValid());
-            REQUIRE(qSettings.value("delete_source").toBool() == true);
-            REQUIRE(qSettings.value("update_timestamps").isValid());
-            REQUIRE(qSettings.value("update_timestamps").toBool() == true);
-
-            const auto size = qSettings.beginReadArray("topics");
-            for (auto i = 0; i < size; ++i) {
-                qSettings.setArrayIndex(i);
-                REQUIRE(qSettings.value("renamed_name").isValid());
-                REQUIRE(qSettings.value("renamed_name").toString() == "renamed_topic");
-                REQUIRE(qSettings.value("original_name").isValid());
-                REQUIRE(qSettings.value("original_name").toString() == "original_topic");
-                REQUIRE(qSettings.value("lower_boundary").isValid());
-                REQUIRE(qSettings.value("lower_boundary").toInt() == 42);
-                REQUIRE(qSettings.value("upper_boundary").isValid());
-                REQUIRE(qSettings.value("upper_boundary").toInt() == 1337);
-                REQUIRE(qSettings.value("is_selected").isValid());
-                REQUIRE(qSettings.value("is_selected").toBool() == true);
-            }
-            REQUIRE(size == 1);
-            qSettings.endArray();
-
-            qSettings.endGroup();
-        }
-    }
     SECTION("Merge Bags Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("merge");
@@ -201,11 +159,70 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
     }
+
+    SECTION("Delete Source Input Params Test") {
+        SECTION("Read") {
+            qSettings.beginGroup("delete_source_param");
+            REQUIRE(!qSettings.value("delete_source").isValid());
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Parameters::EditBagParameters parameters;
+            EditBagSettings settings(parameters, "delete_source_param");
+
+            parameters.deleteSource = true;
+            settings.write();
+
+            qSettings.beginGroup("delete_source_param");
+            REQUIRE(qSettings.value("delete_source").isValid());
+            REQUIRE(qSettings.value("delete_source").toBool() == true);
+            qSettings.endGroup();
+        }
+    }
+    SECTION("Edit Bag Input Params Test") {
+        SECTION("Read") {
+            qSettings.beginGroup("edit");
+            REQUIRE(!qSettings.value("topics").isValid());
+            REQUIRE(!qSettings.value("update_timestamps").isValid());
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Parameters::EditBagParameters parameters;
+            EditBagSettings settings(parameters, "edit");
+
+            parameters.deleteSource = true;
+            parameters.updateTimestamps = true;
+            parameters.topics.push_back({ "renamed_topic", "original_topic", 42, 1337, true });
+            settings.write();
+
+            qSettings.beginGroup("edit");
+            REQUIRE(qSettings.value("update_timestamps").isValid());
+            REQUIRE(qSettings.value("update_timestamps").toBool() == true);
+
+            const auto size = qSettings.beginReadArray("topics");
+            for (auto i = 0; i < size; ++i) {
+                qSettings.setArrayIndex(i);
+                REQUIRE(qSettings.value("renamed_name").isValid());
+                REQUIRE(qSettings.value("renamed_name").toString() == "renamed_topic");
+                REQUIRE(qSettings.value("original_name").isValid());
+                REQUIRE(qSettings.value("original_name").toString() == "original_topic");
+                REQUIRE(qSettings.value("lower_boundary").isValid());
+                REQUIRE(qSettings.value("lower_boundary").toInt() == 42);
+                REQUIRE(qSettings.value("upper_boundary").isValid());
+                REQUIRE(qSettings.value("upper_boundary").toInt() == 1337);
+                REQUIRE(qSettings.value("is_selected").isValid());
+                REQUIRE(qSettings.value("is_selected").toBool() == true);
+            }
+            REQUIRE(size == 1);
+            qSettings.endArray();
+
+            qSettings.endGroup();
+        }
+    }
     SECTION("Compress Bag Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("compress_bag");
             REQUIRE(!qSettings.value("compress_per_message").isValid());
-            REQUIRE(!qSettings.value("delete_source").isValid());
             qSettings.endGroup();
         }
         SECTION("Write") {
@@ -219,8 +236,6 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.beginGroup("compress_bag");
             REQUIRE(qSettings.value("compress_per_message").isValid());
             REQUIRE(qSettings.value("compress_per_message").toBool() == true);
-            REQUIRE(qSettings.value("delete_source").isValid());
-            REQUIRE(qSettings.value("delete_source").toBool() == true);
             qSettings.endGroup();
         }
     }
