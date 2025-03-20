@@ -11,7 +11,6 @@
 #include "PublishImagesThread.hpp"
 #include "PublishVideoThread.hpp"
 #include "UtilsROS.hpp"
-#include "UtilsROSCompression.hpp"
 #include "UtilsUI.hpp"
 #include "VideoToBagThread.hpp"
 
@@ -280,7 +279,9 @@ TEST_CASE("Threads Testing", "[threads]") {
             while (!thread->isFinished()) {
             }
 
-            const auto& metadata = Utils::ROS::Compression::getCompressedBagMetadata("./compressed_bag");
+            // const auto& metadata = Utils::ROS::Compression::getCompressedBagMetadata("./compressed_bag");
+            rosbag2_storage::MetadataIo metaDataIO;
+            const auto& metadata = metaDataIO.read_metadata("./compressed_bag");
             REQUIRE(metadata.message_count == 800);
             const auto& topics = metadata.topics_with_message_count;
             REQUIRE(topics.size() == 4);
@@ -309,7 +310,8 @@ TEST_CASE("Threads Testing", "[threads]") {
             while (!thread->isFinished()) {
             }
 
-            const auto& metadata = Utils::ROS::Compression::getCompressedBagMetadata("./compressed_bag");
+            rosbag2_storage::MetadataIo metaDataIO;
+            const auto& metadata = metaDataIO.read_metadata("./compressed_bag");
             REQUIRE(metadata.message_count == 800);
             const auto& topics = metadata.topics_with_message_count;
             REQUIRE(topics.size() == 4);

@@ -13,8 +13,8 @@ find_package(ament_cmake REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(pcl_conversions REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(rosbag2_compression REQUIRED)
 find_package(rosbag2_cpp REQUIRED)
+find_package(rosbag2_transport REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
 if($ENV{ROS_DISTRO} STREQUAL "jazzy")
@@ -68,11 +68,11 @@ add_executable(tool_video_to_bag
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/VideoToBag.cpp
 )
 
-ament_target_dependencies(tool_ui cv_bridge pcl_conversions rclcpp rosbag2_compression rosbag2_cpp sensor_msgs)
+ament_target_dependencies(tool_ui cv_bridge pcl_conversions rclcpp rosbag2_cpp rosbag2_transport sensor_msgs)
 ament_target_dependencies(tool_bag_to_images cv_bridge rosbag2_cpp sensor_msgs)
 ament_target_dependencies(tool_bag_to_pcds pcl_conversions rosbag2_cpp sensor_msgs)
 ament_target_dependencies(tool_bag_to_video cv_bridge rosbag2_cpp sensor_msgs)
-ament_target_dependencies(tool_compress_bag rosbag2_compression rosbag2_cpp sensor_msgs)
+ament_target_dependencies(tool_compress_bag rosbag2_cpp rosbag2_transport sensor_msgs)
 ament_target_dependencies(tool_dummy_bag cv_bridge pcl_conversions rosbag2_cpp sensor_msgs)
 ament_target_dependencies(tool_merge_bags rosbag2_cpp sensor_msgs)
 ament_target_dependencies(tool_pcds_to_bag pcl_conversions rosbag2_cpp sensor_msgs)
