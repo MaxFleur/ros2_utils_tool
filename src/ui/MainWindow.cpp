@@ -130,11 +130,11 @@ MainWindow::setProgressWidget(int mode)
         break;
     case Utils::UI::TOOL_EDIT_BAG:
         progressWidget = new ProgressWidget(":/icons/edit_bag_black.svg", ":/icons/edit_bag_white.svg",
-                                            "Writing to edited ROSBag...", m_parametersEditBag, mode);
+                                            "Writing edited bag file...", m_parametersEditBag, mode);
         break;
     case Utils::UI::TOOL_MERGE_BAGS:
         progressWidget = new ProgressWidget(":/icons/merge_bags_black.svg", ":/icons/merge_bags_white.svg",
-                                            "Writing merged ROSBag...", m_parametersMergeBags, mode);
+                                            "Writing merged bag file...", m_parametersMergeBags, mode);
         break;
     case Utils::UI::TOOL_DUMMY_BAG:
         progressWidget = new ProgressWidget(":/icons/dummy_bag_black.svg", ":/icons/dummy_bag_white.svg",

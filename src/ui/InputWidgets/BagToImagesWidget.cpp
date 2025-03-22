@@ -15,7 +15,7 @@ BagToImagesWidget::BagToImagesWidget(Parameters::BagToImagesParameters& paramete
 {
     m_sourceLineEdit->setToolTip("The source bag file directory.");
     m_topicNameComboBox->setToolTip("The image messages topic.\nIf the bag contains multiple video topics, you can choose one of them.");
-    m_targetLineEdit->setToolTip("The directory where the images should be stored.");
+    m_targetLineEdit->setToolTip("The target image files directory.");
 
     auto* const formatComboBox = new QComboBox;
     formatComboBox->addItem("jpg", 0);

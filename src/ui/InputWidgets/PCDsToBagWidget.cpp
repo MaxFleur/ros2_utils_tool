@@ -22,8 +22,8 @@ PCDsToBagWidget::PCDsToBagWidget(Parameters::PCDsToBagParameters& parameters,
     m_parameters(parameters), m_settings(parameters, "pcd_to_bag"),
     m_checkROS2NameConform(checkROS2NameConform)
 {
-    m_sourceLineEdit->setToolTip("The pcd files directory.");
-    m_targetLineEdit->setToolTip("The directory where the bag should be stored.");
+    m_sourceLineEdit->setToolTip("The source pcd files directory.");
+    m_targetLineEdit->setToolTip("The target bag file directory.");
 
     auto* const topicNameLineEdit = new QLineEdit(m_parameters.topicName);
     topicNameLineEdit->setToolTip("The topic name in the target bag file.");
@@ -59,7 +59,7 @@ PCDsToBagWidget::PCDsToBagWidget(Parameters::PCDsToBagParameters& parameters,
 
 
 void
-PCDsToBagWidget::searchButtonPressed()
+PCDsToBagWidget::findSourceButtonPressed()
 {
     enableOkButton(false);
 

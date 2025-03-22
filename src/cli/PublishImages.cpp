@@ -15,7 +15,7 @@
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_publish_images path/to/video\n" << std::endl;
+    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_publish_images path/to/images\n" << std::endl;
     std::cout << "The images must have format jpg, png or bmp." << std::endl;
     std::cout << "Additional parameters:" << std::endl;
     std::cout << "-t or --topic_name: Topic name. If this is empty, the name '/topic_video' will be taken.\n" << std::endl;

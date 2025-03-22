@@ -13,7 +13,7 @@
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_video_to_bag path/to/video path/of/stored/ros_bag\n" << std::endl;
+    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_video_to_bag path/to/video path/to/bag\n" << std::endl;
     std::cout << "The video must have an ending of .mp4 or .mkv." << std::endl;
     std::cout << "Additional parameters:" << std::endl;
     std::cout << "-t or --topic_name: Topic name. If this is empty, the name '/topic_video' will be taken.\n" << std::endl;

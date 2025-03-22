@@ -13,7 +13,7 @@
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_bag_to_video path/to/ROSBag path/of/stored/video\n" << std::endl;
+    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_bag_to_video path/to/bag path/to/video\n" << std::endl;
     std::cout << "Additional parameters:" << std::endl;
     std::cout << "-t or --topic_name: Video topic inside the bag. If no topic name is specified, the first found video topic in the bag is taken.\n" << std::endl;
     std::cout << "-r or --rate: Framerate for the encoded video. Must be from 10 to 60." << std::endl;

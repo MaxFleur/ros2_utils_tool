@@ -15,7 +15,7 @@ BagToVideoWidget::BagToVideoWidget(Parameters::BagToVideoParameters& parameters,
 {
     m_sourceLineEdit->setToolTip("The source bag file directory.");
     m_topicNameComboBox->setToolTip("The image messages topic.\nIf the bag contains multiple video topics, you can choose one of them.");
-    m_targetLineEdit->setToolTip("The directory where the video file should be stored.");
+    m_targetLineEdit->setToolTip("The target video file directory.");
 
     m_formatComboBox = new QComboBox;
     m_formatComboBox->addItem("mp4", 0);

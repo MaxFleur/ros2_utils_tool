@@ -7,7 +7,7 @@
 #include <QPointer>
 #include <QWidget>
 
-// Widget used to write a video file into a ROSBag
+// Widget used to write pcd files to a ROS bag file
 class PCDsToBagWidget : public AdvancedInputWidget
 {
     Q_OBJECT
@@ -20,7 +20,7 @@ public:
 
 private slots:
     void
-    searchButtonPressed() override;
+    findSourceButtonPressed() override;
 
     void
     okButtonPressed() override;

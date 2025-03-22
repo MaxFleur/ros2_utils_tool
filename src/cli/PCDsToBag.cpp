@@ -12,7 +12,7 @@
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_pcds_to_bag path/to/pcd/dir path/of/stored/ros_bag\n" << std::endl;
+    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_pcds_to_bag path/to/pcds/dir path/to/bag\n" << std::endl;
     std::cout << "Additional parameters:" << std::endl;
     std::cout << "-t or --topic_name: Topic name in the bag file. If this is empty, the name '/topic_point_cloud' will be used.\n" << std::endl;
     std::cout << "-r or --rate: Rate ('clouds per second'). Must be between 1 and 30, default is 5.\n" << std::endl;

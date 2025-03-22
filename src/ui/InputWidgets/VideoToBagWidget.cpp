@@ -23,11 +23,11 @@ VideoToBagWidget::VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
     m_parameters(parameters), m_settings(parameters, "vid_to_bag"),
     m_checkROS2NameConform(checkROS2NameConform)
 {
-    m_sourceLineEdit->setToolTip("The video files directory.");
-    m_targetLineEdit->setToolTip("The directory where the ROSBag should be stored.");
+    m_sourceLineEdit->setToolTip("The source video file directory.");
+    m_targetLineEdit->setToolTip("The target bag file directory.");
 
     auto* const topicNameLineEdit = new QLineEdit(m_parameters.topicName);
-    topicNameLineEdit->setToolTip("The video's topic name inside the ROSBag.");
+    topicNameLineEdit->setToolTip("The video's topic name inside the source bag.");
     // Use a predefined name if set in the settings
     if (usePredefinedTopicName && m_parameters.topicName.isEmpty()) {
         topicNameLineEdit->setText("/topic_video");
@@ -80,7 +80,7 @@ VideoToBagWidget::VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
 
 
 void
-VideoToBagWidget::searchButtonPressed()
+VideoToBagWidget::findSourceButtonPressed()
 {
     enableOkButton(false);
 

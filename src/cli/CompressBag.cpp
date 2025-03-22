@@ -15,7 +15,7 @@
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_compress_bag path/to/source/bag path/to/target/bag \n" << std::endl;
+    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_compress_bag path/to/uncompressed/source/bag /path/to/compressed/target/bag \n" << std::endl;
     std::cout << "Additional parameters:" << std::endl;
     std::cout << "-m or --mode (file/message): Compress per file (file) or per message (message). File is default." << std::endl;
     std::cout << "-d or --delete: Delete the source file after completion." << std::endl;

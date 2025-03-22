@@ -27,7 +27,7 @@ PublishWidget::PublishWidget(Parameters::PublishParameters& parameters, bool use
     m_checkROS2NameConform(checkROS2NameConform), m_publishVideo(publishVideo)
 {
     m_sourceLineEdit->setText(parameters.sourceDirectory);
-    m_sourceLineEdit->setToolTip(m_publishVideo ? "The directory of the source video file." : "The directory of the images.");
+    m_sourceLineEdit->setToolTip(m_publishVideo ? "The source video file directory." : "The source images file directory.");
 
     auto* const topicNameLineEdit = new QLineEdit(m_parameters.topicName);
     topicNameLineEdit->setToolTip("Name of the topic to be published.");

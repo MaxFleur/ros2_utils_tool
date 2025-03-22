@@ -10,7 +10,7 @@
 class QFormLayout;
 class QSpinBox;
 
-// Widget used to write a video file into a ROSBag
+// Widget used to write a video file to a ROS bag file
 class VideoToBagWidget : public AdvancedInputWidget
 {
     Q_OBJECT
@@ -23,7 +23,7 @@ public:
 
 private slots:
     void
-    searchButtonPressed() override;
+    findSourceButtonPressed() override;
 
     void
     useCustomFPSCheckBoxPressed(int state);

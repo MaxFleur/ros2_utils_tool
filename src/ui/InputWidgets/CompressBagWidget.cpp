@@ -79,7 +79,7 @@ CompressBagWidget::CompressBagWidget(Parameters::CompressBagParameters& paramete
 void
 CompressBagWidget::sourceButtonPressed()
 {
-    const auto fileName = QFileDialog::getExistingDirectory(this, "Open Bag", "", QFileDialog::ShowDirsOnly);
+    const auto fileName = QFileDialog::getExistingDirectory(this, "Open Source Bag File", "", QFileDialog::ShowDirsOnly);
     if (fileName.isEmpty()) {
         return;
     }

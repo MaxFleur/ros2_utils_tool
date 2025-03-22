@@ -14,7 +14,7 @@
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_merge_bags path/to/First/Bag path/to/SecondBag -t1 (...) -t2 (...) path/To/Target\n" << std::endl;
+    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_merge_bags path/to/first/bag path/to/second/bag -t1 (...) -t2 (...) path/to/target/bag\n" << std::endl;
     std::cout << "Topic names after '-t1' are those contained in the first bag file, names after '-t2' in the second file." << std::endl;
     std::cout << "Note that duplicate topics (equal topics contained in both bags) will be merged if both are specified." << std::endl;
     std::cout << "-h or --help: Show this help." << std::endl;

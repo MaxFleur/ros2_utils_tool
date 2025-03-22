@@ -65,7 +65,7 @@ getTopicType(const QString& bagDirectory,
 getFirstTopicWithCertainType(const QString& bagDirectory,
                              const QString& typeName);
 
-// Returns all video bag topics stored in a ROSBag
+// Returns all video bag topics stored in a ROS bag file
 [[nodiscard]] QVector<QString>
 getBagTopics(const QString& bagDirectory,
              const QString& topicType);

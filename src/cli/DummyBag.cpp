@@ -14,7 +14,7 @@
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_dummy_bag path/to/ROSBag topic_name_1 topic_type_1 "
+    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_dummy_bag path/to/bag topic_name_1 topic_type_1 "
         "(...) message_count\n" << std::endl;
     std::cout << "Topic type is either 'String', 'Integer', 'Image' or 'PointCloud'." << std::endl;
     std::cout << "You can write up to four topics." << std::endl;

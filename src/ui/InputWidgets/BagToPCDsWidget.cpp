@@ -12,7 +12,7 @@ BagToPCDsWidget::BagToPCDsWidget(Parameters::AdvancedParameters& parameters, QWi
 {
     m_sourceLineEdit->setToolTip("The source bag file directory.");
     m_topicNameComboBox->setToolTip("The point cloud bag topic.\nIf the bag contains multiple point cloud topics, you can choose one of them.");
-    m_targetLineEdit->setToolTip("The directory where the point cloud files should be stored.");
+    m_targetLineEdit->setToolTip("The target point cloud files directory.");
 
     m_basicOptionsFormLayout->insertRow(1, "Topic Name:", m_topicNameComboBox);
 
