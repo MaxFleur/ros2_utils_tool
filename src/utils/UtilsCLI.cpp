@@ -142,6 +142,38 @@ drawProgressString(int progress)
 
 
 void
+showIsProcessingString(bool& isProcessing, bool isCompressing)
+{
+    auto processingChar = '\\';
+
+    isProcessing = true;
+    while (isProcessing) {
+        switch (processingChar) {
+        case '|':
+            processingChar = '/';
+            break;
+        case '/':
+            processingChar = '-';
+            break;
+        case '-':
+            processingChar = '\\';
+            break;
+        case '\\':
+            processingChar = '|';
+            break;
+        default:
+            break;
+        }
+
+        const auto isProcessingString = isCompressing ? "Writing and compressing target file, please wait... "
+                                                      : "Merging bags, please wait... ";
+        std::cout << isProcessingString << processingChar << "\r" << std::flush;
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+}
+
+
+void
 runThread(QThread* thread, volatile sig_atomic_t& signalStatus)
 {
     thread->start();

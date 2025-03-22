@@ -118,21 +118,20 @@ main(int argc, char* argv[])
 
     // Create thread and connect to its informations
     auto* const mergeBagsThread = new MergeBagsThread(parameters, std::thread::hardware_concurrency());
-    std::mutex mutex;
+    auto isMerging = false;
+    std::thread processingThread;
 
-    QObject::connect(mergeBagsThread, &MergeBagsThread::progressChanged, [&mutex] (const QString& progressString, int progress) {
-        const auto progressStringCMD = Utils::CLI::drawProgressString(progress);
-        // Always clear the last line for a nice "progress bar" feeling
-        mutex.lock();
-        std::cout << progressString.toStdString() << " " << progressStringCMD << " " << progress << "%" << "\r" << std::flush;
-        mutex.unlock();
+    QObject::connect(mergeBagsThread, &MergeBagsThread::processing, [&processingThread, &isMerging] {
+        processingThread = std::thread(&Utils::CLI::showIsProcessingString, std::ref(isMerging), false);
+
+        return EXIT_SUCCESS;
     });
-    QObject::connect(mergeBagsThread, &MergeBagsThread::finished, [] {
-        // This signal is thrown even if SIGINT is called, but we haven't finished, only interrupted
-        if (signalStatus != SIGINT) {
-            std::cout << "" << std::endl; // Extra line to stop flushing
-            std::cout << "Merging bags finished!" << std::endl;
-        }
+    QObject::connect(mergeBagsThread, &MergeBagsThread::finished, [&isMerging, &processingThread] {
+        isMerging = false;
+        processingThread.join();
+
+        std::cout << "" << std::endl; // Extra line to stop flushing
+        std::cout << "Merging bags finished!" << std::endl;
         return EXIT_SUCCESS;
     });
     QObject::connect(mergeBagsThread, &MergeBagsThread::finished, mergeBagsThread, &QObject::deleteLater);

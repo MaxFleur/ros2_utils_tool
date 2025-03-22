@@ -40,7 +40,7 @@ CompressBagThread::run()
     std::vector<std::pair<rosbag2_storage::StorageOptions, rosbag2_transport::RecordOptions> > outputBags;
     outputBags.push_back({ outputStorage, outputRecord });
 
-    emit compressing();
+    emit processing();
     rosbag2_transport::bag_rewrite({ inputStorage }, outputBags);
 
     if (m_parameters.deleteSource) {

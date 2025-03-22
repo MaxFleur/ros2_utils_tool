@@ -98,10 +98,10 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
 
     // Display a progress bar or play a gif depending on if we are doing bag or publishing stuff
     QWidget* progressWidget;
-    if (threadTypeId == Utils::UI::TOOL_COMPRESS_BAG || threadTypeId == Utils::UI::TOOL_PUBLISH_VIDEO ||
-        threadTypeId == Utils::UI::TOOL_PUBLISH_IMAGES) {
+    if (threadTypeId == Utils::UI::TOOL_COMPRESS_BAG || threadTypeId == Utils::UI::TOOL_MERGE_BAGS ||
+        threadTypeId == Utils::UI::TOOL_PUBLISH_VIDEO || threadTypeId == Utils::UI::TOOL_PUBLISH_IMAGES) {
         QMovie* movie;
-        if (threadTypeId == Utils::UI::TOOL_COMPRESS_BAG) {
+        if (threadTypeId == Utils::UI::TOOL_COMPRESS_BAG || threadTypeId == Utils::UI::TOOL_MERGE_BAGS) {
             movie = new QMovie(isDarkMode? ":/gifs/processing_white.gif" : ":/gifs/processing_black.gif");
         } else {
             movie = new QMovie(isDarkMode? ":/gifs/publishing_white.gif" : ":/gifs/publishing_black.gif");
@@ -180,8 +180,8 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
         cancelButton->setVisible(false);
         finishedButton->setVisible(true);
     });
-    connect(m_thread, &BasicThread::compressing, this, [progressLabel] () {
-        progressLabel->setText("Compressing, this might take a while...");
+    connect(m_thread, &BasicThread::processing, this, [progressLabel] () {
+        progressLabel->setText("Processing, this might take a while...");
     });
     connect(m_thread, &BasicThread::failed, this, [this] {
         auto* const messageBox = new QMessageBox(QMessageBox::Warning, "Failed processing files!",

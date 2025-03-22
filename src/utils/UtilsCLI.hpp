@@ -67,6 +67,11 @@ continueWithInvalidROS2Name(const QStringList& argumentsList,
 [[nodiscard]] std::string
 drawProgressString(int progress);
 
+// Shows a processing string while something is processed in the background
+void
+showIsProcessingString(bool& isProcessing,
+                       bool  isCompressing);
+
 // Run the thread handling the main operation
 void
 runThread(QThread*               thread,

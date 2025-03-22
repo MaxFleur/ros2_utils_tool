@@ -24,7 +24,7 @@ signals:
     finished();
 
     void
-    compressing();
+    processing();
 
     void
     failed();

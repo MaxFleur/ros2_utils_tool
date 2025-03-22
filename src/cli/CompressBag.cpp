@@ -85,38 +85,10 @@ main(int argc, char* argv[])
     // Create thread and connect to its informations
     auto* const compressBagThread = new CompressBagThread(parameters, std::thread::hardware_concurrency());
     auto isCompressing = false;
-
-    const auto showProcessingString = [&isCompressing] {
-        auto processingChar = '\\';
-
-        isCompressing = true;
-        while (isCompressing) {
-            switch (processingChar) {
-            case '|':
-                processingChar = '/';
-                break;
-            case '/':
-                processingChar = '-';
-                break;
-            case '-':
-                processingChar = '\\';
-                break;
-            case '\\':
-                processingChar = '|';
-                break;
-            default:
-                break;
-            }
-
-            std::cout << "Writing and compressing target file, please wait... " << processingChar << "\r" << std::flush;
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        }
-    };
-
     std::thread processingThread;
 
-    QObject::connect(compressBagThread, &CompressBagThread::compressing, [showProcessingString, &processingThread] {
-        processingThread = std::thread(showProcessingString);
+    QObject::connect(compressBagThread, &CompressBagThread::processing, [&processingThread, &isCompressing] {
+        processingThread = std::thread(Utils::CLI::showIsProcessingString, std::ref(isCompressing), true);
 
         return EXIT_SUCCESS;
     });
