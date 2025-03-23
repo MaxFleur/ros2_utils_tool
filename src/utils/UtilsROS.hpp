@@ -37,6 +37,10 @@ writeMessageToBag(T                    message,
 [[nodiscard]] bool
 doesDirectoryContainBagFile(const QString& bagDirectory);
 
+// If a directory contains a valid compressed ROS bag
+[[nodiscard]] bool
+doesDirectoryContainCompressedBagFile(const QString& bagDirectory);
+
 // If a ROS bag contains a certain topic
 [[nodiscard]] bool
 doesBagContainTopicName(const QString& bagDirectory,

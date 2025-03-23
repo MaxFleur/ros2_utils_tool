@@ -142,9 +142,10 @@ drawProgressString(int progress)
 
 
 void
-showIsProcessingString(bool& isProcessing, bool isCompressing)
+showProcessingString(bool& isProcessing, int toolOperation)
 {
     auto processingChar = '\\';
+    std::string isProcessingString;
 
     isProcessing = true;
     while (isProcessing) {
@@ -165,8 +166,18 @@ showIsProcessingString(bool& isProcessing, bool isCompressing)
             break;
         }
 
-        const auto isProcessingString = isCompressing ? "Writing and compressing target file, please wait... "
-                                                      : "Merging bags, please wait... ";
+        switch (toolOperation) {
+        case 0:
+            isProcessingString = "Writing and compressing target file, please wait... ";
+            break;
+        case 1:
+            isProcessingString = "Decompressing and writing target file, please wait... ";
+            break;
+        case 2:
+            isProcessingString = "Merging bags, please wait... ";
+            break;
+        }
+
         std::cout << isProcessingString << processingChar << "\r" << std::flush;
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }

@@ -15,9 +15,8 @@
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_compress_bag path/to/uncompressed/source/bag /path/to/compressed/target/bag \n" << std::endl;
+    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_decompress_bag path/to/compressed/source/bag /path/to/uncompressed/target/bag \n" << std::endl;
     std::cout << "Additional parameters:" << std::endl;
-    std::cout << "-m or --mode (file/message): Compress per file (file) or per message (message). File is default." << std::endl;
     std::cout << "-k or --keep: Keep the source file after completion." << std::endl;
     std::cout << "-h or --help: Show this help." << std::endl;
 }
@@ -32,7 +31,7 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto arguments = app.arguments();
-    if (Utils::CLI::containsInvalidParameters(arguments, { "-m", "--mode", "-k", "--keep" }) ||
+    if (Utils::CLI::containsInvalidParameters(arguments, { "-k", "--keep" }) ||
         arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
@@ -46,12 +45,8 @@ main(int argc, char* argv[])
         std::cerr << "Source bag file not found. Make sure that the bag file exists!" << std::endl;
         return 0;
     }
-    if (const auto alreadyCompressed = Utils::ROS::doesDirectoryContainCompressedBagFile(parameters.sourceDirectory); alreadyCompressed) {
-        std::cerr << "The source bag file already compressed!" << std::endl;
-        return 0;
-    }
-    if (const auto doesDirContainBag = Utils::ROS::doesDirectoryContainBagFile(parameters.sourceDirectory); !doesDirContainBag) {
-        std::cerr << "The source bag file is invalid!" << std::endl;
+    if (const auto alreadyCompressed = Utils::ROS::doesDirectoryContainCompressedBagFile(parameters.sourceDirectory); !alreadyCompressed) {
+        std::cerr << "The bag file is invalid or not in compressed format!" << std::endl;
         return 0;
     }
 
@@ -67,16 +62,6 @@ main(int argc, char* argv[])
     parameters.deleteSource = true;
     // Check for optional arguments
     if (arguments.size() > 3) {
-        // Mode
-        if (Utils::CLI::containsArguments(arguments, "-m", "--mode")) {
-            const auto modeIndex = Utils::CLI::getArgumentsIndex(arguments, "-m", "--mode");
-            if (arguments.at(modeIndex) == arguments.last() || (arguments.at(modeIndex + 1) != "file" && arguments.at(modeIndex + 1) != "message")) {
-                std::cerr << "Please enter either 'file' or 'message' for the mode!" << std::endl;
-                return 0;
-            }
-            parameters.compressPerMessage = arguments.at(modeIndex + 1) == "message";
-        }
-
         // Delete source
         parameters.deleteSource = !Utils::CLI::containsArguments(arguments, "-k", "--keep");
     }
@@ -88,29 +73,29 @@ main(int argc, char* argv[])
     }
 
     // Create thread and connect to its informations
-    auto* const compressBagThread = new ChangeCompressionBagThread(parameters, std::thread::hardware_concurrency(), true);
+    auto* const decompressBagThread = new ChangeCompressionBagThread(parameters, std::thread::hardware_concurrency(), false);
     auto isCompressing = false;
     std::thread processingThread;
 
-    QObject::connect(compressBagThread, &ChangeCompressionBagThread::processing, [&processingThread, &isCompressing] {
-        processingThread = std::thread(Utils::CLI::showProcessingString, std::ref(isCompressing), Utils::CLI::CLI_COMPRESS);
+    QObject::connect(decompressBagThread, &ChangeCompressionBagThread::processing, [&processingThread, &isCompressing] {
+        processingThread = std::thread(Utils::CLI::showProcessingString, std::ref(isCompressing), Utils::CLI::CLI_DECOMPRESS);
 
         return EXIT_SUCCESS;
     });
-    QObject::connect(compressBagThread, &ChangeCompressionBagThread::finished, [&isCompressing, &processingThread] {
+    QObject::connect(decompressBagThread, &ChangeCompressionBagThread::finished, [&isCompressing, &processingThread] {
         isCompressing = false;
         processingThread.join();
 
         std::cout << "" << std::endl; // Extra line to stop flushing
-        std::cout << "Compressing finished!" << std::endl;
+        std::cout << "Decompressing finished!" << std::endl;
         return EXIT_SUCCESS;
     });
-    QObject::connect(compressBagThread, &ChangeCompressionBagThread::finished, compressBagThread, &QObject::deleteLater);
+    QObject::connect(decompressBagThread, &ChangeCompressionBagThread::finished, decompressBagThread, &QObject::deleteLater);
 
     signal(SIGINT, [] (int signal) {
         signalStatus = signal;
     });
-    Utils::CLI::runThread(compressBagThread, signalStatus);
+    Utils::CLI::runThread(decompressBagThread, signalStatus);
 
     return EXIT_SUCCESS;
 }

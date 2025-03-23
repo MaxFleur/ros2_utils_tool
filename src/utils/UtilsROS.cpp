@@ -22,6 +22,21 @@ doesDirectoryContainBagFile(const QString& bagDirectory)
 
 
 bool
+doesDirectoryContainCompressedBagFile(const QString& bagDirectory)
+{
+    rosbag2_storage::MetadataIo metadata_IO;
+    rosbag2_storage::BagMetadata metadata;
+    try {
+        metadata = metadata_IO.read_metadata(bagDirectory.toStdString());
+    } catch (...) {
+        return false;
+    }
+
+    return metadata.compression_mode == "MESSAGE" || metadata.compression_mode == "FILE";
+}
+
+
+bool
 doesBagContainTopicName(const QString& bagDirectory, const QString& topicName)
 {
     rosbag2_cpp::Reader reader;

@@ -1,19 +1,19 @@
-#include "CompressBagThread.hpp"
+#include "ChangeCompressionBagThread.hpp"
 
 #include "rosbag2_transport/bag_rewrite.hpp"
 
 #include <filesystem>
 
-CompressBagThread::CompressBagThread(const Parameters::CompressBagParameters& parameters, int numberOfThreads,
-                                     QObject*                                 parent) :
+ChangeCompressionBagThread::ChangeCompressionBagThread(const Parameters::CompressBagParameters& parameters,
+                                                       int numberOfThreads, bool compress, QObject* parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),
-    m_parameters(parameters), m_numberOfThreads(numberOfThreads)
+    m_parameters(parameters), m_numberOfThreads(numberOfThreads), m_compress(compress)
 {
 }
 
 
 void
-CompressBagThread::run()
+ChangeCompressionBagThread::run()
 {
     const auto targetDirectoryStd = m_parameters.targetDirectory.toStdString();
     if (std::filesystem::exists(targetDirectoryStd)) {
@@ -32,10 +32,12 @@ CompressBagThread::run()
 #else
     outputRecord.all = true;
 #endif
-    outputRecord.compression_format = "zstd";
-    outputRecord.compression_mode = m_parameters.compressPerMessage ? "message" : "file";
-    outputRecord.compression_threads = m_numberOfThreads;
-    outputRecord.compression_queue_size = 0;
+    if (m_compress) {
+        outputRecord.compression_format = "zstd";
+        outputRecord.compression_mode = m_parameters.compressPerMessage ? "message" : "file";
+        outputRecord.compression_threads = m_numberOfThreads;
+        outputRecord.compression_queue_size = 0;
+    }
 
     std::vector<std::pair<rosbag2_storage::StorageOptions, rosbag2_transport::RecordOptions> > outputBags;
     outputBags.push_back({ outputStorage, outputRecord });

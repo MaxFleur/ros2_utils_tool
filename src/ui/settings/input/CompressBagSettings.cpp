@@ -4,6 +4,7 @@ CompressBagSettings::CompressBagSettings(Parameters::CompressBagParameters& para
                                          const QString&                     groupName) :
     DeleteSourceSettings(parameters, groupName), m_parameters(parameters)
 {
+    setDefaultValueToTrue();
     read();
 }
 

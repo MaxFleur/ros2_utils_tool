@@ -93,6 +93,7 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     m_dummyBagButton = createToolButton("Create\nDummy Bag");
     m_bagInfoButton = createToolButton("Get Infos\nfrom Bag");
     m_compressBagButton = createToolButton("Compress\nBag");
+    m_decompressBagButton = createToolButton("Decompress\nBag");
 
     auto* const bagToolsUpperLayout = new QHBoxLayout;
     bagToolsUpperLayout->addStretch();
@@ -109,6 +110,7 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     auto* const bagToolsLowerLayout = new QHBoxLayout;
     bagToolsLowerLayout->addStretch();
     bagToolsLowerLayout->addWidget(m_compressBagButton);
+    bagToolsLowerLayout->addWidget(m_decompressBagButton);
     bagToolsLowerLayout->addStretch();
 
     auto* const bagToolsMainLayout = new QVBoxLayout;
@@ -222,6 +224,9 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     connect(m_compressBagButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_COMPRESS_BAG);
     });
+    connect(m_decompressBagButton, &QPushButton::clicked, this, [this] {
+        emit toolRequested(Utils::UI::TOOL_DECOMPRESS_BAG);
+    });
     connect(m_publishVideoButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_PUBLISH_VIDEO);
     });
@@ -322,6 +327,7 @@ StartWidget::setButtonIcons()
     m_dummyBagButton->setIcon(QIcon(isDarkMode ? ":/icons/dummy_bag_white.svg" : ":/icons/dummy_bag_black.svg"));
     m_bagInfoButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_info_white.svg" : ":/icons/bag_info_black.svg"));
     m_compressBagButton->setIcon(QIcon(isDarkMode ? ":/icons/compress_bag_white.svg" : ":/icons/compress_bag_black.svg"));
+    m_decompressBagButton->setIcon(QIcon(isDarkMode ? ":/icons/decompress_bag_white.svg" : ":/icons/decompress_bag_black.svg"));
 
     m_publishVideoButton->setIcon(QIcon(isDarkMode ? ":/icons/publish_video_white.svg" : ":/icons/publish_video_black.svg"));
     m_publishImagesButton->setIcon(QIcon(isDarkMode ? ":/icons/publish_images_white.svg" : ":/icons/publish_images_black.svg"));

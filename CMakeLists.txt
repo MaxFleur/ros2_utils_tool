@@ -49,6 +49,9 @@ add_executable(tool_bag_to_video
 add_executable(tool_compress_bag
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/CompressBag.cpp
 )
+add_executable(tool_decompress_bag
+    ${CMAKE_CURRENT_LIST_DIR}/src/cli/DecompressBag.cpp
+)
 add_executable(tool_dummy_bag
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/DummyBag.cpp
 )
@@ -73,6 +76,7 @@ ament_target_dependencies(tool_bag_to_images cv_bridge rosbag2_cpp sensor_msgs)
 ament_target_dependencies(tool_bag_to_pcds pcl_conversions rosbag2_cpp sensor_msgs)
 ament_target_dependencies(tool_bag_to_video cv_bridge rosbag2_cpp sensor_msgs)
 ament_target_dependencies(tool_compress_bag rosbag2_cpp rosbag2_transport sensor_msgs)
+ament_target_dependencies(tool_decompress_bag rosbag2_cpp rosbag2_transport sensor_msgs)
 ament_target_dependencies(tool_dummy_bag cv_bridge pcl_conversions rosbag2_cpp sensor_msgs)
 ament_target_dependencies(tool_merge_bags rosbag2_cpp rosbag2_transport sensor_msgs)
 ament_target_dependencies(tool_pcds_to_bag pcl_conversions rosbag2_cpp sensor_msgs)
@@ -93,7 +97,10 @@ target_link_libraries(tool_bag_to_video
     Qt::Widgets rt_bag_to_video_thread rt_utils
 )
 target_link_libraries(tool_compress_bag
-    Qt::Widgets rt_compress_bag_thread rt_utils
+    Qt::Widgets rt_change_compression_thread rt_utils
+)
+target_link_libraries(tool_decompress_bag
+    Qt::Widgets rt_change_compression_thread rt_utils
 )
 target_link_libraries(tool_dummy_bag
     Qt::Widgets rt_dummy_bag_thread rt_utils
@@ -120,6 +127,7 @@ install(TARGETS
     tool_bag_to_pcds
     tool_bag_to_video
     tool_compress_bag
+    tool_decompress_bag
     tool_dummy_bag
     tool_merge_bags
     tool_pcds_to_bag

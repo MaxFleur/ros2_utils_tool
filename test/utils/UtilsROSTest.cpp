@@ -5,6 +5,7 @@
 #include "rclcpp/rclcpp.hpp"
 
 #include "rosbag2_cpp/writer.hpp"
+#include "rosbag2_transport/bag_rewrite.hpp"
 
 #include "sensor_msgs/msg/image.hpp"
 #include "std_msgs/msg/string.hpp"
@@ -34,10 +35,39 @@ TEST_CASE("Utils ROS Testing", "[utils]") {
     }
     writer.close();
 
+    // Create compressed bag file
+    rosbag2_storage::StorageOptions inputStorage;
+    inputStorage.uri = bagDirectory;
+
+    rosbag2_storage::StorageOptions outputStorage;
+    outputStorage.uri = "compressed_bag_file";
+
+    rosbag2_transport::RecordOptions outputRecord;
+#ifdef ROS_JAZZY
+    outputRecord.all_topics = true;
+#else
+    outputRecord.all = true;
+#endif
+    outputRecord.compression_format = "zstd";
+    outputRecord.compression_mode = "file";
+    outputRecord.compression_queue_size = 0;
+
+    std::vector<std::pair<rosbag2_storage::StorageOptions, rosbag2_transport::RecordOptions> > outputBags;
+    outputBags.push_back({ outputStorage, outputRecord });
+    rosbag2_transport::bag_rewrite({ inputStorage }, outputBags);
+
     SECTION("Does dir contain bag file test") {
         auto contains = Utils::ROS::doesDirectoryContainBagFile("path/to/random/location");
         REQUIRE(contains == false);
         contains = Utils::ROS::doesDirectoryContainBagFile(qString);
+        REQUIRE(contains == true);
+    }
+    SECTION("Does dir contain compressed bag file test") {
+        auto contains = Utils::ROS::doesDirectoryContainCompressedBagFile("path/to/random/location");
+        REQUIRE(contains == false);
+        contains = Utils::ROS::doesDirectoryContainCompressedBagFile(qString);
+        REQUIRE(contains == false);
+        contains = Utils::ROS::doesDirectoryContainCompressedBagFile("compressed_bag_file");
         REQUIRE(contains == true);
     }
     SECTION("Contains topic name test") {
@@ -134,4 +164,5 @@ TEST_CASE("Utils ROS Testing", "[utils]") {
     }
 
     std::filesystem::remove_all(bagDirectory);
+    std::filesystem::remove_all("compressed_bag_file");
 }

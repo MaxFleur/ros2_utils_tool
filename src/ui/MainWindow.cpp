@@ -4,7 +4,7 @@
 #include "BagToPCDsWidget.hpp"
 #include "BagToImagesWidget.hpp"
 #include "BagToVideoWidget.hpp"
-#include "CompressBagWidget.hpp"
+#include "ChangeCompressionWidget.hpp"
 #include "DummyBagWidget.hpp"
 #include "EditBagWidget.hpp"
 #include "MergeBagsWidget.hpp"
@@ -80,7 +80,10 @@ MainWindow::setInputWidget(int mode)
         basicInputWidget = new BagInfoWidget;
         break;
     case Utils::UI::TOOL_COMPRESS_BAG:
-        basicInputWidget = new CompressBagWidget(m_parametersCompressBag);
+        basicInputWidget = new ChangeCompressionWidget(m_parametersCompressBag, true);
+        break;
+    case Utils::UI::TOOL_DECOMPRESS_BAG:
+        basicInputWidget = new ChangeCompressionWidget(m_parametersDecompressBag, false);
         break;
     case Utils::UI::TOOL_PUBLISH_VIDEO:
         basicInputWidget = new PublishWidget(m_parametersPublishVideo, m_dialogParameters.usePredefinedTopicNames,
@@ -143,6 +146,10 @@ MainWindow::setProgressWidget(int mode)
     case Utils::UI::TOOL_COMPRESS_BAG:
         progressWidget = new ProgressWidget(":/icons/compress_bag_black.svg", ":/icons/compress_bag_white.svg",
                                             "Compressing Bag...", m_parametersCompressBag, mode);
+        break;
+    case Utils::UI::TOOL_DECOMPRESS_BAG:
+        progressWidget = new ProgressWidget(":/icons/decompress_bag_black.svg", ":/icons/decompress_bag_white.svg",
+                                            "Decompressing Bag...", m_parametersDecompressBag, mode);
         break;
     case Utils::UI::TOOL_PUBLISH_VIDEO:
         progressWidget = new ProgressWidget(":/icons/publish_video_black.svg", ":/icons/publish_video_white.svg",

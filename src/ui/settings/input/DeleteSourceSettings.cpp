@@ -28,7 +28,7 @@ DeleteSourceSettings::read()
         return false;
     }
 
-    m_parameters.deleteSource = readParameter(m_groupName, "delete_source", false);
+    m_parameters.deleteSource = readParameter(m_groupName, "delete_source", m_isDefaultValueTrue);
 
     return true;
 }

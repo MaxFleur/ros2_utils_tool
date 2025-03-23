@@ -62,6 +62,7 @@ private:
     QPointer<QToolButton> m_dummyBagButton;
     QPointer<QToolButton> m_bagInfoButton;
     QPointer<QToolButton> m_compressBagButton;
+    QPointer<QToolButton> m_decompressBagButton;
 
     QPointer<QToolButton> m_publishVideoButton;
     QPointer<QToolButton> m_publishImagesButton;

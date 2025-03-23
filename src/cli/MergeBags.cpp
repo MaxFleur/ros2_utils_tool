@@ -122,7 +122,7 @@ main(int argc, char* argv[])
     std::thread processingThread;
 
     QObject::connect(mergeBagsThread, &MergeBagsThread::processing, [&processingThread, &isMerging] {
-        processingThread = std::thread(&Utils::CLI::showIsProcessingString, std::ref(isMerging), false);
+        processingThread = std::thread(&Utils::CLI::showProcessingString, std::ref(isMerging), Utils::CLI::CLI_MERGE);
 
         return EXIT_SUCCESS;
     });

@@ -5,7 +5,7 @@
 #include "BagToVideoThread.hpp"
 #include "BasicThread.hpp"
 #include "DialogSettings.hpp"
-#include "CompressBagThread.hpp"
+#include "ChangeCompressionBagThread.hpp"
 #include "DummyBagThread.hpp"
 #include "EditBagThread.hpp"
 #include "MergeBagsThread.hpp"
@@ -62,8 +62,14 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
                                       DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
         break;
     case Utils::UI::TOOL_COMPRESS_BAG:
-        m_thread = new CompressBagThread(dynamic_cast<Parameters::CompressBagParameters&>(parameters),
-                                         DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
+        m_thread = new ChangeCompressionBagThread(dynamic_cast<Parameters::CompressBagParameters&>(parameters),
+                                                  DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()),
+                                                  true, this);
+        break;
+    case Utils::UI::TOOL_DECOMPRESS_BAG:
+        m_thread = new ChangeCompressionBagThread(dynamic_cast<Parameters::CompressBagParameters&>(parameters),
+                                                  DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()),
+                                                  false, this);
         break;
     case Utils::UI::TOOL_PUBLISH_VIDEO:
         m_thread = new PublishVideoThread(dynamic_cast<Parameters::PublishParameters&>(parameters),
@@ -98,15 +104,18 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
 
     // Display a progress bar or play a gif depending on if we are doing bag or publishing stuff
     QWidget* progressWidget;
-    if (threadTypeId == Utils::UI::TOOL_COMPRESS_BAG || threadTypeId == Utils::UI::TOOL_MERGE_BAGS ||
+    if (threadTypeId == Utils::UI::TOOL_COMPRESS_BAG || threadTypeId == Utils::UI::TOOL_DECOMPRESS_BAG ||
+        threadTypeId == Utils::UI::TOOL_MERGE_BAGS ||
         threadTypeId == Utils::UI::TOOL_PUBLISH_VIDEO || threadTypeId == Utils::UI::TOOL_PUBLISH_IMAGES) {
         QMovie* movie;
-        if (threadTypeId == Utils::UI::TOOL_COMPRESS_BAG || threadTypeId == Utils::UI::TOOL_MERGE_BAGS) {
+        if (threadTypeId == Utils::UI::TOOL_COMPRESS_BAG || threadTypeId == Utils::UI::TOOL_DECOMPRESS_BAG ||
+            threadTypeId == Utils::UI::TOOL_MERGE_BAGS) {
             movie = new QMovie(isDarkMode? ":/gifs/processing_white.gif" : ":/gifs/processing_black.gif");
         } else {
             movie = new QMovie(isDarkMode? ":/gifs/publishing_white.gif" : ":/gifs/publishing_black.gif");
         }
-        movie->setScaledSize(QSize(120, threadTypeId == Utils::UI::TOOL_COMPRESS_BAG ? 120 : 100));
+        movie->setScaledSize(QSize(120, threadTypeId == Utils::UI::TOOL_COMPRESS_BAG ||
+                                   threadTypeId == Utils::UI::TOOL_DECOMPRESS_BAG ? 120 : 100));
 
         auto* const movieLabel = new QLabel;
         movieLabel->setMovie(movie);

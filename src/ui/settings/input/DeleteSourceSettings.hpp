@@ -15,6 +15,14 @@ protected:
     bool
     read() override;
 
+    void
+    setDefaultValueToTrue()
+    {
+        m_isDefaultValueTrue = true;
+    }
+
 private:
     Parameters::DeleteSourceParameters& m_parameters;
+
+    bool m_isDefaultValueTrue = false;
 };

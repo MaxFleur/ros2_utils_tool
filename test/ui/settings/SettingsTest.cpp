@@ -236,6 +236,8 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.beginGroup("compress_bag");
             REQUIRE(qSettings.value("compress_per_message").isValid());
             REQUIRE(qSettings.value("compress_per_message").toBool() == true);
+            REQUIRE(qSettings.value("delete_source").isValid());
+            REQUIRE(qSettings.value("delete_source").toBool() == true);
             qSettings.endGroup();
         }
     }
