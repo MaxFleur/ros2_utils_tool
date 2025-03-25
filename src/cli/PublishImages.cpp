@@ -46,7 +46,7 @@ main(int argc, char* argv[])
 
     Parameters::PublishParameters parameters;
 
-    // Video directory
+    // Images directory
     parameters.sourceDirectory = arguments.at(1);
     if (!std::filesystem::exists(parameters.sourceDirectory.toStdString())) {
         std::cerr << "The images directory does not exist. Please enter a valid images path!" << std::endl;

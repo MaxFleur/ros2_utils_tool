@@ -6,7 +6,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/image.hpp"
 
-// Thread used to publish image sequences
+// Thread used to publish image sequences as a ROS topic
 // This thread also runs as a separate ROS node to enable the image messages publishing
 class PublishImagesThread : public BasicThread {
     Q_OBJECT

@@ -34,7 +34,8 @@ BagToVideoThread::run()
     auto iterationCount = 0;
     const auto topicNameStdString = m_topicName;
     const auto videoEncoder = std::make_shared<VideoEncoder>(m_parameters.format == "mp4" ? cv::VideoWriter::fourcc('m', 'p', '4', 'v') :
-                                                             m_parameters.lossless ? cv::VideoWriter::fourcc('F', 'F', 'V', '1') : cv::VideoWriter::fourcc('X', '2', '6', '4'));
+                                                             m_parameters.lossless ? cv::VideoWriter::fourcc('F', 'F', 'V', '1')
+                                                                                   : cv::VideoWriter::fourcc('X', '2', '6', '4'));
 
     // Now the main encoding
     while (reader.has_next()) {

@@ -24,6 +24,7 @@ protected:
     read() = 0;
 
     // Called whenever we want to write values
+    // Variant without settings parameter
     template<typename T>
     requires GeneralSettingsParameter<T>
     void
@@ -38,6 +39,7 @@ protected:
         settings.endGroup();
     }
 
+    // Use predefined settings to write
     template<typename T>
     requires GeneralSettingsParameter<T>
     void
@@ -58,6 +60,7 @@ protected:
         }
     }
 
+    // Read without settings parameter
     template<typename T>
     requires GeneralSettingsParameter<T>
     T
@@ -74,6 +77,7 @@ protected:
         return parameter;
     }
 
+    // Read based on stored type, using predefined settings
     template<typename T>
     requires GeneralSettingsParameter<T>
     T

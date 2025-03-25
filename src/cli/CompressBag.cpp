@@ -40,7 +40,7 @@ main(int argc, char* argv[])
 
     Parameters::CompressBagParameters parameters;
 
-    // Handle bag directory
+    // Uncompressed source bag directory
     parameters.sourceDirectory = arguments.at(1);
     if (!std::filesystem::exists(parameters.sourceDirectory.toStdString())) {
         std::cerr << "Source bag file not found. Make sure that the bag file exists!" << std::endl;
@@ -55,7 +55,7 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    // Images directory
+    // Target compressed bag directory
     parameters.targetDirectory = arguments.at(2);
     auto dirPath = parameters.targetDirectory;
     dirPath.truncate(dirPath.lastIndexOf(QChar('/')));

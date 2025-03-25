@@ -46,6 +46,7 @@ DummyBagThread::run()
     std::mutex mutex;
     std::atomic<int> iterationCount = 1;
 
+    // Move to own lambda for multithreading
     const auto writeDummyTopic = [this, &writer, &queue, &mutex, &iterationCount, maximumMessageCount] {
         while (true) {
             if (isInterruptionRequested() || queue.empty()) {
@@ -64,13 +65,13 @@ DummyBagThread::run()
                 }
 
                 const auto timeStamp = rclcpp::Clock().now();
-
+                // Write message depending on type
                 if (topicType == "String") {
                     Utils::ROS::writeMessageToBag(std_msgs::msg::String(), "Message " + std::to_string(i), writer, topicName, timeStamp);
                 } else if (topicType == "Integer") {
                     Utils::ROS::writeMessageToBag(std_msgs::msg::Int32(), i, writer, topicName, timeStamp);
                 } else if (topicType == "Image") {
-                    // Lerp from blue to red
+                    // Create image which over time is lerped from blue to red
                     const auto blue = 255 - ((i - 1) * (255.0f / (float) m_parameters.messageCount));
                     const auto red = 0 + (i * (255.0f / (float) m_parameters.messageCount));
                     cv::Mat mat(720, 1280, CV_8UC3, cv::Scalar(blue, 0, red));

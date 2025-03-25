@@ -3,7 +3,7 @@
 #include "BasicThread.hpp"
 #include "Parameters.hpp"
 
-// Thread used to write images out of a ROS bag
+// Thread used to write a bag images topic to a set of images
 class BagToImagesThread : public BasicThread {
     Q_OBJECT
 public:

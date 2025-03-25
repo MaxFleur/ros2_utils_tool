@@ -6,7 +6,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/image.hpp"
 
-// Thread used to publish a video
+// Thread used to publish a video as ROS topic
 // This thread also runs as a separate ROS node to enable the image messages publishing
 class PublishVideoThread : public BasicThread {
     Q_OBJECT

@@ -111,7 +111,7 @@ main(int argc, char* argv[])
         }
     }
 
-    // Create encoding thread and connect to its informations
+    // Create thread and connect to its informations
     auto* const encodingThread = new BagToVideoThread(parameters, useHardwareAcceleration);
     QObject::connect(encodingThread, &BagToVideoThread::progressChanged, [] (const QString& progressString, int progress) {
         const auto progressStringCMD = Utils::CLI::drawProgressString(progress);

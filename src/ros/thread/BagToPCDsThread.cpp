@@ -27,7 +27,6 @@ BagToPCDsThread::run()
         std::filesystem::create_directory(targetDirectoryStd);
     }
     if (!std::filesystem::is_empty(targetDirectoryStd)) {
-        // Remove all images currently present
         for (const auto& entry : std::filesystem::directory_iterator(targetDirectoryStd)) {
             std::filesystem::remove_all(entry.path());
         }
@@ -44,6 +43,7 @@ BagToPCDsThread::run()
     auto iterationCount = 0;
     std::mutex mutex;
 
+    // Move to own lambda for multithreading
     const auto writePCD = [this, &targetDirectoryStd, &reader, &mutex, &iterationCount,
                            serialization, messageCount, messageCountNumberOfDigits] {
         while (true) {

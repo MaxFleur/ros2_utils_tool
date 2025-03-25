@@ -3,7 +3,7 @@
 #include "BasicThread.hpp"
 #include "Parameters.hpp"
 
-// Thread used to weite a video to a bag
+// Thread used to write a video to a bag file
 class VideoToBagThread : public BasicThread {
     Q_OBJECT
 

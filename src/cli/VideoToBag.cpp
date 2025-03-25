@@ -56,7 +56,7 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    // Handle bag directory
+    // Bag directory
     parameters.targetDirectory = arguments.at(2);
     dirPath = parameters.targetDirectory;
     dirPath.truncate(dirPath.lastIndexOf(QChar('/')));

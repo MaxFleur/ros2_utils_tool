@@ -3,7 +3,8 @@
 #include "BasicThread.hpp"
 #include "Parameters.hpp"
 
-// Thread used to compress a bag file
+// Thread used to write a compressed to an uncompressed file (or vice versa)
+// Makes use of the rosbag2_transport API for simplicity and performance
 class ChangeCompressionBagThread : public BasicThread {
     Q_OBJECT
 public:

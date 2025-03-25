@@ -41,7 +41,7 @@ main(int argc, char* argv[])
     Parameters::DummyBagParameters parameters;
     parameters.topicName = "";
 
-    // Bag directory
+    // Bag directory (called as source dir, but is out target dir this time)
     parameters.sourceDirectory = arguments.at(1);
     auto dirPath = parameters.sourceDirectory;
     dirPath.truncate(dirPath.lastIndexOf(QChar('/')));

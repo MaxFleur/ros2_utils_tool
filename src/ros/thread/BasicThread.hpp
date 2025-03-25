@@ -26,6 +26,7 @@ signals:
     void
     processing();
 
+    // Might fail in some cases (CV instance opening failed, invalid input params...)
     void
     failed();
 

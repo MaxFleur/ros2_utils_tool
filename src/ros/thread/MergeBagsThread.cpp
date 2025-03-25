@@ -20,11 +20,13 @@ MergeBagsThread::run()
         std::filesystem::remove_all(targetDirectoryStd);
     }
 
+    // Setup input parameters
     rosbag2_storage::StorageOptions inputStorageFirstBag;
     inputStorageFirstBag.uri = m_sourceDirectory;
     rosbag2_storage::StorageOptions inputStorageSecondBag;
     inputStorageSecondBag.uri = m_parameters.secondSourceDirectory.toStdString();
 
+    // Output parameters
     rosbag2_storage::StorageOptions outputStorage;
     outputStorage.uri = targetDirectoryStd;
 
@@ -41,6 +43,7 @@ MergeBagsThread::run()
     outputBags.push_back({ outputStorage, outputRecord });
 
     emit processing();
+    // Do merge
     rosbag2_transport::bag_rewrite({ inputStorageFirstBag, inputStorageSecondBag }, outputBags);
     emit finished();
 }

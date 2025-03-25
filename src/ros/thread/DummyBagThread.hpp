@@ -3,7 +3,7 @@
 #include "BasicThread.hpp"
 #include "Parameters.hpp"
 
-// Dummy bag thread, used to write dummy messages to a ROS bag
+// Dummy bag thread, used to create a bag file with dummy data
 class DummyBagThread : public BasicThread {
     Q_OBJECT
 public:

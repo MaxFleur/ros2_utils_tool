@@ -27,6 +27,7 @@ PCDsToBagThread::run()
     emit informOfGatheringData();
 
     auto frameCount = 0;
+    // It is faster to first store all valid pcd file paths and then iterate over those
     std::set<std::filesystem::path> sortedPCDsSet;
     for (auto const& entry : std::filesystem::directory_iterator(m_sourceDirectory)) {
         if (entry.path().extension() != ".pcd") {
@@ -50,11 +51,12 @@ PCDsToBagThread::run()
                 mutex.unlock();
                 break;
             }
-
+            // Create message
             sensor_msgs::msg::PointCloud2 message;
             // Nanoseconds directly
             rclcpp::Time time(static_cast<uint64_t>(((float) iterationCount / m_parameters.rate) * 1e9));
 
+            // Read pcd from file
             pcl::PCDReader reader;
             pcl::PCLPointCloud2 cloud;
             reader.read(*sortedPCDsSet.begin(), cloud);
@@ -65,7 +67,7 @@ PCDsToBagThread::run()
             iterationCount++;
 
             mutex.unlock();
-
+            // Write
             pcl_conversions::fromPCL(cloud, message);
             writer.write(message, m_topicName, time);
         }

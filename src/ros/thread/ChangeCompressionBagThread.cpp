@@ -20,9 +20,11 @@ ChangeCompressionBagThread::run()
         std::filesystem::remove_all(targetDirectoryStd);
     }
 
+    // Input params
     rosbag2_storage::StorageOptions inputStorage;
     inputStorage.uri = m_sourceDirectory;
 
+    // Output params
     rosbag2_storage::StorageOptions outputStorage;
     outputStorage.uri = targetDirectoryStd;
 
@@ -36,6 +38,7 @@ ChangeCompressionBagThread::run()
         outputRecord.compression_format = "zstd";
         outputRecord.compression_mode = m_parameters.compressPerMessage ? "message" : "file";
         outputRecord.compression_threads = m_numberOfThreads;
+        // Need to set this so no messages are dropped
         outputRecord.compression_queue_size = 0;
     }
 
@@ -43,6 +46,7 @@ ChangeCompressionBagThread::run()
     outputBags.push_back({ outputStorage, outputRecord });
 
     emit processing();
+    // Main rewrite
     rosbag2_transport::bag_rewrite({ inputStorage }, outputBags);
 
     if (m_parameters.deleteSource) {
