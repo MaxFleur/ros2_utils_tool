@@ -4,8 +4,8 @@
 
 #include <filesystem>
 
-MergeBagsThread::MergeBagsThread(const Parameters::MergeBagsParameters& parameters, int numberOfThreads,
-                                 QObject*                               parent) :
+MergeBagsThread::MergeBagsThread(const Parameters::MergeBagsParameters& parameters,
+                                 unsigned int numberOfThreads, QObject* parent) :
     BasicThread(parameters.sourceDirectory, "", parent),
     m_parameters(parameters), m_numberOfThreads(numberOfThreads)
 {

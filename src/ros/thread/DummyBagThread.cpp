@@ -18,8 +18,8 @@
 #include <cv_bridge/cv_bridge.h>
 #endif
 
-DummyBagThread::DummyBagThread(const Parameters::DummyBagParameters& parameters, int numberOfThreads,
-                               QObject*                              parent) :
+DummyBagThread::DummyBagThread(const Parameters::DummyBagParameters& parameters,
+                               unsigned int numberOfThreads, QObject* parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),
     m_parameters(parameters), m_numberOfThreads(numberOfThreads)
 {
@@ -115,7 +115,7 @@ DummyBagThread::run()
 
     // Parallelize the topic writing
     std::vector<std::thread> threadPool;
-    for (int i = 0; i < m_numberOfThreads; ++i) {
+    for (unsigned int i = 0; i < m_numberOfThreads; ++i) {
         threadPool.emplace_back(writeDummyTopic);
     }
     for (auto& thread : threadPool) {

@@ -95,10 +95,10 @@ struct PublishParameters : VideoParameters {
 };
 
 struct DialogParameters {
-    int  maxNumberOfThreads = std::thread::hardware_concurrency();
-    bool useHardwareAcceleration = false;
-    bool saveParameters = false;
-    bool usePredefinedTopicNames = true;
-    bool checkROS2NameConform = false;
+    unsigned int maxNumberOfThreads = std::thread::hardware_concurrency();
+    bool         useHardwareAcceleration = false;
+    bool         saveParameters = false;
+    bool         usePredefinedTopicNames = true;
+    bool         checkROS2NameConform = false;
 };
 }

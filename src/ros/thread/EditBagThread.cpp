@@ -8,8 +8,8 @@
 
 #include <filesystem>
 
-EditBagThread::EditBagThread(const Parameters::EditBagParameters& parameters, int numberOfThreads,
-                             QObject*                             parent) :
+EditBagThread::EditBagThread(const Parameters::EditBagParameters& parameters,
+                             unsigned int numberOfThreads, QObject* parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),
     m_parameters(parameters), m_numberOfThreads(numberOfThreads)
 {
@@ -128,7 +128,7 @@ EditBagThread::run()
 
     // Parallelize the topic writing
     std::vector<std::thread> threadPool;
-    for (int i = 0; i < m_numberOfThreads; ++i) {
+    for (unsigned int i = 0; i < m_numberOfThreads; ++i) {
         threadPool.emplace_back(writeTopicToBag);
     }
     for (auto& thread : threadPool) {
