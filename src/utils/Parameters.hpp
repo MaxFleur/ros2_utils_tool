@@ -3,6 +3,8 @@
 #include <QString>
 #include <QVector>
 
+#include <thread>
+
 // Parameters used to configure the threads and
 // store information in case an input widget is closed and reopened
 namespace Parameters
@@ -28,44 +30,6 @@ struct AdvancedParameters : BasicParameters {
     QString targetDirectory = "";
     bool    showAdvancedOptions = false;
 };
-struct BagToImagesParameters : AdvancedParameters {
-    QString format = "jpg";
-    int     quality = 8;
-    bool    exchangeRedBlueValues = false;
-    bool    useBWImages = false;
-    bool    jpgOptimize = false;
-    bool    pngBilevel = false;
-};
-struct BagToVideoParameters : AdvancedParameters {
-    QString format = "mp4";
-    int     fps = 30;
-    bool    useHardwareAcceleration = false;
-    bool    exchangeRedBlueValues = false;
-    bool    useBWImages = false;
-    bool    lossless = false;
-};
-struct PCDsToBagParameters : AdvancedParameters {
-    int rate = 5;
-};
-struct VideoToBagParameters : AdvancedParameters {
-    int  fps = 30;
-    bool useCustomFPS = false;
-    bool useHardwareAcceleration = false;
-    bool exchangeRedBlueValues = false;
-};
-struct EditBagParameters : AdvancedParameters {
-    struct EditBagTopic {
-        QString renamedTopicName = "";
-        QString originalTopicName;
-        size_t  lowerBoundary = 0;
-        size_t  upperBoundary;
-        bool    isSelected = true;
-    };
-
-    QVector<EditBagTopic> topics = {};
-    bool                  deleteSource = false;
-    bool                  updateTimestamps = false;
-};
 struct MergeBagsParameters : AdvancedParameters {
     struct MergeBagTopic {
         QString name = "";
@@ -78,20 +42,63 @@ struct MergeBagsParameters : AdvancedParameters {
     QVector<MergeBagTopic> topics = {};
     QString                secondSourceDirectory = "";
 };
+struct PCDsToBagParameters : AdvancedParameters {
+    int rate = 5;
+};
 
-struct PublishParameters : AdvancedParameters {
-    int  fps = 30;
+struct DeleteSourceParameters : AdvancedParameters {
+    bool deleteSource = false;
+};
+struct EditBagParameters : DeleteSourceParameters {
+    struct EditBagTopic {
+        QString renamedTopicName = "";
+        QString originalTopicName;
+        size_t  lowerBoundary = 0;
+        size_t  upperBoundary;
+        bool    isSelected = true;
+    };
+
+    QVector<EditBagTopic> topics = {};
+    bool                  updateTimestamps = false;
+};
+struct CompressBagParameters : DeleteSourceParameters {
+    bool compressPerMessage = false;
+};
+
+struct RGBParameters : AdvancedParameters {
+    bool exchangeRedBlueValues = false;
+};
+struct BagToImagesParameters : RGBParameters {
+    QString format = "jpg";
+    int     quality = 8;
+    bool    useBWImages = false;
+    bool    jpgOptimize = false;
+    bool    pngBilevel = false;
+};
+
+struct VideoParameters : RGBParameters {
+    int fps = 30;
+};
+struct BagToVideoParameters : VideoParameters {
+    QString format = "mp4";
+    bool    useBWImages = false;
+    bool    lossless = false;
+};
+struct VideoToBagParameters : VideoParameters {
+    bool useCustomFPS = false;
+};
+struct PublishParameters : VideoParameters {
     int  width = 1280;
     int  height = 720;
-    bool exchangeRedBlueValues = false;
     bool loop = false;
-    bool useHardwareAcceleration = false;
     bool scale = false;
 };
 
 struct DialogParameters {
-    bool saveParameters = false;
-    bool usePredefinedTopicNames = true;
-    bool checkROS2NameConform = false;
+    unsigned int maxNumberOfThreads = std::thread::hardware_concurrency();
+    bool         useHardwareAcceleration = false;
+    bool         saveParameters = false;
+    bool         usePredefinedTopicNames = true;
+    bool         checkROS2NameConform = false;
 };
 }

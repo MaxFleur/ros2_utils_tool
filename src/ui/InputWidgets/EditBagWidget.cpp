@@ -97,7 +97,7 @@ EditBagWidget::createTopicTree(bool newTreeRequested)
 {
     // Selecting a source file will necessarily need to creating a new tree, so put it in the same function
     if (newTreeRequested) {
-        const auto bagDirectory = QFileDialog::getExistingDirectory(this, "Open ROSBag", "",
+        const auto bagDirectory = QFileDialog::getExistingDirectory(this, "Open Source Bag File", "",
                                                                     QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
         if (bagDirectory.isEmpty()) {
             return;

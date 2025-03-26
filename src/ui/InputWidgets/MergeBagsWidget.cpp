@@ -81,7 +81,7 @@ void
 MergeBagsWidget::setSourceDirectory(bool isFirstSource)
 {
     QPointer<QLineEdit> lineEdit = isFirstSource ? m_sourceLineEdit : m_secondSourceLineEdit;
-    const auto bagDirectory = QFileDialog::getExistingDirectory(this, "Open ROSBag", "",
+    const auto bagDirectory = QFileDialog::getExistingDirectory(this, "Open Source Bag File", "",
                                                                 QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     if (bagDirectory.isEmpty()) {
         return;

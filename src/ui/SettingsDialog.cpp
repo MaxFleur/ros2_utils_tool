@@ -1,49 +1,88 @@
 #include "SettingsDialog.hpp"
 
 #include "BasicSettings.hpp"
+#include "UtilsUI.hpp"
 
 #include <QCheckBox>
 #include <QDialogButtonBox>
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QLabel>
 #include <QMessageBox>
 #include <QSettings>
+#include <QSpinBox>
 #include <QVBoxLayout>
 
-SettingsDialog::SettingsDialog(Parameters::DialogParameters& dialogParameters, QWidget* parent) :
-    QDialog(parent), m_dialogSettings(dialogParameters, "dialog"), m_dialogParameters(dialogParameters)
+SettingsDialog::SettingsDialog(Parameters::DialogParameters& parameters, QWidget* parent) :
+    QDialog(parent), m_parameters(parameters), m_settings(parameters, "dialog")
 {
     setWindowTitle("Options");
 
-    m_storeParametersCheckBox = new QCheckBox("Save Input Parameters");
-    m_storeParametersCheckBox->setTristate(false);
-    m_storeParametersCheckBox->setToolTip("If this is checked, all input parameters are saved\n"
-                                          "and reused if this application is launched another time.");
-    m_storeParametersCheckBox->setCheckState(m_dialogParameters.saveParameters ? Qt::Checked : Qt::Unchecked);
+    auto* const threadsLabel = new QLabel("Maximum Number of Threads:");
 
-    m_usePredefinedTopicNamesCheckBox = new QCheckBox("Use Predefined Topic Names");
-    m_usePredefinedTopicNamesCheckBox->setTristate(false);
-    m_usePredefinedTopicNamesCheckBox->setToolTip("Use some optional predefined topic names for the publishing and video to bag tools.");
-    m_usePredefinedTopicNamesCheckBox->setCheckState(m_dialogParameters.usePredefinedTopicNames ? Qt::Checked : Qt::Unchecked);
+    auto* const maxNumberOfThreadsSpinBox = new QSpinBox;
+    maxNumberOfThreadsSpinBox->setRange(1, std::thread::hardware_concurrency());
+    maxNumberOfThreadsSpinBox->setToolTip("The maximum number of threads used for some tools.\n"
+                                          "A higher number of threads will increase tool performance,\n"
+                                          "but might make the system more laggy.");
+    maxNumberOfThreadsSpinBox->setValue(m_parameters.maxNumberOfThreads);
 
-    m_checkROS2NamingConventionCheckBox = new QCheckBox("Check for ROS2 Naming Conventions");
-    m_checkROS2NamingConventionCheckBox->setTristate(false);
-    m_checkROS2NamingConventionCheckBox->setToolTip("If input fields requiring topic names should check\nfor ROS2 Topic Naming Conventions.");
-    m_checkROS2NamingConventionCheckBox->setCheckState(m_dialogParameters.checkROS2NameConform ? Qt::Checked : Qt::Unchecked);
+    auto* const threadsLayout = new QHBoxLayout;
+    threadsLayout->addWidget(threadsLabel);
+    threadsLayout->addWidget(maxNumberOfThreadsSpinBox);
+
+    auto* const useHardwareAccCheckBox = Utils::UI::createCheckBox("Use hardware acceleration for some tools.", m_parameters.useHardwareAcceleration);
+    useHardwareAccCheckBox->setText("Use Hardware Acceleration");
+
+    auto* const storeParametersCheckBox = Utils::UI::createCheckBox("If this is checked, all input parameters are saved\nand reused if this application is launched another time.",
+                                                                    m_parameters.saveParameters);
+    storeParametersCheckBox->setText("Save Input Parameters");
+
+    auto* const usePredefinedTopicNamesCheckBox = Utils::UI::createCheckBox("Use some optional predefined topic names for the publishing and video to bag tools.",
+                                                                            m_parameters.usePredefinedTopicNames);
+    usePredefinedTopicNamesCheckBox->setText("Use Predefined Topic Names");
+
+    auto* const checkROS2NamingConventionCheckBox = Utils::UI::createCheckBox("If input fields requiring topic names should check\nfor ROS2 Topic Naming Conventions.",
+                                                                              m_parameters.usePredefinedTopicNames);
+    checkROS2NamingConventionCheckBox->setText("Check for ROS2 Naming Conventions");
 
     auto* const buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
-    connect(m_storeParametersCheckBox, &QCheckBox::stateChanged, this, &SettingsDialog::storeParametersCheckStateChanged);
-    connect(buttonBox, &QDialogButtonBox::accepted, this, &SettingsDialog::okClicked);
-    connect(buttonBox, &QDialogButtonBox::rejected, this, [this] {
-        QDialog::reject();
-    });
+    auto* const systemLayout = new QVBoxLayout;
+    systemLayout->addLayout(threadsLayout);
+    systemLayout->addWidget(useHardwareAccCheckBox);
+
+    auto* const systemGroupBox = new QGroupBox("System");
+    systemGroupBox->setLayout(systemLayout);
+
+    auto* const miscLayout = new QVBoxLayout;
+    miscLayout->addWidget(storeParametersCheckBox);
+    miscLayout->addWidget(usePredefinedTopicNamesCheckBox);
+    miscLayout->addWidget(checkROS2NamingConventionCheckBox);
+
+    auto* const miscGroupBox = new QGroupBox("Miscellaneous");
+    miscGroupBox->setLayout(miscLayout);
 
     // Set main layout
     auto* const mainLayout = new QVBoxLayout(this);
-    mainLayout->addWidget(m_storeParametersCheckBox);
-    mainLayout->addWidget(m_usePredefinedTopicNamesCheckBox);
-    mainLayout->addWidget(m_checkROS2NamingConventionCheckBox);
+    mainLayout->addWidget(systemGroupBox);
+    mainLayout->addWidget(miscGroupBox);
     mainLayout->addWidget(buttonBox);
     setLayout(mainLayout);
+
+    connect(buttonBox, &QDialogButtonBox::accepted, this, [this, maxNumberOfThreadsSpinBox, useHardwareAccCheckBox,
+                                                           storeParametersCheckBox, usePredefinedTopicNamesCheckBox, checkROS2NamingConventionCheckBox] {
+        m_parameters.maxNumberOfThreads = maxNumberOfThreadsSpinBox->value();
+        m_parameters.useHardwareAcceleration = useHardwareAccCheckBox->checkState() == Qt::Checked;
+        m_parameters.saveParameters = storeParametersCheckBox->checkState() == Qt::Checked;
+        m_parameters.usePredefinedTopicNames = usePredefinedTopicNamesCheckBox->checkState() == Qt::Checked;
+        m_parameters.checkROS2NameConform = checkROS2NamingConventionCheckBox->checkState() == Qt::Checked;
+        m_settings.write();
+        QDialog::accept();
+    });
+    connect(buttonBox, &QDialogButtonBox::rejected, this, [this] {
+        QDialog::reject();
+    });
 }
 
 
@@ -55,15 +94,4 @@ SettingsDialog::storeParametersCheckStateChanged()
     msgBox->setIcon(QMessageBox::Information);
     msgBox->setText("Changes will take effect after restarting the application.");
     msgBox->exec();
-}
-
-
-void
-SettingsDialog::okClicked()
-{
-    m_dialogParameters.saveParameters = m_storeParametersCheckBox->checkState() == Qt::Checked;
-    m_dialogParameters.usePredefinedTopicNames = m_usePredefinedTopicNamesCheckBox->checkState() == Qt::Checked;
-    m_dialogParameters.checkROS2NameConform = m_checkROS2NamingConventionCheckBox->checkState() == Qt::Checked;
-    m_dialogSettings.write();
-    QDialog::accept();
 }

@@ -13,10 +13,10 @@
 #include <cv_bridge/cv_bridge.h>
 #endif
 
-BagToVideoThread::BagToVideoThread(const Parameters::BagToVideoParameters& parameters,
+BagToVideoThread::BagToVideoThread(const Parameters::BagToVideoParameters& parameters, bool useHardwareAcceleration,
                                    QObject*                                parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),
-    m_parameters(parameters)
+    m_parameters(parameters), m_useHardwareAcceleration(useHardwareAcceleration)
 {
 }
 
@@ -34,7 +34,8 @@ BagToVideoThread::run()
     auto iterationCount = 0;
     const auto topicNameStdString = m_topicName;
     const auto videoEncoder = std::make_shared<VideoEncoder>(m_parameters.format == "mp4" ? cv::VideoWriter::fourcc('m', 'p', '4', 'v') :
-                                                             m_parameters.lossless ? cv::VideoWriter::fourcc('F', 'F', 'V', '1') : cv::VideoWriter::fourcc('X', '2', '6', '4'));
+                                                             m_parameters.lossless ? cv::VideoWriter::fourcc('F', 'F', 'V', '1')
+                                                                                   : cv::VideoWriter::fourcc('X', '2', '6', '4'));
 
     // Now the main encoding
     while (reader.has_next()) {
@@ -59,8 +60,8 @@ BagToVideoThread::run()
             const auto height = rosMsg->height;
 
             if (!videoEncoder->setVideoWriter(m_parameters.targetDirectory.toStdString(), m_parameters.fps, width, height,
-                                              m_parameters.useHardwareAcceleration, m_parameters.useBWImages)) {
-                emit openingCVInstanceFailed();
+                                              m_useHardwareAcceleration, m_parameters.useBWImages)) {
+                emit failed();
                 return;
             }
         }

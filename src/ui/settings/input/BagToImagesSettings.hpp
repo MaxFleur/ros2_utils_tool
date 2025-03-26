@@ -1,9 +1,9 @@
 #pragma once
 
-#include "AdvancedSettings.hpp"
+#include "RGBSettings.hpp"
 
 // Store parameters for image sequence out of ROS bag creation
-class BagToImagesSettings : public AdvancedSettings {
+class BagToImagesSettings : public RGBSettings {
 public:
     BagToImagesSettings(Parameters::BagToImagesParameters& parameters,
                         const QString&                     groupName);

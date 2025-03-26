@@ -6,7 +6,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/image.hpp"
 
-// Thread used to publish a video
+// Thread used to publish a video as ROS topic
 // This thread also runs as a separate ROS node to enable the image messages publishing
 class PublishVideoThread : public BasicThread {
     Q_OBJECT
@@ -14,6 +14,7 @@ class PublishVideoThread : public BasicThread {
 public:
     explicit
     PublishVideoThread(const Parameters::PublishParameters& parameters,
+                       bool                                 useHardwareAcceleration,
                        QObject*                             parent = nullptr);
 
     void
@@ -24,6 +25,8 @@ private:
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr m_publisher;
 
     const Parameters::PublishParameters& m_parameters;
+
+    const bool m_useHardwareAcceleration;
 
     static constexpr int PROGRESS = 0;
 };

@@ -65,6 +65,7 @@ PublishImagesThread::run()
             cvBridge.toImageMsg(message);
 
             m_publisher->publish(message);
+            // Spin to publish the next frame
             rclcpp::spin_some(m_node);
 
             emit progressChanged("Publishing image " + QString::number(iterator + 1) + " of " + QString::number(frameCount) + "...", PROGRESS);

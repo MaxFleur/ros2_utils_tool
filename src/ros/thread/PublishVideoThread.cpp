@@ -8,10 +8,10 @@
 #include <cv_bridge/cv_bridge.h>
 #endif
 
-PublishVideoThread::PublishVideoThread(const Parameters::PublishParameters& parameters,
+PublishVideoThread::PublishVideoThread(const Parameters::PublishParameters& parameters, bool useHardwareAcceleration,
                                        QObject*                             parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),
-    m_parameters(parameters)
+    m_parameters(parameters), m_useHardwareAcceleration(useHardwareAcceleration)
 {
     m_node = std::make_shared<rclcpp::Node>("publish_video");
     m_publisher = m_node->create_publisher<sensor_msgs::msg::Image>(m_topicName, 10);
@@ -22,10 +22,10 @@ void
 PublishVideoThread::run()
 {
     auto videoCapture = cv::VideoCapture(m_sourceDirectory, cv::CAP_ANY, {
-        cv::CAP_PROP_HW_ACCELERATION, m_parameters.useHardwareAcceleration ? cv::VIDEO_ACCELERATION_ANY : cv::VIDEO_ACCELERATION_NONE
+        cv::CAP_PROP_HW_ACCELERATION, m_useHardwareAcceleration ? cv::VIDEO_ACCELERATION_ANY : cv::VIDEO_ACCELERATION_NONE
     });
     if (!videoCapture.isOpened()) {
-        emit openingCVInstanceFailed();
+        emit failed();
         return;
     }
 
@@ -65,6 +65,7 @@ PublishVideoThread::run()
         cvBridge.toImageMsg(message);
 
         m_publisher->publish(message);
+        // Spin node to publish the next frame
         rclcpp::spin_some(m_node);
 
         emit progressChanged("Publishing image " + QString::number(iterator + 1) + " of " + QString::number(frameCount) + "...", PROGRESS);

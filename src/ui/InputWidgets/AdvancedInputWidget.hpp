@@ -26,10 +26,10 @@ public:
 
 protected slots:
     virtual void
-    searchButtonPressed();
+    findSourceButtonPressed();
 
     void
-    targetLocationButtonPressed();
+    findTargetButtonPressed();
 
     virtual void
     okButtonPressed();

@@ -3,8 +3,8 @@
 #include <QSettings>
 
 template<typename T>
-concept SettingsParameter = std::same_as<T, int> || std::same_as<T, size_t> ||
-                            std::same_as<T, bool> || std::same_as<T, QString>;
+concept GeneralSettingsParameter = std::same_as<T, int> || std::same_as<T, unsigned int> || std::same_as<T, size_t> ||
+                                   std::same_as<T, bool> || std::same_as<T, QString>;
 
 // Basic settings, from which all other settings derive
 // Each setting as write and read functions. Read functions are called automatically
@@ -24,12 +24,28 @@ protected:
     read() = 0;
 
     // Called whenever we want to write values
+    // Variant without settings parameter
     template<typename T>
-    requires SettingsParameter<T>
+    requires GeneralSettingsParameter<T>
     void
-    setSettingsParameter(QSettings&     settings,
-                         T              parameter,
-                         const QString& identifier)
+    writeParameter(const QString& groupName,
+                   const QString& identifier,
+                   T              parameter)
+    {
+        QSettings settings;
+        settings.beginGroup(groupName);
+
+        writeParameter(settings, identifier, parameter);
+        settings.endGroup();
+    }
+
+    // Use predefined settings to write
+    template<typename T>
+    requires GeneralSettingsParameter<T>
+    void
+    writeParameter(QSettings&     settings,
+                   const QString& identifier,
+                   T              parameter)
     {
         if (settings.value(identifier).value<T>() == parameter) {
             return;
@@ -42,6 +58,45 @@ protected:
         } else {
             settings.setValue(identifier, parameter);
         }
+    }
+
+    // Read without settings parameter
+    template<typename T>
+    requires GeneralSettingsParameter<T>
+    T
+    readParameter(const QString& groupName,
+                  const QString& identifier,
+                  T              defaultValue)
+    {
+        QSettings settings;
+        settings.beginGroup(groupName);
+
+        const auto parameter = readParameter(settings, identifier, defaultValue);
+        settings.endGroup();
+
+        return parameter;
+    }
+
+    // Read based on stored type, using predefined settings
+    template<typename T>
+    requires GeneralSettingsParameter<T>
+    T
+    readParameter(QSettings&     settings,
+                  const QString& identifier,
+                  T              defaultValue)
+    {
+        T value;
+        if constexpr (std::is_same_v<T, int> || std::is_same_v<T, unsigned int> ) {
+            value = settings.value(identifier).isValid() ? settings.value(identifier).toInt() : defaultValue;
+        } else if constexpr (std::is_same_v<T, size_t>) {
+            value = settings.value(identifier).value<size_t>();
+        } else if constexpr (std::is_same_v<T, bool>) {
+            value = settings.value(identifier).isValid() ? settings.value(identifier).toBool() : defaultValue;
+        } else {
+            value = settings.value(identifier).isValid() ? settings.value(identifier).toString() : defaultValue;
+        }
+
+        return value;
     }
 
 protected:

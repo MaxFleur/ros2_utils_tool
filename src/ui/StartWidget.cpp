@@ -92,6 +92,8 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     m_mergeBagsButton = createToolButton("Merge Bags");
     m_dummyBagButton = createToolButton("Create\nDummy Bag");
     m_bagInfoButton = createToolButton("Get Infos\nfrom Bag");
+    m_compressBagButton = createToolButton("Compress\nBag");
+    m_decompressBagButton = createToolButton("Decompress\nBag");
 
     auto* const bagToolsUpperLayout = new QHBoxLayout;
     bagToolsUpperLayout->addStretch();
@@ -99,15 +101,22 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     bagToolsUpperLayout->addWidget(m_mergeBagsButton);
     bagToolsUpperLayout->addStretch();
 
+    auto* const bagToolsCenterLayout = new QHBoxLayout;
+    bagToolsCenterLayout->addStretch();
+    bagToolsCenterLayout->addWidget(m_dummyBagButton);
+    bagToolsCenterLayout->addWidget(m_bagInfoButton);
+    bagToolsCenterLayout->addStretch();
+
     auto* const bagToolsLowerLayout = new QHBoxLayout;
     bagToolsLowerLayout->addStretch();
-    bagToolsLowerLayout->addWidget(m_dummyBagButton);
-    bagToolsLowerLayout->addWidget(m_bagInfoButton);
+    bagToolsLowerLayout->addWidget(m_compressBagButton);
+    bagToolsLowerLayout->addWidget(m_decompressBagButton);
     bagToolsLowerLayout->addStretch();
 
     auto* const bagToolsMainLayout = new QVBoxLayout;
     bagToolsMainLayout->addStretch();
     bagToolsMainLayout->addLayout(bagToolsUpperLayout);
+    bagToolsMainLayout->addLayout(bagToolsCenterLayout);
     bagToolsMainLayout->addLayout(bagToolsLowerLayout);
     bagToolsMainLayout->addStretch();
 
@@ -136,8 +145,8 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     backButtonLayout->addWidget(m_backButton);
     backButtonLayout->addStretch();
 
-    m_versionLabel = new QLabel("v0.9.0");
-    m_versionLabel->setToolTip("Bag to pcds/pcds to bag tool and more error messages for CLI tools!");
+    m_versionLabel = new QLabel("v0.10.0");
+    m_versionLabel->setToolTip("Compression/Decompression tools and restructured UI settings!");
 
     auto* const versionLayout = new QHBoxLayout;
     versionLayout->addStretch();
@@ -211,6 +220,12 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     });
     connect(m_bagInfoButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_BAG_INFO);
+    });
+    connect(m_compressBagButton, &QPushButton::clicked, this, [this] {
+        emit toolRequested(Utils::UI::TOOL_COMPRESS_BAG);
+    });
+    connect(m_decompressBagButton, &QPushButton::clicked, this, [this] {
+        emit toolRequested(Utils::UI::TOOL_DECOMPRESS_BAG);
     });
     connect(m_publishVideoButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_PUBLISH_VIDEO);
@@ -311,6 +326,8 @@ StartWidget::setButtonIcons()
     m_mergeBagsButton->setIcon(QIcon(isDarkMode ? ":/icons/merge_bags_white.svg" : ":/icons/merge_bags_black.svg"));
     m_dummyBagButton->setIcon(QIcon(isDarkMode ? ":/icons/dummy_bag_white.svg" : ":/icons/dummy_bag_black.svg"));
     m_bagInfoButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_info_white.svg" : ":/icons/bag_info_black.svg"));
+    m_compressBagButton->setIcon(QIcon(isDarkMode ? ":/icons/compress_bag_white.svg" : ":/icons/compress_bag_black.svg"));
+    m_decompressBagButton->setIcon(QIcon(isDarkMode ? ":/icons/decompress_bag_white.svg" : ":/icons/decompress_bag_black.svg"));
 
     m_publishVideoButton->setIcon(QIcon(isDarkMode ? ":/icons/publish_video_white.svg" : ":/icons/publish_video_black.svg"));
     m_publishImagesButton->setIcon(QIcon(isDarkMode ? ":/icons/publish_images_white.svg" : ":/icons/publish_images_black.svg"));

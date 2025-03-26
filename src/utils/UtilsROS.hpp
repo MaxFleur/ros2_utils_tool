@@ -37,6 +37,10 @@ writeMessageToBag(T                    message,
 [[nodiscard]] bool
 doesDirectoryContainBagFile(const QString& bagDirectory);
 
+// If a directory contains a valid compressed ROS bag
+[[nodiscard]] bool
+doesDirectoryContainCompressedBagFile(const QString& bagDirectory);
+
 // If a ROS bag contains a certain topic
 [[nodiscard]] bool
 doesBagContainTopicName(const QString& bagDirectory,
@@ -65,7 +69,7 @@ getTopicType(const QString& bagDirectory,
 getFirstTopicWithCertainType(const QString& bagDirectory,
                              const QString& typeName);
 
-// Returns all video bag topics stored in a ROSBag
+// Returns all video bag topics stored in a ROS bag file
 [[nodiscard]] QVector<QString>
 getBagTopics(const QString& bagDirectory,
              const QString& topicType);

@@ -37,8 +37,8 @@ AdvancedInputWidget::AdvancedInputWidget(Parameters::AdvancedParameters& paramet
     }
 
     m_targetLineEdit = new QLineEdit(m_parameters.targetDirectory);
-    auto* const targetLocationButton = new QToolButton;
-    auto* const targetLocationLayout = Utils::UI::createLineEditButtonLayout(m_targetLineEdit, targetLocationButton);
+    auto* const findTargetButton = new QToolButton;
+    auto* const targetLocationLayout = Utils::UI::createLineEditButtonLayout(m_targetLineEdit, findTargetButton);
 
     m_basicOptionsFormLayout = new QFormLayout;
     m_basicOptionsFormLayout->addRow(sourceFormLayoutName, m_findSourceLayout);
@@ -64,20 +64,20 @@ AdvancedInputWidget::AdvancedInputWidget(Parameters::AdvancedParameters& paramet
 
     auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
 
-    connect(m_findSourceButton, &QPushButton::clicked, this, &AdvancedInputWidget::searchButtonPressed);
+    connect(m_findSourceButton, &QPushButton::clicked, this, &AdvancedInputWidget::findSourceButtonPressed);
     connect(m_topicNameComboBox, &QComboBox::currentTextChanged, this, [this] (const QString& text) {
         writeParameterToSettings(m_parameters.topicName, text, m_settings);
     });
-    connect(targetLocationButton, &QPushButton::clicked, this, &AdvancedInputWidget::targetLocationButtonPressed);
+    connect(findTargetButton, &QPushButton::clicked, this, &AdvancedInputWidget::findTargetButtonPressed);
     connect(m_dialogButtonBox, &QDialogButtonBox::accepted, this, &AdvancedInputWidget::okButtonPressed);
     connect(okShortCut, &QShortcut::activated, this, &AdvancedInputWidget::okButtonPressed);
 }
 
 
 void
-AdvancedInputWidget::searchButtonPressed()
+AdvancedInputWidget::findSourceButtonPressed()
 {
-    const auto bagDirectory = QFileDialog::getExistingDirectory(this, "Open ROSBag", "", QFileDialog::ShowDirsOnly);
+    const auto bagDirectory = QFileDialog::getExistingDirectory(this, "Open Source Bag File", "", QFileDialog::ShowDirsOnly);
     if (bagDirectory.isEmpty()) {
         return;
     }
@@ -123,7 +123,7 @@ AdvancedInputWidget::searchButtonPressed()
 
 
 void
-AdvancedInputWidget::targetLocationButtonPressed()
+AdvancedInputWidget::findTargetButtonPressed()
 {
     QString fileName;
     switch (m_outputFormat) {

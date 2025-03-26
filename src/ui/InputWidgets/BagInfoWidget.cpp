@@ -18,7 +18,7 @@ BagInfoWidget::BagInfoWidget(QWidget *parent) :
     BasicInputWidget("Get Infos from Bag", ":/icons/bag_info", parent)
 {
     auto* const bagLineEdit = new QLineEdit();
-    bagLineEdit->setToolTip("The directory of the ROSBag source file.");
+    bagLineEdit->setToolTip("The source bag file directory.");
 
     auto* const formLayout = new QFormLayout;
     formLayout->addRow("Bag File:", m_findSourceLayout);
@@ -65,7 +65,7 @@ BagInfoWidget::BagInfoWidget(QWidget *parent) :
 void
 BagInfoWidget::displayBagInfo()
 {
-    const auto bagDirectory = QFileDialog::getExistingDirectory(this, "Open ROSBag", "",
+    const auto bagDirectory = QFileDialog::getExistingDirectory(this, "Open Source Bag File", "",
                                                                 QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     if (bagDirectory.isEmpty()) {
         return;

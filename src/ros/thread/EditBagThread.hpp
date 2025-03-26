@@ -9,6 +9,7 @@ class EditBagThread : public BasicThread {
 public:
     explicit
     EditBagThread(const Parameters::EditBagParameters& parameters,
+                  unsigned int                         numberOfThreads,
                   QObject*                             parent = nullptr);
 
     void
@@ -16,4 +17,6 @@ public:
 
 private:
     const Parameters::EditBagParameters& m_parameters;
+
+    const unsigned int m_numberOfThreads;
 };

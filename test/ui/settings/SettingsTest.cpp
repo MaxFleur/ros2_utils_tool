@@ -5,12 +5,16 @@
 #include "BagToVideoSettings.hpp"
 #include "BasicSettings.hpp"
 #include "DialogSettings.hpp"
+#include "CompressBagSettings.hpp"
+#include "DeleteSourceSettings.hpp"
 #include "DummyBagSettings.hpp"
 #include "EditBagSettings.hpp"
 #include "MergeBagsSettings.hpp"
 #include "Parameters.hpp"
 #include "PCDsToBagSettings.hpp"
 #include "PublishSettings.hpp"
+#include "RGBSettings.hpp"
+#include "VideoSettings.hpp"
 #include "VideoToBagSettings.hpp"
 
 #include <QSettings>
@@ -21,16 +25,6 @@ TEST_CASE("Settings Testing", "[ui]") {
     qSettings.setValue("save_parameters", true);
     qSettings.endGroup();
 
-    SECTION("Concept Test") {
-        REQUIRE(SettingsParameter<int>);
-        REQUIRE(SettingsParameter<bool>);
-        REQUIRE(SettingsParameter<QString>);
-
-        REQUIRE(!SettingsParameter<float>);
-        REQUIRE(!SettingsParameter<double>);
-        REQUIRE(!SettingsParameter<char>);
-        REQUIRE(!SettingsParameter<std::string>);
-    }
     SECTION("Input Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("basic");
@@ -51,153 +45,6 @@ TEST_CASE("Settings Testing", "[ui]") {
             REQUIRE(qSettings.value("topic_name").isValid());
             REQUIRE(qSettings.value("source_dir").toString() == "/source/dir");
             REQUIRE(qSettings.value("topic_name").toString() == "/test_topic_name");
-            qSettings.endGroup();
-        }
-    }
-    SECTION("Advanced Input Params Test") {
-        SECTION("Read") {
-            qSettings.beginGroup("advanced");
-            REQUIRE(!qSettings.value("target_dir").isValid());
-            qSettings.endGroup();
-        }
-        SECTION("Write") {
-            Parameters::AdvancedParameters parameters;
-            AdvancedSettings settings(parameters, "advanced");
-
-            parameters.targetDirectory = "/target/dir";
-            settings.write();
-
-            qSettings.beginGroup("advanced");
-            REQUIRE(qSettings.value("target_dir").isValid());
-            REQUIRE(qSettings.value("target_dir").toString() == "/target/dir");
-            qSettings.endGroup();
-        }
-    }
-    SECTION("Bag to Images Params Test") {
-        SECTION("Read") {
-            qSettings.beginGroup("images");
-            REQUIRE(!qSettings.value("format").isValid());
-            REQUIRE(!qSettings.value("quality").isValid());
-            REQUIRE(!qSettings.value("switch_red_blue").isValid());
-            REQUIRE(!qSettings.value("bw_images").isValid());
-            REQUIRE(!qSettings.value("jpg_optimize").isValid());
-            REQUIRE(!qSettings.value("png_bilevel").isValid());
-            qSettings.endGroup();
-        }
-        SECTION("Write") {
-            Parameters::BagToImagesParameters parameters;
-            BagToImagesSettings settings(parameters, "images");
-
-            parameters.format = "jpg";
-            parameters.quality = 10;
-            parameters.exchangeRedBlueValues = true;
-            parameters.useBWImages = true;
-            parameters.jpgOptimize = true;
-            parameters.pngBilevel = true;
-            settings.write();
-
-            qSettings.beginGroup("images");
-            REQUIRE(qSettings.value("format").isValid());
-            REQUIRE(qSettings.value("format").toString() == "jpg");
-            REQUIRE(qSettings.value("quality").isValid());
-            REQUIRE(qSettings.value("quality").toInt() == 10);
-            REQUIRE(qSettings.value("switch_red_blue").isValid());
-            REQUIRE(qSettings.value("switch_red_blue").toBool() == true);
-            REQUIRE(qSettings.value("bw_images").isValid());
-            REQUIRE(qSettings.value("bw_images").toBool() == true);
-            REQUIRE(qSettings.value("jpg_optimize").isValid());
-            REQUIRE(qSettings.value("jpg_optimize").toBool() == true);
-            REQUIRE(qSettings.value("png_bilevel").isValid());
-            REQUIRE(qSettings.value("png_bilevel").toBool() == true);
-            qSettings.endGroup();
-        }
-    }
-    SECTION("Bag to Video Params Test") {
-        SECTION("Read") {
-            qSettings.beginGroup("video");
-            REQUIRE(!qSettings.value("format").isValid());
-            REQUIRE(!qSettings.value("fps").isValid());
-            REQUIRE(!qSettings.value("hw_acc").isValid());
-            REQUIRE(!qSettings.value("switch_red_blue").isValid());
-            REQUIRE(!qSettings.value("bw_images").isValid());
-            REQUIRE(!qSettings.value("lossless_images").isValid());
-            qSettings.endGroup();
-        }
-        SECTION("Write") {
-            Parameters::BagToVideoParameters parameters;
-            BagToVideoSettings settings(parameters, "video");
-
-            parameters.format = "mkv";
-            parameters.fps = 20;
-            parameters.useHardwareAcceleration = true;
-            parameters.exchangeRedBlueValues = true;
-            parameters.useBWImages = true;
-            parameters.lossless = true;
-            settings.write();
-
-            qSettings.beginGroup("video");
-            REQUIRE(qSettings.value("format").isValid());
-            REQUIRE(qSettings.value("format").toString() == "mkv");
-            REQUIRE(qSettings.value("fps").isValid());
-            REQUIRE(qSettings.value("fps").toInt() == 20);
-            REQUIRE(qSettings.value("hw_acc").isValid());
-            REQUIRE(qSettings.value("hw_acc").toBool() == true);
-            REQUIRE(qSettings.value("switch_red_blue").isValid());
-            REQUIRE(qSettings.value("switch_red_blue").toBool() == true);
-            REQUIRE(qSettings.value("bw_images").isValid());
-            REQUIRE(qSettings.value("bw_images").toBool() == true);
-            REQUIRE(qSettings.value("lossless_images").isValid());
-            REQUIRE(qSettings.value("lossless_images").toBool() == true);
-            qSettings.endGroup();
-        }
-    }
-    SECTION("Video to Bag Params Test") {
-        SECTION("Read") {
-            qSettings.beginGroup("pcds_to_bag");
-            REQUIRE(!qSettings.value("rate").isValid());
-            qSettings.endGroup();
-        }
-        SECTION("Write") {
-            Parameters::PCDsToBagParameters parameters;
-            PCDsToBagSettings settings(parameters, "pcds_to_bag");
-
-            parameters.rate = 10;
-            settings.write();
-
-            qSettings.beginGroup("pcds_to_bag");
-            REQUIRE(qSettings.value("rate").isValid());
-            REQUIRE(qSettings.value("rate").toInt() == 10);
-            qSettings.endGroup();
-        }
-    }
-    SECTION("Video to Bag Params Test") {
-        SECTION("Read") {
-            qSettings.beginGroup("bag");
-            REQUIRE(!qSettings.value("fps").isValid());
-            REQUIRE(!qSettings.value("custom_fps").isValid());
-            REQUIRE(!qSettings.value("hw_acc").isValid());
-            REQUIRE(!qSettings.value("switch_red_blue").isValid());
-            qSettings.endGroup();
-        }
-        SECTION("Write") {
-            Parameters::VideoToBagParameters parameters;
-            VideoToBagSettings settings(parameters, "bag");
-
-            parameters.fps = 40;
-            parameters.useCustomFPS = true;
-            parameters.useHardwareAcceleration = true;
-            parameters.exchangeRedBlueValues = true;
-            settings.write();
-
-            qSettings.beginGroup("bag");
-            REQUIRE(qSettings.value("fps").isValid());
-            REQUIRE(qSettings.value("fps").toInt() == 40);
-            REQUIRE(qSettings.value("custom_fps").isValid());
-            REQUIRE(qSettings.value("custom_fps").toBool() == true);
-            REQUIRE(qSettings.value("hw_acc").isValid());
-            REQUIRE(qSettings.value("hw_acc").toBool() == true);
-            REQUIRE(qSettings.value("switch_red_blue").isValid());
-            REQUIRE(qSettings.value("switch_red_blue").toBool() == true);
             qSettings.endGroup();
         }
     }
@@ -231,6 +78,30 @@ TEST_CASE("Settings Testing", "[ui]") {
             REQUIRE(size == 1);
             qSettings.endArray();
 
+            qSettings.endGroup();
+        }
+    }
+
+    SECTION("Advanced Input Params Test") {
+        SECTION("Read") {
+            qSettings.beginGroup("advanced");
+            REQUIRE(!qSettings.value("target_dir").isValid());
+            REQUIRE(!qSettings.value("show_advanced").isValid());
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Parameters::AdvancedParameters parameters;
+            AdvancedSettings settings(parameters, "advanced");
+
+            parameters.targetDirectory = "/target/dir";
+            parameters.showAdvancedOptions = true;
+            settings.write();
+
+            qSettings.beginGroup("advanced");
+            REQUIRE(qSettings.value("target_dir").isValid());
+            REQUIRE(qSettings.value("target_dir").toString() == "/target/dir");
+            REQUIRE(qSettings.value("show_advanced").isValid());
+            REQUIRE(qSettings.value("show_advanced").toBool() == true);
             qSettings.endGroup();
         }
     }
@@ -269,11 +140,49 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
     }
+    SECTION("PCDs to Bag Params Test") {
+        SECTION("Read") {
+            qSettings.beginGroup("pcds_to_bag");
+            REQUIRE(!qSettings.value("rate").isValid());
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Parameters::PCDsToBagParameters parameters;
+            PCDsToBagSettings settings(parameters, "pcds_to_bag");
+
+            parameters.rate = 10;
+            settings.write();
+
+            qSettings.beginGroup("pcds_to_bag");
+            REQUIRE(qSettings.value("rate").isValid());
+            REQUIRE(qSettings.value("rate").toInt() == 10);
+            qSettings.endGroup();
+        }
+    }
+
+    SECTION("Delete Source Input Params Test") {
+        SECTION("Read") {
+            qSettings.beginGroup("delete_source_param");
+            REQUIRE(!qSettings.value("delete_source").isValid());
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Parameters::EditBagParameters parameters;
+            EditBagSettings settings(parameters, "delete_source_param");
+
+            parameters.deleteSource = true;
+            settings.write();
+
+            qSettings.beginGroup("delete_source_param");
+            REQUIRE(qSettings.value("delete_source").isValid());
+            REQUIRE(qSettings.value("delete_source").toBool() == true);
+            qSettings.endGroup();
+        }
+    }
     SECTION("Edit Bag Input Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("edit");
             REQUIRE(!qSettings.value("topics").isValid());
-            REQUIRE(!qSettings.value("delete_source").isValid());
             REQUIRE(!qSettings.value("update_timestamps").isValid());
             qSettings.endGroup();
         }
@@ -287,8 +196,6 @@ TEST_CASE("Settings Testing", "[ui]") {
             settings.write();
 
             qSettings.beginGroup("edit");
-            REQUIRE(qSettings.value("delete_source").isValid());
-            REQUIRE(qSettings.value("delete_source").toBool() == true);
             REQUIRE(qSettings.value("update_timestamps").isValid());
             REQUIRE(qSettings.value("update_timestamps").toBool() == true);
 
@@ -312,15 +219,155 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
     }
+    SECTION("Compress Bag Params Test") {
+        SECTION("Read") {
+            qSettings.beginGroup("compress_bag");
+            REQUIRE(!qSettings.value("compress_per_message").isValid());
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Parameters::CompressBagParameters parameters;
+            CompressBagSettings settings(parameters, "compress_bag");
+
+            parameters.compressPerMessage = true;
+            parameters.deleteSource = true;
+            settings.write();
+
+            qSettings.beginGroup("compress_bag");
+            REQUIRE(qSettings.value("compress_per_message").isValid());
+            REQUIRE(qSettings.value("compress_per_message").toBool() == true);
+            REQUIRE(qSettings.value("delete_source").isValid());
+            REQUIRE(qSettings.value("delete_source").toBool() == true);
+            qSettings.endGroup();
+        }
+    }
+
+    SECTION("RGB Params Test") {
+        SECTION("Read") {
+            qSettings.beginGroup("rgb");
+            REQUIRE(!qSettings.value("switch_red_blue").isValid());
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Parameters::RGBParameters parameters;
+            RGBSettings settings(parameters, "rgb");
+
+            parameters.exchangeRedBlueValues = true;
+            settings.write();
+
+            qSettings.beginGroup("rgb");
+            REQUIRE(qSettings.value("switch_red_blue").isValid());
+            REQUIRE(qSettings.value("switch_red_blue").toBool() == true);
+            qSettings.endGroup();
+        }
+    }
+    SECTION("Bag to Images Params Test") {
+        SECTION("Read") {
+            qSettings.beginGroup("images");
+            REQUIRE(!qSettings.value("format").isValid());
+            REQUIRE(!qSettings.value("quality").isValid());
+            REQUIRE(!qSettings.value("bw_images").isValid());
+            REQUIRE(!qSettings.value("jpg_optimize").isValid());
+            REQUIRE(!qSettings.value("png_bilevel").isValid());
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Parameters::BagToImagesParameters parameters;
+            BagToImagesSettings settings(parameters, "images");
+
+            parameters.format = "jpg";
+            parameters.quality = 10;
+            parameters.useBWImages = true;
+            parameters.jpgOptimize = true;
+            parameters.pngBilevel = true;
+            settings.write();
+
+            qSettings.beginGroup("images");
+            REQUIRE(qSettings.value("format").isValid());
+            REQUIRE(qSettings.value("format").toString() == "jpg");
+            REQUIRE(qSettings.value("quality").isValid());
+            REQUIRE(qSettings.value("quality").toInt() == 10);
+            REQUIRE(qSettings.value("bw_images").isValid());
+            REQUIRE(qSettings.value("bw_images").toBool() == true);
+            REQUIRE(qSettings.value("jpg_optimize").isValid());
+            REQUIRE(qSettings.value("jpg_optimize").toBool() == true);
+            REQUIRE(qSettings.value("png_bilevel").isValid());
+            REQUIRE(qSettings.value("png_bilevel").toBool() == true);
+            qSettings.endGroup();
+        }
+    }
+
+    SECTION("Video Params Test") {
+        SECTION("Read") {
+            qSettings.beginGroup("video");
+            REQUIRE(!qSettings.value("fps").isValid());
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Parameters::VideoParameters parameters;
+            VideoSettings settings(parameters, "video");
+
+            parameters.fps = 15;
+            settings.write();
+
+            qSettings.beginGroup("video");
+            REQUIRE(qSettings.value("fps").isValid());
+            REQUIRE(qSettings.value("fps").toInt() == 15);
+            qSettings.endGroup();
+        }
+    }
+    SECTION("Bag to Video Params Test") {
+        SECTION("Read") {
+            qSettings.beginGroup("video");
+            REQUIRE(!qSettings.value("format").isValid());
+            REQUIRE(!qSettings.value("bw_images").isValid());
+            REQUIRE(!qSettings.value("lossless_images").isValid());
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Parameters::BagToVideoParameters parameters;
+            BagToVideoSettings settings(parameters, "video");
+
+            parameters.format = "mkv";
+            parameters.useBWImages = true;
+            parameters.lossless = true;
+            settings.write();
+
+            qSettings.beginGroup("video");
+            REQUIRE(qSettings.value("format").isValid());
+            REQUIRE(qSettings.value("format").toString() == "mkv");
+            REQUIRE(qSettings.value("bw_images").isValid());
+            REQUIRE(qSettings.value("bw_images").toBool() == true);
+            REQUIRE(qSettings.value("lossless_images").isValid());
+            REQUIRE(qSettings.value("lossless_images").toBool() == true);
+            qSettings.endGroup();
+        }
+    }
+    SECTION("Video to Bag Params Test") {
+        SECTION("Read") {
+            qSettings.beginGroup("bag");
+            REQUIRE(!qSettings.value("custom_fps").isValid());
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Parameters::VideoToBagParameters parameters;
+            VideoToBagSettings settings(parameters, "bag");
+
+            parameters.useCustomFPS = true;
+            settings.write();
+
+            qSettings.beginGroup("bag");
+            REQUIRE(qSettings.value("custom_fps").isValid());
+            REQUIRE(qSettings.value("custom_fps").toBool() == true);
+            qSettings.endGroup();
+        }
+    }
     SECTION("Publish Settings Test") {
         SECTION("Read") {
             qSettings.beginGroup("publish");
-            REQUIRE(!qSettings.value("fps").isValid());
             REQUIRE(!qSettings.value("width").isValid());
             REQUIRE(!qSettings.value("height").isValid());
-            REQUIRE(!qSettings.value("switch_red_blue").isValid());
             REQUIRE(!qSettings.value("loop").isValid());
-            REQUIRE(!qSettings.value("hw_acc").isValid());
             REQUIRE(!qSettings.value("scale").isValid());
             qSettings.endGroup();
         }
@@ -328,37 +375,32 @@ TEST_CASE("Settings Testing", "[ui]") {
             Parameters::PublishParameters parameters;
             PublishSettings settings(parameters, "publish");
 
-            parameters.fps = 40;
             parameters.width = 1280;
             parameters.height = 720;
-            parameters.exchangeRedBlueValues = true;
             parameters.loop = true;
-            parameters.useHardwareAcceleration = true;
             parameters.scale = true;
             settings.write();
 
             qSettings.beginGroup("publish");
-            REQUIRE(qSettings.value("fps").isValid());
-            REQUIRE(qSettings.value("fps").toInt() == 40);
             REQUIRE(qSettings.value("width").isValid());
             REQUIRE(qSettings.value("width").toInt() == 1280);
             REQUIRE(qSettings.value("height").isValid());
             REQUIRE(qSettings.value("height").toInt() == 720);
-            REQUIRE(qSettings.value("switch_red_blue").isValid());
-            REQUIRE(qSettings.value("switch_red_blue").toBool() == true);
             REQUIRE(qSettings.value("loop").isValid());
             REQUIRE(qSettings.value("loop").toBool() == true);
-            REQUIRE(qSettings.value("hw_acc").isValid());
-            REQUIRE(qSettings.value("hw_acc").toBool() == true);
             REQUIRE(qSettings.value("scale").isValid());
             REQUIRE(qSettings.value("scale").toBool() == true);
             qSettings.endGroup();
         }
     }
+
     SECTION("Dialog Settings Test") {
+        qSettings.clear();
+
         SECTION("Read") {
-            qSettings.clear();
             qSettings.beginGroup("dialog");
+            REQUIRE(!qSettings.value("max_threads").isValid());
+            REQUIRE(!qSettings.value("hw_acc").isValid());
             REQUIRE(!qSettings.value("save_parameters").isValid());
             REQUIRE(!qSettings.value("predefined_topic_names").isValid());
             REQUIRE(!qSettings.value("check_ros2_naming_convention").isValid());
@@ -368,19 +410,30 @@ TEST_CASE("Settings Testing", "[ui]") {
             Parameters::DialogParameters parameters;
             DialogSettings settings(parameters, "dialog");
 
-            parameters.usePredefinedTopicNames = false;
+            parameters.maxNumberOfThreads = 4;
+            parameters.useHardwareAcceleration = true;
             parameters.saveParameters = true;
+            parameters.usePredefinedTopicNames = true;
             parameters.checkROS2NameConform = true;
             settings.write();
 
             qSettings.beginGroup("dialog");
+            REQUIRE(qSettings.value("max_threads").isValid());
+            REQUIRE(qSettings.value("max_threads").toInt() == 4);
+            REQUIRE(qSettings.value("hw_acc").isValid());
+            REQUIRE(qSettings.value("hw_acc").toBool() == true);
             REQUIRE(qSettings.value("save_parameters").isValid());
             REQUIRE(qSettings.value("save_parameters").toBool() == true);
             REQUIRE(qSettings.value("predefined_topic_names").isValid());
-            REQUIRE(qSettings.value("predefined_topic_names").toBool() == false);
+            REQUIRE(qSettings.value("predefined_topic_names").toBool() == true);
             REQUIRE(qSettings.value("check_ros2_naming_convention").isValid());
             REQUIRE(qSettings.value("check_ros2_naming_convention").toBool() == true);
             qSettings.endGroup();
+
+            // Static functions
+            REQUIRE(DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()) == 4);
+            REQUIRE(DialogSettings::getStaticParameter("hw_acc", false) == true);
+            REQUIRE(DialogSettings::getStaticParameter("save_parameters", false) == true);
         }
     }
 

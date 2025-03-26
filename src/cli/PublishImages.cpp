@@ -15,7 +15,7 @@
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_publish_images path/to/video\n" << std::endl;
+    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_publish_images path/to/images\n" << std::endl;
     std::cout << "The images must have format jpg, png or bmp." << std::endl;
     std::cout << "Additional parameters:" << std::endl;
     std::cout << "-t or --topic_name: Topic name. If this is empty, the name '/topic_video' will be taken.\n" << std::endl;
@@ -46,7 +46,7 @@ main(int argc, char* argv[])
 
     Parameters::PublishParameters parameters;
 
-    // Video directory
+    // Images directory
     parameters.sourceDirectory = arguments.at(1);
     if (!std::filesystem::exists(parameters.sourceDirectory.toStdString())) {
         std::cerr << "The images directory does not exist. Please enter a valid images path!" << std::endl;
@@ -99,14 +99,14 @@ main(int argc, char* argv[])
 
     // Create thread and connect to its informations
     auto* const publishImagesThread = new PublishImagesThread(parameters);
-    QObject::connect(publishImagesThread, &PublishImagesThread::openingCVInstanceFailed, [] {
-        std::cerr << "Images publishing failed. Please make sure that the video file is valid and disable the hardware acceleration, if necessary." << std::endl;
-        return 0;
-    });
     QObject::connect(publishImagesThread, &PublishImagesThread::progressChanged, [] (const QString& progressString, int /* progress */) {
         std::cout << progressString.toStdString() << "\r" << std::flush;
     });
     QObject::connect(publishImagesThread, &PublishImagesThread::finished, publishImagesThread, &QObject::deleteLater);
+    QObject::connect(publishImagesThread, &PublishImagesThread::failed, [] {
+        std::cerr << "Images publishing failed. Please make sure that the video file is valid and disable the hardware acceleration, if necessary." << std::endl;
+        return 0;
+    });
 
     signal(SIGINT, [] (int signal) {
         signalStatus = signal;

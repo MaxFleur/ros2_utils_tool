@@ -3,6 +3,7 @@
 #include "BagToImagesThread.hpp"
 #include "BagToPCDsThread.hpp"
 #include "BagToVideoThread.hpp"
+#include "ChangeCompressionBagThread.hpp"
 #include "DummyBagThread.hpp"
 #include "EditBagThread.hpp"
 #include "MergeBagsThread.hpp"
@@ -64,6 +65,59 @@ getDirFileCountWithExtensions(const std::string& dir, const std::string& extensi
 }
 
 
+template<typename T>
+concept MessageType = std::same_as<T, std_msgs::msg::Int32> || std::same_as<T, std_msgs::msg::String> ||
+                      std::same_as<T, sensor_msgs::msg::PointCloud2>;
+
+// Verify all messages of string, int or point cloud type inside an input bag file
+template<typename T>
+requires MessageType<T>
+void
+verifyMessages(const std::string& bagDirectory, const std::string& topicName,
+               rclcpp::Serialization<T>& serialization, int startValue)
+{
+    rosbag2_cpp::Reader reader;
+    reader.open(bagDirectory);
+
+    auto index = startValue;
+    while (reader.has_next()) {
+        auto msg = reader.read_next();
+
+        if (msg->topic_name != topicName) {
+            continue;
+        }
+
+        rclcpp::SerializedMessage serializedMessage(*msg->serialized_data);
+        auto rosMsg = std::make_shared<T>();
+        serialization.deserialize_message(&serializedMessage, rosMsg.get());
+
+        if constexpr (std::is_same_v<T, std_msgs::msg::Int32>) {
+            REQUIRE(rosMsg->data == index + 1);
+        } else if constexpr (std::is_same_v<T, std_msgs::msg::String>) {
+            REQUIRE(rosMsg->data == "Message " + std::to_string(index + 1));
+        } else {
+            pcl::PointCloud<pcl::PointXYZRGB>::Ptr fileCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+            pcl::PointCloud<pcl::PointXYZRGB>::Ptr messageCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+
+            pcl::fromROSMsg(*rosMsg, *messageCloud);
+            std::stringstream formatedIterationCount;
+            formatedIterationCount << std::setw(3) << std::setfill('0') << index + 1;
+            pcl::io::loadPCDFile<pcl::PointXYZRGB>("./pcds/" + formatedIterationCount.str() + ".pcd", *fileCloud);
+
+            REQUIRE_THAT(fileCloud->at(0).x, Catch::Matchers::WithinAbs(messageCloud->at(0).x, 0.001));
+            REQUIRE_THAT(fileCloud->at(0).y, Catch::Matchers::WithinAbs(messageCloud->at(0).y, 0.001));
+            REQUIRE_THAT(fileCloud->at(0).z, Catch::Matchers::WithinAbs(messageCloud->at(0).z, 0.001));
+            REQUIRE_THAT(fileCloud->at(0).r, Catch::Matchers::WithinAbs(messageCloud->at(0).r, 0.001));
+            REQUIRE_THAT(fileCloud->at(0).g, Catch::Matchers::WithinAbs(messageCloud->at(0).g, 0.001));
+            REQUIRE_THAT(fileCloud->at(0).b, Catch::Matchers::WithinAbs(messageCloud->at(0).b, 0.001));
+        }
+
+        index++;
+    }
+    reader.close();
+}
+
+
 TEST_CASE("Threads Testing", "[threads]") {
     auto shouldDelete = false;
 
@@ -76,7 +130,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.topics.push_back({ "String", "/dummy_string" });
         parameters.topics.push_back({ "Point Cloud", "/dummy_points" });
 
-        auto* const thread = new DummyBagThread(parameters);
+        auto* const thread = new DummyBagThread(parameters, std::thread::hardware_concurrency());
         QObject::connect(thread, &DummyBagThread::finished, thread, &QObject::deleteLater);
 
         thread->start();
@@ -104,6 +158,12 @@ TEST_CASE("Threads Testing", "[threads]") {
         topicIndex = getTopicIndex(topics, "/dummy_points");
         REQUIRE(topicIndex < 4);
         REQUIRE(topics.at(topicIndex).topic_metadata.type == "sensor_msgs/msg/PointCloud2");
+
+        rclcpp::Serialization<std_msgs::msg::Int32> serializationInt;
+        rclcpp::Serialization<std_msgs::msg::String> serializationString;
+
+        verifyMessages("./dummy_bag", "/dummy_int", serializationInt, 0);
+        verifyMessages("./dummy_bag", "/dummy_string", serializationString, 0);
     }
     // Create edited bag out of dummy bag
     SECTION("Edit Bag Thread Test") {
@@ -113,9 +173,9 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.updateTimestamps = true;
         parameters.topics.push_back({ "", "/dummy_image", 0, 100, true });
         parameters.topics.push_back({ "", "/dummy_integer", 0, 200, false });
-        parameters.topics.push_back({ "/renamed_string", "/dummy_string", 0, 200, true });
+        parameters.topics.push_back({ "/renamed_string", "/dummy_string", 50, 150, true });
 
-        auto* const thread = new EditBagThread(parameters);
+        auto* const thread = new EditBagThread(parameters, std::thread::hardware_concurrency());
         QObject::connect(thread, &EditBagThread::finished, thread, &QObject::deleteLater);
 
         thread->start();
@@ -123,7 +183,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         }
 
         const auto& metadata = Utils::ROS::getBagMetadata("./edited_bag");
-        REQUIRE(metadata.message_count == 300);
+        REQUIRE(metadata.message_count == 200);
         const auto& topics = metadata.topics_with_message_count;
         REQUIRE(topics.size() == 2);
         auto topicIndex = getTopicIndex(topics, "/dummy_image");
@@ -133,7 +193,10 @@ TEST_CASE("Threads Testing", "[threads]") {
         topicIndex = getTopicIndex(topics, "/renamed_string");
         REQUIRE(topicIndex < 2);
         REQUIRE(topics.at(topicIndex).topic_metadata.type == "std_msgs/msg/String");
-        REQUIRE(topics.at(topicIndex).message_count == 200);
+        REQUIRE(topics.at(topicIndex).message_count == 100);
+
+        rclcpp::Serialization<std_msgs::msg::String> serializationString;
+        verifyMessages("./edited_bag", "/renamed_string", serializationString, 50);
     }
     // Merge edited and dummy bag
     SECTION("Merge Bags Thread Test") {
@@ -142,7 +205,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.secondSourceDirectory = "./edited_bag";
         parameters.targetDirectory = "./merged_bag";
 
-        auto* const thread = new MergeBagsThread(parameters);
+        auto* const thread = new MergeBagsThread(parameters, std::thread::hardware_concurrency());
         QObject::connect(thread, &MergeBagsThread::finished, thread, &QObject::deleteLater);
 
         SECTION("Unique Topics") {
@@ -154,7 +217,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             }
 
             const auto& metadata = Utils::ROS::getBagMetadata("./merged_bag");
-            REQUIRE(metadata.message_count == 400);
+            REQUIRE(metadata.message_count == 300);
             const auto& topics = metadata.topics_with_message_count;
             REQUIRE(topics.size() == 2);
             auto topicIndex = getTopicIndex(topics, "/dummy_integer");
@@ -164,7 +227,13 @@ TEST_CASE("Threads Testing", "[threads]") {
             topicIndex = getTopicIndex(topics, "/renamed_string");
             REQUIRE(topicIndex < 2);
             REQUIRE(topics.at(topicIndex).topic_metadata.type == "std_msgs/msg/String");
-            REQUIRE(topics.at(topicIndex).message_count == 200);
+            REQUIRE(topics.at(topicIndex).message_count == 100);
+
+            rclcpp::Serialization<std_msgs::msg::Int32> serializationInt;
+            rclcpp::Serialization<std_msgs::msg::String> serializationString;
+
+            verifyMessages("./merged_bag", "/dummy_integer", serializationInt, 0);
+            verifyMessages("./merged_bag", "/renamed_string", serializationString, 50);
         }
         // Assure that two topics of the same name, but from different bags will be merged into one topic
         SECTION("Merged Topics") {
@@ -178,20 +247,81 @@ TEST_CASE("Threads Testing", "[threads]") {
             }
 
             const auto& metadata = Utils::ROS::getBagMetadata("./merged_bag");
-            REQUIRE(metadata.message_count == 500);
+            REQUIRE(metadata.message_count == 400);
             const auto& topics = metadata.topics_with_message_count;
             REQUIRE(topics.size() == 2);
             auto topicIndex = getTopicIndex(topics, "/renamed_string");
             REQUIRE(topicIndex < 2);
             REQUIRE(topics.at(topicIndex).topic_metadata.type == "std_msgs/msg/String");
-            REQUIRE(topics.at(topicIndex).message_count == 200);
+            REQUIRE(topics.at(topicIndex).message_count == 100);
             topicIndex = getTopicIndex(topics, "/dummy_image");
             REQUIRE(topicIndex < 2);
             REQUIRE(topics.at(topicIndex).topic_metadata.type == "sensor_msgs/msg/Image");
             REQUIRE(topics.at(topicIndex).message_count == 300);
+
+            rclcpp::Serialization<std_msgs::msg::String> serializationString;
+            verifyMessages("./merged_bag", "/renamed_string", serializationString, 50);
         }
 
         std::filesystem::remove_all("./merged_bag");
+    }
+    // Compress Dummy Bag
+    SECTION("Compression/Decompression Tests") {
+        Parameters::CompressBagParameters parametersCompression;
+        parametersCompression.sourceDirectory = "./dummy_bag";
+        parametersCompression.targetDirectory = "./compressed_bag";
+        Parameters::CompressBagParameters parametersDecompression;
+        parametersDecompression.sourceDirectory = "./compressed_bag";
+        parametersDecompression.targetDirectory = "./decompressed_bag";
+
+        auto* const compressionThread = new ChangeCompressionBagThread(parametersCompression, std::thread::hardware_concurrency(), true);
+        auto* const decompressionThread = new ChangeCompressionBagThread(parametersDecompression, std::thread::hardware_concurrency(), false);
+        QObject::connect(compressionThread, &ChangeCompressionBagThread::finished, compressionThread, &QObject::deleteLater);
+        QObject::connect(decompressionThread, &ChangeCompressionBagThread::finished, decompressionThread, &QObject::deleteLater);
+
+        const auto checkForThread = [] (BasicThread* thread, const std::string& targetDirectory) {
+            thread->start();
+            while (!thread->isFinished()) {
+            }
+
+            rosbag2_storage::MetadataIo metaDataIO;
+            auto metadata = metaDataIO.read_metadata(targetDirectory);
+            REQUIRE(metadata.message_count == 800);
+            const auto& topics = metadata.topics_with_message_count;
+
+            REQUIRE(topics.size() == 4);
+            REQUIRE(topics.at(0).message_count == 200);
+            REQUIRE(topics.at(1).message_count == 200);
+            REQUIRE(topics.at(2).message_count == 200);
+            REQUIRE(topics.at(3).message_count == 200);
+
+            auto topicIndex = getTopicIndex(topics, "/dummy_image");
+            REQUIRE(topicIndex < 4);
+            REQUIRE(topics.at(topicIndex).topic_metadata.type == "sensor_msgs/msg/Image");
+            topicIndex = getTopicIndex(topics, "/dummy_string");
+            REQUIRE(topicIndex < 4);
+            REQUIRE(topics.at(topicIndex).topic_metadata.type == "std_msgs/msg/String");
+            topicIndex = getTopicIndex(topics, "/dummy_integer");
+            REQUIRE(topicIndex < 4);
+            REQUIRE(topics.at(topicIndex).topic_metadata.type == "std_msgs/msg/Int32");
+            topicIndex = getTopicIndex(topics, "/dummy_points");
+            REQUIRE(topicIndex < 4);
+            REQUIRE(topics.at(topicIndex).topic_metadata.type == "sensor_msgs/msg/PointCloud2");
+        };
+
+        SECTION("By File") {
+            checkForThread(compressionThread, "./compressed_bag");
+            checkForThread(decompressionThread, "./decompressed_bag");
+        }
+        SECTION("Per Message") {
+            parametersCompression.compressPerMessage = true;
+
+            checkForThread(compressionThread, "./compressed_bag");
+            checkForThread(decompressionThread, "./decompressed_bag");
+        }
+
+        std::filesystem::remove_all("./compressed_bag");
+        std::filesystem::remove_all("./decompressed_bag");
     }
 
     SECTION("Bag to Video Thread Test") {
@@ -200,7 +330,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.targetDirectory = "./video.mp4";
         parameters.topicName = "/dummy_image";
 
-        auto* const thread = new BagToVideoThread(parameters);
+        auto* const thread = new BagToVideoThread(parameters, false);
         QObject::connect(thread, &BagToVideoThread::finished, thread, &QObject::deleteLater);
 
         const auto performVideoCheck = [] (const std::string& fileExtension, int codec, int fps, int blueValue, int greenValue, int redValue) {
@@ -260,7 +390,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         rosbag2_cpp::Reader reader;
         rclcpp::Serialization<sensor_msgs::msg::Image> serialization;
 
-        auto* const thread = new VideoToBagThread(parameters);
+        auto* const thread = new VideoToBagThread(parameters, false);
         QObject::connect(thread, &VideoToBagThread::finished, thread, &QObject::deleteLater);
 
         const auto performBagCheck = [&reader, &serialization] (unsigned int width, unsigned int height,
@@ -315,7 +445,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             if (thread) {
                 delete thread;
             }
-            auto* const thread = new VideoToBagThread(parameters);
+            auto* const thread = new VideoToBagThread(parameters, false);
             QObject::connect(thread, &VideoToBagThread::finished, thread, &QObject::deleteLater);
 
             thread->start();
@@ -347,7 +477,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             REQUIRE(static_cast<int>(color[2]) == valueRed);
         };
 
-        auto* const thread = new BagToImagesThread(parameters);
+        auto* const thread = new BagToImagesThread(parameters, std::thread::hardware_concurrency());
         QObject::connect(thread, &BagToImagesThread::finished, thread, &QObject::deleteLater);
 
         SECTION("Default Parameter Values") {
@@ -384,7 +514,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.targetDirectory = "./pcds";
         parameters.topicName = "/dummy_points";
 
-        auto* const thread = new BagToPCDsThread(parameters);
+        auto* const thread = new BagToPCDsThread(parameters, std::thread::hardware_concurrency());
         QObject::connect(thread, &BagToPCDsThread::finished, thread, &QObject::deleteLater);
 
         thread->start();
@@ -395,40 +525,8 @@ TEST_CASE("Threads Testing", "[threads]") {
         REQUIRE(extensionCheckValues[0] == 200);
         REQUIRE(extensionCheckValues[1] == 200);
 
-        pcl::PointCloud<pcl::PointXYZRGB>::Ptr fileCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-        // Read the value of a point cloud in between
-        // Compare the file with the message still inside the bag
-        pcl::io::loadPCDFile<pcl::PointXYZRGB>("./pcds/100.pcd", *fileCloud);
-        pcl::PointCloud<pcl::PointXYZRGB>::Ptr messageCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-
-        rosbag2_cpp::Reader reader;
-        reader.open("./dummy_bag");
         rclcpp::Serialization<sensor_msgs::msg::PointCloud2> serialization;
-        auto i = 0;
-        while (reader.has_next()) {
-            auto msg = reader.read_next();
-            if (msg->topic_name != "/dummy_points") {
-                continue;
-            }
-            if (i == 99) {
-                rclcpp::SerializedMessage serializedMessage(*msg->serialized_data);
-                auto rosMsg = std::make_shared<sensor_msgs::msg::PointCloud2>();
-                serialization.deserialize_message(&serializedMessage, rosMsg.get());
-                pcl::fromROSMsg(*rosMsg, *messageCloud);
-                break;
-            }
-
-            i++;
-        }
-
-        REQUIRE_THAT(fileCloud->at(0).x, Catch::Matchers::WithinAbs(messageCloud->at(0).x, 0.001));
-        REQUIRE_THAT(fileCloud->at(0).y, Catch::Matchers::WithinAbs(messageCloud->at(0).y, 0.001));
-        REQUIRE_THAT(fileCloud->at(0).z, Catch::Matchers::WithinAbs(messageCloud->at(0).z, 0.001));
-        REQUIRE_THAT(fileCloud->at(0).r, Catch::Matchers::WithinAbs(messageCloud->at(0).r, 0.001));
-        REQUIRE_THAT(fileCloud->at(0).g, Catch::Matchers::WithinAbs(messageCloud->at(0).g, 0.001));
-        REQUIRE_THAT(fileCloud->at(0).b, Catch::Matchers::WithinAbs(messageCloud->at(0).b, 0.001));
-
-        reader.close();
+        verifyMessages("./dummy_bag", "/dummy_points", serialization, 0);
     }
     SECTION("PCD to Bag Thread Test") {
         Parameters::PCDsToBagParameters parameters;
@@ -437,7 +535,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.topicName = "/point_clouds_are_awesome";
         parameters.rate = 2;
 
-        auto* const thread = new PCDsToBagThread(parameters);
+        auto* const thread = new PCDsToBagThread(parameters, std::thread::hardware_concurrency());
         QObject::connect(thread, &PCDsToBagThread::finished, thread, &QObject::deleteLater);
 
         thread->start();
@@ -451,37 +549,9 @@ TEST_CASE("Threads Testing", "[threads]") {
         REQUIRE(topics.at(0).topic_metadata.name == "/point_clouds_are_awesome");
         REQUIRE(topics.at(0).message_count == 200);
 
-        pcl::PointCloud<pcl::PointXYZRGB>::Ptr fileCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-        // Read the values using a stored point cloud
-        // Compare the file with a message inside the newly created bag
-        pcl::io::loadPCDFile<pcl::PointXYZRGB>("./pcds/100.pcd", *fileCloud);
-        pcl::PointCloud<pcl::PointXYZRGB>::Ptr messageCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-
-        rosbag2_cpp::Reader reader;
-        reader.open("./bag_pcd");
         rclcpp::Serialization<sensor_msgs::msg::PointCloud2> serialization;
-        auto i = 0;
-        while (reader.has_next()) {
-            auto msg = reader.read_next();
-            if (i == 99) {
-                rclcpp::SerializedMessage serializedMessage(*msg->serialized_data);
-                auto rosMsg = std::make_shared<sensor_msgs::msg::PointCloud2>();
-                serialization.deserialize_message(&serializedMessage, rosMsg.get());
-                pcl::fromROSMsg(*rosMsg, *messageCloud);
-                break;
-            }
+        verifyMessages("./bag_pcd", "/point_clouds_are_awesome", serialization, 0);
 
-            i++;
-        }
-
-        REQUIRE_THAT(fileCloud->at(0).x, Catch::Matchers::WithinAbs(messageCloud->at(0).x, 0.001));
-        REQUIRE_THAT(fileCloud->at(0).y, Catch::Matchers::WithinAbs(messageCloud->at(0).y, 0.001));
-        REQUIRE_THAT(fileCloud->at(0).z, Catch::Matchers::WithinAbs(messageCloud->at(0).z, 0.001));
-        REQUIRE_THAT(fileCloud->at(0).r, Catch::Matchers::WithinAbs(messageCloud->at(0).r, 0.001));
-        REQUIRE_THAT(fileCloud->at(0).g, Catch::Matchers::WithinAbs(messageCloud->at(0).g, 0.001));
-        REQUIRE_THAT(fileCloud->at(0).b, Catch::Matchers::WithinAbs(messageCloud->at(0).b, 0.001));
-
-        reader.close();
         std::filesystem::remove_all("./bag_pcd");
         std::filesystem::remove_all("./pcds");
     }
@@ -525,7 +595,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         };
 
         SECTION("Default Parameter Values - Video") {
-            auto* thread = new PublishVideoThread(parameters);
+            auto* thread = new PublishVideoThread(parameters, false);
             handleThread(thread, 1280, 720);
         }
         SECTION("Scaled Params Values - Video") {
@@ -533,7 +603,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             parameters.width = 800;
             parameters.height = 600;
 
-            auto* thread = new PublishVideoThread(parameters);
+            auto* thread = new PublishVideoThread(parameters, false);
             handleThread(thread, 800, 600);
         }
         SECTION("Default Parameter Values - Images") {

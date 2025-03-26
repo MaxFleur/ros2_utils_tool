@@ -14,6 +14,7 @@ find_package(cv_bridge REQUIRED)
 find_package(pcl_conversions REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rosbag2_cpp REQUIRED)
+find_package(rosbag2_transport REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
 if($ENV{ROS_DISTRO} STREQUAL "jazzy")
@@ -30,8 +31,6 @@ else()
     find_package(Qt5 COMPONENTS Widgets REQUIRED)
 endif()
 
-find_package(PCL REQUIRED)
-
 add_subdirectory(src)
 add_subdirectory(test)
 
@@ -46,6 +45,12 @@ add_executable(tool_bag_to_pcds
 )
 add_executable(tool_bag_to_video
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/BagToVideo.cpp
+)
+add_executable(tool_compress_bag
+    ${CMAKE_CURRENT_LIST_DIR}/src/cli/CompressBag.cpp
+)
+add_executable(tool_decompress_bag
+    ${CMAKE_CURRENT_LIST_DIR}/src/cli/DecompressBag.cpp
 )
 add_executable(tool_dummy_bag
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/DummyBag.cpp
@@ -66,46 +71,54 @@ add_executable(tool_video_to_bag
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/VideoToBag.cpp
 )
 
-ament_target_dependencies(tool_ui cv_bridge pcl_conversions rclcpp rosbag2_cpp sensor_msgs)
-ament_target_dependencies(tool_bag_to_images cv_bridge pcl_conversions rclcpp rosbag2_cpp sensor_msgs)
-ament_target_dependencies(tool_bag_to_pcds cv_bridge pcl_conversions rclcpp rosbag2_cpp sensor_msgs)
-ament_target_dependencies(tool_bag_to_video cv_bridge pcl_conversions rclcpp rosbag2_cpp sensor_msgs)
-ament_target_dependencies(tool_dummy_bag cv_bridge pcl_conversions rclcpp rosbag2_cpp sensor_msgs)
-ament_target_dependencies(tool_merge_bags cv_bridge pcl_conversions rclcpp rosbag2_cpp sensor_msgs)
-ament_target_dependencies(tool_pcds_to_bag cv_bridge pcl_conversions rclcpp rosbag2_cpp sensor_msgs)
-ament_target_dependencies(tool_publish_images cv_bridge pcl_conversions rclcpp rosbag2_cpp sensor_msgs)
-ament_target_dependencies(tool_publish_video cv_bridge pcl_conversions rclcpp rosbag2_cpp sensor_msgs)
-ament_target_dependencies(tool_video_to_bag cv_bridge pcl_conversions rclcpp rosbag2_cpp sensor_msgs)
+ament_target_dependencies(tool_ui cv_bridge pcl_conversions rclcpp rosbag2_cpp rosbag2_transport sensor_msgs)
+ament_target_dependencies(tool_bag_to_images cv_bridge rosbag2_cpp sensor_msgs)
+ament_target_dependencies(tool_bag_to_pcds pcl_conversions rosbag2_cpp sensor_msgs)
+ament_target_dependencies(tool_bag_to_video cv_bridge rosbag2_cpp sensor_msgs)
+ament_target_dependencies(tool_compress_bag rosbag2_cpp rosbag2_transport sensor_msgs)
+ament_target_dependencies(tool_decompress_bag rosbag2_cpp rosbag2_transport sensor_msgs)
+ament_target_dependencies(tool_dummy_bag cv_bridge pcl_conversions rosbag2_cpp sensor_msgs)
+ament_target_dependencies(tool_merge_bags rosbag2_cpp rosbag2_transport sensor_msgs)
+ament_target_dependencies(tool_pcds_to_bag pcl_conversions rosbag2_cpp sensor_msgs)
+ament_target_dependencies(tool_publish_images cv_bridge rclcpp rosbag2_cpp sensor_msgs)
+ament_target_dependencies(tool_publish_video cv_bridge rclcpp rosbag2_cpp sensor_msgs)
+ament_target_dependencies(tool_video_to_bag cv_bridge rosbag2_cpp sensor_msgs)
 
 target_link_libraries(tool_ui
     Qt::Widgets rt_ui
 )
 target_link_libraries(tool_bag_to_images
-    Qt::Widgets rt_thread rt_utils
+    Qt::Widgets rt_bag_to_images_thread rt_utils
 )
 target_link_libraries(tool_bag_to_pcds
-    Qt::Widgets rt_thread rt_utils
+    Qt::Widgets rt_bag_to_pcds_thread rt_utils
 )
 target_link_libraries(tool_bag_to_video
-    Qt::Widgets rt_thread rt_utils
+    Qt::Widgets rt_bag_to_video_thread rt_utils
+)
+target_link_libraries(tool_compress_bag
+    Qt::Widgets rt_change_compression_thread rt_utils
+)
+target_link_libraries(tool_decompress_bag
+    Qt::Widgets rt_change_compression_thread rt_utils
 )
 target_link_libraries(tool_dummy_bag
-    Qt::Widgets rt_thread rt_utils
+    Qt::Widgets rt_dummy_bag_thread rt_utils
 )
 target_link_libraries(tool_merge_bags
-    Qt::Widgets rt_thread rt_utils
+    Qt::Widgets rt_merge_bags_thread rt_utils
 )
 target_link_libraries(tool_pcds_to_bag
-    Qt::Widgets rt_thread rt_utils
+    Qt::Widgets rt_pcds_to_bag_thread rt_utils
 )
 target_link_libraries(tool_publish_images
-    Qt::Widgets rt_thread rt_utils
+    Qt::Widgets rt_publish_images_thread rt_utils
 )
 target_link_libraries(tool_publish_video
-    Qt::Widgets rt_thread rt_utils
+    Qt::Widgets rt_publish_video_thread rt_utils
 )
 target_link_libraries(tool_video_to_bag
-    Qt::Widgets rt_thread rt_utils
+    Qt::Widgets rt_video_to_bag_thread rt_utils
 )
 
 install(TARGETS
@@ -113,6 +126,8 @@ install(TARGETS
     tool_bag_to_images
     tool_bag_to_pcds
     tool_bag_to_video
+    tool_compress_bag
+    tool_decompress_bag
     tool_dummy_bag
     tool_merge_bags
     tool_pcds_to_bag

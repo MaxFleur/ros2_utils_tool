@@ -15,10 +15,7 @@ PCDsToBagSettings::write()
         return false;
     }
 
-    QSettings settings;
-    settings.beginGroup(m_groupName);
-    setSettingsParameter(settings, m_parameters.rate, "rate");
-    settings.endGroup();
+    writeParameter(m_groupName, "rate", m_parameters.rate);
 
     return true;
 }
@@ -31,10 +28,7 @@ PCDsToBagSettings::read()
         return false;
     }
 
-    QSettings settings;
-    settings.beginGroup(m_groupName);
-    m_parameters.rate = settings.value("rate").isValid() ? settings.value("rate").toInt() : 5;
-    settings.endGroup();
+    m_parameters.rate = readParameter(m_groupName, "rate", 5);
 
     return true;
 }

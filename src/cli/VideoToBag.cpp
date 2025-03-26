@@ -13,7 +13,7 @@
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_video_to_bag path/to/video path/of/stored/ros_bag\n" << std::endl;
+    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_video_to_bag path/to/video path/to/bag\n" << std::endl;
     std::cout << "The video must have an ending of .mp4 or .mkv." << std::endl;
     std::cout << "Additional parameters:" << std::endl;
     std::cout << "-t or --topic_name: Topic name. If this is empty, the name '/topic_video' will be taken.\n" << std::endl;
@@ -56,7 +56,7 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    // Handle bag directory
+    // Bag directory
     parameters.targetDirectory = arguments.at(2);
     dirPath = parameters.targetDirectory;
     dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
@@ -66,6 +66,8 @@ main(int argc, char* argv[])
     }
 
     // Check for optional arguments
+    auto useHardwareAcceleration = false;
+
     if (arguments.size() > 3) {
         // Topic name
         if (!Utils::CLI::continueWithInvalidROS2Name(arguments, parameters.topicName)) {
@@ -78,7 +80,7 @@ main(int argc, char* argv[])
             return 0;
         }
         // Hardware acceleration
-        parameters.useHardwareAcceleration = Utils::CLI::containsArguments(arguments, "-a", "--accelerate");
+        useHardwareAcceleration = Utils::CLI::containsArguments(arguments, "-a", "--accelerate");
         // Exchange red and blue values
         parameters.exchangeRedBlueValues = Utils::CLI::containsArguments(arguments, "-e", "--exchange");
     }
@@ -95,13 +97,8 @@ main(int argc, char* argv[])
     }
 
     // Create thread and connect to its informations
-    auto* const videoToBagThread = new VideoToBagThread(parameters);
+    auto* const videoToBagThread = new VideoToBagThread(parameters, useHardwareAcceleration);
 
-    QObject::connect(videoToBagThread, &VideoToBagThread::openingCVInstanceFailed, [] {
-        std::cerr << "The bag creation failed. Please make sure that all parameters are set correctly "
-            "and disable the hardware acceleration, if necessary." << std::endl;
-        return 0;
-    });
     QObject::connect(videoToBagThread, &VideoToBagThread::progressChanged, [] (const QString& progressString, int progress) {
         const auto progressStringCMD = Utils::CLI::drawProgressString(progress);
         // Always clear the last line for a nice "progress bar" feeling
@@ -113,6 +110,11 @@ main(int argc, char* argv[])
         return EXIT_SUCCESS;
     });
     QObject::connect(videoToBagThread, &VideoToBagThread::finished, videoToBagThread, &QObject::deleteLater);
+    QObject::connect(videoToBagThread, &VideoToBagThread::failed, [] {
+        std::cerr << "The bag creation failed. Please make sure that all parameters are set correctly "
+            "and disable the hardware acceleration, if necessary." << std::endl;
+        return 0;
+    });
 
     signal(SIGINT, [] (int signal) {
         signalStatus = signal;

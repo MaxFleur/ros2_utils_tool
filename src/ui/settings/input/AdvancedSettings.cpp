@@ -14,10 +14,8 @@ AdvancedSettings::write()
         return false;
     }
 
-    QSettings settings;
-    settings.beginGroup(m_groupName);
-    setSettingsParameter(settings, m_parameters.targetDirectory, "target_dir");
-    settings.endGroup();
+    writeParameter(m_groupName, "target_dir", m_parameters.targetDirectory);
+    writeParameter(m_groupName, "show_advanced", m_parameters.showAdvancedOptions);
 
     return true;
 }
@@ -30,10 +28,8 @@ AdvancedSettings::read()
         return false;
     }
 
-    QSettings settings;
-    settings.beginGroup(m_groupName);
-    m_parameters.targetDirectory = settings.value("target_dir").isValid() ? settings.value("target_dir").toString() : "";
-    settings.endGroup();
+    m_parameters.targetDirectory = readParameter(m_groupName, "target_dir", QString(""));
+    m_parameters.showAdvancedOptions = readParameter(m_groupName, "show_advanced", false);
 
     return true;
 }

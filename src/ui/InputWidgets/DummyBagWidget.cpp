@@ -25,11 +25,11 @@ DummyBagWidget::DummyBagWidget(Parameters::DummyBagParameters& parameters, bool 
     m_checkROS2NameConform(checkROS2NameConform)
 {
     m_sourceLineEdit->setText(parameters.sourceDirectory);
-    m_sourceLineEdit->setToolTip("The directory where the ROSBag file should be stored.");
+    m_sourceLineEdit->setToolTip("The target dummy bag file directory.");
 
     auto* const messageCountSpinBox = new QSpinBox;
     messageCountSpinBox->setRange(1, 1000);
-    messageCountSpinBox->setToolTip("The number of messages stored in the ROSBag.");
+    messageCountSpinBox->setToolTip("The number of messages stored in the bag.");
     messageCountSpinBox->setValue(m_parameters.messageCount);
 
     m_minusButton = new QToolButton;
@@ -98,7 +98,7 @@ DummyBagWidget::DummyBagWidget(Parameters::DummyBagParameters& parameters, bool 
 void
 DummyBagWidget::bagDirectoryButtonPressed()
 {
-    const auto fileName = QFileDialog::getSaveFileName(this, "Save ROSBag");
+    const auto fileName = QFileDialog::getSaveFileName(this, "Save Dummy Bag File");
     if (fileName.isEmpty()) {
         return;
     }

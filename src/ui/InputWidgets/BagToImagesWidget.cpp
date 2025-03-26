@@ -15,7 +15,7 @@ BagToImagesWidget::BagToImagesWidget(Parameters::BagToImagesParameters& paramete
 {
     m_sourceLineEdit->setToolTip("The source bag file directory.");
     m_topicNameComboBox->setToolTip("The image messages topic.\nIf the bag contains multiple video topics, you can choose one of them.");
-    m_targetLineEdit->setToolTip("The directory where the images should be stored.");
+    m_targetLineEdit->setToolTip("The target image files directory.");
 
     auto* const formatComboBox = new QComboBox;
     formatComboBox->addItem("jpg", 0);
@@ -28,7 +28,7 @@ BagToImagesWidget::BagToImagesWidget(Parameters::BagToImagesParameters& paramete
     m_basicOptionsFormLayout->addRow("Format:", formatComboBox);
 
     auto* const advancedOptionsCheckBox = new QCheckBox;
-    advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions ? Qt::Checked : Qt::Unchecked);
+    advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions);
     advancedOptionsCheckBox->setText("Show Advanced Options");
 
     auto* const switchRedBlueCheckBox = Utils::UI::createCheckBox("Switch the video's red and blue values.", m_parameters.exchangeRedBlueValues);
@@ -55,7 +55,7 @@ BagToImagesWidget::BagToImagesWidget(Parameters::BagToImagesParameters& paramete
 
     connect(formatComboBox, &QComboBox::currentTextChanged, this, &BagToImagesWidget::adjustWidgetsToChangedFormat);
     connect(advancedOptionsCheckBox, &QCheckBox::stateChanged, this, [this, advancedOptionsWidget] (int state) {
-        m_parameters.showAdvancedOptions = state == Qt::Checked;
+        writeParameterToSettings(m_parameters.showAdvancedOptions, state == Qt::Checked, m_settings);
         advancedOptionsWidget->setVisible(state == Qt::Checked);
     });
     connect(switchRedBlueCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
@@ -91,7 +91,7 @@ BagToImagesWidget::adjustWidgetsToChangedFormat(const QString& text)
 
     m_optimizeOrBilevelCheckBox = new QCheckBox;
     auto& memberVal = text == "jpg" ? m_parameters.jpgOptimize : m_parameters.pngBilevel;
-    m_optimizeOrBilevelCheckBox->setChecked(memberVal ? Qt::Checked : Qt::Unchecked);
+    m_optimizeOrBilevelCheckBox->setChecked(memberVal);
     m_optimizeOrBilevelCheckBox->setToolTip(text == "jpg" ? "Optimize the stored file size." : "Save as an image containing only black and white pixels.");
 
     m_advancedOptionsFormLayout->insertRow(0, text == "jpg" ? "Quality:" : "Level of Compression:", m_qualitySlider);

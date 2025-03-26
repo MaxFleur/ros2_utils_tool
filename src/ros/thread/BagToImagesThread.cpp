@@ -18,9 +18,9 @@
 #endif
 
 BagToImagesThread::BagToImagesThread(const Parameters::BagToImagesParameters& parameters,
-                                     QObject*                                 parent) :
+                                     unsigned int numberOfThreads, QObject* parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),
-    m_parameters(parameters)
+    m_parameters(parameters), m_numberOfThreads(numberOfThreads)
 {
 }
 
@@ -138,7 +138,7 @@ BagToImagesThread::run()
         readMessagesToQueue();
 
         std::vector<std::thread> threadPool;
-        for (unsigned int i = 0; i < std::thread::hardware_concurrency(); ++i) {
+        for (unsigned int i = 0; i < m_numberOfThreads; ++i) {
             threadPool.emplace_back(writeImageFromQueue);
         }
         for (auto& thread : threadPool) {

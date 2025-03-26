@@ -7,15 +7,13 @@
 #include <QCoreApplication>
 #include <QObject>
 
-#include "rclcpp/rclcpp.hpp"
-
 #include <filesystem>
 #include <iostream>
 
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_bag_to_images path/to/ROSBag path/to/target/image/dir\n" << std::endl;
+    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_bag_to_images path/to/bag path/to/images\n" << std::endl;
     std::cout << "Additional parameters:" << std::endl;
     std::cout << "-t or --topic_name: Video topic inside the bag. If no topic name is specified, the first found video topic in the bag is taken.\n" << std::endl;
     std::cout << "-f or --format: Must be jpg, png or bmp (jpg is default)." << std::endl;
@@ -117,7 +115,7 @@ main(int argc, char* argv[])
     }
 
     // Create thread and connect to its informations
-    auto* const bagToImagesThread = new BagToImagesThread(parameters);
+    auto* const bagToImagesThread = new BagToImagesThread(parameters, std::thread::hardware_concurrency());
     QObject::connect(bagToImagesThread, &BagToImagesThread::progressChanged, [] (const QString& progressString, int progress) {
         const auto progressStringCMD = Utils::CLI::drawProgressString(progress);
         // Always clear the last line for a nice "progress bar" feeling

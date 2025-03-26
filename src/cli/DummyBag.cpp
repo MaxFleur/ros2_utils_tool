@@ -14,7 +14,7 @@
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_dummy_bag path/to/ROSBag topic_name_1 topic_type_1 "
+    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_dummy_bag path/to/bag topic_name_1 topic_type_1 "
         "(...) message_count\n" << std::endl;
     std::cout << "Topic type is either 'String', 'Integer', 'Image' or 'PointCloud'." << std::endl;
     std::cout << "You can write up to four topics." << std::endl;
@@ -41,7 +41,7 @@ main(int argc, char* argv[])
     Parameters::DummyBagParameters parameters;
     parameters.topicName = "";
 
-    // Bag directory
+    // Bag directory (called as source dir, but is out target dir this time)
     parameters.sourceDirectory = arguments.at(1);
     auto dirPath = parameters.sourceDirectory;
     dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
@@ -109,7 +109,8 @@ main(int argc, char* argv[])
     }
 
     // Create thread and connect to its informations
-    auto* const dummyBagThread = new DummyBagThread(parameters);
+    // More then four topics are not supported anyway, so stick to this value
+    auto* const dummyBagThread = new DummyBagThread(parameters, 4);
     std::mutex mutex;
 
     QObject::connect(dummyBagThread, &DummyBagThread::progressChanged, [&mutex] (const QString& progressString, int progress) {

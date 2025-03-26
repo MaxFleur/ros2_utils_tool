@@ -3,13 +3,14 @@
 #include "BasicThread.hpp"
 #include "Parameters.hpp"
 
-// Thread used to weite a video to a bag
+// Thread used to write a video to a bag file
 class VideoToBagThread : public BasicThread {
     Q_OBJECT
 
 public:
     explicit
     VideoToBagThread(const Parameters::VideoToBagParameters& parameters,
+                     bool                                    useHardwareAcceleration,
                      QObject*                                parent = nullptr);
 
     void
@@ -17,4 +18,6 @@ public:
 
 private:
     const Parameters::VideoToBagParameters& m_parameters;
+
+    const bool m_useHardwareAcceleration;
 };

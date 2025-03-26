@@ -13,10 +13,10 @@
 #include <cv_bridge/cv_bridge.h>
 #endif
 
-VideoToBagThread::VideoToBagThread(const Parameters::VideoToBagParameters& parameters,
+VideoToBagThread::VideoToBagThread(const Parameters::VideoToBagParameters& parameters, bool useHardwareAcceleration,
                                    QObject*                                parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),
-    m_parameters(parameters)
+    m_parameters(parameters), m_useHardwareAcceleration(useHardwareAcceleration)
 {
 }
 
@@ -25,10 +25,10 @@ void
 VideoToBagThread::run()
 {
     auto videoCapture = cv::VideoCapture(m_sourceDirectory, cv::CAP_ANY, {
-        cv::CAP_PROP_HW_ACCELERATION, m_parameters.useHardwareAcceleration ? cv::VIDEO_ACCELERATION_ANY : cv::VIDEO_ACCELERATION_NONE
+        cv::CAP_PROP_HW_ACCELERATION, m_useHardwareAcceleration ? cv::VIDEO_ACCELERATION_ANY : cv::VIDEO_ACCELERATION_NONE
     });
     if (!videoCapture.isOpened()) {
-        emit openingCVInstanceFailed();
+        emit failed();
         return;
     }
 

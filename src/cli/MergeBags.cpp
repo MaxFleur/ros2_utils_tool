@@ -14,7 +14,7 @@
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_merge_bags path/to/First/Bag path/to/SecondBag -t1 (...) -t2 (...) path/To/Target\n" << std::endl;
+    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_merge_bags path/to/first/bag path/to/second/bag -t1 (...) -t2 (...) path/to/target/bag\n" << std::endl;
     std::cout << "Topic names after '-t1' are those contained in the first bag file, names after '-t2' in the second file." << std::endl;
     std::cout << "Note that duplicate topics (equal topics contained in both bags) will be merged if both are specified." << std::endl;
     std::cout << "-h or --help: Show this help." << std::endl;
@@ -117,22 +117,21 @@ main(int argc, char* argv[])
     }
 
     // Create thread and connect to its informations
-    auto* const mergeBagsThread = new MergeBagsThread(parameters);
-    std::mutex mutex;
+    auto* const mergeBagsThread = new MergeBagsThread(parameters, std::thread::hardware_concurrency());
+    auto isMerging = false;
+    std::thread processingThread;
 
-    QObject::connect(mergeBagsThread, &MergeBagsThread::progressChanged, [&mutex] (const QString& progressString, int progress) {
-        const auto progressStringCMD = Utils::CLI::drawProgressString(progress);
-        // Always clear the last line for a nice "progress bar" feeling
-        mutex.lock();
-        std::cout << progressString.toStdString() << " " << progressStringCMD << " " << progress << "%" << "\r" << std::flush;
-        mutex.unlock();
+    QObject::connect(mergeBagsThread, &MergeBagsThread::processing, [&processingThread, &isMerging] {
+        processingThread = std::thread(&Utils::CLI::showProcessingString, std::ref(isMerging), Utils::CLI::CLI_MERGE);
+
+        return EXIT_SUCCESS;
     });
-    QObject::connect(mergeBagsThread, &MergeBagsThread::finished, [] {
-        // This signal is thrown even if SIGINT is called, but we haven't finished, only interrupted
-        if (signalStatus != SIGINT) {
-            std::cout << "" << std::endl; // Extra line to stop flushing
-            std::cout << "Merging bags finished!" << std::endl;
-        }
+    QObject::connect(mergeBagsThread, &MergeBagsThread::finished, [&isMerging, &processingThread] {
+        isMerging = false;
+        processingThread.join();
+
+        std::cout << "" << std::endl; // Extra line to stop flushing
+        std::cout << "Merging bags finished!" << std::endl;
         return EXIT_SUCCESS;
     });
     QObject::connect(mergeBagsThread, &MergeBagsThread::finished, mergeBagsThread, &QObject::deleteLater);

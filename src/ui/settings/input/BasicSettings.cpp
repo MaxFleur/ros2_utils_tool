@@ -11,15 +11,12 @@ BasicSettings::BasicSettings(Parameters::BasicParameters& parameters, const QStr
 bool
 BasicSettings::write()
 {
-    if (const auto areParametersSaved = DialogSettings::areParametersSaved(); !areParametersSaved) {
+    if (!DialogSettings::getStaticParameter("save_parameters", false)) {
         return false;
     }
 
-    QSettings settings;
-    settings.beginGroup(m_groupName);
-    setSettingsParameter(settings, m_parameters.sourceDirectory, "source_dir");
-    setSettingsParameter(settings, m_parameters.topicName, "topic_name");
-    settings.endGroup();
+    writeParameter(m_groupName, "source_dir", m_parameters.sourceDirectory);
+    writeParameter(m_groupName, "topic_name", m_parameters.topicName);
 
     return true;
 }
@@ -28,15 +25,12 @@ BasicSettings::write()
 bool
 BasicSettings::read()
 {
-    if (const auto areParametersSaved = DialogSettings::areParametersSaved(); !areParametersSaved) {
+    if (!DialogSettings::getStaticParameter("save_parameters", false)) {
         return false;
     }
 
-    QSettings settings;
-    settings.beginGroup(m_groupName);
-    m_parameters.sourceDirectory = settings.value("source_dir").isValid() ? settings.value("source_dir").toString() : "";
-    m_parameters.topicName = settings.value("topic_name").isValid() ? settings.value("topic_name").toString() : "";
-    settings.endGroup();
+    m_parameters.sourceDirectory = readParameter(m_groupName, "source_dir", QString(""));
+    m_parameters.topicName = readParameter(m_groupName, "topic_name", QString(""));
 
     return true;
 }

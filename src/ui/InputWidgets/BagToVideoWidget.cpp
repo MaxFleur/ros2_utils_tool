@@ -15,7 +15,7 @@ BagToVideoWidget::BagToVideoWidget(Parameters::BagToVideoParameters& parameters,
 {
     m_sourceLineEdit->setToolTip("The source bag file directory.");
     m_topicNameComboBox->setToolTip("The image messages topic.\nIf the bag contains multiple video topics, you can choose one of them.");
-    m_targetLineEdit->setToolTip("The directory where the video file should be stored.");
+    m_targetLineEdit->setToolTip("The target video file directory.");
 
     m_formatComboBox = new QComboBox;
     m_formatComboBox->addItem("mp4", 0);
@@ -27,7 +27,7 @@ BagToVideoWidget::BagToVideoWidget(Parameters::BagToVideoParameters& parameters,
     m_basicOptionsFormLayout->addRow("Format:", m_formatComboBox);
 
     auto* const advancedOptionsCheckBox = new QCheckBox;
-    advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions ? Qt::Checked : Qt::Unchecked);
+    advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions);
     advancedOptionsCheckBox->setText("Show Advanced Options");
 
     auto* const fpsSpinBox = new QSpinBox;
@@ -35,14 +35,11 @@ BagToVideoWidget::BagToVideoWidget(Parameters::BagToVideoParameters& parameters,
     fpsSpinBox->setValue(m_parameters.fps);
     fpsSpinBox->setToolTip("FPS of the encoded video.");
 
-    auto* const useHardwareAccCheckBox = Utils::UI::createCheckBox("Enable hardware acceleration for faster video encoding.",
-                                                                   m_parameters.useHardwareAcceleration);
     auto* const switchRedBlueCheckBox = Utils::UI::createCheckBox("Switch the video's red and blue values.", m_parameters.exchangeRedBlueValues);
     auto* const useBWImagesCheckBox = Utils::UI::createCheckBox("Write a colorless video.", m_parameters.useBWImages);
 
     m_advancedOptionsFormLayout = new QFormLayout;
     m_advancedOptionsFormLayout->addRow("FPS:", fpsSpinBox);
-    m_advancedOptionsFormLayout->addRow("HW Acceleration:", useHardwareAccCheckBox);
     m_advancedOptionsFormLayout->addRow("Switch Red and Blue Values:", switchRedBlueCheckBox);
     m_advancedOptionsFormLayout->addRow("Use Colorless Images:", useBWImagesCheckBox);
 
@@ -64,14 +61,11 @@ BagToVideoWidget::BagToVideoWidget(Parameters::BagToVideoParameters& parameters,
 
     connect(m_formatComboBox, &QComboBox::currentTextChanged, this, &BagToVideoWidget::formatComboBoxTextChanged);
     connect(advancedOptionsCheckBox, &QCheckBox::stateChanged, this, [this, advancedOptionsWidget] (int state) {
-        m_parameters.showAdvancedOptions = state == Qt::Checked;
+        writeParameterToSettings(m_parameters.showAdvancedOptions, state == Qt::Checked, m_settings);
         advancedOptionsWidget->setVisible(state == Qt::Checked);
     });
     connect(fpsSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [this] (int value) {
         writeParameterToSettings(m_parameters.fps, value, m_settings);
-    });
-    connect(useHardwareAccCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
-        writeParameterToSettings(m_parameters.useHardwareAcceleration, state == Qt::Checked, m_settings);
     });
     connect(switchRedBlueCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.exchangeRedBlueValues, state == Qt::Checked, m_settings);

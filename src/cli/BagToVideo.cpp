@@ -13,7 +13,7 @@
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_bag_to_video path/to/ROSBag path/of/stored/video\n" << std::endl;
+    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_bag_to_video path/to/bag path/to/video\n" << std::endl;
     std::cout << "Additional parameters:" << std::endl;
     std::cout << "-t or --topic_name: Video topic inside the bag. If no topic name is specified, the first found video topic in the bag is taken.\n" << std::endl;
     std::cout << "-r or --rate: Framerate for the encoded video. Must be from 10 to 60." << std::endl;
@@ -71,6 +71,8 @@ main(int argc, char* argv[])
     }
 
     // Check for optional arguments
+    auto useHardwareAcceleration = false;
+
     if (arguments.size() > 3) {
         // Topic name
         if (!Utils::CLI::isTopicNameValid(arguments, parameters.sourceDirectory, "sensor_msgs/msg/Image", parameters.topicName)) {
@@ -83,7 +85,7 @@ main(int argc, char* argv[])
         }
 
         // Hardware acceleration
-        parameters.useHardwareAcceleration = Utils::CLI::containsArguments(arguments, "-a", "--accelerate");
+        useHardwareAcceleration = Utils::CLI::containsArguments(arguments, "-a", "--accelerate");
         // Exchange red and blue values
         parameters.exchangeRedBlueValues = Utils::CLI::containsArguments(arguments, "-e", "--exchange");
         // Colorless
@@ -109,12 +111,8 @@ main(int argc, char* argv[])
         }
     }
 
-    // Create encoding thread and connect to its informations
-    auto* const encodingThread = new BagToVideoThread(parameters);
-    QObject::connect(encodingThread, &BagToVideoThread::openingCVInstanceFailed, [] {
-        std::cerr << "The video writing failed. Please make sure that all parameters are set correctly and disable the hardware acceleration, if necessary." << std::endl;
-        return 0;
-    });
+    // Create thread and connect to its informations
+    auto* const encodingThread = new BagToVideoThread(parameters, useHardwareAcceleration);
     QObject::connect(encodingThread, &BagToVideoThread::progressChanged, [] (const QString& progressString, int progress) {
         const auto progressStringCMD = Utils::CLI::drawProgressString(progress);
         // Always clear the last line for a nice "progress bar" feeling
@@ -126,6 +124,10 @@ main(int argc, char* argv[])
         return EXIT_SUCCESS;
     });
     QObject::connect(encodingThread, &BagToVideoThread::finished, encodingThread, &QObject::deleteLater);
+    QObject::connect(encodingThread, &BagToVideoThread::failed, [] {
+        std::cerr << "The video writing failed. Please make sure that all parameters are set correctly and disable the hardware acceleration, if necessary." << std::endl;
+        return 0;
+    });
 
     signal(SIGINT, [] (int signal) {
         signalStatus = signal;

@@ -27,7 +27,7 @@ PublishWidget::PublishWidget(Parameters::PublishParameters& parameters, bool use
     m_checkROS2NameConform(checkROS2NameConform), m_publishVideo(publishVideo)
 {
     m_sourceLineEdit->setText(parameters.sourceDirectory);
-    m_sourceLineEdit->setToolTip(m_publishVideo ? "The directory of the source video file." : "The directory of the images.");
+    m_sourceLineEdit->setToolTip(m_publishVideo ? "The source video file directory." : "The source images file directory.");
 
     auto* const topicNameLineEdit = new QLineEdit(m_parameters.topicName);
     topicNameLineEdit->setToolTip("Name of the topic to be published.");
@@ -42,7 +42,7 @@ PublishWidget::PublishWidget(Parameters::PublishParameters& parameters, bool use
     basicOptionsFormLayout->addRow("Topic Name:", topicNameLineEdit);
 
     auto* const advancedOptionsCheckBox = new QCheckBox;
-    advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions ? Qt::Checked : Qt::Unchecked);
+    advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions);
     advancedOptionsCheckBox->setText("Show Advanced Options");
 
     auto* const scaleCheckBox = Utils::UI::createCheckBox("Scale the video to another width and height.", m_parameters.scale);
@@ -55,15 +55,7 @@ PublishWidget::PublishWidget(Parameters::PublishParameters& parameters, bool use
     m_advancedOptionsFormLayout->addRow("Loop Video:", loopCheckBox);
 
     // Different input widgets are needed depending on if we want to publish a video or image sequences
-    if (m_publishVideo) {
-        auto* const useHardwareAccCheckBox = Utils::UI::createCheckBox("Enable hardware acceleration for faster video decoding.",
-                                                                       m_parameters.useHardwareAcceleration);
-
-        m_advancedOptionsFormLayout->addRow("Hardware Accleration:", useHardwareAccCheckBox);
-        connect(useHardwareAccCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
-            writeParameterToSettings(m_parameters.useHardwareAcceleration, state == Qt::Checked, m_settings);
-        });
-    } else {
+    if (!m_publishVideo) {
         auto* const fpsSpinBox = new QSpinBox;
         fpsSpinBox->setRange(1, 60);
         fpsSpinBox->setValue(m_parameters.fps);
@@ -110,7 +102,7 @@ PublishWidget::PublishWidget(Parameters::PublishParameters& parameters, bool use
         enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.topicName.isEmpty());
     });
     connect(advancedOptionsCheckBox, &QCheckBox::stateChanged, this, [this, advancedOptionsWidget] (int state) {
-        m_parameters.showAdvancedOptions = state == Qt::Checked;
+        writeParameterToSettings(m_parameters.showAdvancedOptions, state == Qt::Checked, m_settings);
         advancedOptionsWidget->setVisible(state == Qt::Checked);
     });
     connect(scaleCheckBox, &QCheckBox::stateChanged, this, &PublishWidget::scaleCheckBoxPressed);

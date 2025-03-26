@@ -21,14 +21,15 @@ MergeBagsSettings::write()
     settings.beginWriteArray("topics");
     for (auto i = 0; i < m_parameters.topics.size(); ++i) {
         settings.setArrayIndex(i);
-        setSettingsParameter(settings, m_parameters.topics.at(i).name, "name");
-        setSettingsParameter(settings, m_parameters.topics.at(i).bagDir, "dir");
-        setSettingsParameter(settings, m_parameters.topics.at(i).isSelected, "is_selected");
+        writeParameter(settings, "name", m_parameters.topics.at(i).name);
+        writeParameter(settings, "dir", m_parameters.topics.at(i).bagDir);
+        writeParameter(settings, "is_selected", m_parameters.topics.at(i).isSelected);
     }
     settings.endArray();
-    setSettingsParameter(settings, m_parameters.secondSourceDirectory, "second_source");
-
     settings.endGroup();
+
+    writeParameter(m_groupName, "second_source", m_parameters.secondSourceDirectory);
+
     return true;
 }
 
@@ -47,11 +48,13 @@ MergeBagsSettings::read()
     const auto size = settings.beginReadArray("topics");
     for (auto i = 0; i < size; ++i) {
         settings.setArrayIndex(i);
-        m_parameters.topics.append({ settings.value("name").toString(), settings.value("dir").toString(), settings.value("is_selected").toBool() });
+        m_parameters.topics.append({ readParameter(settings, "name", QString("")), readParameter(settings, "dir", QString("")),
+                                     readParameter(settings, "is_selected", false) });
     }
     settings.endArray();
-    m_parameters.secondSourceDirectory = settings.value("second_source").isValid() ? settings.value("second_source").toString() : "";
-
     settings.endGroup();
+
+    m_parameters.secondSourceDirectory = readParameter(m_groupName, "second_source", QString(""));
+
     return true;
 }

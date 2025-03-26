@@ -8,26 +8,13 @@ DialogSettings::DialogSettings(Parameters::DialogParameters& parameters, const Q
 
 
 bool
-DialogSettings::areParametersSaved()
-{
-    QSettings settings;
-    settings.beginGroup("dialog");
-    const auto savedValue = settings.value("save_parameters").isValid() ? settings.value("save_parameters").toBool() : false;
-    settings.endGroup();
-
-    return savedValue;
-}
-
-
-bool
 DialogSettings::write()
 {
-    QSettings settings;
-    settings.beginGroup(m_groupName);
-    settings.setValue("save_parameters", m_parameters.saveParameters);
-    settings.setValue("predefined_topic_names", m_parameters.usePredefinedTopicNames);
-    settings.setValue("check_ros2_naming_convention", m_parameters.checkROS2NameConform);
-    settings.endGroup();
+    writeParameter(m_groupName, "max_threads", m_parameters.maxNumberOfThreads);
+    writeParameter(m_groupName, "hw_acc", m_parameters.useHardwareAcceleration);
+    writeParameter(m_groupName, "save_parameters", m_parameters.saveParameters);
+    writeParameter(m_groupName, "predefined_topic_names", m_parameters.usePredefinedTopicNames);
+    writeParameter(m_groupName, "check_ros2_naming_convention", m_parameters.checkROS2NameConform);
 
     return true;
 }
@@ -36,14 +23,11 @@ DialogSettings::write()
 bool
 DialogSettings::read()
 {
-    QSettings settings;
-    settings.beginGroup(m_groupName);
-    m_parameters.saveParameters = settings.value("save_parameters").isValid() ? settings.value("save_parameters").toBool() : false;
-    m_parameters.usePredefinedTopicNames = settings.value("predefined_topic_names").isValid() ? settings.value("predefined_topic_names").toBool() : true;
-    m_parameters.checkROS2NameConform = settings.value("check_ros2_naming_convention").isValid() ?
-                                        settings.value("check_ros2_naming_convention").toBool() :
-                                        false;
-    settings.endGroup();
+    m_parameters.maxNumberOfThreads = readParameter(m_groupName, "max_threads", std::thread::hardware_concurrency());
+    m_parameters.useHardwareAcceleration = readParameter(m_groupName, "hw_acc", false);
+    m_parameters.saveParameters = readParameter(m_groupName, "save_parameters", false);
+    m_parameters.usePredefinedTopicNames = readParameter(m_groupName, "predefined_topic_names", false);
+    m_parameters.checkROS2NameConform = readParameter(m_groupName, "check_ros2_naming_convention", false);
 
     return true;
 }
