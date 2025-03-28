@@ -38,10 +38,13 @@ main(int argc, char* argv[])
 
     const auto arguments = app.arguments();
     const QStringList checkList{ "-t", "-s", "-r", "-e", "-l", "-h", "--topic_name", "--scale", "--rate", "--exchange", "--loop", "--help" };
-    if (Utils::CLI::containsInvalidParameters(arguments, checkList) ||
-        arguments.size() < 2 || arguments.contains("--help") || arguments.contains("-h")) {
+    if (arguments.size() < 2 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
+    }
+    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
+        showHelp();
+        throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
     }
 
     Parameters::PublishParameters parameters;
@@ -49,8 +52,7 @@ main(int argc, char* argv[])
     // Images directory
     parameters.sourceDirectory = arguments.at(1);
     if (!std::filesystem::exists(parameters.sourceDirectory.toStdString())) {
-        std::cerr << "The images directory does not exist. Please enter a valid images path!" << std::endl;
-        return 0;
+        throw std::runtime_error("The images directory does not exist. Please enter a valid images path!");
     }
     auto containsImageFiles = false;
     for (auto const& entry : std::filesystem::directory_iterator(parameters.sourceDirectory.toStdString())) {
@@ -60,8 +62,7 @@ main(int argc, char* argv[])
         }
     }
     if (!containsImageFiles) {
-        std::cerr << "The specified directory does not contain any images!" << std::endl;
-        return 0;
+        throw std::runtime_error("The specified directory does not contain any images!");
     }
 
     // Check for optional arguments
@@ -72,18 +73,15 @@ main(int argc, char* argv[])
         }
         // Framerate
         if (!Utils::CLI::checkArgumentValidity(arguments, "-r", "--rate", parameters.fps, 1, 60)) {
-            std::cerr << "Please enter a framerate in the range of 1 to 60!" << std::endl;
-            return 0;
+            throw std::runtime_error("Please enter a framerate in the range of 1 to 60!");
         }
         // Scale
         parameters.scale = Utils::CLI::containsArguments(arguments, "-s", "--scale");
         if (!Utils::CLI::checkArgumentValidity(arguments, "-s", "--scale", parameters.width, 1, 3840)) {
-            std::cerr << "Please enter a width value between 1 and 3840!" << std::endl;
-            return 0;
+            throw std::runtime_error("Please enter a width value between 1 and 3840!");
         }
         if (!Utils::CLI::checkArgumentValidity(arguments, "-s", "--scale", parameters.height, 1, 2160, 2)) {
-            std::cerr << "Please enter a height value between 1 and 2160!" << std::endl;
-            return 0;
+            throw std::runtime_error("Please enter a height value between 1 and 2160!");
         }
         parameters.scale = true;
         // Exchange red and blue values
@@ -104,8 +102,7 @@ main(int argc, char* argv[])
     });
     QObject::connect(publishImagesThread, &PublishImagesThread::finished, publishImagesThread, &QObject::deleteLater);
     QObject::connect(publishImagesThread, &PublishImagesThread::failed, [] {
-        std::cerr << "Images publishing failed. Please make sure that the video file is valid and disable the hardware acceleration, if necessary." << std::endl;
-        return 0;
+        throw std::runtime_error("Images publishing failed. Please make sure that the image files are valid!");
     });
 
     signal(SIGINT, [] (int signal) {

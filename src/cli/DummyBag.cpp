@@ -32,10 +32,13 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto arguments = app.arguments();
-    if (Utils::CLI::containsInvalidParameters(arguments, { "-h", "--help" }) ||
-        arguments.size() < 4 || arguments.size() > 11 || arguments.contains("--help") || arguments.contains("-h")) {
+    if (arguments.size() < 4 || arguments.size() > 11 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
+    }
+    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, { "-h", "--help" }); argument != std::nullopt) {
+        showHelp();
+        throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
     }
 
     Parameters::DummyBagParameters parameters;
@@ -46,15 +49,13 @@ main(int argc, char* argv[])
     auto dirPath = parameters.sourceDirectory;
     dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
     if (!std::filesystem::exists(dirPath.toStdString())) {
-        std::cerr << "Invalid target directory. Please enter a valid one!" << std::endl;
-        return 0;
+        throw std::runtime_error("Invalid target directory. Please enter a valid one!");
     }
 
     // Message count
     parameters.messageCount = arguments.at(arguments.size() - 1).toInt();
     if (parameters.messageCount < 1 || parameters.messageCount > 1000) {
-        std::cerr << "Please enter a number between 1 and 1000 for the message count value!" << std::endl;
-        return 0;
+        throw std::runtime_error("Please enter a number between 1 and 1000 for the message count value!");
     }
 
     // Topics
@@ -80,20 +81,17 @@ main(int argc, char* argv[])
             topicNameSet.insert(argument);
         } else {
             if (argument != "String" && argument != "Integer" && argument != "Image" && argument != "PointCloud") {
-                std::cerr << "The topic type must be either 'String', 'Integer', 'Image' or 'PointCloud'!" << std::endl;
-                return 0;
+                throw std::runtime_error("The topic type must be either 'String', 'Integer', 'Image' or 'PointCloud'!");
             }
             topicTypes.push_back(argument);
         }
     }
 
     if (topicTypes.size() != topicNames.size()) {
-        std::cerr << "Topic type and topic name size do not match. Please make sure to enter a name for each topic!" << std::endl;
-        return 0;
+        throw std::runtime_error("Topic type and topic name size do not match. Please make sure to enter a name for each topic!");
     }
     if (topicNameSet.size() != topicNames.size()) {
-        std::cerr << "Duplicate topic names detected. Please make sure that every topic name is unique!" << std::endl;
-        return 0;
+        throw std::runtime_error("Duplicate topic names detected. Please make sure that every topic name is unique!");
     }
 
     // Create thread parameters

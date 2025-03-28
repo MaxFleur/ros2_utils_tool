@@ -30,10 +30,13 @@ main(int argc, char* argv[])
 
     const auto& arguments = app.arguments();
     const QStringList checkList{ "-t", "-h", "--topic_name", "--help" };
-    if (Utils::CLI::containsInvalidParameters(arguments, checkList) ||
-        arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
+    if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
+    }
+    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
+        showHelp();
+        throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
     }
 
     Parameters::AdvancedParameters parameters;
@@ -41,12 +44,10 @@ main(int argc, char* argv[])
     // Handle bag directory
     parameters.sourceDirectory = arguments.at(1);
     if (!std::filesystem::exists(parameters.sourceDirectory.toStdString())) {
-        std::cerr << "Bag file not found. Make sure that the bag file exists!" << std::endl;
-        return 0;
+        throw std::runtime_error("Bag file not found. Make sure that the bag file exists!");
     }
     if (const auto doesDirContainBag = Utils::ROS::doesDirectoryContainBagFile(parameters.sourceDirectory); !doesDirContainBag) {
-        std::cerr << "The directory does not contain a bag file!" << std::endl;
-        return 0;
+        throw std::runtime_error("The directory does not contain a bag file!");
     }
 
     // PCD files directory
@@ -54,24 +55,20 @@ main(int argc, char* argv[])
     auto dirPath = parameters.targetDirectory;
     dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
     if (!std::filesystem::exists(dirPath.toStdString())) {
-        std::cerr << "Invalid target directory. Please enter a valid one!" << std::endl;
-        return 0;
+        throw std::runtime_error("Invalid target directory. Please enter a valid one!");
     }
 
     // Check for optional arguments
     if (arguments.size() > 3) {
         // Topic name
-        if (!Utils::CLI::isTopicNameValid(arguments, parameters.sourceDirectory, "sensor_msgs/msg/PointCloud2", parameters.topicName)) {
-            return 0;
-        }
+        Utils::CLI::checkTopicNameValidity(arguments, parameters.sourceDirectory, "sensor_msgs/msg/PointCloud2", parameters.topicName);
     }
 
     // Search for topic name in bag file if not specified
     if (parameters.topicName.isEmpty()) {
         const auto& firstTopicWithImageType = Utils::ROS::getFirstTopicWithCertainType(parameters.sourceDirectory, "sensor_msgs/msg/PointCloud2");
         if (firstTopicWithImageType == std::nullopt) {
-            std::cerr << "The bag file does not contain any point cloud topics!" << std::endl;
-            return 0;
+            throw std::runtime_error("The bag file does not contain any point cloud topics!");
         }
 
         parameters.topicName = *firstTopicWithImageType;

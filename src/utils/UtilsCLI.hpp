@@ -4,6 +4,7 @@
 #include <QStringList>
 #include <QThread>
 
+#include <optional>
 #include <string>
 
 #include <signal.h>
@@ -12,8 +13,8 @@
 namespace Utils::CLI
 {
 // Determines if an argument list contains invalid arguments
-// by comparing it with a matching checklist
-bool
+// by comparing it with a matching checklist, returns the invalid argument if found
+std::optional<std::string>
 containsInvalidParameters(const QStringList& argumentsList,
                           const QStringList& checkList);
 
@@ -46,15 +47,15 @@ bool
 shouldContinue(const std::string& message);
 
 // Checks if the topic name is at a valid position in the args list
-bool
-isTopicParameterAtValidPosition(const QStringList& argumentsList);
+void
+checkTopicParameterPosition(const QStringList& argumentsList);
 
 // If a topic name is existent and the corresponding topic in the according format
-bool
-isTopicNameValid(const QStringList& argumentsList,
-                 const QString&     bagDirectory,
-                 const QString&     topicType,
-                 QString&           topicNameToSet);
+void
+checkTopicNameValidity(const QStringList& argumentsList,
+                       const QString&     bagDirectory,
+                       const QString&     topicType,
+                       QString&           topicNameToSet);
 
 // If we should continue with an invalid ROS2 name
 bool

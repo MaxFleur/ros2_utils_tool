@@ -15,18 +15,18 @@ TEST_CASE("Utils CLI Testing", "[utils]") {
 
     SECTION("Contains invalid test") {
         arguments.append("-h");
-        REQUIRE(Utils::CLI::containsInvalidParameters(arguments, { "-h", "--help" }) == false);
+        REQUIRE(Utils::CLI::containsInvalidParameters(arguments, { "-h", "--help" }) == std::nullopt);
 
         arguments.pop_back();
         arguments.append("--help");
-        REQUIRE(Utils::CLI::containsInvalidParameters(arguments, { "-h", "--help" }) == false);
+        REQUIRE(Utils::CLI::containsInvalidParameters(arguments, { "-h", "--help" }) == std::nullopt);
 
         arguments.append("-t");
-        REQUIRE(Utils::CLI::containsInvalidParameters(arguments, { "-h", "--help" }) == true);
+        REQUIRE(Utils::CLI::containsInvalidParameters(arguments, { "-h", "--help" }) == "-t");
 
         arguments.pop_back();
         arguments.append("--test");
-        REQUIRE(Utils::CLI::containsInvalidParameters(arguments, { "-h", "--help" }) == true);
+        REQUIRE(Utils::CLI::containsInvalidParameters(arguments, { "-h", "--help" }) == "--test");
     }
     SECTION("Contains test") {
         REQUIRE(Utils::CLI::containsArguments(arguments, "-t", "--test") == false);
@@ -77,13 +77,13 @@ TEST_CASE("Utils CLI Testing", "[utils]") {
         progressString = Utils::CLI::drawProgressString(100);
         REQUIRE(progressString == "##################################################");
     }
-    SECTION("Topic name valid position test") {
+    SECTION("Topic parameter position test") {
         arguments.append("-t");
-        REQUIRE(Utils::CLI::isTopicParameterAtValidPosition(arguments) == false);
+        REQUIRE_THROWS_WITH(Utils::CLI::checkTopicParameterPosition(arguments), "Please enter a valid topic name!");
         arguments.append("/topic_name");
-        REQUIRE(Utils::CLI::isTopicParameterAtValidPosition(arguments) == true);
+        REQUIRE_NOTHROW(Utils::CLI::checkTopicParameterPosition(arguments));
     }
-    SECTION("Topic name valid test") {
+    SECTION("Topic name validity test") {
         const auto bagDirectory = std::filesystem::path("test_bag_file");
         std::filesystem::remove_all(bagDirectory);
 
@@ -99,15 +99,18 @@ TEST_CASE("Utils CLI Testing", "[utils]") {
         writer.close();
 
         QString topicName = "";
-        REQUIRE(Utils::CLI::isTopicNameValid(arguments, "test_bag_file", "sensor_msgs/msg/Image", topicName) == true);
+        REQUIRE_NOTHROW(Utils::CLI::checkTopicNameValidity(arguments, "test_bag_file", "sensor_msgs/msg/Image", topicName));
         arguments.append("-t");
-        REQUIRE(Utils::CLI::isTopicNameValid(arguments, "test_bag_file", "sensor_msgs/msg/Image", topicName) == false);
+        CHECK_THROWS_WITH(Utils::CLI::checkTopicNameValidity(arguments, "test_bag_file", "sensor_msgs/msg/Image", topicName),
+                          "Please enter a valid topic name!");
         arguments.append("/random_topic");
-        REQUIRE(Utils::CLI::isTopicNameValid(arguments, "test_bag_file", "sensor_msgs/msg/Image", topicName) == false);
+        CHECK_THROWS_WITH(Utils::CLI::checkTopicNameValidity(arguments, "test_bag_file", "sensor_msgs/msg/Image", topicName),
+                          "Topic '/random_topic' has not been found in the bag file!");
         arguments.pop_back();
         arguments.append("/topic_image");
-        REQUIRE(Utils::CLI::isTopicNameValid(arguments, "test_bag_file", "sensor_msgs/msg/PointCloud2", topicName) == false);
-        REQUIRE(Utils::CLI::isTopicNameValid(arguments, "test_bag_file", "sensor_msgs/msg/Image", topicName) == true);
+        CHECK_THROWS_WITH(Utils::CLI::checkTopicNameValidity(arguments, "test_bag_file", "sensor_msgs/msg/PointCloud2", topicName),
+                          "Topic '/topic_image' doesn't have the correct type!");
+        REQUIRE_NOTHROW(Utils::CLI::checkTopicNameValidity(arguments, "test_bag_file", "sensor_msgs/msg/Image", topicName));
 
         std::filesystem::remove_all(bagDirectory);
     }

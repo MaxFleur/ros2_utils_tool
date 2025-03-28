@@ -32,10 +32,13 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto arguments = app.arguments();
-    if (Utils::CLI::containsInvalidParameters(arguments, { "-m", "--mode", "-k", "--keep" }) ||
-        arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
+    if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
+    }
+    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, { "-m", "--mode", "-k", "--keep" }); argument != std::nullopt) {
+        showHelp();
+        throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
     }
 
     Parameters::CompressBagParameters parameters;
@@ -43,16 +46,13 @@ main(int argc, char* argv[])
     // Uncompressed source bag directory
     parameters.sourceDirectory = arguments.at(1);
     if (!std::filesystem::exists(parameters.sourceDirectory.toStdString())) {
-        std::cerr << "Source bag file not found. Make sure that the bag file exists!" << std::endl;
-        return 0;
+        throw std::runtime_error("Source bag file not found. Make sure that the bag file exists!");
     }
     if (const auto alreadyCompressed = Utils::ROS::doesDirectoryContainCompressedBagFile(parameters.sourceDirectory); alreadyCompressed) {
-        std::cerr << "The source bag file already compressed!" << std::endl;
-        return 0;
+        throw std::runtime_error("The source bag file already compressed!");
     }
     if (const auto doesDirContainBag = Utils::ROS::doesDirectoryContainBagFile(parameters.sourceDirectory); !doesDirContainBag) {
-        std::cerr << "The source bag file is invalid!" << std::endl;
-        return 0;
+        throw std::runtime_error("The source bag file is invalid!");
     }
 
     // Target compressed bag directory
@@ -60,8 +60,7 @@ main(int argc, char* argv[])
     auto dirPath = parameters.targetDirectory;
     dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
     if (!std::filesystem::exists(dirPath.toStdString())) {
-        std::cerr << "Invalid target directory. Please enter a valid one!" << std::endl;
-        return 0;
+        throw std::runtime_error("Invalid target directory. Please enter a valid one!");
     }
 
     parameters.deleteSource = true;
@@ -71,8 +70,7 @@ main(int argc, char* argv[])
         if (Utils::CLI::containsArguments(arguments, "-m", "--mode")) {
             const auto modeIndex = Utils::CLI::getArgumentsIndex(arguments, "-m", "--mode");
             if (arguments.at(modeIndex) == arguments.last() || (arguments.at(modeIndex + 1) != "file" && arguments.at(modeIndex + 1) != "message")) {
-                std::cerr << "Please enter either 'file' or 'message' for the mode!" << std::endl;
-                return 0;
+                throw std::runtime_error("Please enter either 'file' or 'message' for the mode!");
             }
             parameters.compressPerMessage = arguments.at(modeIndex + 1) == "message";
         }
