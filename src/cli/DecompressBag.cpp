@@ -42,12 +42,10 @@ main(int argc, char* argv[])
     // Compressed source bag directory
     parameters.sourceDirectory = arguments.at(1);
     if (!std::filesystem::exists(parameters.sourceDirectory.toStdString())) {
-        std::cerr << "Source bag file not found. Make sure that the bag file exists!" << std::endl;
-        return 0;
+        throw std::runtime_error("Source bag file not found. Make sure that the bag file exists!");
     }
     if (const auto alreadyCompressed = Utils::ROS::doesDirectoryContainCompressedBagFile(parameters.sourceDirectory); !alreadyCompressed) {
-        std::cerr << "The bag file is invalid or not in compressed format!" << std::endl;
-        return 0;
+        throw std::runtime_error("The bag file is invalid or not in compressed format!");
     }
 
     // Compressed target bag directory
@@ -55,8 +53,7 @@ main(int argc, char* argv[])
     auto dirPath = parameters.targetDirectory;
     dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
     if (!std::filesystem::exists(dirPath.toStdString())) {
-        std::cerr << "Invalid target directory. Please enter a valid one!" << std::endl;
-        return 0;
+        throw std::runtime_error("Invalid target directory. Please enter a valid one!");
     }
 
     parameters.deleteSource = true;

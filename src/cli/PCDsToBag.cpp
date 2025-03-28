@@ -42,8 +42,7 @@ main(int argc, char* argv[])
     auto dirPath = parameters.sourceDirectory;
     dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
     if (!std::filesystem::exists(dirPath.toStdString())) {
-        std::cerr << "The entered directory for the pcd files does not exist. Please specify a correct directory!" << std::endl;
-        return 0;
+        throw std::runtime_error("The entered directory for the pcd files does not exist. Please specify a correct directory!");
     }
 
     auto containsPCDFiles = false;
@@ -54,8 +53,7 @@ main(int argc, char* argv[])
         }
     }
     if (!containsPCDFiles) {
-        std::cerr << "The entered directory for the pcd files does not contain any pcd files!" << std::endl;
-        return 0;
+        throw std::runtime_error("The entered directory for the pcd files does not contain any pcd files!");
     }
 
     // Handle bag directory
@@ -63,8 +61,7 @@ main(int argc, char* argv[])
     dirPath = parameters.targetDirectory;
     dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
     if (!std::filesystem::exists(dirPath.toStdString())) {
-        std::cerr << "Invalid target directory. Please enter a valid one!" << std::endl;
-        return 0;
+        throw std::runtime_error("Invalid target directory. Please enter a valid one!");
     }
 
     // Check for optional arguments
@@ -75,8 +72,7 @@ main(int argc, char* argv[])
         }
         // Rate
         if (!Utils::CLI::checkArgumentValidity(arguments, "-r", "--rate", parameters.rate, 1, 30)) {
-            std::cerr << "Please enter a rate in the range of 1 to 30!" << std::endl;
-            return 0;
+            throw std::runtime_error("Please enter a rate in the range of 1 to 30!");
         }
     }
     // Apply default topic name if not assigned

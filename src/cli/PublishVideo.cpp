@@ -49,13 +49,11 @@ main(int argc, char* argv[])
     // Video directory
     parameters.sourceDirectory = arguments.at(1);
     if (!std::filesystem::exists(parameters.sourceDirectory.toStdString())) {
-        std::cerr << "The video file does not exist. Please enter a valid video path!" << std::endl;
-        return 0;
+        throw std::runtime_error("The video file does not exist. Please enter a valid video path!");
     }
     const auto fileEnding = parameters.sourceDirectory.right(3);
     if (fileEnding != "mp4" && fileEnding != "mkv") {
-        std::cerr << "The entered video name is not in correct format. Please make sure that the video file ends in mp4 or mkv!" << std::endl;
-        return 0;
+        throw std::runtime_error("The entered video name is not in correct format. Please make sure that the video file ends in mp4 or mkv!");
     }
 
     // Check for optional arguments
@@ -69,12 +67,10 @@ main(int argc, char* argv[])
         // Scale
         parameters.scale = Utils::CLI::containsArguments(arguments, "-s", "--scale");
         if (!Utils::CLI::checkArgumentValidity(arguments, "-s", "--scale", parameters.width, 1, 3840)) {
-            std::cerr << "Please enter a width value between 1 and 3840!" << std::endl;
-            return 0;
+            throw std::runtime_error("Please enter a width value between 1 and 3840!");
         }
         if (!Utils::CLI::checkArgumentValidity(arguments, "-s", "--scale", parameters.height, 1, 2160, 2)) {
-            std::cerr << "Please enter a height value between 1 and 2160!" << std::endl;
-            return 0;
+            throw std::runtime_error("Please enter a height value between 1 and 2160!");
         }
         parameters.scale = true;
         // Hardware acceleration
@@ -97,9 +93,7 @@ main(int argc, char* argv[])
     });
     QObject::connect(publishVideoThread, &PublishVideoThread::finished, publishVideoThread, &QObject::deleteLater);
     QObject::connect(publishVideoThread, &PublishVideoThread::failed, [] {
-        std::cerr << "Video publishing failed. Please make sure that the video file is valid "
-            "and disable the hardware acceleration, if necessary." << std::endl;
-        return 0;
+        throw std::runtime_error("Video publishing failed. Please make sure that the video file is valid and disable the hardware acceleration, if necessary.");
     });
 
     signal(SIGINT, [] (int signal) {
