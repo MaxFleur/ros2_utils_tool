@@ -53,11 +53,7 @@ main(int argc, char* argv[])
 
     // Compressed target bag directory
     parameters.targetDirectory = arguments.at(2);
-    auto dirPath = parameters.targetDirectory;
-    dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
-    if (!std::filesystem::exists(dirPath.toStdString())) {
-        throw std::runtime_error("Invalid target directory. Please enter a valid one!");
-    }
+    Utils::CLI::checkParentDirectory(parameters.targetDirectory);
 
     parameters.deleteSource = true;
     // Check for optional arguments

@@ -2,6 +2,8 @@
 
 #include "UtilsROS.hpp"
 
+#include <filesystem>
+
 namespace Utils::CLI
 {
 std::optional<std::string>
@@ -51,24 +53,6 @@ checkArgumentValidity(const QStringList& argumentsList, const QString& shortArg,
 }
 
 
-bool
-shouldContinue(const std::string& message)
-{
-    std::string input;
-
-    while (true) {
-        std::cout << message << std::endl;
-        std::cin >> input;
-
-        if (input == "y") {
-            return true;
-        } else if (input == "n") {
-            return false;
-        }
-    }
-}
-
-
 void
 checkTopicParameterPosition(const QStringList& argumentsList)
 {
@@ -93,6 +77,62 @@ checkTopicNameValidity(const QStringList& argumentsList, const QString& bagDirec
             throw std::runtime_error("Topic '" + topicName.toStdString() + "' doesn't have the correct type!");
         }
         topicNameToSet = topicName;
+    }
+}
+
+
+void
+checkBagSourceDirectory(const QString& bagDirectory)
+{
+    if (!std::filesystem::exists(bagDirectory.toStdString())) {
+        throw std::runtime_error("Bag file not found. Make sure that the bag file exists!");
+    }
+    if (const auto doesDirContainBag = Utils::ROS::doesDirectoryContainBagFile(bagDirectory); !doesDirContainBag) {
+        throw std::runtime_error("The directory does not contain a bag file!");
+    }
+}
+
+
+void
+checkParentDirectory(const QString& directory, bool isTarget)
+{
+    auto parentDirectory = directory;
+    parentDirectory.truncate(parentDirectory.lastIndexOf(QChar('/')));
+    if (!std::filesystem::exists(parentDirectory.toStdString())) {
+        throw std::runtime_error(isTarget ? "Invalid target directory. Please enter a valid one!"
+                                          : "Invalid source directory. Please enter a valid one!");
+    }
+}
+
+
+void
+checkForTargetTopic(const QString& directory, QString& parameterTopicName, bool isTopicOfImageType)
+{
+    const auto targetTopicName = Utils::ROS::getFirstTopicWithCertainType(directory, isTopicOfImageType ? "sensor_msgs/msg/Image"
+                                                                                                        : "sensor_msgs/msg/PointCloud2");
+    if (targetTopicName == std::nullopt) {
+        throw std::runtime_error(isTopicOfImageType ? "The bag file does not contain any image topics!"
+                                                    : "The bag file does not contain any point cloud topics!");
+    }
+
+    parameterTopicName = *targetTopicName;
+}
+
+
+bool
+shouldContinue(const std::string& message)
+{
+    std::string input;
+
+    while (true) {
+        std::cout << message << std::endl;
+        std::cin >> input;
+
+        if (input == "y") {
+            return true;
+        } else if (input == "n") {
+            return false;
+        }
     }
 }
 

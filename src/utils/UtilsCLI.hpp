@@ -42,10 +42,6 @@ checkArgumentValidity(const QStringList& argumentsList,
                       // In most cases, the value to set the argument comes directly at the position after it
                       int                argumentListOffset = 1);
 
-// Ask if the tool should continue for cases of invalidacies
-bool
-shouldContinue(const std::string& message);
-
 // Checks if the topic name is at a valid position in the args list
 void
 checkTopicParameterPosition(const QStringList& argumentsList);
@@ -56,6 +52,25 @@ checkTopicNameValidity(const QStringList& argumentsList,
                        const QString&     bagDirectory,
                        const QString&     topicType,
                        QString&           topicNameToSet);
+
+// Checks if a source bag directory exists and contains a valid bag file
+void
+checkBagSourceDirectory(const QString& bagDirectory);
+
+// Checks if the parent dir of a specified directory exists
+void
+checkParentDirectory(const QString& directory,
+                     bool           isTarget = true);
+
+// Checks for existing topics in a bag directory and writes the first found topic to a parameter topic name, if found
+void
+checkForTargetTopic(const QString& directory,
+                    QString&       parameterTopicName,
+                    bool           isTopicOfImageType);
+
+// Ask if the tool should continue for cases of invalidacies
+bool
+shouldContinue(const std::string& message);
 
 // If we should continue with an invalid ROS2 name
 bool

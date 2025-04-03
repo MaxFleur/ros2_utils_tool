@@ -43,11 +43,7 @@ main(int argc, char* argv[])
 
     // PCDs directory
     parameters.sourceDirectory = arguments.at(1);
-    auto dirPath = parameters.sourceDirectory;
-    dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
-    if (!std::filesystem::exists(dirPath.toStdString())) {
-        throw std::runtime_error("The entered directory for the pcd files does not exist. Please specify a correct directory!");
-    }
+    Utils::CLI::checkParentDirectory(parameters.sourceDirectory, false);
 
     auto containsPCDFiles = false;
     for (auto const& entry : std::filesystem::directory_iterator(parameters.sourceDirectory.toStdString())) {
@@ -62,11 +58,7 @@ main(int argc, char* argv[])
 
     // Handle bag directory
     parameters.targetDirectory = arguments.at(2);
-    dirPath = parameters.targetDirectory;
-    dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
-    if (!std::filesystem::exists(dirPath.toStdString())) {
-        throw std::runtime_error("Invalid target directory. Please enter a valid one!");
-    }
+    Utils::CLI::checkParentDirectory(parameters.targetDirectory);
 
     // Check for optional arguments
     if (arguments.size() > 3) {

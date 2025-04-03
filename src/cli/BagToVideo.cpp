@@ -49,21 +49,12 @@ main(int argc, char* argv[])
 
     // Handle bag directory
     parameters.sourceDirectory = arguments.at(1);
-    auto dirPath = parameters.sourceDirectory;
-    if (!std::filesystem::exists(parameters.sourceDirectory.toStdString())) {
-        throw std::runtime_error("Bag file not found. Make sure that the bag file exists!");
-    }
-    if (const auto doesDirContainBag = Utils::ROS::doesDirectoryContainBagFile(parameters.sourceDirectory); !doesDirContainBag) {
-        throw std::runtime_error("The directory does not contain a bag file!");
-    }
+    Utils::CLI::checkBagSourceDirectory(parameters.sourceDirectory);
 
     // Video directory
     parameters.targetDirectory = arguments.at(2);
-    dirPath = parameters.targetDirectory;
-    dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
-    if (!std::filesystem::exists(dirPath.toStdString())) {
-        throw std::runtime_error("Invalid target directory. Please enter a valid one!");
-    }
+    Utils::CLI::checkParentDirectory(parameters.targetDirectory);
+
     parameters.format = parameters.targetDirectory.right(3);
     if (parameters.format != "mp4" && parameters.format != "mkv") {
         throw std::runtime_error("The entered video name is in invalid format. Please make sure that the video has the ending 'mp4' or 'mkv'!");
@@ -92,12 +83,7 @@ main(int argc, char* argv[])
 
     // Search for topic name in bag file if not specified
     if (parameters.topicName.isEmpty()) {
-        const auto& firstTopicWithImageType = Utils::ROS::getFirstTopicWithCertainType(parameters.sourceDirectory, "sensor_msgs/msg/Image");
-        if (firstTopicWithImageType == std::nullopt) {
-            throw std::runtime_error("The bag file does not contain any image topics!");
-        }
-
-        parameters.topicName = *firstTopicWithImageType;
+        Utils::CLI::checkForTargetTopic(parameters.sourceDirectory, parameters.topicName, true);
     }
 
     if (std::filesystem::exists(parameters.targetDirectory.toStdString())) {

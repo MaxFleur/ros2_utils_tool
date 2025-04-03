@@ -43,20 +43,11 @@ main(int argc, char* argv[])
 
     // Handle bag directory
     parameters.sourceDirectory = arguments.at(1);
-    if (!std::filesystem::exists(parameters.sourceDirectory.toStdString())) {
-        throw std::runtime_error("Bag file not found. Make sure that the bag file exists!");
-    }
-    if (const auto doesDirContainBag = Utils::ROS::doesDirectoryContainBagFile(parameters.sourceDirectory); !doesDirContainBag) {
-        throw std::runtime_error("The directory does not contain a bag file!");
-    }
+    Utils::CLI::checkBagSourceDirectory(parameters.sourceDirectory);
 
     // PCD files directory
     parameters.targetDirectory = arguments.at(2);
-    auto dirPath = parameters.targetDirectory;
-    dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
-    if (!std::filesystem::exists(dirPath.toStdString())) {
-        throw std::runtime_error("Invalid target directory. Please enter a valid one!");
-    }
+    Utils::CLI::checkParentDirectory(parameters.targetDirectory);
 
     // Check for optional arguments
     if (arguments.size() > 3) {
@@ -66,12 +57,7 @@ main(int argc, char* argv[])
 
     // Search for topic name in bag file if not specified
     if (parameters.topicName.isEmpty()) {
-        const auto& firstTopicWithImageType = Utils::ROS::getFirstTopicWithCertainType(parameters.sourceDirectory, "sensor_msgs/msg/PointCloud2");
-        if (firstTopicWithImageType == std::nullopt) {
-            throw std::runtime_error("The bag file does not contain any point cloud topics!");
-        }
-
-        parameters.topicName = *firstTopicWithImageType;
+        Utils::CLI::checkForTargetTopic(parameters.sourceDirectory, parameters.topicName, false);
     }
 
     if (std::filesystem::exists(parameters.targetDirectory.toStdString())) {

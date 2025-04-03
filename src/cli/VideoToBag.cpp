@@ -47,11 +47,8 @@ main(int argc, char* argv[])
 
     // Video directory
     parameters.sourceDirectory = arguments.at(1);
-    auto dirPath = parameters.sourceDirectory;
-    dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
-    if (!std::filesystem::exists(dirPath.toStdString())) {
-        throw std::runtime_error("The entered directory for the video file does not exist. Please specify a correct directory!");
-    }
+    Utils::CLI::checkParentDirectory(parameters.sourceDirectory, false);
+
     const auto fileEnding = parameters.sourceDirectory.right(3);
     if (fileEnding != "mp4" && fileEnding != "mkv") {
         throw std::runtime_error("The entered video name is in invalid format. Please make sure that the video has the ending 'mp4' or 'mkv'!");
@@ -59,11 +56,7 @@ main(int argc, char* argv[])
 
     // Bag directory
     parameters.targetDirectory = arguments.at(2);
-    dirPath = parameters.targetDirectory;
-    dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
-    if (!std::filesystem::exists(dirPath.toStdString())) {
-        throw std::runtime_error("Invalid target directory. Please enter a valid one!");
-    }
+    Utils::CLI::checkParentDirectory(parameters.targetDirectory);
 
     // Check for optional arguments
     auto useHardwareAcceleration = false;

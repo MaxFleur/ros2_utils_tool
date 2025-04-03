@@ -92,13 +92,10 @@ main(int argc, char* argv[])
 
     // Target file
     parameters.targetDirectory = arguments.back();
-    auto dirPath = parameters.targetDirectory;
-    dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
-    if (!std::filesystem::exists(dirPath.toStdString())) {
-        throw std::runtime_error("Invalid target directory. Please enter a valid one!");
-    }
+    Utils::CLI::checkParentDirectory(parameters.targetDirectory);
+
     if (parameters.targetDirectory == parameters.sourceDirectory || parameters.targetDirectory == parameters.secondSourceDirectory) {
-        throw std::runtime_error("The target file must have a different name then both input bag files!");
+        throw std::runtime_error("The target file must have a different name than both input bag files!");
     }
 
     if (topicNameSet.size() != parameters.topics.size()) {

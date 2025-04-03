@@ -46,11 +46,7 @@ main(int argc, char* argv[])
 
     // Bag directory (called as source dir, but is out target dir this time)
     parameters.sourceDirectory = arguments.at(1);
-    auto dirPath = parameters.sourceDirectory;
-    dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
-    if (!std::filesystem::exists(dirPath.toStdString())) {
-        throw std::runtime_error("Invalid target directory. Please enter a valid one!");
-    }
+    Utils::CLI::checkParentDirectory(parameters.sourceDirectory);
 
     // Message count
     parameters.messageCount = arguments.at(arguments.size() - 1).toInt();
