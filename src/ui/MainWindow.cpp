@@ -12,6 +12,7 @@
 #include "ProgressWidget.hpp"
 #include "PublishWidget.hpp"
 #include "StartWidget.hpp"
+#include "TopicsServicesInfoWidget.hpp"
 #include "UtilsUI.hpp"
 #include "VideoToBagWidget.hpp"
 
@@ -89,6 +90,9 @@ MainWindow::setInputWidget(int mode)
     case Utils::UI::TOOL_PUBLISH_IMAGES:
         basicInputWidget = new PublishWidget(m_parametersPublishImages, m_dialogParameters.usePredefinedTopicNames,
                                              m_dialogParameters.checkROS2NameConform, false);
+        break;
+    case Utils::UI::TOOL_TOPICS_SERVICES_INFO:
+        basicInputWidget = new TopicsServicesInfoWidget;
         break;
     case Utils::UI::TOOL_BAG_INFO:
         basicInputWidget = new BagInfoWidget;

@@ -35,6 +35,62 @@ doesDirectoryContainCompressedBagFile(const QString& bagDirectory)
 }
 
 
+void
+spinNode(std::shared_ptr<rclcpp::Node> node)
+{
+    // We spin a node for some time before getting any topics/services from it
+    // This implementation is based is based on ros2cli:
+    // https://github.com/ros2/ros2cli/blob/rolling/ros2cli/ros2cli/node/direct.py#L25
+    auto executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
+    executor->add_node(node);
+
+    rclcpp::Rate rate(50);
+    auto isFinished = false;
+
+    auto timer = rclcpp::create_timer(node, node->get_clock(), rclcpp::Duration::from_seconds(0.1), [&isFinished] {
+        isFinished = true;
+    });
+    while (!isFinished) {
+        executor->spin_once();
+        rate.sleep();
+    }
+}
+
+
+std::vector<std::pair<std::string, std::array<std::string, 3> > >
+getTopicInformation()
+{
+    auto node = std::make_shared<rclcpp::Node>("topics_node");
+    spinNode(node);
+
+    std::vector<std::pair<std::string, std::array<std::string, 3> > > topicInformation;
+    const auto& currentTopicNamesAndTypes = node->get_topic_names_and_types();
+    topicInformation.reserve(currentTopicNamesAndTypes.size());
+
+    for (const auto& currentTopic : currentTopicNamesAndTypes) {
+        const auto numberOfPublishers = node->count_publishers(currentTopic.first);
+        const auto numberOfSubscribers = node->count_subscribers(currentTopic.first);
+        const std::array<std::string, 3> currentTopicInfo { { currentTopic.second.at(0),
+            std::to_string(numberOfPublishers), std::to_string(numberOfSubscribers) } };
+
+        topicInformation.emplace_back(std::make_pair(currentTopic.first, currentTopicInfo));
+    }
+
+    std::sort(topicInformation.begin(), topicInformation.end());
+    return topicInformation;
+}
+
+
+std::map<std::string, std::vector<std::string> >
+getServiceNamesAndTypes()
+{
+    auto node = std::make_shared<rclcpp::Node>("services_node");
+    spinNode(node);
+
+    return node->get_service_names_and_types();
+}
+
+
 rosbag2_storage::BagMetadata
 getBagMetadata(const QString& bagDirectory)
 {

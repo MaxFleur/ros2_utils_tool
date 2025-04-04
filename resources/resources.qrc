@@ -43,6 +43,8 @@
         <file>icons/publish_images_white.svg</file>
         <file>icons/publish_video_black.svg</file>
         <file>icons/publish_video_white.svg</file>
+        <file>icons/topics_services_info_black.svg</file>
+        <file>icons/topics_services_info_white.svg</file>
         <file>icons/video_to_bag_black.svg</file>
         <file>icons/video_to_bag_white.svg</file>
     </qresource>

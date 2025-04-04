@@ -137,10 +137,12 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     publishingToolsWidget->setLayout(publishingToolsMainLayout);
 
     // Info tools widget
+    m_topicServiceInfoButton = createToolButton("Topics and\nService Info");
     m_bagInfoButton = createToolButton("Bag\nInfos");
 
     auto* const infoToolsMainLayout = new QHBoxLayout;
     infoToolsMainLayout->addStretch();
+    infoToolsMainLayout->addWidget(m_topicServiceInfoButton);
     infoToolsMainLayout->addWidget(m_bagInfoButton);
     infoToolsMainLayout->addStretch();
 
@@ -248,6 +250,9 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     });
     connect(m_publishImagesButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_PUBLISH_IMAGES);
+    });
+    connect(m_topicServiceInfoButton, &QPushButton::clicked, this, [this] {
+        emit toolRequested(Utils::UI::TOOL_TOPICS_SERVICES_INFO);
     });
     connect(m_bagInfoButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_BAG_INFO);
@@ -357,6 +362,8 @@ StartWidget::setButtonIcons()
     m_publishVideoButton->setIcon(QIcon(isDarkMode ? ":/icons/publish_video_white.svg" : ":/icons/publish_video_black.svg"));
     m_publishImagesButton->setIcon(QIcon(isDarkMode ? ":/icons/publish_images_white.svg" : ":/icons/publish_images_black.svg"));
 
+    m_topicServiceInfoButton->setIcon(QIcon(isDarkMode ? ":/icons/topics_services_info_white.svg"
+                                                       : ":/icons/topics_services_info_black.svg"));
     m_bagInfoButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_info_white.svg" : ":/icons/bag_info_black.svg"));
 }
 

@@ -64,5 +64,6 @@ static constexpr int TOOL_DECOMPRESS_BAG = 8;
 static constexpr int TOOL_DUMMY_BAG = 9;
 static constexpr int TOOL_PUBLISH_VIDEO = 10;
 static constexpr int TOOL_PUBLISH_IMAGES = 11;
-static constexpr int TOOL_BAG_INFO = 12;
+static constexpr int TOOL_TOPICS_SERVICES_INFO = 12;
+static constexpr int TOOL_BAG_INFO = 13;
 }

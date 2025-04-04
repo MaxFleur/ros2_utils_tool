@@ -70,6 +70,41 @@ TEST_CASE("Utils ROS Testing", "[utils]") {
         contains = Utils::ROS::doesDirectoryContainCompressedBagFile("compressed_bag_file");
         REQUIRE(contains == true);
     }
+    SECTION("Topics and services test") {
+        auto runThread = true;
+        // Run some constant publishing in the background
+        auto publishingThread = std::thread([&runThread] {
+            auto node = std::make_shared<rclcpp::Node>("topics_publisher");
+            auto publisher = node->create_publisher<std_msgs::msg::Int32>("/example", 10);
+            rclcpp::Rate rate(50);
+
+            while (runThread) {
+                auto message = std_msgs::msg::Int32();
+                message.data = 0;
+                publisher->publish(message);
+                rate.sleep();
+            }
+        });
+
+        SECTION("Topics test") {
+            const auto& topics = Utils::ROS::getTopicInformation();
+            const auto it = std::find_if(topics.begin(), topics.end(), [] (const auto& element) {
+                return element.first == "/example";
+            });
+            REQUIRE(it != topics.end());
+            // Check for example topic
+            REQUIRE(it->second[0] == "std_msgs/msg/Int32");
+            REQUIRE(it->second[1] == "1");
+            REQUIRE(it->second[2] == "0");
+        }
+        SECTION("Services test") {
+            // Running the publishing node should create lots of services running in the background
+            const auto& map = Utils::ROS::getServiceNamesAndTypes();
+            REQUIRE(map.size() != 0);
+        }
+        runThread = false;
+        publishingThread.join();
+    }
     SECTION("Get bag metadata test") {
         const auto& metadata = Utils::ROS::getBagMetadata(qString);
         REQUIRE(metadata.message_count == 18);

@@ -67,6 +67,7 @@ private:
     QPointer<QToolButton> m_publishVideoButton;
     QPointer<QToolButton> m_publishImagesButton;
 
+    QPointer<QToolButton> m_topicServiceInfoButton;
     QPointer<QToolButton> m_bagInfoButton;
 
     // Widgets for other elements

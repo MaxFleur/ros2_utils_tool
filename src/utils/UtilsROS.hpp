@@ -41,6 +41,14 @@ doesDirectoryContainBagFile(const QString& bagDirectory);
 [[nodiscard]] bool
 doesDirectoryContainCompressedBagFile(const QString& bagDirectory);
 
+// Show all current topic names and types
+std::vector<std::pair<std::string, std::array<std::string, 3> > >
+getTopicInformation();
+
+// Show all current service names and types
+std::map<std::string, std::vector<std::string> >
+getServiceNamesAndTypes();
+
 // Returns the metadata stored for a ROS bag
 [[nodiscard]] rosbag2_storage::BagMetadata
 getBagMetadata(const QString& bagDirectory);
