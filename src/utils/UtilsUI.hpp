@@ -59,10 +59,10 @@ static constexpr int TOOL_PCDS_TO_BAG = 3;
 static constexpr int TOOL_BAG_TO_IMAGES = 4;
 static constexpr int TOOL_EDIT_BAG = 5;
 static constexpr int TOOL_MERGE_BAGS = 6;
-static constexpr int TOOL_DUMMY_BAG = 7;
-static constexpr int TOOL_BAG_INFO = 8;
-static constexpr int TOOL_COMPRESS_BAG = 9;
-static constexpr int TOOL_DECOMPRESS_BAG = 10;
-static constexpr int TOOL_PUBLISH_VIDEO = 11;
-static constexpr int TOOL_PUBLISH_IMAGES = 12;
+static constexpr int TOOL_COMPRESS_BAG = 7;
+static constexpr int TOOL_DECOMPRESS_BAG = 8;
+static constexpr int TOOL_DUMMY_BAG = 9;
+static constexpr int TOOL_PUBLISH_VIDEO = 10;
+static constexpr int TOOL_PUBLISH_IMAGES = 11;
+static constexpr int TOOL_BAG_INFO = 12;
 }

@@ -17,7 +17,7 @@
 #include <chrono>
 
 BagInfoWidget::BagInfoWidget(QWidget *parent) :
-    BasicInputWidget("Get Infos from Bag", ":/icons/bag_info", parent)
+    BasicInputWidget("Bag Info", ":/icons/bag_info", parent)
 {
     auto* const bagLineEdit = new QLineEdit();
     bagLineEdit->setToolTip("The source bag file directory.");

@@ -50,6 +50,7 @@ private:
     QPointer<QToolButton> m_conversionToolsButton;
     QPointer<QToolButton> m_bagToolsButton;
     QPointer<QToolButton> m_publishingToolsButton;
+    QPointer<QToolButton> m_infoToolsButton;
 
     QPointer<QToolButton> m_bagToVideoPushButton;
     QPointer<QToolButton> m_videoToBagPushButton;
@@ -59,13 +60,14 @@ private:
 
     QPointer<QToolButton> m_editBagButton;
     QPointer<QToolButton> m_mergeBagsButton;
-    QPointer<QToolButton> m_dummyBagButton;
-    QPointer<QToolButton> m_bagInfoButton;
     QPointer<QToolButton> m_compressBagButton;
     QPointer<QToolButton> m_decompressBagButton;
+    QPointer<QToolButton> m_dummyBagButton;
 
     QPointer<QToolButton> m_publishVideoButton;
     QPointer<QToolButton> m_publishImagesButton;
+
+    QPointer<QToolButton> m_bagInfoButton;
 
     // Widgets for other elements
     QPointer<QPushButton> m_settingsButton;
@@ -83,4 +85,5 @@ private:
     static constexpr int WIDGET_CONVERSION = 1;
     static constexpr int WIDGET_BAG = 2;
     static constexpr int WIDGET_PUBLISHING = 3;
+    static constexpr int WIDGET_INFO = 4;
 };

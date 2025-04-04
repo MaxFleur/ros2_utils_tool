@@ -28,12 +28,13 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     settingsButtonLayout->addStretch();
     settingsButtonLayout->addWidget(m_settingsButton);
 
-    // Create three widgets: One for providing the overview for bag and publishing tools,
-    // one for bag and one for publishing tools only
+    // Create four widgets: One for providing the overview for bag and publishing tools,
+    // one for bag, one for publishing and one for info tools
     // Overview widget
     m_conversionToolsButton = createToolButton("Conversion\nTools");
     m_bagToolsButton = createToolButton("Bag Tools");
     m_publishingToolsButton = createToolButton("Publishing\nTools");
+    m_infoToolsButton = createToolButton("Info\nTools");
 
     auto* const overallUpperLayout = new QHBoxLayout;
     overallUpperLayout->addStretch();
@@ -44,6 +45,7 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     auto* const overallLowerLayout = new QHBoxLayout;
     overallLowerLayout->addStretch();
     overallLowerLayout->addWidget(m_publishingToolsButton);
+    overallLowerLayout->addWidget(m_infoToolsButton);
     overallLowerLayout->addStretch();
 
     auto* const overallToolsMainLayout = new QVBoxLayout;
@@ -90,10 +92,9 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     // Bag tools widget
     m_editBagButton = createToolButton("Edit Bag");
     m_mergeBagsButton = createToolButton("Merge Bags");
-    m_dummyBagButton = createToolButton("Create\nDummy Bag");
-    m_bagInfoButton = createToolButton("Get Infos\nfrom Bag");
     m_compressBagButton = createToolButton("Compress\nBag");
     m_decompressBagButton = createToolButton("Decompress\nBag");
+    m_dummyBagButton = createToolButton("Create\nDummy Bag");
 
     auto* const bagToolsUpperLayout = new QHBoxLayout;
     bagToolsUpperLayout->addStretch();
@@ -103,14 +104,13 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
 
     auto* const bagToolsCenterLayout = new QHBoxLayout;
     bagToolsCenterLayout->addStretch();
-    bagToolsCenterLayout->addWidget(m_dummyBagButton);
-    bagToolsCenterLayout->addWidget(m_bagInfoButton);
+    bagToolsCenterLayout->addWidget(m_compressBagButton);
+    bagToolsCenterLayout->addWidget(m_decompressBagButton);
     bagToolsCenterLayout->addStretch();
 
     auto* const bagToolsLowerLayout = new QHBoxLayout;
     bagToolsLowerLayout->addStretch();
-    bagToolsLowerLayout->addWidget(m_compressBagButton);
-    bagToolsLowerLayout->addWidget(m_decompressBagButton);
+    bagToolsLowerLayout->addWidget(m_dummyBagButton);
     bagToolsLowerLayout->addStretch();
 
     auto* const bagToolsMainLayout = new QVBoxLayout;
@@ -135,6 +135,17 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
 
     auto* const publishingToolsWidget = new QWidget;
     publishingToolsWidget->setLayout(publishingToolsMainLayout);
+
+    // Info tools widget
+    m_bagInfoButton = createToolButton("Bag\nInfos");
+
+    auto* const infoToolsMainLayout = new QHBoxLayout;
+    infoToolsMainLayout->addStretch();
+    infoToolsMainLayout->addWidget(m_bagInfoButton);
+    infoToolsMainLayout->addStretch();
+
+    auto* const infoToolsWidget = new QWidget;
+    infoToolsWidget->setLayout(infoToolsMainLayout);
 
     setButtonIcons();
 
@@ -162,29 +173,36 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     m_mainLayout->addLayout(backButtonLayout);
     setLayout(m_mainLayout);
 
-    const auto switchToOverallTools = [this, conversionToolsWidget, bagToolsWidget, publishingToolsWidget, overallToolsWidget] {
+    const auto switchToOverallTools = [this, conversionToolsWidget, bagToolsWidget, publishingToolsWidget,
+                                       infoToolsWidget, overallToolsWidget] {
         switch (m_widgetOnInstantiation) {
         case WIDGET_CONVERSION:
-            replaceWidgets(conversionToolsWidget, overallToolsWidget, 0, true);
+            replaceWidgets(conversionToolsWidget, overallToolsWidget, WIDGET_OVERALL, true);
             break;
         case WIDGET_BAG:
-            replaceWidgets(bagToolsWidget, overallToolsWidget, 0, true);
+            replaceWidgets(bagToolsWidget, overallToolsWidget, WIDGET_OVERALL, true);
             break;
         case WIDGET_PUBLISHING:
-            replaceWidgets(publishingToolsWidget, overallToolsWidget, 0, true);
+            replaceWidgets(publishingToolsWidget, overallToolsWidget, WIDGET_OVERALL, true);
+            break;
+        case WIDGET_INFO:
+            replaceWidgets(infoToolsWidget, overallToolsWidget, WIDGET_OVERALL, true);
             break;
         default:
             break;
         }
     };
     const auto switchToConversionTools = [this, overallToolsWidget, conversionToolsWidget] {
-        replaceWidgets(overallToolsWidget, conversionToolsWidget, 1, false);
+        replaceWidgets(overallToolsWidget, conversionToolsWidget, WIDGET_CONVERSION, false);
     };
     const auto switchToBagTools = [this, overallToolsWidget, bagToolsWidget] {
-        replaceWidgets(overallToolsWidget, bagToolsWidget, 2, false);
+        replaceWidgets(overallToolsWidget, bagToolsWidget, WIDGET_BAG, false);
     };
     const auto switchToPublishingTools = [this, overallToolsWidget, publishingToolsWidget] {
-        replaceWidgets(overallToolsWidget, publishingToolsWidget, 3, false);
+        replaceWidgets(overallToolsWidget, publishingToolsWidget, WIDGET_PUBLISHING, false);
+    };
+    const auto switchToInfoTools = [this, overallToolsWidget, infoToolsWidget] {
+        replaceWidgets(overallToolsWidget, infoToolsWidget, WIDGET_INFO, false);
     };
 
     connect(m_settingsButton, &QPushButton::clicked, this, &StartWidget::openSettingsDialog);
@@ -193,6 +211,7 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     connect(m_conversionToolsButton, &QPushButton::clicked, this, switchToConversionTools);
     connect(m_bagToolsButton, &QPushButton::clicked, this, switchToBagTools);
     connect(m_publishingToolsButton, &QPushButton::clicked, this, switchToPublishingTools);
+    connect(m_infoToolsButton, &QPushButton::clicked, this, switchToInfoTools);
 
     connect(m_bagToVideoPushButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_BAG_TO_VIDEO);
@@ -215,23 +234,23 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     connect(m_mergeBagsButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_MERGE_BAGS);
     });
-    connect(m_dummyBagButton, &QPushButton::clicked, this, [this] {
-        emit toolRequested(Utils::UI::TOOL_DUMMY_BAG);
-    });
-    connect(m_bagInfoButton, &QPushButton::clicked, this, [this] {
-        emit toolRequested(Utils::UI::TOOL_BAG_INFO);
-    });
     connect(m_compressBagButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_COMPRESS_BAG);
     });
     connect(m_decompressBagButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_DECOMPRESS_BAG);
     });
+    connect(m_dummyBagButton, &QPushButton::clicked, this, [this] {
+        emit toolRequested(Utils::UI::TOOL_DUMMY_BAG);
+    });
     connect(m_publishVideoButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_PUBLISH_VIDEO);
     });
     connect(m_publishImagesButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_PUBLISH_IMAGES);
+    });
+    connect(m_bagInfoButton, &QPushButton::clicked, this, [this] {
+        emit toolRequested(Utils::UI::TOOL_BAG_INFO);
     });
 
     switch (m_widgetOnInstantiation) {
@@ -243,6 +262,9 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
         break;
     case WIDGET_PUBLISHING:
         switchToPublishingTools();
+        break;
+    case WIDGET_INFO:
+        switchToInfoTools();
         break;
     default:
         break;
@@ -281,6 +303,9 @@ StartWidget::replaceWidgets(QWidget* fromWidget, QWidget* toWidget, int widgetId
     case WIDGET_PUBLISHING:
         m_headerLabel->setText("PUBLISHING TOOLS");
         break;
+    case WIDGET_INFO:
+        m_headerLabel->setText("INFO TOOLS");
+        break;
     default:
         break;
     }
@@ -315,6 +340,7 @@ StartWidget::setButtonIcons()
     m_conversionToolsButton->setIcon(QIcon(isDarkMode ? ":/icons/conversion_tools_white.svg" : ":/icons/conversion_tools_black.svg"));
     m_bagToolsButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_tools_white.svg" : ":/icons/bag_tools_black.svg"));
     m_publishingToolsButton->setIcon(QIcon(isDarkMode ? ":/icons/publishing_tools_white.svg" : ":/icons/publishing_tools_black.svg"));
+    m_infoToolsButton->setIcon(QIcon(isDarkMode ? ":/icons/info_tools_white.svg" : ":/icons/info_tools_black.svg"));
 
     m_bagToVideoPushButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_to_video_white.svg" : ":/icons/bag_to_video_black.svg"));
     m_videoToBagPushButton->setIcon(QIcon(isDarkMode ? ":/icons/video_to_bag_white.svg" : ":/icons/video_to_bag_black.svg"));
@@ -324,13 +350,14 @@ StartWidget::setButtonIcons()
 
     m_editBagButton->setIcon(QIcon(isDarkMode ? ":/icons/edit_bag_white.svg" : ":/icons/edit_bag_black.svg"));
     m_mergeBagsButton->setIcon(QIcon(isDarkMode ? ":/icons/merge_bags_white.svg" : ":/icons/merge_bags_black.svg"));
-    m_dummyBagButton->setIcon(QIcon(isDarkMode ? ":/icons/dummy_bag_white.svg" : ":/icons/dummy_bag_black.svg"));
-    m_bagInfoButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_info_white.svg" : ":/icons/bag_info_black.svg"));
     m_compressBagButton->setIcon(QIcon(isDarkMode ? ":/icons/compress_bag_white.svg" : ":/icons/compress_bag_black.svg"));
     m_decompressBagButton->setIcon(QIcon(isDarkMode ? ":/icons/decompress_bag_white.svg" : ":/icons/decompress_bag_black.svg"));
+    m_dummyBagButton->setIcon(QIcon(isDarkMode ? ":/icons/dummy_bag_white.svg" : ":/icons/dummy_bag_black.svg"));
 
     m_publishVideoButton->setIcon(QIcon(isDarkMode ? ":/icons/publish_video_white.svg" : ":/icons/publish_video_black.svg"));
     m_publishImagesButton->setIcon(QIcon(isDarkMode ? ":/icons/publish_images_white.svg" : ":/icons/publish_images_black.svg"));
+
+    m_bagInfoButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_info_white.svg" : ":/icons/bag_info_black.svg"));
 }
 
 
