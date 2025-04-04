@@ -41,26 +41,31 @@ doesDirectoryContainBagFile(const QString& bagDirectory);
 [[nodiscard]] bool
 doesDirectoryContainCompressedBagFile(const QString& bagDirectory);
 
+// Returns the metadata stored for a ROS bag
+[[nodiscard]] rosbag2_storage::BagMetadata
+getBagMetadata(const QString& bagDirectory);
+
+// Returns a topic in a bag file, if existent
+std::optional<rosbag2_storage::TopicInformation>
+getTopicInBag(const QString& bagDirectory,
+              const QString& topicName);
+
 // If a ROS bag contains a certain topic
 [[nodiscard]] bool
 doesBagContainTopicName(const QString& bagDirectory,
                         const QString& topicName);
 
 // Message count for a ROS bag topic
-[[nodiscard]] int
+[[nodiscard]] std::optional<int>
 getTopicMessageCount(const QString& bagDirectory,
                      const QString& topicName);
 
-[[nodiscard]] int
+[[nodiscard]] std::optional<int>
 getTopicMessageCount(const std::string& bagDirectory,
                      const std::string& topicName);
 
-// Returns the metadata stored for a ROS bag
-[[nodiscard]] rosbag2_storage::BagMetadata
-getBagMetadata(const QString& bagDirectory);
-
 // Get a ROS bag topic's type
-[[nodiscard]] QString
+[[nodiscard]] std::optional<QString>
 getTopicType(const QString& bagDirectory,
              const QString& topicName);
 

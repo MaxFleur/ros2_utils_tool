@@ -70,22 +70,6 @@ TEST_CASE("Utils ROS Testing", "[utils]") {
         contains = Utils::ROS::doesDirectoryContainCompressedBagFile("compressed_bag_file");
         REQUIRE(contains == true);
     }
-    SECTION("Contains topic name test") {
-        auto contains = Utils::ROS::doesBagContainTopicName(qString, "/topic_image");
-        REQUIRE(contains == true);
-        contains = Utils::ROS::doesBagContainTopicName(qString, "/topic_string");
-        REQUIRE(contains == true);
-        contains = Utils::ROS::doesBagContainTopicName(qString, "/topic_should_not_be_included");
-        REQUIRE(contains == false);
-    }
-    SECTION("Topic message count test") {
-        auto messageCount = Utils::ROS::getTopicMessageCount(qString, "/topic_image");
-        REQUIRE(messageCount == 5);
-        messageCount = Utils::ROS::getTopicMessageCount(qString, "/topic_string");
-        REQUIRE(messageCount == 3);
-        messageCount = Utils::ROS::getTopicMessageCount(qString, "/topic_should_not_be_included");
-        REQUIRE(messageCount == 0);
-    }
     SECTION("Get bag metadata test") {
         const auto& metadata = Utils::ROS::getBagMetadata(qString);
         REQUIRE(metadata.message_count == 18);
@@ -103,13 +87,37 @@ TEST_CASE("Utils ROS Testing", "[utils]") {
         REQUIRE(metaDataTopic.name == "/topic_image");
         REQUIRE(metaDataTopic.type == "sensor_msgs/msg/Image");
     }
+    SECTION("Get topic test") {
+        auto topic = Utils::ROS::getTopicInBag(qString, "/topic_image");
+        REQUIRE(topic != std::nullopt);
+        topic = Utils::ROS::getTopicInBag(qString, "/topic_string");
+        REQUIRE(topic != std::nullopt);
+        topic = Utils::ROS::getTopicInBag(qString, "/topic_should_not_be_included");
+        REQUIRE(topic == std::nullopt);
+    }
+    SECTION("Contains topic name test") {
+        auto contains = Utils::ROS::doesBagContainTopicName(qString, "/topic_image");
+        REQUIRE(contains == true);
+        contains = Utils::ROS::doesBagContainTopicName(qString, "/topic_string");
+        REQUIRE(contains == true);
+        contains = Utils::ROS::doesBagContainTopicName(qString, "/topic_should_not_be_included");
+        REQUIRE(contains == false);
+    }
+    SECTION("Topic message count test") {
+        auto messageCount = Utils::ROS::getTopicMessageCount(qString, "/topic_image");
+        REQUIRE(messageCount == 5);
+        messageCount = Utils::ROS::getTopicMessageCount(qString, "/topic_string");
+        REQUIRE(messageCount == 3);
+        messageCount = Utils::ROS::getTopicMessageCount(qString, "/topic_should_not_be_included");
+        REQUIRE(messageCount == std::nullopt);
+    }
     SECTION("Topic type test") {
         auto topicType = Utils::ROS::getTopicType(qString, "/topic_image");
         REQUIRE(topicType == "sensor_msgs/msg/Image");
         topicType = Utils::ROS::getTopicType(qString, "/topic_string");
         REQUIRE(topicType == "std_msgs/msg/String");
         topicType = Utils::ROS::getTopicType(qString, "/topic_should_not_be_included");
-        REQUIRE(topicType == "");
+        REQUIRE(topicType == std::nullopt);
     }
     SECTION("First topic with type test") {
         auto topicName = Utils::ROS::getFirstTopicWithCertainType(qString, "sensor_msgs/msg/Image");
