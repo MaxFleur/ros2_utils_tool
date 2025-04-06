@@ -13,6 +13,7 @@
 #include "Parameters.hpp"
 #include "PCDsToBagSettings.hpp"
 #include "PublishSettings.hpp"
+#include "RecordBagSettings.hpp"
 #include "RGBSettings.hpp"
 #include "VideoSettings.hpp"
 #include "VideoToBagSettings.hpp"
@@ -79,6 +80,41 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.beginGroup("basic");
             verifiySettingQString(qSettings, "source_dir", "/source/dir");
             verifiySettingQString(qSettings, "topic_name", "/test_topic_name");
+            qSettings.endGroup();
+        }
+    }
+    SECTION("Record Bag Params Test") {
+        SECTION("Read") {
+            qSettings.beginGroup("record");
+            checkSettingsInvalidacy(qSettings, { "topics", "all_topics", "show_advanced",
+                                                 "include_hidden_topics", "include_unpublished_topics" });
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Parameters::RecordBagParameters parameters;
+            RecordBagSettings settings(parameters, "record");
+
+            parameters.topics.push_back({ "/topic" });
+            parameters.allTopics = true;
+            parameters.showAdvancedOptions = true;
+            parameters.includeHiddenTopics = true;
+            parameters.includeUnpublishedTopics = true;
+            settings.write();
+
+            qSettings.beginGroup("record");
+            verifiySettingPrimitive(qSettings, "all_topics", true);
+            verifiySettingPrimitive(qSettings, "show_advanced", true);
+            verifiySettingPrimitive(qSettings, "include_hidden_topics", true);
+            verifiySettingPrimitive(qSettings, "include_unpublished_topics", true);
+
+            const auto size = qSettings.beginReadArray("topics");
+            for (auto i = 0; i < size; ++i) {
+                qSettings.setArrayIndex(i);
+                verifiySettingQString(qSettings, "name", "/topic");
+            }
+            REQUIRE(size == 1);
+            qSettings.endArray();
+
             qSettings.endGroup();
         }
     }

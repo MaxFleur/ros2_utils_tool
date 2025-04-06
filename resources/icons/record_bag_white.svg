@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<svg width="32.5mm" height="23.2mm" version="1.1" viewBox="0 0 32.5 23.2" xmlns="http://www.w3.org/2000/svg">
+ <g transform="translate(-.030056 -.034854)" stroke-linecap="round" stroke-linejoin="round">
+  <path d="m19.009 6.7158a2.733 2.7325 0 0 1 2.733-2.7325 2.733 2.7325 0 0 1 2.733 2.7325" fill-opacity="0" stroke="#FFF" stroke-width="1.5"/>
+  <circle cx="7.7126" cy="11.841" r="2.7282" fill="#fe0000" fill-opacity=".99973" stroke="#f00" stroke-width="3.8561"/>
+  <g fill="none" stroke="#FFF" stroke-width="1.5">
+   <path d="m21.742 6.882h4.2891c1.0479 6.62e-4 3.7477 7.1483 1.2632 10.677-0.29158 0.41407-0.66402 1.055-1.1 1.0753h-4.4527"/>
+   <path d="m21.742 6.882h-4.2891c-1.0479 6.62e-4 -3.7477 7.1483-1.2632 10.677 0.29158 0.41407 0.66402 1.055 1.1 1.0753h4.4527"/>
+   <path d="m0.82329 0.81405h4.3973"/>
+   <path d="m0.82329 0.81405v4.3973"/>
+   <path d="m31.737 0.81405h-4.3973"/>
+   <path d="m31.737 0.81405v4.3973"/>
+  </g>
+  <path d="m19.009 6.7158a2.733 2.7325 0 0 1 2.733-2.7325 2.733 2.7325 0 0 1 2.733 2.7325" fill-opacity="0" stroke="#FFF" stroke-width="1.5"/>
+  <g fill="none" stroke="#FFF" stroke-width="1.5">
+   <path d="m0.82329 0.81405h4.3973"/>
+   <path d="m31.737 0.81405v4.3973"/>
+   <path d="m0.82329 22.456h4.3973"/>
+   <path d="m0.82329 22.456v-4.3973"/>
+   <path d="m31.737 22.456h-4.3973"/>
+   <path d="m31.737 22.456v-4.3973"/>
+   <path d="m0.82329 22.456h4.3973"/>
+   <path d="m31.737 22.456v-4.3973"/>
+  </g>
+ </g>
+</svg>

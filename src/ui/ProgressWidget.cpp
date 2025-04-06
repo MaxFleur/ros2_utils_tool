@@ -12,6 +12,7 @@
 #include "PCDsToBagThread.hpp"
 #include "PublishImagesThread.hpp"
 #include "PublishVideoThread.hpp"
+#include "RecordBagThread.hpp"
 #include "UtilsUI.hpp"
 #include "VideoToBagThread.hpp"
 
@@ -57,6 +58,9 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
         m_thread = new MergeBagsThread(dynamic_cast<Parameters::MergeBagsParameters&>(parameters),
                                        DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
         break;
+    case Utils::UI::TOOL_RECORD_BAG:
+        m_thread = new RecordBagThread(dynamic_cast<Parameters::RecordBagParameters&>(parameters), this);
+        break;
     case Utils::UI::TOOL_DUMMY_BAG:
         m_thread = new DummyBagThread(dynamic_cast<Parameters::DummyBagParameters&>(parameters),
                                       DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
@@ -93,7 +97,9 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
     auto* const progressLabel = new QLabel;
     progressLabel->setAlignment(Qt::AlignHCenter);
 
-    auto* const cancelButton = new QPushButton("Cancel");
+    auto* const cancelButton = new QPushButton(threadTypeId == Utils::UI::TOOL_PUBLISH_VIDEO ||
+                                               threadTypeId == Utils::UI::TOOL_PUBLISH_IMAGES ||
+                                               threadTypeId == Utils::UI::TOOL_RECORD_BAG ? "Stop" : "Cancel");
     auto* const finishedButton = new QPushButton("Done");
     finishedButton->setVisible(false);
 
@@ -102,20 +108,10 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
     buttonLayout->addStretch();
     buttonLayout->addWidget(finishedButton);
 
-    // Display a progress bar or play a gif depending on if we are doing bag or publishing stuff
     QWidget* progressWidget;
-    if (threadTypeId == Utils::UI::TOOL_COMPRESS_BAG || threadTypeId == Utils::UI::TOOL_DECOMPRESS_BAG ||
-        threadTypeId == Utils::UI::TOOL_MERGE_BAGS ||
-        threadTypeId == Utils::UI::TOOL_PUBLISH_VIDEO || threadTypeId == Utils::UI::TOOL_PUBLISH_IMAGES) {
-        QMovie* movie;
-        if (threadTypeId == Utils::UI::TOOL_COMPRESS_BAG || threadTypeId == Utils::UI::TOOL_DECOMPRESS_BAG ||
-            threadTypeId == Utils::UI::TOOL_MERGE_BAGS) {
-            movie = new QMovie(isDarkMode? ":/gifs/processing_white.gif" : ":/gifs/processing_black.gif");
-        } else {
-            movie = new QMovie(isDarkMode? ":/gifs/publishing_white.gif" : ":/gifs/publishing_black.gif");
-        }
-        movie->setScaledSize(QSize(120, threadTypeId == Utils::UI::TOOL_COMPRESS_BAG ||
-                                   threadTypeId == Utils::UI::TOOL_DECOMPRESS_BAG ? 120 : 100));
+    const auto setMovie = [this, &progressWidget, progressLabel, isDarkMode] (const QString& moviePath, int height) {
+        auto* const movie = new QMovie(isDarkMode ? moviePath + "_white.gif" : moviePath + "_black.gif");
+        movie->setScaledSize(QSize(120, height));
 
         auto* const movieLabel = new QLabel;
         movieLabel->setMovie(movie);
@@ -128,7 +124,24 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
         });
 
         movie->start();
-    } else {
+    };
+
+    // Display a progress bar or play a gif
+    switch (threadTypeId) {
+    case Utils::UI::TOOL_MERGE_BAGS:
+    case Utils::UI::TOOL_COMPRESS_BAG:
+    case Utils::UI::TOOL_DECOMPRESS_BAG:
+        setMovie(":/gifs/processing", 120);
+        break;
+    case Utils::UI::TOOL_RECORD_BAG:
+        progressLabel->setText("Recording Bag File...");
+        setMovie(":/gifs/recording", 70);
+        break;
+    case Utils::UI::TOOL_PUBLISH_VIDEO:
+    case Utils::UI::TOOL_PUBLISH_IMAGES:
+        setMovie(":/gifs/publishing", 100);
+        break;
+    default:
         auto* const progressBar = new QProgressBar;
         progressBar->setVisible(false);
         progressWidget = progressBar;
@@ -139,6 +152,7 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
             }
             progressBar->setValue(progress);
         });
+        break;
     }
 
     auto* const uiLayout = new QVBoxLayout;

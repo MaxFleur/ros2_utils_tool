@@ -16,6 +16,13 @@ struct BasicParameters {
     QString sourceDirectory = "";
     QString topicName = "";
 };
+struct RecordBagParameters : BasicParameters {
+    QVector<QString> topics = {};
+    bool             allTopics = true;
+    bool             showAdvancedOptions = false;
+    bool             includeHiddenTopics = false;
+    bool             includeUnpublishedTopics = false;
+};
 struct DummyBagParameters : BasicParameters {
     struct DummyBagTopic {
         QString type;

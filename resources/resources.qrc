@@ -4,6 +4,8 @@
         <file>gifs/processing_white.gif</file>
         <file>gifs/publishing_black.gif</file>
         <file>gifs/publishing_white.gif</file>
+        <file>gifs/recording_black.gif</file>
+        <file>gifs/recording_white.gif</file>
 
         <file>icons/bag_info_black.svg</file>
         <file>icons/bag_info_white.svg</file>
@@ -43,6 +45,8 @@
         <file>icons/publish_images_white.svg</file>
         <file>icons/publish_video_black.svg</file>
         <file>icons/publish_video_white.svg</file>
+        <file>icons/record_bag_black.svg</file>
+        <file>icons/record_bag_white.svg</file>
         <file>icons/topics_services_info_black.svg</file>
         <file>icons/topics_services_info_white.svg</file>
         <file>icons/video_to_bag_black.svg</file>

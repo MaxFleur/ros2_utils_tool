@@ -41,9 +41,10 @@ private:
     Parameters::BagToImagesParameters m_parametersBagToImages;
     Parameters::EditBagParameters m_parametersEditBag;
     Parameters::MergeBagsParameters m_parametersMergeBags;
+    Parameters::RecordBagParameters m_parametersRecordBag;
+    Parameters::DummyBagParameters m_parametersDummyBag;
     Parameters::CompressBagParameters m_parametersCompressBag;
     Parameters::CompressBagParameters m_parametersDecompressBag;
-    Parameters::DummyBagParameters m_parametersDummyBag;
 
     Parameters::PublishParameters m_parametersPublishVideo;
     Parameters::PublishParameters m_parametersPublishImages;

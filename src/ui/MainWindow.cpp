@@ -11,6 +11,7 @@
 #include "PCDsToBagWidget.hpp"
 #include "ProgressWidget.hpp"
 #include "PublishWidget.hpp"
+#include "RecordBagWidget.hpp"
 #include "StartWidget.hpp"
 #include "TopicsServicesInfoWidget.hpp"
 #include "UtilsUI.hpp"
@@ -74,14 +75,17 @@ MainWindow::setInputWidget(int mode)
     case Utils::UI::TOOL_MERGE_BAGS:
         basicInputWidget = new MergeBagsWidget(m_parametersMergeBags);
         break;
+    case Utils::UI::TOOL_RECORD_BAG:
+        basicInputWidget = new RecordBagWidget(m_parametersRecordBag);
+        break;
+    case Utils::UI::TOOL_DUMMY_BAG:
+        basicInputWidget = new DummyBagWidget(m_parametersDummyBag, m_dialogParameters.checkROS2NameConform);
+        break;
     case Utils::UI::TOOL_COMPRESS_BAG:
         basicInputWidget = new ChangeCompressionWidget(m_parametersCompressBag, true);
         break;
     case Utils::UI::TOOL_DECOMPRESS_BAG:
         basicInputWidget = new ChangeCompressionWidget(m_parametersDecompressBag, false);
-        break;
-    case Utils::UI::TOOL_DUMMY_BAG:
-        basicInputWidget = new DummyBagWidget(m_parametersDummyBag, m_dialogParameters.checkROS2NameConform);
         break;
     case Utils::UI::TOOL_PUBLISH_VIDEO:
         basicInputWidget = new PublishWidget(m_parametersPublishVideo, m_dialogParameters.usePredefinedTopicNames,
@@ -143,6 +147,14 @@ MainWindow::setProgressWidget(int mode)
         progressWidget = new ProgressWidget(":/icons/merge_bags_black.svg", ":/icons/merge_bags_white.svg",
                                             "Writing merged bag file...", m_parametersMergeBags, mode);
         break;
+    case Utils::UI::TOOL_RECORD_BAG:
+        progressWidget = new ProgressWidget(":/icons/record_bag_black.svg", ":/icons/record_bag_white.svg",
+                                            "Recording bag file...", m_parametersRecordBag, mode);
+        break;
+    case Utils::UI::TOOL_DUMMY_BAG:
+        progressWidget = new ProgressWidget(":/icons/dummy_bag_black.svg", ":/icons/dummy_bag_white.svg",
+                                            "Creating Bag...", m_parametersDummyBag, mode);
+        break;
     case Utils::UI::TOOL_COMPRESS_BAG:
         progressWidget = new ProgressWidget(":/icons/compress_bag_black.svg", ":/icons/compress_bag_white.svg",
                                             "Compressing Bag...", m_parametersCompressBag, mode);
@@ -150,10 +162,6 @@ MainWindow::setProgressWidget(int mode)
     case Utils::UI::TOOL_DECOMPRESS_BAG:
         progressWidget = new ProgressWidget(":/icons/decompress_bag_black.svg", ":/icons/decompress_bag_white.svg",
                                             "Decompressing Bag...", m_parametersDecompressBag, mode);
-        break;
-    case Utils::UI::TOOL_DUMMY_BAG:
-        progressWidget = new ProgressWidget(":/icons/dummy_bag_black.svg", ":/icons/dummy_bag_white.svg",
-                                            "Creating Bag...", m_parametersDummyBag, mode);
         break;
     case Utils::UI::TOOL_PUBLISH_VIDEO:
         progressWidget = new ProgressWidget(":/icons/publish_video_black.svg", ":/icons/publish_video_white.svg",

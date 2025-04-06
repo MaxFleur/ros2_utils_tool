@@ -10,6 +10,7 @@
 #include "PCDsToBagThread.hpp"
 #include "PublishImagesThread.hpp"
 #include "PublishVideoThread.hpp"
+#include "RecordBagThread.hpp"
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 #include "VideoToBagThread.hpp"
@@ -27,7 +28,9 @@
 #include "sensor_msgs/msg/image.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
 
+#include <chrono>
 #include <filesystem>
+#include <iostream>
 
 #ifdef ROS_JAZZY
 #include <cv_bridge/cv_bridge.hpp>
@@ -121,6 +124,78 @@ verifyMessages(const std::string& bagDirectory, const std::string& topicName,
 TEST_CASE("Threads Testing", "[threads]") {
     auto shouldDelete = false;
 
+    SECTION("Record Bag Thread Test") {
+        Parameters::RecordBagParameters parameters;
+        parameters.sourceDirectory = "./recorded_bag";
+
+        auto* const thread = new RecordBagThread(parameters);
+        QObject::connect(thread, &RecordBagThread::finished, thread, &QObject::deleteLater);
+
+        SECTION("General unspecified run") {
+            thread->start();
+
+            // Wait for some time so the recorder can set up properly
+            std::this_thread::sleep_for(std::chrono::milliseconds(250));
+            thread->requestInterruption();
+            // No idea how and why, but sometimes the thread does not exit correctly
+            // even if everything has been cleaned successfully. Need to call quit extra.
+            thread->quit();
+
+            while (!thread->isFinished()) {
+                rate.sleep();
+            }
+
+            const auto& metaData = Utils::ROS::getBagMetadata("./recorded_bag");
+            const auto& topics = metaData.topics_with_message_count;
+            REQUIRE(topics.size() >= 2);
+
+            std::size_t topicIndex = getTopicIndex(topics, "/events/write_split");
+            REQUIRE(topicIndex < topics.size());
+            REQUIRE(topics.at(topicIndex).message_count == 0);
+            topicIndex = getTopicIndex(topics, "/rosout");
+            REQUIRE(topicIndex < topics.size());
+            // This one might have be different each time
+            REQUIRE(topics.at(topicIndex).message_count > 0);
+            // This one is there only sometimes
+            if (topics.size() > 2) {
+                topicIndex = getTopicIndex(topics, "/parameter_events");
+                REQUIRE(topicIndex < topics.size());
+                REQUIRE(topics.at(topicIndex).message_count == 0);
+            }
+        }
+        SECTION("Specified topic run") {
+            parameters.allTopics = false;
+            parameters.includeUnpublishedTopics = true;
+            parameters.topics.push_back("/example");
+
+            auto node = std::make_shared<rclcpp::Node>("tests_publisher");
+            auto publisher = node->create_publisher<std_msgs::msg::Int32>("/example", 10);
+            thread->start();
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(250));
+            // Send some messages with smaller intervals between
+            for (auto i = 0; i < 5; i++) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                auto message = std_msgs::msg::Int32();
+                message.data = i;
+                publisher->publish(message);
+            }
+
+            thread->requestInterruption();
+            thread->quit();
+            while (!thread->isFinished()) {
+                rate.sleep();
+            }
+
+            const auto& metaData = Utils::ROS::getBagMetadata("./recorded_bag");
+            const auto& topics = metaData.topics_with_message_count;
+            REQUIRE(topics.size() == 1);
+            REQUIRE(topics.at(0).topic_metadata.name == "/example");
+            // The message count might differ, so just check for non-null value
+            REQUIRE(topics.at(0).message_count > 0);
+        }
+        std::filesystem::remove_all("./recorded_bag");
+    }
     SECTION("Dummy Bag Thread Test") {
         Parameters::DummyBagParameters parameters;
         parameters.sourceDirectory = "./dummy_bag";

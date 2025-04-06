@@ -92,9 +92,10 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     // Bag tools widget
     m_editBagButton = createToolButton("Edit Bag");
     m_mergeBagsButton = createToolButton("Merge Bags");
+    m_recordBagButton = createToolButton("Record Bag");
+    m_dummyBagButton = createToolButton("Create\nDummy Bag");
     m_compressBagButton = createToolButton("Compress\nBag");
     m_decompressBagButton = createToolButton("Decompress\nBag");
-    m_dummyBagButton = createToolButton("Create\nDummy Bag");
 
     auto* const bagToolsUpperLayout = new QHBoxLayout;
     bagToolsUpperLayout->addStretch();
@@ -104,13 +105,14 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
 
     auto* const bagToolsCenterLayout = new QHBoxLayout;
     bagToolsCenterLayout->addStretch();
-    bagToolsCenterLayout->addWidget(m_compressBagButton);
-    bagToolsCenterLayout->addWidget(m_decompressBagButton);
+    bagToolsCenterLayout->addWidget(m_recordBagButton);
+    bagToolsCenterLayout->addWidget(m_dummyBagButton);
     bagToolsCenterLayout->addStretch();
 
     auto* const bagToolsLowerLayout = new QHBoxLayout;
     bagToolsLowerLayout->addStretch();
-    bagToolsLowerLayout->addWidget(m_dummyBagButton);
+    bagToolsLowerLayout->addWidget(m_compressBagButton);
+    bagToolsLowerLayout->addWidget(m_decompressBagButton);
     bagToolsLowerLayout->addStretch();
 
     auto* const bagToolsMainLayout = new QVBoxLayout;
@@ -236,14 +238,17 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     connect(m_mergeBagsButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_MERGE_BAGS);
     });
+    connect(m_recordBagButton, &QPushButton::clicked, this, [this] {
+        emit toolRequested(Utils::UI::TOOL_RECORD_BAG);
+    });
+    connect(m_dummyBagButton, &QPushButton::clicked, this, [this] {
+        emit toolRequested(Utils::UI::TOOL_DUMMY_BAG);
+    });
     connect(m_compressBagButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_COMPRESS_BAG);
     });
     connect(m_decompressBagButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_DECOMPRESS_BAG);
-    });
-    connect(m_dummyBagButton, &QPushButton::clicked, this, [this] {
-        emit toolRequested(Utils::UI::TOOL_DUMMY_BAG);
     });
     connect(m_publishVideoButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_PUBLISH_VIDEO);
@@ -355,9 +360,10 @@ StartWidget::setButtonIcons()
 
     m_editBagButton->setIcon(QIcon(isDarkMode ? ":/icons/edit_bag_white.svg" : ":/icons/edit_bag_black.svg"));
     m_mergeBagsButton->setIcon(QIcon(isDarkMode ? ":/icons/merge_bags_white.svg" : ":/icons/merge_bags_black.svg"));
+    m_recordBagButton->setIcon(QIcon(isDarkMode ? ":/icons/record_bag_white.svg" : ":/icons/record_bag_black.svg"));
+    m_dummyBagButton->setIcon(QIcon(isDarkMode ? ":/icons/dummy_bag_white.svg" : ":/icons/dummy_bag_black.svg"));
     m_compressBagButton->setIcon(QIcon(isDarkMode ? ":/icons/compress_bag_white.svg" : ":/icons/compress_bag_black.svg"));
     m_decompressBagButton->setIcon(QIcon(isDarkMode ? ":/icons/decompress_bag_white.svg" : ":/icons/decompress_bag_black.svg"));
-    m_dummyBagButton->setIcon(QIcon(isDarkMode ? ":/icons/dummy_bag_white.svg" : ":/icons/dummy_bag_black.svg"));
 
     m_publishVideoButton->setIcon(QIcon(isDarkMode ? ":/icons/publish_video_white.svg" : ":/icons/publish_video_black.svg"));
     m_publishImagesButton->setIcon(QIcon(isDarkMode ? ":/icons/publish_images_white.svg" : ":/icons/publish_images_black.svg"));
