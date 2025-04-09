@@ -5,19 +5,13 @@
 
 #include <QCheckBox>
 #include <QCompleter>
-#include <QEvent>
-#include <QFileDialog>
 #include <QFormLayout>
-#include <QHBoxLayout>
 #include <QLabel>
-#include <QLineEdit>
 #include <QPushButton>
 #include <QSet>
-#include <QToolButton>
-#include <QVBoxLayout>
 
 RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QWidget *parent) :
-    BasicInputWidget("Record Bag", ":/icons/record_bag", parent),
+    TopicListingInputWidget(parameters, "Record Bag", ":/icons/record_bag", "record_bag", parent),
     m_parameters(parameters), m_settings(parameters, "record_bag")
 {
     m_sourceLineEdit->setText(m_parameters.sourceDirectory);
@@ -31,18 +25,8 @@ RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QW
     basicOptionsFormLayout->addRow("Bag Location:", m_findSourceLayout);
     basicOptionsFormLayout->addRow("Record all Topics:", allTopicsCheckBox);
 
-    m_removeTopicButton = new QToolButton;
-    m_removeTopicButton->setToolTip("Remove the topic above.");
-    m_addTopicButton = new QToolButton;
-    m_addTopicButton->setToolTip("Add another topic.");
-
-    auto* const manageTopicsButtonLayout = new QHBoxLayout;
-    manageTopicsButtonLayout->addStretch();
-    manageTopicsButtonLayout->addWidget(m_removeTopicButton);
-    manageTopicsButtonLayout->addWidget(m_addTopicButton);
-
     auto* const manageTopicsButtonWidget = new QWidget;
-    manageTopicsButtonWidget->setLayout(manageTopicsButtonLayout);
+    manageTopicsButtonWidget->setLayout(m_topicButtonLayout);
 
     m_topicsFormLayout = new QFormLayout;
     m_topicsFormLayout->addRow("", manageTopicsButtonWidget);
@@ -71,31 +55,14 @@ RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QW
     advancedOptionsWidget->setLayout(advancedOptionsFormLayout);
     advancedOptionsWidget->setVisible(m_parameters.showAdvancedOptions);
 
-    auto* const controlsLayout = new QVBoxLayout;
-    controlsLayout->addStretch();
-    controlsLayout->addWidget(m_headerPixmapLabel);
-    controlsLayout->addWidget(m_headerLabel);
-    controlsLayout->addSpacing(40);
-    controlsLayout->addLayout(basicOptionsFormLayout);
-    controlsLayout->addSpacing(10);
-    controlsLayout->addWidget(topicsWidget);
-    controlsLayout->addSpacing(10);
-    controlsLayout->addWidget(advancedOptionsCheckBox);
-    controlsLayout->addSpacing(10);
-    controlsLayout->addWidget(advancedOptionsWidget);
-    controlsLayout->addStretch();
-
-    auto* const controlsSqueezedLayout = new QHBoxLayout;
-    controlsSqueezedLayout->addStretch();
-    controlsSqueezedLayout->addLayout(controlsLayout);
-    controlsSqueezedLayout->addStretch();
-
-    m_okButton->setEnabled(true);
-
-    auto* const mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(controlsSqueezedLayout);
-    mainLayout->addLayout(m_buttonLayout);
-    setLayout(mainLayout);
+    m_controlsLayout->addLayout(basicOptionsFormLayout);
+    m_controlsLayout->addSpacing(10);
+    m_controlsLayout->addWidget(topicsWidget);
+    m_controlsLayout->addSpacing(10);
+    m_controlsLayout->addWidget(advancedOptionsCheckBox);
+    m_controlsLayout->addSpacing(10);
+    m_controlsLayout->addWidget(advancedOptionsWidget);
+    m_controlsLayout->addStretch();
 
     const auto addNewTopic = [this] {
         m_parameters.topics.push_back("");
@@ -110,7 +77,6 @@ RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QW
         addNewTopic();
     }
 
-    connect(m_findSourceButton, &QPushButton::clicked, this, &RecordBagWidget::bagDirectoryButtonPressed);
     connect(m_removeTopicButton, &QPushButton::clicked, this, &RecordBagWidget::removeLineEdit);
     connect(m_addTopicButton, &QPushButton::clicked, this, [addNewTopic] {
         addNewTopic();
@@ -129,22 +95,8 @@ RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QW
     connect(includeUnpublishedTopicsCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.includeUnpublishedTopics, state == Qt::Checked, m_settings);
     });
-    connect(m_okButton, &QPushButton::clicked, this, &RecordBagWidget::okButtonPressed);
 
     setPixmapLabelIcon();
-}
-
-
-void
-RecordBagWidget::bagDirectoryButtonPressed()
-{
-    const auto fileName = QFileDialog::getSaveFileName(this, "Save Recorded Bag File");
-    if (fileName.isEmpty()) {
-        return;
-    }
-
-    writeParameterToSettings(m_parameters.sourceDirectory, fileName, m_settings);
-    m_sourceLineEdit->setText(fileName);
 }
 
 
@@ -189,50 +141,17 @@ RecordBagWidget::createNewTopicLineEdit(const QString& topicName, int index)
 }
 
 
-void
-RecordBagWidget::okButtonPressed()
+std::optional<bool>
+RecordBagWidget::areTopicsValid()
 {
-    if (m_parameters.sourceDirectory.isEmpty()) {
-        Utils::UI::createCriticalMessageBox("No bag name specified!", "Please specify a bag name before continuing!");
-        return;
-    }
-    // Sets remove duplicates, so use a set to check if duplicate topic names exist
     QSet<QString> topicNameSet;
     for (QPointer<QLineEdit> lineEdit : m_topicLineEdits) {
         if (lineEdit->text().isEmpty()) {
             Utils::UI::createCriticalMessageBox("Empty Topic Name!", "Please enter a topic name for every topic!");
-            return;
+            return std::nullopt;
         }
 
         topicNameSet.insert(lineEdit->text());
     }
-    if (topicNameSet.size() != m_topicLineEdits.size()) {
-        Utils::UI::createCriticalMessageBox("Duplicate Topic Names Detected!", "Please make sure that no duplicate topic names are used!");
-        return;
-    }
-    if (!Utils::UI::continueForExistingTarget(m_parameters.sourceDirectory, "Bagfile", "bag file")) {
-        return;
-    }
-
-    emit okPressed();
-}
-
-
-void
-RecordBagWidget::setPixmapLabelIcon()
-{
-    const auto isDarkMode = Utils::UI::isDarkMode();
-    m_headerPixmapLabel->setPixmap(QIcon(isDarkMode ? m_iconPath + "_white.svg" : m_iconPath + "_black.svg").pixmap(QSize(100, 45)));
-    m_removeTopicButton->setIcon(QIcon(isDarkMode ? ":/icons/minus_white.svg" : ":/icons/minus_black.svg"));
-    m_addTopicButton->setIcon(QIcon(isDarkMode ? ":/icons/plus_white.svg" : ":/icons/plus_black.svg"));
-}
-
-
-bool
-RecordBagWidget::event(QEvent *event)
-{
-    [[unlikely]] if (event->type() == QEvent::ApplicationPaletteChange || event->type() == QEvent::PaletteChange) {
-        setPixmapLabelIcon();
-    }
-    return QWidget::event(event);
+    return topicNameSet.size() == m_topicLineEdits.size();
 }

@@ -1,18 +1,17 @@
 #pragma once
 
-#include "BasicInputWidget.hpp"
 #include "Parameters.hpp"
 #include "RecordBagSettings.hpp"
+#include "TopicListingInputWidget.hpp"
 
 #include <QPointer>
 
 class QFormLayout;
 class QLineEdit;
-class QToolButton;
 class QWidget;
 
 // Widget used to manage recording a bag file
-class RecordBagWidget : public BasicInputWidget
+class RecordBagWidget : public TopicListingInputWidget
 {
     Q_OBJECT
 
@@ -22,37 +21,22 @@ public:
 
 private slots:
     void
-    bagDirectoryButtonPressed();
-
-    void
     removeLineEdit();
 
     void
     createNewTopicLineEdit(const QString& topicName,
                            int            index);
 
-    void
-    okButtonPressed();
-
 private:
-    // Have to overwrite this one because we are using more additional icons then just the top one
-    void
-    setPixmapLabelIcon();
-
-    bool
-    event(QEvent *event);
+    std::optional<bool>
+    areTopicsValid() override;
 
 private:
     QVector<QPointer<QLineEdit> > m_topicLineEdits;
-
-    QPointer<QToolButton> m_removeTopicButton;
-    QPointer<QToolButton> m_addTopicButton;
 
     QPointer<QFormLayout> m_topicsFormLayout;
 
     Parameters::RecordBagParameters& m_parameters;
 
     RecordBagSettings m_settings;
-
-    int m_numberOfTopics = 0;
 };

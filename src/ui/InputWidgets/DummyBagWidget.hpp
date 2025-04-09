@@ -1,8 +1,8 @@
 #pragma once
 
-#include "BasicInputWidget.hpp"
 #include "DummyBagSettings.hpp"
 #include "Parameters.hpp"
+#include "TopicListingInputWidget.hpp"
 
 #include <QPointer>
 #include <QWidget>
@@ -10,10 +10,9 @@
 class DummyTopicWidget;
 
 class QFormLayout;
-class QToolButton;
 
 // Widget used to manage creating a ROS bag with dummy data
-class DummyBagWidget : public BasicInputWidget
+class DummyBagWidget : public TopicListingInputWidget
 {
     Q_OBJECT
 
@@ -24,39 +23,24 @@ public:
 
 private slots:
     void
-    bagDirectoryButtonPressed();
-
-    void
     removeDummyTopicWidget();
 
     void
     createNewDummyTopicWidget(const Parameters::DummyBagParameters::DummyBagTopic& topics,
                               int                                                  index);
 
-    void
-    okButtonPressed();
-
 private:
-    // Have to overwrite this one because we are using more additional icons then just the top one
-    void
-    setPixmapLabelIcon();
-
-    bool
-    event(QEvent *event);
+    std::optional<bool>
+    areTopicsValid() override;
 
 private:
     QVector<QPointer<DummyTopicWidget> > m_dummyTopicWidgets;
 
     QPointer<QFormLayout> m_formLayout;
 
-    QPointer<QToolButton> m_minusButton;
-    QPointer<QToolButton> m_plusButton;
-
     Parameters::DummyBagParameters& m_parameters;
 
     DummyBagSettings m_settings;
-
-    int m_numberOfTopics = 0;
 
     const bool m_checkROS2NameConform;
 

@@ -11,6 +11,8 @@ target_sources(rt_helper_widgets INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/DummyTopicWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/MessageCountWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/MessageCountWidget.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/TopicListingInputWidget.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/TopicListingInputWidget.hpp
 )
 
 target_link_libraries(rt_helper_widgets
