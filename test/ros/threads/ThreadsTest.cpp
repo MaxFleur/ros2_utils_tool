@@ -28,9 +28,7 @@
 #include "sensor_msgs/msg/image.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
 
-#include <chrono>
 #include <filesystem>
-#include <iostream>
 
 #ifdef ROS_JAZZY
 #include <cv_bridge/cv_bridge.hpp>
@@ -128,6 +126,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         Parameters::RecordBagParameters parameters;
         parameters.sourceDirectory = "./recorded_bag";
 
+        rclcpp::Rate rate(10);
         auto* const thread = new RecordBagThread(parameters);
         QObject::connect(thread, &RecordBagThread::finished, thread, &QObject::deleteLater);
 
@@ -135,7 +134,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             thread->start();
 
             // Wait for some time so the recorder can set up properly
-            std::this_thread::sleep_for(std::chrono::milliseconds(250));
+            rate.sleep();
             thread->requestInterruption();
             // No idea how and why, but sometimes the thread does not exit correctly
             // even if everything has been cleaned successfully. Need to call quit extra.
@@ -172,13 +171,13 @@ TEST_CASE("Threads Testing", "[threads]") {
             auto publisher = node->create_publisher<std_msgs::msg::Int32>("/example", 10);
             thread->start();
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(250));
+            rate.sleep();
             // Send some messages with smaller intervals between
             for (auto i = 0; i < 5; i++) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
                 auto message = std_msgs::msg::Int32();
                 message.data = i;
                 publisher->publish(message);
+                rate.sleep();
             }
 
             thread->requestInterruption();
@@ -191,15 +190,14 @@ TEST_CASE("Threads Testing", "[threads]") {
             const auto& topics = metaData.topics_with_message_count;
             REQUIRE(topics.size() == 1);
             REQUIRE(topics.at(0).topic_metadata.name == "/example");
-            // The message count might differ, so just check for non-null value
-            REQUIRE(topics.at(0).message_count > 0);
+            REQUIRE(topics.at(0).message_count == 5);
         }
         std::filesystem::remove_all("./recorded_bag");
     }
     SECTION("Dummy Bag Thread Test") {
         Parameters::DummyBagParameters parameters;
         parameters.sourceDirectory = "./dummy_bag";
-        parameters.messageCount = 200;
+        parameters.messageCount = 100;
         parameters.topics.push_back({ "Image", "/dummy_image" });
         parameters.topics.push_back({ "Integer", "/dummy_integer" });
         parameters.topics.push_back({ "String", "/dummy_string" });
@@ -213,13 +211,13 @@ TEST_CASE("Threads Testing", "[threads]") {
         }
 
         const auto& metaData = Utils::ROS::getBagMetadata("./dummy_bag");
-        REQUIRE(metaData.message_count == 800);
+        REQUIRE(metaData.message_count == 400);
         const auto& topics = metaData.topics_with_message_count;
         REQUIRE(topics.size() == 4);
-        REQUIRE(topics.at(0).message_count == 200);
-        REQUIRE(topics.at(1).message_count == 200);
-        REQUIRE(topics.at(2).message_count == 200);
-        REQUIRE(topics.at(3).message_count == 200);
+        REQUIRE(topics.at(0).message_count == 100);
+        REQUIRE(topics.at(1).message_count == 100);
+        REQUIRE(topics.at(2).message_count == 100);
+        REQUIRE(topics.at(3).message_count == 100);
 
         auto topicIndex = getTopicIndex(topics, "/dummy_image");
         REQUIRE(topicIndex < 4);
@@ -246,9 +244,9 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.sourceDirectory = "./dummy_bag";
         parameters.targetDirectory = "./edited_bag";
         parameters.updateTimestamps = true;
-        parameters.topics.push_back({ "", "/dummy_image", 0, 99, true });
-        parameters.topics.push_back({ "", "/dummy_integer", 0, 199, false });
-        parameters.topics.push_back({ "/renamed_string", "/dummy_string", 50, 149, true });
+        parameters.topics.push_back({ "", "/dummy_image", 0, 49, true });
+        parameters.topics.push_back({ "", "/dummy_integer", 0, 99, false });
+        parameters.topics.push_back({ "/renamed_string", "/dummy_string", 25, 74, true });
 
         auto* const thread = new EditBagThread(parameters, std::thread::hardware_concurrency());
         QObject::connect(thread, &EditBagThread::finished, thread, &QObject::deleteLater);
@@ -258,20 +256,20 @@ TEST_CASE("Threads Testing", "[threads]") {
         }
 
         const auto& metadata = Utils::ROS::getBagMetadata("./edited_bag");
-        REQUIRE(metadata.message_count == 200);
+        REQUIRE(metadata.message_count == 100);
         const auto& topics = metadata.topics_with_message_count;
         REQUIRE(topics.size() == 2);
         auto topicIndex = getTopicIndex(topics, "/dummy_image");
         REQUIRE(topicIndex < 2);
         REQUIRE(topics.at(topicIndex).topic_metadata.type == "sensor_msgs/msg/Image");
-        REQUIRE(topics.at(topicIndex).message_count == 100);
+        REQUIRE(topics.at(topicIndex).message_count == 50);
         topicIndex = getTopicIndex(topics, "/renamed_string");
         REQUIRE(topicIndex < 2);
         REQUIRE(topics.at(topicIndex).topic_metadata.type == "std_msgs/msg/String");
-        REQUIRE(topics.at(topicIndex).message_count == 100);
+        REQUIRE(topics.at(topicIndex).message_count == 50);
 
         rclcpp::Serialization<std_msgs::msg::String> serializationString;
-        verifyMessages("./edited_bag", "/renamed_string", serializationString, 50);
+        verifyMessages("./edited_bag", "/renamed_string", serializationString, 25);
     }
     // Merge edited and dummy bag
     SECTION("Merge Bags Thread Test") {
@@ -292,23 +290,23 @@ TEST_CASE("Threads Testing", "[threads]") {
             }
 
             const auto& metadata = Utils::ROS::getBagMetadata("./merged_bag");
-            REQUIRE(metadata.message_count == 300);
+            REQUIRE(metadata.message_count == 150);
             const auto& topics = metadata.topics_with_message_count;
             REQUIRE(topics.size() == 2);
             auto topicIndex = getTopicIndex(topics, "/dummy_integer");
             REQUIRE(topicIndex < 2);
             REQUIRE(topics.at(topicIndex).topic_metadata.type == "std_msgs/msg/Int32");
-            REQUIRE(topics.at(topicIndex).message_count == 200);
+            REQUIRE(topics.at(topicIndex).message_count == 100);
             topicIndex = getTopicIndex(topics, "/renamed_string");
             REQUIRE(topicIndex < 2);
             REQUIRE(topics.at(topicIndex).topic_metadata.type == "std_msgs/msg/String");
-            REQUIRE(topics.at(topicIndex).message_count == 100);
+            REQUIRE(topics.at(topicIndex).message_count == 50);
 
             rclcpp::Serialization<std_msgs::msg::Int32> serializationInt;
             rclcpp::Serialization<std_msgs::msg::String> serializationString;
 
             verifyMessages("./merged_bag", "/dummy_integer", serializationInt, 0);
-            verifyMessages("./merged_bag", "/renamed_string", serializationString, 50);
+            verifyMessages("./merged_bag", "/renamed_string", serializationString, 25);
         }
         // Assure that two topics of the same name, but from different bags will be merged into one topic
         SECTION("Merged Topics") {
@@ -322,20 +320,20 @@ TEST_CASE("Threads Testing", "[threads]") {
             }
 
             const auto& metadata = Utils::ROS::getBagMetadata("./merged_bag");
-            REQUIRE(metadata.message_count == 400);
+            REQUIRE(metadata.message_count == 200);
             const auto& topics = metadata.topics_with_message_count;
             REQUIRE(topics.size() == 2);
             auto topicIndex = getTopicIndex(topics, "/renamed_string");
             REQUIRE(topicIndex < 2);
             REQUIRE(topics.at(topicIndex).topic_metadata.type == "std_msgs/msg/String");
-            REQUIRE(topics.at(topicIndex).message_count == 100);
+            REQUIRE(topics.at(topicIndex).message_count == 50);
             topicIndex = getTopicIndex(topics, "/dummy_image");
             REQUIRE(topicIndex < 2);
             REQUIRE(topics.at(topicIndex).topic_metadata.type == "sensor_msgs/msg/Image");
-            REQUIRE(topics.at(topicIndex).message_count == 300);
+            REQUIRE(topics.at(topicIndex).message_count == 150);
 
             rclcpp::Serialization<std_msgs::msg::String> serializationString;
-            verifyMessages("./merged_bag", "/renamed_string", serializationString, 50);
+            verifyMessages("./merged_bag", "/renamed_string", serializationString, 25);
         }
 
         std::filesystem::remove_all("./merged_bag");
@@ -361,14 +359,14 @@ TEST_CASE("Threads Testing", "[threads]") {
 
             rosbag2_storage::MetadataIo metaDataIO;
             auto metadata = metaDataIO.read_metadata(targetDirectory);
-            REQUIRE(metadata.message_count == 800);
+            REQUIRE(metadata.message_count == 400);
             const auto& topics = metadata.topics_with_message_count;
 
             REQUIRE(topics.size() == 4);
-            REQUIRE(topics.at(0).message_count == 200);
-            REQUIRE(topics.at(1).message_count == 200);
-            REQUIRE(topics.at(2).message_count == 200);
-            REQUIRE(topics.at(3).message_count == 200);
+            REQUIRE(topics.at(0).message_count == 100);
+            REQUIRE(topics.at(1).message_count == 100);
+            REQUIRE(topics.at(2).message_count == 100);
+            REQUIRE(topics.at(3).message_count == 100);
 
             auto topicIndex = getTopicIndex(topics, "/dummy_image");
             REQUIRE(topicIndex < 4);
@@ -410,7 +408,7 @@ TEST_CASE("Threads Testing", "[threads]") {
 
         const auto performVideoCheck = [] (const std::string& fileExtension, int codec, int fps, int blueValue, int greenValue, int redValue) {
             auto videoCapture = cv::VideoCapture("./video" + fileExtension);
-            REQUIRE(videoCapture.get(cv::CAP_PROP_FRAME_COUNT) == 200);
+            REQUIRE(videoCapture.get(cv::CAP_PROP_FRAME_COUNT) == 100);
             REQUIRE(videoCapture.get(cv::CAP_PROP_FRAME_WIDTH) == 1280);
             REQUIRE(videoCapture.get(cv::CAP_PROP_FRAME_HEIGHT) == 720);
             REQUIRE(videoCapture.get(cv::CAP_PROP_FOURCC) == codec);
@@ -433,7 +431,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             }
             // Codecs are generated out of char sequences, that's why we have these weird numbers
             // Codec number represents mp4v
-            performVideoCheck(".mp4", 1983148141, 30, 252, 0, 0);
+            performVideoCheck(".mp4", 1983148141, 30, 252, 0, 1);
         }
         SECTION("Modified Parameter Values") {
             parameters.fps = 60;
@@ -453,7 +451,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             while (!thread->isFinished()) {
             }
             // Codec number represents x264
-            performVideoCheck(".mkv", 1734701165, 30, 29, 29, 29);
+            performVideoCheck(".mkv", 1734701165, 30, 30, 30, 30);
         }
     }
     SECTION("Video to Bag Thread Test") {
@@ -494,12 +492,12 @@ TEST_CASE("Threads Testing", "[threads]") {
             }
 
             const auto& metadata = Utils::ROS::getBagMetadata("./video_bag");
-            REQUIRE(metadata.message_count == 200);
+            REQUIRE(metadata.message_count == 100);
             const auto& topics = metadata.topics_with_message_count;
             REQUIRE(topics.size() == 1);
             REQUIRE(topics.at(0).topic_metadata.name == "/video_topic");
             REQUIRE(topics.at(0).topic_metadata.type == "sensor_msgs/msg/Image");
-            REQUIRE(topics.at(0).message_count == 200);
+            REQUIRE(topics.at(0).message_count == 100);
 
             performBagCheck(1280, 720, 0, 0, 252);
         }
@@ -527,7 +525,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             while (!thread->isFinished()) {
             }
 
-            performBagCheck(1280, 720, 29, 29, 29);
+            performBagCheck(1280, 720, 30, 30, 30);
             std::filesystem::remove("./video.mkv");
             std::filesystem::remove_all("./video_bag");
         }
@@ -540,8 +538,8 @@ TEST_CASE("Threads Testing", "[threads]") {
 
         const auto performImageCheck = [] (const std::string& fileExtension, int valueBlue, int valueGreen, int valueRed) {
             const auto extensionCheckValues = getDirFileCountWithExtensions("./images", fileExtension);
-            REQUIRE(extensionCheckValues[0] == 200);
-            REQUIRE(extensionCheckValues[1] == 200);
+            REQUIRE(extensionCheckValues[0] == 100);
+            REQUIRE(extensionCheckValues[1] == 100);
 
             const auto mat = cv::imread("./images/001" + fileExtension);
             REQUIRE(mat.rows == 720);
@@ -560,7 +558,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             while (!thread->isFinished()) {
             }
 
-            performImageCheck(".jpg", 254, 0, 1);
+            performImageCheck(".jpg", 255, 0, 3);
         }
         SECTION("PNG with RB exchanged Values") {
             parameters.format = "png";
@@ -570,7 +568,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             while (!thread->isFinished()) {
             }
 
-            performImageCheck(".png", 1, 0, 255);
+            performImageCheck(".png", 3, 0, 255);
         }
         SECTION("BMP with gray exchanged Values") {
             parameters.format = "bmp";
@@ -580,7 +578,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             while (!thread->isFinished()) {
             }
 
-            performImageCheck(".bmp", 29, 29, 29);
+            performImageCheck(".bmp", 30, 30, 30);
         }
     }
     SECTION("Bag to PCDs Thread Test") {
@@ -597,8 +595,8 @@ TEST_CASE("Threads Testing", "[threads]") {
         }
 
         const auto extensionCheckValues = getDirFileCountWithExtensions("./pcds", ".pcd");
-        REQUIRE(extensionCheckValues[0] == 200);
-        REQUIRE(extensionCheckValues[1] == 200);
+        REQUIRE(extensionCheckValues[0] == 100);
+        REQUIRE(extensionCheckValues[1] == 100);
 
         rclcpp::Serialization<sensor_msgs::msg::PointCloud2> serialization;
         verifyMessages("./dummy_bag", "/dummy_points", serialization, 0);
@@ -618,11 +616,11 @@ TEST_CASE("Threads Testing", "[threads]") {
         }
 
         const auto& metaData = Utils::ROS::getBagMetadata("./bag_pcd");
-        REQUIRE(metaData.message_count == 200);
+        REQUIRE(metaData.message_count == 100);
         const auto& topics = metaData.topics_with_message_count;
         REQUIRE(topics.size() == 1);
         REQUIRE(topics.at(0).topic_metadata.name == "/point_clouds_are_awesome");
-        REQUIRE(topics.at(0).message_count == 200);
+        REQUIRE(topics.at(0).message_count == 100);
 
         rclcpp::Serialization<sensor_msgs::msg::PointCloud2> serialization;
         verifyMessages("./bag_pcd", "/point_clouds_are_awesome", serialization, 0);
