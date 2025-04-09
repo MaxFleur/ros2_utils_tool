@@ -12,7 +12,6 @@
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QShortcut>
 #include <QSpinBox>
 
 #include <filesystem>
@@ -57,7 +56,6 @@ VideoToBagWidget::VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
     m_controlsLayout->addWidget(advancedOptionsWidget);
     m_controlsLayout->addStretch();
 
-    auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
     // Generally, enable ok only if we have a source and target dir and an existing topic name
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.targetDirectory.isEmpty() && !m_parameters.topicName.isEmpty());
 
@@ -73,7 +71,6 @@ VideoToBagWidget::VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
     connect(switchRedBlueCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.exchangeRedBlueValues, state == Qt::Checked, m_settings);
     });
-    connect(okShortCut, &QShortcut::activated, this, &VideoToBagWidget::okButtonPressed);
 
     useCustomFPSCheckBoxPressed(m_parameters.useCustomFPS);
 }

@@ -11,7 +11,6 @@
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QShortcut>
 #include <QSpinBox>
 
 #include <filesystem>
@@ -43,7 +42,6 @@ PCDsToBagWidget::PCDsToBagWidget(Parameters::PCDsToBagParameters& parameters,
 
     m_controlsLayout->addStretch();
 
-    auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
     // Generally, enable ok only if we have a source and target dir and an existing topic name
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.targetDirectory.isEmpty() && !m_parameters.topicName.isEmpty());
 
@@ -54,7 +52,6 @@ PCDsToBagWidget::PCDsToBagWidget(Parameters::PCDsToBagParameters& parameters,
     connect(rateSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [this] (int value) {
         writeParameterToSettings(m_parameters.rate, value, m_settings);
     });
-    connect(okShortCut, &QShortcut::activated, this, &PCDsToBagWidget::okButtonPressed);
 }
 
 

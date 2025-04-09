@@ -11,6 +11,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QRadioButton>
+#include <QShortcut>
 #include <QVBoxLayout>
 
 ChangeCompressionWidget::ChangeCompressionWidget(Parameters::CompressBagParameters& parameters, bool compress,
@@ -91,12 +92,15 @@ ChangeCompressionWidget::ChangeCompressionWidget(Parameters::CompressBagParamete
     mainLayout->addLayout(m_buttonLayout);
     setLayout(mainLayout);
 
+    auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
+
     connect(m_findSourceButton, &QPushButton::clicked, this, &ChangeCompressionWidget::sourceButtonPressed);
     connect(targetLocationButton, &QPushButton::clicked, this, &ChangeCompressionWidget::targetButtonPressed);
     connect(deleteSourceCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.deleteSource, state == Qt::Checked, m_settings);
     });
     connect(m_okButton, &QPushButton::clicked, this, &ChangeCompressionWidget::okButtonPressed);
+    connect(okShortCut, &QShortcut::activated, this, &ChangeCompressionWidget::okButtonPressed);
 
     setPixmapLabelIcon();
 }

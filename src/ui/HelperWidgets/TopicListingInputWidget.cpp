@@ -7,6 +7,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QShortcut>
 #include <QToolButton>
 #include <QVBoxLayout>
 
@@ -46,8 +47,11 @@ TopicListingInputWidget::TopicListingInputWidget(Parameters::BasicParameters& pa
     mainLayout->addLayout(m_buttonLayout);
     setLayout(mainLayout);
 
+    auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
+
     connect(m_findSourceButton, &QPushButton::clicked, this, &TopicListingInputWidget::sourceButtonPressed);
     connect(m_okButton, &QPushButton::clicked, this, &TopicListingInputWidget::okButtonPressed);
+    connect(okShortCut, &QShortcut::activated, this, &TopicListingInputWidget::okButtonPressed);
 }
 
 

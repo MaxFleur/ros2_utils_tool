@@ -9,6 +9,7 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QShortcut>
 #include <QToolButton>
 #include <QTreeWidget>
 #include <QVBoxLayout>
@@ -63,6 +64,8 @@ MergeBagsWidget::MergeBagsWidget(Parameters::MergeBagsParameters& parameters, QW
     mainLayout->addLayout(m_buttonLayout);
     setLayout(mainLayout);
 
+    auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
+
     connect(m_findSourceButton, &QPushButton::clicked, this, [this] {
         setSourceDirectory(true);
     });
@@ -70,6 +73,7 @@ MergeBagsWidget::MergeBagsWidget(Parameters::MergeBagsParameters& parameters, QW
         setSourceDirectory(false);
     });
     connect(m_dialogButtonBox, &QDialogButtonBox::accepted, this, &MergeBagsWidget::okButtonPressed);
+    connect(okShortCut, &QShortcut::activated, this, &MergeBagsWidget::okButtonPressed);
 
     if (!m_sourceLineEdit->text().isEmpty() && !m_secondSourceLineEdit->text().isEmpty()) {
         createTopicTree(false);
