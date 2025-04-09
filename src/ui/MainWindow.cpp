@@ -14,7 +14,6 @@
 #include "RecordBagWidget.hpp"
 #include "StartWidget.hpp"
 #include "TopicsServicesInfoWidget.hpp"
-#include "UtilsUI.hpp"
 #include "VideoToBagWidget.hpp"
 
 #include "DialogSettings.hpp"
@@ -48,63 +47,63 @@ MainWindow::setStartWidget()
 
 
 void
-MainWindow::setInputWidget(int mode)
+MainWindow::setInputWidget(Utils::UI::TOOL_ID mode)
 {
     QPointer<BasicInputWidget> basicInputWidget;
     switch (mode) {
-    case Utils::UI::TOOL_BAG_TO_VIDEO:
+    case Utils::UI::TOOL_ID::BAG_TO_VIDEO:
         basicInputWidget = new BagToVideoWidget(m_parametersBagToVideo);
         break;
-    case Utils::UI::TOOL_VIDEO_TO_BAG:
+    case Utils::UI::TOOL_ID::VIDEO_TO_BAG:
         basicInputWidget = new VideoToBagWidget(m_parametersVideoToBag, m_dialogParameters.usePredefinedTopicNames,
                                                 m_dialogParameters.checkROS2NameConform);
         break;
-    case Utils::UI::TOOL_BAG_TO_PCDS:
+    case Utils::UI::TOOL_ID::BAG_TO_PCDS:
         basicInputWidget = new BagToPCDsWidget(m_parametersBagToPCDs);
         break;
-    case Utils::UI::TOOL_PCDS_TO_BAG:
+    case Utils::UI::TOOL_ID::PCDS_TO_BAG:
         basicInputWidget = new PCDsToBagWidget(m_parametersPCDsToBag, m_dialogParameters.usePredefinedTopicNames,
                                                m_dialogParameters.checkROS2NameConform);
         break;
-    case Utils::UI::TOOL_BAG_TO_IMAGES:
+    case Utils::UI::TOOL_ID::BAG_TO_IMAGES:
         basicInputWidget = new BagToImagesWidget(m_parametersBagToImages);
         break;
-    case Utils::UI::TOOL_EDIT_BAG:
+    case Utils::UI::TOOL_ID::EDIT_BAG:
         basicInputWidget = new EditBagWidget(m_parametersEditBag, m_dialogParameters.checkROS2NameConform);
         break;
-    case Utils::UI::TOOL_MERGE_BAGS:
+    case Utils::UI::TOOL_ID::MERGE_BAGS:
         basicInputWidget = new MergeBagsWidget(m_parametersMergeBags);
         break;
-    case Utils::UI::TOOL_RECORD_BAG:
+    case Utils::UI::TOOL_ID::RECORD_BAG:
         basicInputWidget = new RecordBagWidget(m_parametersRecordBag);
         break;
-    case Utils::UI::TOOL_DUMMY_BAG:
+    case Utils::UI::TOOL_ID::DUMMY_BAG:
         basicInputWidget = new DummyBagWidget(m_parametersDummyBag, m_dialogParameters.checkROS2NameConform);
         break;
-    case Utils::UI::TOOL_COMPRESS_BAG:
+    case Utils::UI::TOOL_ID::COMPRESS_BAG:
         basicInputWidget = new ChangeCompressionWidget(m_parametersCompressBag, true);
         break;
-    case Utils::UI::TOOL_DECOMPRESS_BAG:
+    case Utils::UI::TOOL_ID::DECOMPRESS_BAG:
         basicInputWidget = new ChangeCompressionWidget(m_parametersDecompressBag, false);
         break;
-    case Utils::UI::TOOL_PUBLISH_VIDEO:
+    case Utils::UI::TOOL_ID::PUBLISH_VIDEO:
         basicInputWidget = new PublishWidget(m_parametersPublishVideo, m_dialogParameters.usePredefinedTopicNames,
                                              m_dialogParameters.checkROS2NameConform, true);
         break;
-    case Utils::UI::TOOL_PUBLISH_IMAGES:
+    case Utils::UI::TOOL_ID::PUBLISH_IMAGES:
         basicInputWidget = new PublishWidget(m_parametersPublishImages, m_dialogParameters.usePredefinedTopicNames,
                                              m_dialogParameters.checkROS2NameConform, false);
         break;
-    case Utils::UI::TOOL_TOPICS_SERVICES_INFO:
+    case Utils::UI::TOOL_ID::TOPICS_SERVICES_INFO:
         basicInputWidget = new TopicsServicesInfoWidget;
         break;
-    case Utils::UI::TOOL_BAG_INFO:
+    case Utils::UI::TOOL_ID::BAG_INFO:
         basicInputWidget = new BagInfoWidget;
         break;
     }
 
-    resize(mode == Utils::UI::TOOL_EDIT_BAG || mode == Utils::UI::TOOL_MERGE_BAGS ? basicInputWidget->width() : DEFAULT_WIDTH,
-           mode == Utils::UI::TOOL_EDIT_BAG || mode == Utils::UI::TOOL_MERGE_BAGS ? basicInputWidget->height() : DEFAULT_HEIGHT);
+    resize(mode == Utils::UI::TOOL_ID::EDIT_BAG || mode == Utils::UI::TOOL_ID::MERGE_BAGS ? basicInputWidget->width() : DEFAULT_WIDTH,
+           mode == Utils::UI::TOOL_ID::EDIT_BAG || mode == Utils::UI::TOOL_ID::MERGE_BAGS ? basicInputWidget->height() : DEFAULT_HEIGHT);
     setCentralWidget(basicInputWidget);
 
     connect(basicInputWidget, &BasicInputWidget::back, this, &MainWindow::setStartWidget);
@@ -115,61 +114,63 @@ MainWindow::setInputWidget(int mode)
 
 
 void
-MainWindow::setProgressWidget(int mode)
+MainWindow::setProgressWidget(Utils::UI::TOOL_ID mode)
 {
     QPointer<ProgressWidget> progressWidget;
     switch (mode) {
-    case Utils::UI::TOOL_BAG_TO_VIDEO:
+    case Utils::UI::TOOL_ID::BAG_TO_VIDEO:
         progressWidget = new ProgressWidget(":/icons/bag_to_video_black.svg", ":/icons/bag_to_video_white.svg",
                                             "Encoding Video...", m_parametersBagToVideo, mode);
         break;
-    case Utils::UI::TOOL_VIDEO_TO_BAG:
+    case Utils::UI::TOOL_ID::VIDEO_TO_BAG:
         progressWidget = new ProgressWidget(":/icons/video_to_bag_black.svg", ":/icons/video_to_bag_white.svg",
                                             "Writing to Bag...", m_parametersVideoToBag, mode);
         break;
-    case Utils::UI::TOOL_BAG_TO_PCDS:
+    case Utils::UI::TOOL_ID::BAG_TO_PCDS:
         progressWidget = new ProgressWidget(":/icons/bag_to_pcd_black.svg", ":/icons/bag_to_pcd_white.svg",
                                             "Writing PCD files...", m_parametersBagToPCDs, mode);
         break;
-    case Utils::UI::TOOL_PCDS_TO_BAG:
+    case Utils::UI::TOOL_ID::PCDS_TO_BAG:
         progressWidget = new ProgressWidget(":/icons/pcd_to_bag_black.svg", ":/icons/pcd_to_bag_white.svg",
                                             "Writing to Bag...", m_parametersPCDsToBag, mode);
         break;
-    case Utils::UI::TOOL_BAG_TO_IMAGES:
+    case Utils::UI::TOOL_ID::BAG_TO_IMAGES:
         progressWidget = new ProgressWidget(":/icons/bag_to_images_black.svg", ":/icons/bag_to_images_white.svg",
                                             "Writing Images...", m_parametersBagToImages, mode);
         break;
-    case Utils::UI::TOOL_EDIT_BAG:
+    case Utils::UI::TOOL_ID::EDIT_BAG:
         progressWidget = new ProgressWidget(":/icons/edit_bag_black.svg", ":/icons/edit_bag_white.svg",
                                             "Writing edited bag file...", m_parametersEditBag, mode);
         break;
-    case Utils::UI::TOOL_MERGE_BAGS:
+    case Utils::UI::TOOL_ID::MERGE_BAGS:
         progressWidget = new ProgressWidget(":/icons/merge_bags_black.svg", ":/icons/merge_bags_white.svg",
                                             "Writing merged bag file...", m_parametersMergeBags, mode);
         break;
-    case Utils::UI::TOOL_RECORD_BAG:
+    case Utils::UI::TOOL_ID::RECORD_BAG:
         progressWidget = new ProgressWidget(":/icons/record_bag_black.svg", ":/icons/record_bag_white.svg",
                                             "Recording bag file...", m_parametersRecordBag, mode);
         break;
-    case Utils::UI::TOOL_DUMMY_BAG:
+    case Utils::UI::TOOL_ID::DUMMY_BAG:
         progressWidget = new ProgressWidget(":/icons/dummy_bag_black.svg", ":/icons/dummy_bag_white.svg",
                                             "Creating Bag...", m_parametersDummyBag, mode);
         break;
-    case Utils::UI::TOOL_COMPRESS_BAG:
+    case Utils::UI::TOOL_ID::COMPRESS_BAG:
         progressWidget = new ProgressWidget(":/icons/compress_bag_black.svg", ":/icons/compress_bag_white.svg",
                                             "Compressing Bag...", m_parametersCompressBag, mode);
         break;
-    case Utils::UI::TOOL_DECOMPRESS_BAG:
+    case Utils::UI::TOOL_ID::DECOMPRESS_BAG:
         progressWidget = new ProgressWidget(":/icons/decompress_bag_black.svg", ":/icons/decompress_bag_white.svg",
                                             "Decompressing Bag...", m_parametersDecompressBag, mode);
         break;
-    case Utils::UI::TOOL_PUBLISH_VIDEO:
+    case Utils::UI::TOOL_ID::PUBLISH_VIDEO:
         progressWidget = new ProgressWidget(":/icons/publish_video_black.svg", ":/icons/publish_video_white.svg",
                                             "Publishing Video...", m_parametersPublishVideo, mode);
         break;
-    case Utils::UI::TOOL_PUBLISH_IMAGES:
+    case Utils::UI::TOOL_ID::PUBLISH_IMAGES:
         progressWidget = new ProgressWidget(":/icons/publish_images_black.svg", ":/icons/publish_images_white.svg",
                                             "Publishing Images...", m_parametersPublishImages, mode);
+        break;
+    default:
         break;
     }
     // Resize event is not called inside the function, so use a delay

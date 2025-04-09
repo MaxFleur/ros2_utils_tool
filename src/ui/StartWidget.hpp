@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Parameters.hpp"
+#include "UtilsUI.hpp"
 
 #include <QPointer>
 #include <QWidget>
@@ -21,7 +22,7 @@ public:
 
 signals:
     void
-    toolRequested(int id);
+    toolRequested(Utils::UI::TOOL_ID id);
 
 private slots:
     void

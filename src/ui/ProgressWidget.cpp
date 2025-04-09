@@ -13,7 +13,6 @@
 #include "PublishImagesThread.hpp"
 #include "PublishVideoThread.hpp"
 #include "RecordBagThread.hpp"
-#include "UtilsUI.hpp"
 #include "VideoToBagThread.hpp"
 
 #include <QLabel>
@@ -26,61 +25,63 @@
 
 ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const QString& headerPixmapLabelTextWhite,
                                const QString& headerLabelText, Parameters::BasicParameters& parameters,
-                               const int threadTypeId, QWidget *parent) :
+                               const Utils::UI::TOOL_ID threadTypeId, QWidget *parent) :
     QWidget(parent)
 {
     switch (threadTypeId) {
-    case Utils::UI::TOOL_BAG_TO_VIDEO:
+    case Utils::UI::TOOL_ID::BAG_TO_VIDEO:
         m_thread = new BagToVideoThread(dynamic_cast<Parameters::BagToVideoParameters&>(parameters),
                                         DialogSettings::getStaticParameter("hw_acc", false), this);
         break;
-    case Utils::UI::TOOL_VIDEO_TO_BAG:
+    case Utils::UI::TOOL_ID::VIDEO_TO_BAG:
         m_thread = new VideoToBagThread(dynamic_cast<Parameters::VideoToBagParameters&>(parameters),
                                         DialogSettings::getStaticParameter("hw_acc", false), this);
         break;
-    case Utils::UI::TOOL_BAG_TO_PCDS:
+    case Utils::UI::TOOL_ID::BAG_TO_PCDS:
         m_thread = new BagToPCDsThread(dynamic_cast<Parameters::AdvancedParameters&>(parameters),
                                        DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
         break;
-    case Utils::UI::TOOL_PCDS_TO_BAG:
+    case Utils::UI::TOOL_ID::PCDS_TO_BAG:
         m_thread = new PCDsToBagThread(dynamic_cast<Parameters::PCDsToBagParameters&>(parameters),
                                        DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
         break;
-    case Utils::UI::TOOL_BAG_TO_IMAGES:
+    case Utils::UI::TOOL_ID::BAG_TO_IMAGES:
         m_thread = new BagToImagesThread(dynamic_cast<Parameters::BagToImagesParameters&>(parameters),
                                          DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
         break;
-    case Utils::UI::TOOL_EDIT_BAG:
+    case Utils::UI::TOOL_ID::EDIT_BAG:
         m_thread = new EditBagThread(dynamic_cast<Parameters::EditBagParameters&>(parameters),
                                      DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
         break;
-    case Utils::UI::TOOL_MERGE_BAGS:
+    case Utils::UI::TOOL_ID::MERGE_BAGS:
         m_thread = new MergeBagsThread(dynamic_cast<Parameters::MergeBagsParameters&>(parameters),
                                        DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
         break;
-    case Utils::UI::TOOL_RECORD_BAG:
+    case Utils::UI::TOOL_ID::RECORD_BAG:
         m_thread = new RecordBagThread(dynamic_cast<Parameters::RecordBagParameters&>(parameters), this);
         break;
-    case Utils::UI::TOOL_DUMMY_BAG:
+    case Utils::UI::TOOL_ID::DUMMY_BAG:
         m_thread = new DummyBagThread(dynamic_cast<Parameters::DummyBagParameters&>(parameters),
                                       DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
         break;
-    case Utils::UI::TOOL_COMPRESS_BAG:
+    case Utils::UI::TOOL_ID::COMPRESS_BAG:
         m_thread = new ChangeCompressionBagThread(dynamic_cast<Parameters::CompressBagParameters&>(parameters),
                                                   DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()),
                                                   true, this);
         break;
-    case Utils::UI::TOOL_DECOMPRESS_BAG:
+    case Utils::UI::TOOL_ID::DECOMPRESS_BAG:
         m_thread = new ChangeCompressionBagThread(dynamic_cast<Parameters::CompressBagParameters&>(parameters),
                                                   DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()),
                                                   false, this);
         break;
-    case Utils::UI::TOOL_PUBLISH_VIDEO:
+    case Utils::UI::TOOL_ID::PUBLISH_VIDEO:
         m_thread = new PublishVideoThread(dynamic_cast<Parameters::PublishParameters&>(parameters),
                                           DialogSettings::getStaticParameter("hw_acc", false), this);
         break;
-    case Utils::UI::TOOL_PUBLISH_IMAGES:
+    case Utils::UI::TOOL_ID::PUBLISH_IMAGES:
         m_thread = new PublishImagesThread(dynamic_cast<Parameters::PublishParameters&>(parameters), this);
+        break;
+    default:
         break;
     }
 
@@ -97,9 +98,9 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
     auto* const progressLabel = new QLabel;
     progressLabel->setAlignment(Qt::AlignHCenter);
 
-    auto* const cancelButton = new QPushButton(threadTypeId == Utils::UI::TOOL_PUBLISH_VIDEO ||
-                                               threadTypeId == Utils::UI::TOOL_PUBLISH_IMAGES ||
-                                               threadTypeId == Utils::UI::TOOL_RECORD_BAG ? "Stop" : "Cancel");
+    auto* const cancelButton = new QPushButton(threadTypeId == Utils::UI::TOOL_ID::PUBLISH_VIDEO ||
+                                               threadTypeId == Utils::UI::TOOL_ID::PUBLISH_IMAGES ||
+                                               threadTypeId == Utils::UI::TOOL_ID::RECORD_BAG ? "Stop" : "Cancel");
     auto* const finishedButton = new QPushButton("Done");
     finishedButton->setVisible(false);
 
@@ -128,17 +129,17 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
 
     // Display a progress bar or play a gif
     switch (threadTypeId) {
-    case Utils::UI::TOOL_MERGE_BAGS:
-    case Utils::UI::TOOL_COMPRESS_BAG:
-    case Utils::UI::TOOL_DECOMPRESS_BAG:
+    case Utils::UI::TOOL_ID::MERGE_BAGS:
+    case Utils::UI::TOOL_ID::COMPRESS_BAG:
+    case Utils::UI::TOOL_ID::DECOMPRESS_BAG:
         setMovie(":/gifs/processing", 120);
         break;
-    case Utils::UI::TOOL_RECORD_BAG:
+    case Utils::UI::TOOL_ID::RECORD_BAG:
         progressLabel->setText("Recording Bag File...");
         setMovie(":/gifs/recording", 70);
         break;
-    case Utils::UI::TOOL_PUBLISH_VIDEO:
-    case Utils::UI::TOOL_PUBLISH_IMAGES:
+    case Utils::UI::TOOL_ID::PUBLISH_VIDEO:
+    case Utils::UI::TOOL_ID::PUBLISH_IMAGES:
         setMovie(":/gifs/publishing", 100);
         break;
     default:

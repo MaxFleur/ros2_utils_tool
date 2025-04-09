@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Parameters.hpp"
+#include "UtilsUI.hpp"
 
 #include <QMainWindow>
 
@@ -22,10 +23,10 @@ private slots:
     setStartWidget();
 
     void
-    setInputWidget(int mode);
+    setInputWidget(Utils::UI::TOOL_ID mode);
 
     void
-    setProgressWidget(int mode);
+    setProgressWidget(Utils::UI::TOOL_ID mode);
 
 private:
     void

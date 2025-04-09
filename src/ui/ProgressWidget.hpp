@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Parameters.hpp"
+#include "UtilsUI.hpp"
 
 #include <QPointer>
 #include <QWidget>
@@ -19,7 +20,7 @@ public:
                    const QString&               headerPixmapLabelTextWhite,
                    const QString&               headerLabelText,
                    Parameters::BasicParameters& parameters,
-                   const int                    threadTypeId,
+                   const Utils::UI::TOOL_ID     threadTypeId,
                    QWidget*                     parent = 0);
 
     ~ProgressWidget();
