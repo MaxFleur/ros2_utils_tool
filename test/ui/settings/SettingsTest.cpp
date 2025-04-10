@@ -420,34 +420,49 @@ TEST_CASE("Settings Testing", "[ui]") {
     SECTION("Dialog Settings Test") {
         qSettings.clear();
 
-        SECTION("Read") {
-            qSettings.beginGroup("dialog");
-            checkSettingsInvalidacy(qSettings, { "max_threads", "hw_acc", "save_parameters", "predefined_topic_names", "check_ros2_naming_convention" });
-            qSettings.endGroup();
+        SECTION("Class values") {
+            SECTION("Read") {
+                qSettings.beginGroup("dialog");
+                checkSettingsInvalidacy(qSettings, { "max_threads", "hw_acc", "save_parameters", "predefined_topic_names",
+                                                     "check_ros2_naming_convention", "ask_for_target_overwrite" });
+                qSettings.endGroup();
+            }
+            SECTION("Write") {
+                Parameters::DialogParameters parameters;
+                DialogSettings settings(parameters, "dialog");
+
+                parameters.maxNumberOfThreads = 4;
+                parameters.useHardwareAcceleration = true;
+                parameters.saveParameters = true;
+                parameters.usePredefinedTopicNames = true;
+                parameters.checkROS2NameConform = true;
+                parameters.askForTargetOverwrite = true;
+                settings.write();
+
+                qSettings.beginGroup("dialog");
+                verifiySettingPrimitive(qSettings, "max_threads", 4);
+                verifiySettingPrimitive(qSettings, "hw_acc", true);
+                verifiySettingPrimitive(qSettings, "save_parameters", true);
+                verifiySettingPrimitive(qSettings, "predefined_topic_names", true);
+                verifiySettingPrimitive(qSettings, "check_ros2_naming_convention", true);
+                verifiySettingPrimitive(qSettings, "ask_for_target_overwrite", true);
+                qSettings.endGroup();
+            }
         }
-        SECTION("Write") {
-            Parameters::DialogParameters parameters;
-            DialogSettings settings(parameters, "dialog");
+        SECTION("Static") {
+            SECTION("Read") {
+                REQUIRE(DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()) == std::thread::hardware_concurrency());
+                REQUIRE(DialogSettings::getStaticParameter("hw_acc", false) == false);
+            }
+            SECTION("Write") {
+                DialogSettings::writeStaticParameter("max_threads", static_cast<unsigned int>(4));
+                DialogSettings::writeStaticParameter("hw_acc", true);
 
-            parameters.maxNumberOfThreads = 4;
-            parameters.useHardwareAcceleration = true;
-            parameters.saveParameters = true;
-            parameters.usePredefinedTopicNames = true;
-            parameters.checkROS2NameConform = true;
-            settings.write();
-
-            qSettings.beginGroup("dialog");
-            verifiySettingPrimitive(qSettings, "max_threads", 4);
-            verifiySettingPrimitive(qSettings, "hw_acc", true);
-            verifiySettingPrimitive(qSettings, "save_parameters", true);
-            verifiySettingPrimitive(qSettings, "predefined_topic_names", true);
-            verifiySettingPrimitive(qSettings, "check_ros2_naming_convention", true);
-            qSettings.endGroup();
-
-            // Static functions
-            REQUIRE(DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()) == 4);
-            REQUIRE(DialogSettings::getStaticParameter("hw_acc", false) == true);
-            REQUIRE(DialogSettings::getStaticParameter("save_parameters", false) == true);
+                qSettings.beginGroup("dialog");
+                verifiySettingPrimitive(qSettings, "max_threads", 4);
+                verifiySettingPrimitive(qSettings, "hw_acc", true);
+                qSettings.endGroup();
+            }
         }
     }
 

@@ -34,7 +34,8 @@ SettingsDialog::SettingsDialog(Parameters::DialogParameters& parameters, QWidget
     auto* const useHardwareAccCheckBox = Utils::UI::createCheckBox("Use hardware acceleration for some tools.", m_parameters.useHardwareAcceleration);
     useHardwareAccCheckBox->setText("Use Hardware Acceleration");
 
-    auto* const storeParametersCheckBox = Utils::UI::createCheckBox("If this is checked, all input parameters are saved\nand reused if this application is launched another time.",
+    auto* const storeParametersCheckBox = Utils::UI::createCheckBox("If this is checked, all input parameters are saved\n"
+                                                                    "and reused if this application is launched another time.",
                                                                     m_parameters.saveParameters);
     storeParametersCheckBox->setText("Save Input Parameters");
 
@@ -42,9 +43,14 @@ SettingsDialog::SettingsDialog(Parameters::DialogParameters& parameters, QWidget
                                                                             m_parameters.usePredefinedTopicNames);
     usePredefinedTopicNamesCheckBox->setText("Use Predefined Topic Names");
 
-    auto* const checkROS2NamingConventionCheckBox = Utils::UI::createCheckBox("If input fields requiring topic names should check\nfor ROS2 Topic Naming Conventions.",
+    auto* const checkROS2NamingConventionCheckBox = Utils::UI::createCheckBox("If input fields requiring topic names should check\n"
+                                                                              "for ROS2 Topic Naming Conventions.",
                                                                               m_parameters.usePredefinedTopicNames);
     checkROS2NamingConventionCheckBox->setText("Check for ROS2 Naming Conventions");
+
+    auto* const askForOverwriteTargetCheckBox = Utils::UI::createCheckBox("If the tool should ask to continue if a target file is overwritten.",
+                                                                          m_parameters.askForTargetOverwrite);
+    askForOverwriteTargetCheckBox->setText("Ask for Target Overwrite");
 
     auto* const buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
@@ -59,6 +65,7 @@ SettingsDialog::SettingsDialog(Parameters::DialogParameters& parameters, QWidget
     miscLayout->addWidget(storeParametersCheckBox);
     miscLayout->addWidget(usePredefinedTopicNamesCheckBox);
     miscLayout->addWidget(checkROS2NamingConventionCheckBox);
+    miscLayout->addWidget(askForOverwriteTargetCheckBox);
 
     auto* const miscGroupBox = new QGroupBox("Miscellaneous");
     miscGroupBox->setLayout(miscLayout);
@@ -71,12 +78,14 @@ SettingsDialog::SettingsDialog(Parameters::DialogParameters& parameters, QWidget
     setLayout(mainLayout);
 
     connect(buttonBox, &QDialogButtonBox::accepted, this, [this, maxNumberOfThreadsSpinBox, useHardwareAccCheckBox,
-                                                           storeParametersCheckBox, usePredefinedTopicNamesCheckBox, checkROS2NamingConventionCheckBox] {
+                                                           storeParametersCheckBox, usePredefinedTopicNamesCheckBox,
+                                                           checkROS2NamingConventionCheckBox, askForOverwriteTargetCheckBox] {
         m_parameters.maxNumberOfThreads = maxNumberOfThreadsSpinBox->value();
         m_parameters.useHardwareAcceleration = useHardwareAccCheckBox->checkState() == Qt::Checked;
         m_parameters.saveParameters = storeParametersCheckBox->checkState() == Qt::Checked;
         m_parameters.usePredefinedTopicNames = usePredefinedTopicNamesCheckBox->checkState() == Qt::Checked;
         m_parameters.checkROS2NameConform = checkROS2NamingConventionCheckBox->checkState() == Qt::Checked;
+        m_parameters.askForTargetOverwrite = askForOverwriteTargetCheckBox->checkState() == Qt::Checked;
         m_settings.write();
         QDialog::accept();
     });

@@ -107,5 +107,6 @@ struct DialogParameters {
     bool         saveParameters = false;
     bool         usePredefinedTopicNames = true;
     bool         checkROS2NameConform = false;
+    bool         askForTargetOverwrite = true;
 };
 }
