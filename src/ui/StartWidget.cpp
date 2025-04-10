@@ -159,8 +159,9 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     backButtonLayout->addWidget(m_backButton);
     backButtonLayout->addStretch();
 
-    m_versionLabel = new QLabel("v0.10.0");
-    m_versionLabel->setToolTip("Compression/Decompression tools and restructured UI settings!");
+    m_versionLabel = new QLabel("v0.11.0");
+    m_versionLabel->setToolTip("UI-based bag recording and topic/service listing,\n"
+                               "rate for dummy bags and many UI-improvements!");
 
     auto* const versionLayout = new QHBoxLayout;
     versionLayout->addStretch();
