@@ -16,9 +16,7 @@ class ProgressWidget : public QWidget
     Q_OBJECT
 
 public:
-    ProgressWidget(const QString&               headerPixmapLabelTextBlack,
-                   const QString&               headerPixmapLabelTextWhite,
-                   const QString&               headerLabelText,
+    ProgressWidget(const QString&               headerLabelText,
                    Parameters::BasicParameters& parameters,
                    const Utils::UI::TOOL_ID     threadTypeId,
                    QWidget*                     parent = 0);

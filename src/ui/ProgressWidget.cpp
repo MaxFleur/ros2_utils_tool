@@ -23,8 +23,7 @@
 #include <QShortcut>
 #include <QVBoxLayout>
 
-ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const QString& headerPixmapLabelTextWhite,
-                               const QString& headerLabelText, Parameters::BasicParameters& parameters,
+ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::BasicParameters& parameters,
                                const Utils::UI::TOOL_ID threadTypeId, QWidget *parent) :
     QWidget(parent)
 {
@@ -86,10 +85,6 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
     }
 
     const auto isDarkMode = Utils::UI::isDarkMode();
-
-    auto* const headerPixmapLabel = new QLabel;
-    headerPixmapLabel->setPixmap(QIcon(isDarkMode ? headerPixmapLabelTextWhite : headerPixmapLabelTextBlack).pixmap(QSize(100, 45)));
-    headerPixmapLabel->setAlignment(Qt::AlignHCenter);
 
     auto* const headerLabel = new QLabel(headerLabelText);
     Utils::UI::setWidgetFontSize(headerLabel);
@@ -165,9 +160,8 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
 
     auto* const uiLayout = new QVBoxLayout;
     uiLayout->addStretch();
-    uiLayout->addWidget(headerPixmapLabel);
     uiLayout->addWidget(headerLabel);
-    uiLayout->addSpacing(30);
+    uiLayout->addSpacing(50);
     uiLayout->addWidget(progressWidget);
     uiLayout->addWidget(progressLabel);
     uiLayout->addStretch();
