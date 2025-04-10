@@ -110,9 +110,9 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
     buttonLayout->addWidget(finishedButton);
 
     QWidget* progressWidget;
-    const auto setMovie = [this, &progressWidget, progressLabel, isDarkMode] (const QString& moviePath, int height) {
+    const auto setMovie = [this, &progressWidget, progressLabel, isDarkMode] (const QString& moviePath, int width, int height) {
         auto* const movie = new QMovie(isDarkMode ? moviePath + "_white.gif" : moviePath + "_black.gif");
-        movie->setScaledSize(QSize(120, height));
+        movie->setScaledSize(QSize(width, height));
 
         auto* const movieLabel = new QLabel;
         movieLabel->setMovie(movie);
@@ -130,17 +130,24 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
     // Display a progress bar or play a gif
     switch (threadTypeId) {
     case Utils::UI::TOOL_ID::MERGE_BAGS:
+        progressLabel->setText("Writing merged Bag File...");
+        setMovie(":/gifs/merging", 120, 110);
+        break;
     case Utils::UI::TOOL_ID::COMPRESS_BAG:
+        progressLabel->setText("Writing and compressing Bag File...");
+        setMovie(":/gifs/compressing", 55, 120);
+        break;
     case Utils::UI::TOOL_ID::DECOMPRESS_BAG:
-        setMovie(":/gifs/processing", 120);
+        progressLabel->setText("Decompressing and writing new Bag File...");
+        setMovie(":/gifs/decompressing", 55, 120);
         break;
     case Utils::UI::TOOL_ID::RECORD_BAG:
         progressLabel->setText("Recording Bag File...");
-        setMovie(":/gifs/recording", 70);
+        setMovie(":/gifs/recording", 120, 70);
         break;
     case Utils::UI::TOOL_ID::PUBLISH_VIDEO:
     case Utils::UI::TOOL_ID::PUBLISH_IMAGES:
-        setMovie(":/gifs/publishing", 100);
+        setMovie(":/gifs/publishing", 120, 100);
         break;
     default:
         auto* const progressBar = new QProgressBar;
@@ -203,9 +210,6 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
     connect(m_thread, &BasicThread::finished, this, [cancelButton, finishedButton] {
         cancelButton->setVisible(false);
         finishedButton->setVisible(true);
-    });
-    connect(m_thread, &BasicThread::processing, this, [progressLabel] () {
-        progressLabel->setText("Processing, this might take a while...");
     });
     connect(m_thread, &BasicThread::failed, this, [this] {
         auto* const messageBox = new QMessageBox(QMessageBox::Warning, "Failed processing files!",

@@ -1,7 +1,11 @@
 <RCC>
     <qresource>
-        <file>gifs/processing_black.gif</file>
-        <file>gifs/processing_white.gif</file>
+        <file>gifs/compressing_black.gif</file>
+        <file>gifs/compressing_white.gif</file>
+        <file>gifs/decompressing_black.gif</file>
+        <file>gifs/decompressing_white.gif</file>
+        <file>gifs/merging_black.gif</file>
+        <file>gifs/merging_white.gif</file>
         <file>gifs/publishing_black.gif</file>
         <file>gifs/publishing_white.gif</file>
         <file>gifs/recording_black.gif</file>
