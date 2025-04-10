@@ -10,6 +10,7 @@
 class DummyTopicWidget;
 
 class QFormLayout;
+class QSpinBox;
 
 // Widget used to manage creating a ROS bag with dummy data
 class DummyBagWidget : public TopicListingInputWidget
@@ -29,6 +30,9 @@ private slots:
     createNewDummyTopicWidget(const Parameters::DummyBagParameters::DummyBagTopic& topics,
                               int                                                  index);
 
+    void
+    useCustomRateCheckBoxPressed(int state);
+
 private:
     std::optional<bool>
     areTopicsValid() override;
@@ -37,6 +41,7 @@ private:
     QVector<QPointer<DummyTopicWidget> > m_dummyTopicWidgets;
 
     QPointer<QFormLayout> m_formLayout;
+    QPointer<QSpinBox> m_rateSpinBox;
 
     Parameters::DummyBagParameters& m_parameters;
 

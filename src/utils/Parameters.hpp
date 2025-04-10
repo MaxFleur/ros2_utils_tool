@@ -31,6 +31,8 @@ struct DummyBagParameters : BasicParameters {
 
     QVector<DummyBagTopic> topics = {};
     int                    messageCount = 100;
+    int                    rate = 10;
+    bool                   useCustomRate = false;
 };
 
 struct AdvancedParameters : BasicParameters {

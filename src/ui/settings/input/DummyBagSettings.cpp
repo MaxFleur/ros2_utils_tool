@@ -27,6 +27,8 @@ DummyBagSettings::write()
     settings.endGroup();
 
     writeParameter(m_groupName, "msg_count", m_parameters.messageCount);
+    writeParameter(m_groupName, "rate", m_parameters.rate);
+    writeParameter(m_groupName, "use_custom_rate", m_parameters.useCustomRate);
 
     return true;
 }
@@ -53,6 +55,8 @@ DummyBagSettings::read()
     settings.endGroup();
 
     m_parameters.messageCount = readParameter(m_groupName, "msg_count", 100);
+    m_parameters.rate = readParameter(m_groupName, "rate", 10);
+    m_parameters.useCustomRate = readParameter(m_groupName, "use_custom_rate", false);
 
     return true;
 }

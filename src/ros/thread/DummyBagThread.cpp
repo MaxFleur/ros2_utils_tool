@@ -65,7 +65,10 @@ DummyBagThread::run()
                     break;
                 }
 
-                const auto timeStamp = rclcpp::Clock().now();
+                // Nanoseconds directly
+                const auto rate = m_parameters.useCustomRate ? m_parameters.rate : 10;
+                rclcpp::Time timeStamp(static_cast<uint64_t>((float) i / (float) rate) * 1e9);
+
                 // Write message depending on type
                 if (topicType == "String") {
                     Utils::ROS::writeMessageToBag(std_msgs::msg::String(), "Message " + std::to_string(i), writer, topicName, timeStamp);

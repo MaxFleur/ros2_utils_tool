@@ -14,11 +14,12 @@
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_dummy_bag path/to/bag topic_name_1 topic_type_1 "
-        "(...) message_count\n" << std::endl;
+    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_dummy_bag path/to/bag topic_name_1 topic_type_1 (...)\n" << std::endl;
     std::cout << "Topic type is either 'String', 'Integer', 'Image' or 'PointCloud'." << std::endl;
-    std::cout << "You can write up to four topics." << std::endl;
-    std::cout << "The message count must be between 1 and 1000.\n" << std::endl;
+    std::cout << "You can write up to four topics.\n" << std::endl;
+    std::cout << "Additional parameters:" << std::endl;
+    std::cout << "-m or --message-count: Number of messages in the bag file. Must be between 1 and 1000, default is 100." << std::endl;
+    std::cout << "-r or --rate: \"Frame\"rate of messages in the bag file. Must be between 1 and 100, default is 10." << std::endl;
     std::cout << "-h or --help: Show this help." << std::endl;
 }
 
@@ -32,11 +33,12 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto arguments = app.arguments();
-    if (arguments.size() < 4 || arguments.size() > 11 || arguments.contains("--help") || arguments.contains("-h")) {
+    if (arguments.size() < 4 || arguments.size() > 14 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
     }
-    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, { "-h", "--help" }); argument != std::nullopt) {
+    const QStringList checkList{ "-h", "--help", "-m", "--message-count", "-r", "--rate" };
+    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
     }
@@ -49,9 +51,16 @@ main(int argc, char* argv[])
     Utils::CLI::checkParentDirectory(parameters.sourceDirectory);
 
     // Message count
-    parameters.messageCount = arguments.at(arguments.size() - 1).toInt();
-    if (parameters.messageCount < 1 || parameters.messageCount > 1000) {
-        throw std::runtime_error("Please enter a number between 1 and 1000 for the message count value!");
+    parameters.messageCount = 100;
+    if (!Utils::CLI::checkArgumentValidity(arguments, "-m", "--message-count", parameters.messageCount, 1, 1000)) {
+        throw std::runtime_error("Please enter a message count in the range of 1 to 1000!");
+    }
+    // Rate
+    parameters.rate = 10;
+    if (Utils::CLI::checkArgumentValidity(arguments, "-r", "--rate", parameters.rate, 1, 100)) {
+        parameters.useCustomRate = true;
+    } else {
+        throw std::runtime_error("Please enter a rate in the range of 1 to 100!");
     }
 
     // Topics
@@ -59,8 +68,12 @@ main(int argc, char* argv[])
     QVector<QString> topicNames;
     QSet<QString> topicNameSet;
     auto areROS2NamesValid = true;
+
+    auto isArgumentOptional = [checkList] (const QString& argument) {
+        return checkList.contains(argument);
+    };
     // Ensure correct topic type and name ordering
-    for (auto i = 2; i < arguments.size() - 1; i++) {
+    for (auto i = 2; i < arguments.size() && !isArgumentOptional(arguments.at(i)); i++) {
         const auto argument = arguments.at(i);
 
         if (i % 2 == 0) {

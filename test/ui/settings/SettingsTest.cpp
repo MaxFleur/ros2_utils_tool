@@ -121,7 +121,7 @@ TEST_CASE("Settings Testing", "[ui]") {
     SECTION("Dummmy Bag Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("dummy");
-            checkSettingsInvalidacy(qSettings, { "topics", "msg_count" });
+            checkSettingsInvalidacy(qSettings, { "topics", "msg_count", "rate", "use_custom_rate" });
             qSettings.endGroup();
         }
         SECTION("Write") {
@@ -129,11 +129,15 @@ TEST_CASE("Settings Testing", "[ui]") {
             DummyBagSettings settings(parameters, "dummy");
 
             parameters.messageCount = 250;
+            parameters.rate = 25;
+            parameters.useCustomRate = true;
             parameters.topics.push_back({ "string", "example_name" });
             settings.write();
 
             qSettings.beginGroup("dummy");
             verifiySettingPrimitive(qSettings, "msg_count", 250);
+            verifiySettingPrimitive(qSettings, "rate", 25);
+            verifiySettingPrimitive(qSettings, "use_custom_rate", true);
 
             const auto size = qSettings.beginReadArray("topics");
             for (auto i = 0; i < size; ++i) {

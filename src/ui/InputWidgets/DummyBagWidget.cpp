@@ -24,10 +24,20 @@ DummyBagWidget::DummyBagWidget(Parameters::DummyBagParameters& parameters, bool 
     messageCountSpinBox->setToolTip("The number of messages stored in the bag.");
     messageCountSpinBox->setValue(m_parameters.messageCount);
 
+    auto* const useCustomRateCheckBox = Utils::UI::createCheckBox("Use a custom rate for the bag messages. If this is unchecked, "
+                                                                  "the current time will be used.", m_parameters.useCustomRate);
+    useCustomRateCheckBox->setChecked(m_parameters.useCustomRate);
+
+    auto* const rateSpinBox = new QSpinBox;
+    rateSpinBox->setRange(1, 100);
+    rateSpinBox->setToolTip("How many messages per second are stored.");
+    rateSpinBox->setValue(m_parameters.rate);
+
     m_formLayout = new QFormLayout;
     m_formLayout->addRow("Target Bag Location:", m_findSourceLayout);
     m_formLayout->addRow("", m_topicButtonLayout);
     m_formLayout->addRow("Message Count:", messageCountSpinBox);
+    m_formLayout->addRow("Use Custom Rate:", useCustomRateCheckBox);
 
     m_controlsLayout->addLayout(m_formLayout);
     m_controlsLayout->addSpacing(20);
@@ -49,12 +59,14 @@ DummyBagWidget::DummyBagWidget(Parameters::DummyBagParameters& parameters, bool 
     connect(messageCountSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [this] (int value) {
         writeParameterToSettings(m_parameters.messageCount, value, m_settings);
     });
+    connect(useCustomRateCheckBox, &QCheckBox::stateChanged, this, &DummyBagWidget::useCustomRateCheckBoxPressed);
     connect(m_removeTopicButton, &QPushButton::clicked, this, &DummyBagWidget::removeDummyTopicWidget);
     connect(m_addTopicButton, &QPushButton::clicked, this, [addNewTopic] {
         addNewTopic();
     });
 
     setPixmapLabelIcon();
+    useCustomRateCheckBoxPressed(m_parameters.useCustomRate);
 }
 
 
@@ -85,12 +97,33 @@ DummyBagWidget::createNewDummyTopicWidget(const Parameters::DummyBagParameters::
     });
 
     // Keep it all inside the main form layout
-    m_formLayout->insertRow(m_formLayout->rowCount() - 2, "Topic " + QString::number(m_numberOfTopics + 1) + ":", dummyTopicWidget);
+    m_formLayout->insertRow(m_formLayout->rowCount() - 3, "Topic " + QString::number(m_numberOfTopics + 1) + ":", dummyTopicWidget);
     m_dummyTopicWidgets.push_back(dummyTopicWidget);
 
     m_numberOfTopics++;
     m_addTopicButton->setEnabled(m_numberOfTopics != MAXIMUM_NUMBER_OF_TOPICS);
     m_removeTopicButton->setEnabled(m_parameters.topics.size() != 1);
+}
+
+
+void
+DummyBagWidget::useCustomRateCheckBoxPressed(int state)
+{
+    writeParameterToSettings(m_parameters.useCustomRate, state != Qt::Unchecked, m_settings);
+
+    if (state != Qt::Unchecked) {
+        m_rateSpinBox = new QSpinBox;
+        m_rateSpinBox->setRange(1, 100);
+        m_rateSpinBox->setValue(m_parameters.rate);
+
+        m_formLayout->addRow("", m_rateSpinBox);
+
+        connect(m_rateSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [this] (int value) {
+            writeParameterToSettings(m_parameters.rate, value, m_settings);
+        });
+    } else if (m_rateSpinBox) {
+        m_formLayout->removeRow(m_rateSpinBox);
+    }
 }
 
 
