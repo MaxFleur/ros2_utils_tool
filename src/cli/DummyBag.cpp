@@ -109,8 +109,7 @@ main(int argc, char* argv[])
     }
 
     // Create thread and connect to its informations
-    // More then four topics are not supported anyway, so stick to this value
-    auto* const dummyBagThread = new DummyBagThread(parameters, 4);
+    auto* const dummyBagThread = new DummyBagThread(parameters, parameters.topics.size());
     std::mutex mutex;
 
     QObject::connect(dummyBagThread, &DummyBagThread::progressChanged, [&mutex] (const QString& progressString, int progress) {
