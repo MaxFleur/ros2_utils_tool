@@ -49,11 +49,12 @@ DummyBagThread::run()
     // Move to own lambda for multithreading
     const auto writeDummyTopic = [this, &writer, &queue, &mutex, &iterationCount, maximumMessageCount] {
         while (true) {
+            mutex.lock();
             if (isInterruptionRequested() || queue.empty()) {
+                mutex.unlock();
                 break;
             }
 
-            mutex.lock();
             const auto topicType = queue.back().type;
             const auto topicName = queue.back().name;
             queue.pop_back();

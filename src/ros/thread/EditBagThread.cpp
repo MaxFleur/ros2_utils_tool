@@ -25,7 +25,7 @@ EditBagThread::run()
             continue;
         }
 
-        totalInstances += topic.upperBoundary - topic.lowerBoundary;
+        totalInstances += topic.upperBoundary - topic.lowerBoundary + 1;
     }
 
     emit informOfGatheringData();
@@ -100,7 +100,7 @@ EditBagThread::run()
                     boundaryCounter++;
                     continue;
                 }
-                if (boundaryCounter == topic.upperBoundary) {
+                if (boundaryCounter > topic.upperBoundary) {
                     break;
                 }
 

@@ -171,9 +171,9 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.sourceDirectory = "./dummy_bag";
         parameters.targetDirectory = "./edited_bag";
         parameters.updateTimestamps = true;
-        parameters.topics.push_back({ "", "/dummy_image", 0, 100, true });
-        parameters.topics.push_back({ "", "/dummy_integer", 0, 200, false });
-        parameters.topics.push_back({ "/renamed_string", "/dummy_string", 50, 150, true });
+        parameters.topics.push_back({ "", "/dummy_image", 0, 99, true });
+        parameters.topics.push_back({ "", "/dummy_integer", 0, 199, false });
+        parameters.topics.push_back({ "/renamed_string", "/dummy_string", 50, 149, true });
 
         auto* const thread = new EditBagThread(parameters, std::thread::hardware_concurrency());
         QObject::connect(thread, &EditBagThread::finished, thread, &QObject::deleteLater);
