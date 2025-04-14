@@ -4,7 +4,7 @@
    ![C++ badge](https://img.shields.io/badge/C++-20-blue.svg)
    ![CI Ubuntu badge](https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/humble.yml/badge.svg?event=push)
    ![CI Windows badge](https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/jazzy.yml/badge.svg?event=push)
-   ![Tag badge](https://img.shields.io/badge/Release-v0.10.0-blue.svg)
+   ![Tag badge](https://img.shields.io/badge/Release-v0.11.0-blue.svg)
 
 </div>
 
@@ -20,21 +20,23 @@
 
 The ros2_utils_tool package provides a complete UI-based tool for the everyday-usage of ROS2 with additional CLI support. As of now, the tool provides the following functionalities:
 
-| Tool  | Description | UI support | CLI support |
-|-------|-------------|:----------:|:-----------:|
-| Bag to Video | Export a ROS bag video topic to a video |  X  |  X  |
-| Video to Bag | Port a video file to a ROS bag |  X  |  X  |
-| Bag to PCDs | Export a ROS bag point cloud topic to a set of pcd files  |  X  |  X  |
-| PCDs to Bag | Port a set of PCD files to a ROS bag  |  X  |  X  |
-| Bag to Images | Export a ROS bag video topic to an image sequence |  X  |  X  |
-| Edit Bag | Rename, remove or crop topics in a ROS bag |  X  |    |
-| Merge Bags | Merge selected topics of two bags in a new ROS bag |  X  |  X  |
-| Dummy Bag | Create a ROS bag with dummy data |  X  |  X  |
-| UI-based Bag Info | UI-supported bag info vis |  X  | (X) (`ros2 bag info`) |
-| Compress Bag | Compress a bag file |  X  |  X  |
-| Decompress Bag | Decompress a bag file |  X  |  X  |
-| Video as ROS Topic | Publish a video file as a ROS image_msg topic |  X  |  X  |
-| Image Sequence as ROS Topic | Publish a file with images as ROS image_msg Topic |  X  |  X  |
+| Tool  | Description | Additional CLI support |
+|-------|-------------|:----------:|
+| Bag to Video | Export a ROS bag video topic to a video |  X  |
+| Video to Bag | Port a video file to a ROS bag |  X  |
+| Bag to PCDs | Export a ROS bag point cloud topic to a set of pcd files  |  X  |
+| PCDs to Bag | Port a set of PCD files to a ROS bag  |  X  |
+| Bag to Images | Export a ROS bag video topic to an image sequence |  X  |
+| Edit Bag | Rename, remove or crop topics in a ROS bag |    |
+| Merge Bags | Merge selected topics of two bags in a new ROS bag |  X  |
+| UI-based Bag Recording | Record a ROS bag | (X) (`ros2 bag record`)  |
+| Dummy Bag | Create a ROS bag with dummy data |  X  |
+| Compress Bag | Compress a bag file |  X  |
+| Decompress Bag | Decompress a bag file |  X  |
+| Video as ROS Topic | Publish a video file as a ROS image_msg topic |  X  |
+| Image Sequence as ROS Topic | Publish a file with images as ROS image_msg Topic |  X  |
+| UI-based topic/service information | UI-supported topic/service info vis | (X) (`ros2 topic list`/`ros2 service list`)  |
+| UI-based Bag Info | UI-supported bag info vis | (X) (`ros2 bag info`) |
 
 NOTE: The package is still under active development, so more tools might be added later in the future. Additionally, already existing features might expand and change constantly.
 
