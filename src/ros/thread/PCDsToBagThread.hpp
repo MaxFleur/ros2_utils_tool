@@ -10,7 +10,6 @@ class PCDsToBagThread : public BasicThread {
 public:
     explicit
     PCDsToBagThread(const Parameters::PCDsToBagParameters& parameters,
-                    unsigned int                           numberOfThreads,
                     QObject*                               parent = nullptr);
 
     void
@@ -18,6 +17,4 @@ public:
 
 private:
     const Parameters::PCDsToBagParameters& m_parameters;
-
-    const unsigned int m_numberOfThreads;
 };

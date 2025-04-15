@@ -83,7 +83,7 @@ main(int argc, char* argv[])
     }
 
     // Create thread and connect to its informations
-    auto* const pcdsToBagThread = new PCDsToBagThread(parameters, std::thread::hardware_concurrency());
+    auto* const pcdsToBagThread = new PCDsToBagThread(parameters);
 
     QObject::connect(pcdsToBagThread, &PCDsToBagThread::progressChanged, [] (const QString& progressString, int progress) {
         const auto progressStringCMD = Utils::CLI::drawProgressString(progress);

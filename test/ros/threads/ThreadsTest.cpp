@@ -608,7 +608,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.topicName = "/point_clouds_are_awesome";
         parameters.rate = 2;
 
-        auto* const thread = new PCDsToBagThread(parameters, std::thread::hardware_concurrency());
+        auto* const thread = new PCDsToBagThread(parameters);
         QObject::connect(thread, &PCDsToBagThread::finished, thread, &QObject::deleteLater);
 
         thread->start();
