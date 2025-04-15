@@ -41,8 +41,7 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
                                        DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
         break;
     case Utils::UI::TOOL_ID::PCDS_TO_BAG:
-        m_thread = new PCDsToBagThread(dynamic_cast<Parameters::PCDsToBagParameters&>(parameters),
-                                       DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
+        m_thread = new PCDsToBagThread(dynamic_cast<Parameters::PCDsToBagParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_ID::BAG_TO_IMAGES:
         m_thread = new BagToImagesThread(dynamic_cast<Parameters::BagToImagesParameters&>(parameters),

@@ -24,10 +24,10 @@ RecordBagThread::run()
 
     rosbag2_transport::RecordOptions recordOptions;
     if (m_parameters.allTopics) {
-#ifdef ROS_JAZZY
-        recordOptions.all_topics = true;
-#else
+#ifdef ROS_HUMBLE
         recordOptions.all = true;
+#else
+        recordOptions.all_topics = true;
 #endif
     } else {
         for (const auto& topic : m_parameters.topics) {

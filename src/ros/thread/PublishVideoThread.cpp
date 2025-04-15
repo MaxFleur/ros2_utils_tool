@@ -2,10 +2,10 @@
 
 #include <opencv2/videoio.hpp>
 
-#ifdef ROS_JAZZY
-#include <cv_bridge/cv_bridge.hpp>
-#else
+#ifdef ROS_HUMBLE
 #include <cv_bridge/cv_bridge.h>
+#else
+#include <cv_bridge/cv_bridge.hpp>
 #endif
 
 PublishVideoThread::PublishVideoThread(const Parameters::PublishParameters& parameters, bool useHardwareAcceleration,

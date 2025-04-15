@@ -8,10 +8,10 @@
 
 #include <filesystem>
 
-#ifdef ROS_JAZZY
-#include <cv_bridge/cv_bridge.hpp>
-#else
+#ifdef ROS_HUMBLE
 #include <cv_bridge/cv_bridge.h>
+#else
+#include <cv_bridge/cv_bridge.hpp>
 #endif
 
 VideoToBagThread::VideoToBagThread(const Parameters::VideoToBagParameters& parameters, bool useHardwareAcceleration,

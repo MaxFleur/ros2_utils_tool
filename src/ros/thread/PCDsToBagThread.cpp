@@ -8,10 +8,9 @@
 
 #include <filesystem>
 
-PCDsToBagThread::PCDsToBagThread(const Parameters::PCDsToBagParameters& parameters,
-                                 unsigned int numberOfThreads, QObject* parent) :
+PCDsToBagThread::PCDsToBagThread(const Parameters::PCDsToBagParameters& parameters, QObject* parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),
-    m_parameters(parameters), m_numberOfThreads(numberOfThreads)
+    m_parameters(parameters)
 {
 }
 
@@ -41,47 +40,31 @@ PCDsToBagThread::run()
     auto iterationCount = 1;
     rosbag2_cpp::Writer writer;
     writer.open(targetDirectoryStd);
-    std::mutex mutex;
 
     auto timeStamp = rclcpp::Clock(RCL_ROS_TIME).now();
     const auto duration = rclcpp::Duration::from_seconds(1.0f / (float) m_parameters.rate);
 
-    const auto writeMessageFromQueue = [this, &mutex, &writer, &iterationCount, &sortedPCDsSet, &timeStamp, duration, frameCount] {
-        while (true) {
-            mutex.lock();
-
-            if (isInterruptionRequested() || sortedPCDsSet.empty()) {
-                mutex.unlock();
-                break;
-            }
-            // Create message
-            sensor_msgs::msg::PointCloud2 message;
-            // Nanoseconds directly
-            timeStamp += duration;
-
-            // Read pcd from file
-            pcl::PCDReader reader;
-            pcl::PCLPointCloud2 cloud;
-            reader.read(*sortedPCDsSet.begin(), cloud);
-            sortedPCDsSet.erase(sortedPCDsSet.begin());
-
-            emit progressChanged("Writing pcd file " + QString::number(iterationCount) + " of " + QString::number(frameCount) + "...",
-                                 ((float) iterationCount / (float) frameCount) * 100);
-            iterationCount++;
-
-            mutex.unlock();
-            // Write
-            pcl_conversions::fromPCL(cloud, message);
-            writer.write(message, m_topicName, timeStamp);
+    while (true) {
+        if (isInterruptionRequested() || sortedPCDsSet.empty()) {
+            break;
         }
-    };
+        // Create message
+        sensor_msgs::msg::PointCloud2 message;
 
-    std::vector<std::thread> threadPool;
-    for (unsigned int i = 0; i < m_numberOfThreads; ++i) {
-        threadPool.emplace_back(writeMessageFromQueue);
-    }
-    for (auto& thread : threadPool) {
-        thread.join();
+        // Read pcd from file
+        pcl::PCDReader reader;
+        pcl::PCLPointCloud2 cloud;
+        reader.read(*sortedPCDsSet.begin(), cloud);
+        sortedPCDsSet.erase(sortedPCDsSet.begin());
+
+        emit progressChanged("Writing pcd file " + QString::number(iterationCount) + " of " + QString::number(frameCount) + "...",
+                             ((float) iterationCount / (float) frameCount) * 100);
+        iterationCount++;
+
+        timeStamp += duration;
+        // Write
+        pcl_conversions::fromPCL(cloud, message);
+        writer.write(message, m_topicName, timeStamp);
     }
 
     emit finished();

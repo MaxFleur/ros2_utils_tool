@@ -7,10 +7,10 @@
 
 #include "sensor_msgs/msg/image.hpp"
 
-#ifdef ROS_JAZZY
-#include <cv_bridge/cv_bridge.hpp>
-#else
+#ifdef ROS_HUMBLE
 #include <cv_bridge/cv_bridge.h>
+#else
+#include <cv_bridge/cv_bridge.hpp>
 #endif
 
 BagToVideoThread::BagToVideoThread(const Parameters::BagToVideoParameters& parameters, bool useHardwareAcceleration,
