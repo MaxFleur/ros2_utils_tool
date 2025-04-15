@@ -43,7 +43,10 @@ PCDsToBagThread::run()
     writer.open(targetDirectoryStd);
     std::mutex mutex;
 
-    const auto writeMessageFromQueue = [this, &mutex, &writer, &iterationCount, &sortedPCDsSet, frameCount] {
+    auto timeStamp = rclcpp::Clock(RCL_ROS_TIME).now();
+    const auto duration = rclcpp::Duration::from_seconds(1.0f / (float) m_parameters.rate);
+
+    const auto writeMessageFromQueue = [this, &mutex, &writer, &iterationCount, &sortedPCDsSet, &timeStamp, duration, frameCount] {
         while (true) {
             mutex.lock();
 
@@ -54,7 +57,7 @@ PCDsToBagThread::run()
             // Create message
             sensor_msgs::msg::PointCloud2 message;
             // Nanoseconds directly
-            rclcpp::Time time(static_cast<uint64_t>(((float) iterationCount / m_parameters.rate) * 1e9));
+            timeStamp += duration;
 
             // Read pcd from file
             pcl::PCDReader reader;
@@ -69,7 +72,7 @@ PCDsToBagThread::run()
             mutex.unlock();
             // Write
             pcl_conversions::fromPCL(cloud, message);
-            writer.write(message, m_topicName, time);
+            writer.write(message, m_topicName, timeStamp);
         }
     };
 

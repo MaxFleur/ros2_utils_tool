@@ -60,15 +60,16 @@ DummyBagThread::run()
             queue.pop_back();
             mutex.unlock();
 
+            auto timeStamp = rclcpp::Clock(RCL_ROS_TIME).now();
+            const auto rate = m_parameters.useCustomRate ? m_parameters.rate : 10;
+            const auto duration = rclcpp::Duration::from_seconds(1.0f / (float) rate);
+
             for (auto i = 1; i <= m_parameters.messageCount; i++) {
                 if (isInterruptionRequested()) {
                     break;
                 }
 
-                // Nanoseconds directly
-                const auto rate = m_parameters.useCustomRate ? m_parameters.rate : 10;
-                rclcpp::Time timeStamp(static_cast<uint64_t>((float) i / (float) rate) * 1e9);
-
+                timeStamp += duration;
                 // Write message depending on type
                 if (topicType == "String") {
                     Utils::ROS::writeMessageToBag(std_msgs::msg::String(), "Message " + std::to_string(i), writer, topicName, timeStamp);
