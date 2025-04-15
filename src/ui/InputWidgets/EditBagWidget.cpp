@@ -11,6 +11,7 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QShortcut>
 #include <QToolButton>
 #include <QTreeWidget>
 #include <QVBoxLayout>
@@ -75,6 +76,8 @@ EditBagWidget::EditBagWidget(Parameters::EditBagParameters& parameters, bool che
     mainLayout->addLayout(m_buttonLayout);
     setLayout(mainLayout);
 
+    auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
+
     connect(m_findSourceButton, &QPushButton::clicked, this, [this] {
         createTopicTree(true);
     });
@@ -85,6 +88,7 @@ EditBagWidget::EditBagWidget(Parameters::EditBagParameters& parameters, bool che
         writeParameterToSettings(m_parameters.updateTimestamps, state == Qt::Checked, m_settings);
     });
     connect(m_dialogButtonBox, &QDialogButtonBox::accepted, this, &EditBagWidget::okButtonPressed);
+    connect(okShortCut, &QShortcut::activated, this, &EditBagWidget::okButtonPressed);
 
     if (!m_sourceLineEdit->text().isEmpty()) {
         createTopicTree(false);

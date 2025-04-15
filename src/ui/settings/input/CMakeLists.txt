@@ -27,6 +27,8 @@ target_sources(rt_settings_input INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/PCDsToBagSettings.hpp
     ${CMAKE_CURRENT_LIST_DIR}/PublishSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/PublishSettings.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/RecordBagSettings.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RecordBagSettings.hpp
     ${CMAKE_CURRENT_LIST_DIR}/RGBSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RGBSettings.hpp
     ${CMAKE_CURRENT_LIST_DIR}/VideoSettings.cpp

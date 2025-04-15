@@ -12,7 +12,7 @@
 #include "PCDsToBagThread.hpp"
 #include "PublishImagesThread.hpp"
 #include "PublishVideoThread.hpp"
-#include "UtilsUI.hpp"
+#include "RecordBagThread.hpp"
 #include "VideoToBagThread.hpp"
 
 #include <QLabel>
@@ -23,68 +23,68 @@
 #include <QShortcut>
 #include <QVBoxLayout>
 
-ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const QString& headerPixmapLabelTextWhite,
-                               const QString& headerLabelText, Parameters::BasicParameters& parameters,
-                               const int threadTypeId, QWidget *parent) :
+ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::BasicParameters& parameters,
+                               const Utils::UI::TOOL_ID threadTypeId, QWidget *parent) :
     QWidget(parent)
 {
     switch (threadTypeId) {
-    case Utils::UI::TOOL_BAG_TO_VIDEO:
+    case Utils::UI::TOOL_ID::BAG_TO_VIDEO:
         m_thread = new BagToVideoThread(dynamic_cast<Parameters::BagToVideoParameters&>(parameters),
                                         DialogSettings::getStaticParameter("hw_acc", false), this);
         break;
-    case Utils::UI::TOOL_VIDEO_TO_BAG:
+    case Utils::UI::TOOL_ID::VIDEO_TO_BAG:
         m_thread = new VideoToBagThread(dynamic_cast<Parameters::VideoToBagParameters&>(parameters),
                                         DialogSettings::getStaticParameter("hw_acc", false), this);
         break;
-    case Utils::UI::TOOL_BAG_TO_PCDS:
+    case Utils::UI::TOOL_ID::BAG_TO_PCDS:
         m_thread = new BagToPCDsThread(dynamic_cast<Parameters::AdvancedParameters&>(parameters),
                                        DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
         break;
-    case Utils::UI::TOOL_PCDS_TO_BAG:
+    case Utils::UI::TOOL_ID::PCDS_TO_BAG:
         m_thread = new PCDsToBagThread(dynamic_cast<Parameters::PCDsToBagParameters&>(parameters),
                                        DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
         break;
-    case Utils::UI::TOOL_BAG_TO_IMAGES:
+    case Utils::UI::TOOL_ID::BAG_TO_IMAGES:
         m_thread = new BagToImagesThread(dynamic_cast<Parameters::BagToImagesParameters&>(parameters),
                                          DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
         break;
-    case Utils::UI::TOOL_EDIT_BAG:
+    case Utils::UI::TOOL_ID::EDIT_BAG:
         m_thread = new EditBagThread(dynamic_cast<Parameters::EditBagParameters&>(parameters),
                                      DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
         break;
-    case Utils::UI::TOOL_MERGE_BAGS:
+    case Utils::UI::TOOL_ID::MERGE_BAGS:
         m_thread = new MergeBagsThread(dynamic_cast<Parameters::MergeBagsParameters&>(parameters),
                                        DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
         break;
-    case Utils::UI::TOOL_DUMMY_BAG:
+    case Utils::UI::TOOL_ID::RECORD_BAG:
+        m_thread = new RecordBagThread(dynamic_cast<Parameters::RecordBagParameters&>(parameters), this);
+        break;
+    case Utils::UI::TOOL_ID::DUMMY_BAG:
         m_thread = new DummyBagThread(dynamic_cast<Parameters::DummyBagParameters&>(parameters),
                                       DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
         break;
-    case Utils::UI::TOOL_COMPRESS_BAG:
+    case Utils::UI::TOOL_ID::COMPRESS_BAG:
         m_thread = new ChangeCompressionBagThread(dynamic_cast<Parameters::CompressBagParameters&>(parameters),
                                                   DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()),
                                                   true, this);
         break;
-    case Utils::UI::TOOL_DECOMPRESS_BAG:
+    case Utils::UI::TOOL_ID::DECOMPRESS_BAG:
         m_thread = new ChangeCompressionBagThread(dynamic_cast<Parameters::CompressBagParameters&>(parameters),
                                                   DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()),
                                                   false, this);
         break;
-    case Utils::UI::TOOL_PUBLISH_VIDEO:
+    case Utils::UI::TOOL_ID::PUBLISH_VIDEO:
         m_thread = new PublishVideoThread(dynamic_cast<Parameters::PublishParameters&>(parameters),
                                           DialogSettings::getStaticParameter("hw_acc", false), this);
         break;
-    case Utils::UI::TOOL_PUBLISH_IMAGES:
+    case Utils::UI::TOOL_ID::PUBLISH_IMAGES:
         m_thread = new PublishImagesThread(dynamic_cast<Parameters::PublishParameters&>(parameters), this);
+        break;
+    default:
         break;
     }
 
     const auto isDarkMode = Utils::UI::isDarkMode();
-
-    auto* const headerPixmapLabel = new QLabel;
-    headerPixmapLabel->setPixmap(QIcon(isDarkMode ? headerPixmapLabelTextWhite : headerPixmapLabelTextBlack).pixmap(QSize(100, 45)));
-    headerPixmapLabel->setAlignment(Qt::AlignHCenter);
 
     auto* const headerLabel = new QLabel(headerLabelText);
     Utils::UI::setWidgetFontSize(headerLabel);
@@ -93,7 +93,9 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
     auto* const progressLabel = new QLabel;
     progressLabel->setAlignment(Qt::AlignHCenter);
 
-    auto* const cancelButton = new QPushButton("Cancel");
+    auto* const cancelButton = new QPushButton(threadTypeId == Utils::UI::TOOL_ID::PUBLISH_VIDEO ||
+                                               threadTypeId == Utils::UI::TOOL_ID::PUBLISH_IMAGES ||
+                                               threadTypeId == Utils::UI::TOOL_ID::RECORD_BAG ? "Stop" : "Cancel");
     auto* const finishedButton = new QPushButton("Done");
     finishedButton->setVisible(false);
 
@@ -102,20 +104,10 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
     buttonLayout->addStretch();
     buttonLayout->addWidget(finishedButton);
 
-    // Display a progress bar or play a gif depending on if we are doing bag or publishing stuff
     QWidget* progressWidget;
-    if (threadTypeId == Utils::UI::TOOL_COMPRESS_BAG || threadTypeId == Utils::UI::TOOL_DECOMPRESS_BAG ||
-        threadTypeId == Utils::UI::TOOL_MERGE_BAGS ||
-        threadTypeId == Utils::UI::TOOL_PUBLISH_VIDEO || threadTypeId == Utils::UI::TOOL_PUBLISH_IMAGES) {
-        QMovie* movie;
-        if (threadTypeId == Utils::UI::TOOL_COMPRESS_BAG || threadTypeId == Utils::UI::TOOL_DECOMPRESS_BAG ||
-            threadTypeId == Utils::UI::TOOL_MERGE_BAGS) {
-            movie = new QMovie(isDarkMode? ":/gifs/processing_white.gif" : ":/gifs/processing_black.gif");
-        } else {
-            movie = new QMovie(isDarkMode? ":/gifs/publishing_white.gif" : ":/gifs/publishing_black.gif");
-        }
-        movie->setScaledSize(QSize(120, threadTypeId == Utils::UI::TOOL_COMPRESS_BAG ||
-                                   threadTypeId == Utils::UI::TOOL_DECOMPRESS_BAG ? 120 : 100));
+    const auto setMovie = [this, &progressWidget, progressLabel, isDarkMode] (const QString& moviePath, int width, int height) {
+        auto* const movie = new QMovie(isDarkMode ? moviePath + "_white.gif" : moviePath + "_black.gif");
+        movie->setScaledSize(QSize(width, height));
 
         auto* const movieLabel = new QLabel;
         movieLabel->setMovie(movie);
@@ -128,7 +120,31 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
         });
 
         movie->start();
-    } else {
+    };
+
+    // Display a progress bar or play a gif
+    switch (threadTypeId) {
+    case Utils::UI::TOOL_ID::MERGE_BAGS:
+        progressLabel->setText("Writing merged Bag File...");
+        setMovie(":/gifs/merging", 120, 110);
+        break;
+    case Utils::UI::TOOL_ID::COMPRESS_BAG:
+        progressLabel->setText("Writing and compressing Bag File...");
+        setMovie(":/gifs/compressing", 55, 120);
+        break;
+    case Utils::UI::TOOL_ID::DECOMPRESS_BAG:
+        progressLabel->setText("Decompressing and writing new Bag File...");
+        setMovie(":/gifs/decompressing", 55, 120);
+        break;
+    case Utils::UI::TOOL_ID::RECORD_BAG:
+        progressLabel->setText("Recording Bag File...");
+        setMovie(":/gifs/recording", 120, 70);
+        break;
+    case Utils::UI::TOOL_ID::PUBLISH_VIDEO:
+    case Utils::UI::TOOL_ID::PUBLISH_IMAGES:
+        setMovie(":/gifs/publishing", 120, 100);
+        break;
+    default:
         auto* const progressBar = new QProgressBar;
         progressBar->setVisible(false);
         progressWidget = progressBar;
@@ -139,13 +155,13 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
             }
             progressBar->setValue(progress);
         });
+        break;
     }
 
     auto* const uiLayout = new QVBoxLayout;
     uiLayout->addStretch();
-    uiLayout->addWidget(headerPixmapLabel);
     uiLayout->addWidget(headerLabel);
-    uiLayout->addSpacing(30);
+    uiLayout->addSpacing(50);
     uiLayout->addWidget(progressWidget);
     uiLayout->addWidget(progressLabel);
     uiLayout->addStretch();
@@ -188,9 +204,6 @@ ProgressWidget::ProgressWidget(const QString& headerPixmapLabelTextBlack, const 
     connect(m_thread, &BasicThread::finished, this, [cancelButton, finishedButton] {
         cancelButton->setVisible(false);
         finishedButton->setVisible(true);
-    });
-    connect(m_thread, &BasicThread::processing, this, [progressLabel] () {
-        progressLabel->setText("Processing, this might take a while...");
     });
     connect(m_thread, &BasicThread::failed, this, [this] {
         auto* const messageBox = new QMessageBox(QMessageBox::Warning, "Failed processing files!",

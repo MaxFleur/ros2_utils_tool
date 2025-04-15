@@ -17,5 +17,5 @@ target_sources(rt_utils INTERFACE
 )
 
 target_link_libraries(rt_utils
-    INTERFACE ${OpenCV_LIBS} Qt::Widgets
+    INTERFACE ${OpenCV_LIBS} Qt::Widgets rt_settings
 )

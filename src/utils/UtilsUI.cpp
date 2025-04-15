@@ -1,5 +1,6 @@
 #include "UtilsUI.hpp"
 
+#include "DialogSettings.hpp"
 #include "UtilsROS.hpp"
 
 #include <QMessageBox>
@@ -84,11 +85,22 @@ bool
 continueForExistingTarget(const QString& targetDirectory, const QString& headerTextBeginning,
                           const QString& targetIdentifier)
 {
+    if (!DialogSettings::getStaticParameter("ask_for_target_overwrite", true)) {
+        return true;
+    }
+
     if (std::filesystem::exists(targetDirectory.toStdString())) {
+        auto* const checkBox = new QCheckBox("Don't show this again");
+
         auto *const msgBox = new QMessageBox(QMessageBox::Warning, headerTextBeginning + " already exists!",
                                              "The specified " + targetIdentifier + " already exists! Are you sure you want to continue? "
                                              "This will overwrite all target files.",
                                              QMessageBox::Yes | QMessageBox::No);
+        msgBox->setCheckBox(checkBox);
+        QObject::connect(checkBox, &QCheckBox::stateChanged, [] (int state){
+            DialogSettings::writeStaticParameter("ask_for_target_overwrite", state == Qt::Unchecked);
+        });
+
         if (const auto ret = msgBox->exec(); ret == QMessageBox::No) {
             return false;
         }

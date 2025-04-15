@@ -29,6 +29,8 @@ target_sources(rt_all_threads INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/PublishImagesThread.hpp
     ${CMAKE_CURRENT_LIST_DIR}/PublishVideoThread.cpp
     ${CMAKE_CURRENT_LIST_DIR}/PublishVideoThread.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/RecordBagThread.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RecordBagThread.hpp
     ${CMAKE_CURRENT_LIST_DIR}/VideoToBagThread.cpp
     ${CMAKE_CURRENT_LIST_DIR}/VideoToBagThread.hpp
 )

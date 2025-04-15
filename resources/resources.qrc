@@ -1,9 +1,15 @@
 <RCC>
     <qresource>
-        <file>gifs/processing_black.gif</file>
-        <file>gifs/processing_white.gif</file>
+        <file>gifs/compressing_black.gif</file>
+        <file>gifs/compressing_white.gif</file>
+        <file>gifs/decompressing_black.gif</file>
+        <file>gifs/decompressing_white.gif</file>
+        <file>gifs/merging_black.gif</file>
+        <file>gifs/merging_white.gif</file>
         <file>gifs/publishing_black.gif</file>
         <file>gifs/publishing_white.gif</file>
+        <file>gifs/recording_black.gif</file>
+        <file>gifs/recording_white.gif</file>
 
         <file>icons/bag_info_black.svg</file>
         <file>icons/bag_info_white.svg</file>
@@ -27,6 +33,8 @@
         <file>icons/edit_bag_white.svg</file>
         <file>icons/gear_black.svg</file>
         <file>icons/gear_white.svg</file>
+        <file>icons/info_tools_black.svg</file>
+        <file>icons/info_tools_white.svg</file>
         <file>icons/merge_bags_black.svg</file>
         <file>icons/merge_bags_white.svg</file>
         <file>icons/minus_black.svg</file>
@@ -41,6 +49,10 @@
         <file>icons/publish_images_white.svg</file>
         <file>icons/publish_video_black.svg</file>
         <file>icons/publish_video_white.svg</file>
+        <file>icons/record_bag_black.svg</file>
+        <file>icons/record_bag_white.svg</file>
+        <file>icons/topics_services_info_black.svg</file>
+        <file>icons/topics_services_info_white.svg</file>
         <file>icons/video_to_bag_black.svg</file>
         <file>icons/video_to_bag_white.svg</file>
     </qresource>

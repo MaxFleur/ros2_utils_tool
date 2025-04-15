@@ -30,10 +30,13 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto arguments = app.arguments();
-    if (Utils::CLI::containsInvalidParameters(arguments, { "-h", "--help", "-t1", "-t2" }) ||
-        arguments.size() < 8 || arguments.contains("--help") || arguments.contains("-h")) {
+    if (arguments.size() < 8 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
+    }
+    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, { "-h", "--help", "-t1", "-t2" }); argument != std::nullopt) {
+        showHelp();
+        throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
     }
 
     Parameters::MergeBagsParameters parameters;
@@ -45,25 +48,21 @@ main(int argc, char* argv[])
 
     if (!std::filesystem::exists(parameters.sourceDirectory.toStdString()) ||
         !std::filesystem::exists(parameters.secondSourceDirectory.toStdString())) {
-        std::cerr << "One or more bag files do not exist. Please specify correct directories!" << std::endl;
-        return 0;
+        throw std::runtime_error("One or more bag files do not exist. Please specify correct directories!");
     }
     if (std::filesystem::equivalent(parameters.sourceDirectory.toStdString(), parameters.secondSourceDirectory.toStdString())) {
-        std::cerr << "Please enter different files for the input bags!" << std::endl;
-        return 0;
+        throw std::runtime_error("Please enter different files for the input bags!");
     }
 
     if (arguments.at(3) != "-t1") {
-        std::cerr << "Please specify '-t1' correctly!" << std::endl;
-        return 0;
+        throw std::runtime_error("Please specify '-t1' correctly!");
     }
 
     // Topics
     QSet<QString> topicNameSet;
     const auto addTopicsToParameters = [&arguments, &parameters, &topicNameSet] (const auto& bagDirectory, int& bagIndex) {
         if (!Utils::ROS::doesBagContainTopicName(bagDirectory, arguments.at(bagIndex))) {
-            std::cerr << "The specified topic '" << arguments.at(bagIndex).toStdString() << "' does not exist!" << std::endl;
-            return false;
+            throw std::runtime_error("The specified topic '" + arguments.at(bagIndex).toStdString() + "' does not exist!");
         }
 
         parameters.topics.push_back({ arguments.at(bagIndex), bagDirectory, true });
@@ -82,8 +81,7 @@ main(int argc, char* argv[])
 
     // Second bag
     if (!Utils::CLI::containsArguments(arguments, "-t2", "--topic2")) {
-        std::cerr << "Please specify '-t2' correctly!" << std::endl;
-        return 0;
+        throw std::runtime_error("Please specify '-t2' correctly!");
     }
     auto topicsSecondBagIndex = Utils::CLI::getArgumentsIndex(arguments, "-t2", "--topic2") + 1;
     while (topicsSecondBagIndex != arguments.size() - 1) {
@@ -94,15 +92,10 @@ main(int argc, char* argv[])
 
     // Target file
     parameters.targetDirectory = arguments.back();
-    auto dirPath = parameters.targetDirectory;
-    dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
-    if (!std::filesystem::exists(dirPath.toStdString())) {
-        std::cerr << "Invalid target directory. Please enter a valid one!" << std::endl;
-        return 0;
-    }
+    Utils::CLI::checkParentDirectory(parameters.targetDirectory);
+
     if (parameters.targetDirectory == parameters.sourceDirectory || parameters.targetDirectory == parameters.secondSourceDirectory) {
-        std::cerr << "The target file must have a different name then both input bag files!" << std::endl;
-        return 0;
+        throw std::runtime_error("The target file must have a different name than both input bag files!");
     }
 
     if (topicNameSet.size() != parameters.topics.size()) {

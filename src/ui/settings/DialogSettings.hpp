@@ -12,8 +12,8 @@ public:
     DialogSettings(Parameters::DialogParameters& parameters,
                    const QString&                groupName);
 
-    // Make this static because we need to access the variable from many different places
-    // in the application without wanting to use this as extra dependency
+    // Make these static because we need to access and modify some values from many different places
+    // without having to use the entire dialog parameter instance
     template<typename T>
     requires DialogSettingsParameter<T>
     static T
@@ -32,6 +32,22 @@ public:
 
         settings.endGroup();
         return staticParameter;
+    }
+
+    template<typename T>
+    requires DialogSettingsParameter<T>
+    static void
+    writeStaticParameter(const QString& identifier,
+                         T              value)
+    {
+        QSettings settings;
+        settings.beginGroup("dialog");
+
+        if (settings.value(identifier).value<T>() == value) {
+            return;
+        }
+
+        settings.setValue(identifier, value);
     }
 
     bool

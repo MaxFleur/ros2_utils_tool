@@ -16,6 +16,13 @@ struct BasicParameters {
     QString sourceDirectory = "";
     QString topicName = "";
 };
+struct RecordBagParameters : BasicParameters {
+    QVector<QString> topics = {};
+    bool             allTopics = true;
+    bool             showAdvancedOptions = false;
+    bool             includeHiddenTopics = false;
+    bool             includeUnpublishedTopics = false;
+};
 struct DummyBagParameters : BasicParameters {
     struct DummyBagTopic {
         QString type;
@@ -24,6 +31,8 @@ struct DummyBagParameters : BasicParameters {
 
     QVector<DummyBagTopic> topics = {};
     int                    messageCount = 100;
+    int                    rate = 10;
+    bool                   useCustomRate = false;
 };
 
 struct AdvancedParameters : BasicParameters {
@@ -100,5 +109,6 @@ struct DialogParameters {
     bool         saveParameters = false;
     bool         usePredefinedTopicNames = true;
     bool         checkROS2NameConform = false;
+    bool         askForTargetOverwrite = true;
 };
 }

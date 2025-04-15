@@ -36,38 +36,28 @@ main(int argc, char* argv[])
     const auto arguments = app.arguments();
     const QStringList checkList{ "-t", "-r", "-a", "-e", "-c", "-l", "-h",
                                  "--topic_name", "--rate", "--accelerate", "--exchange", "--colorless", "--lossless", "--help" };
-    if (Utils::CLI::containsInvalidParameters(arguments, checkList) ||
-        arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
+    if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
+    }
+    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
+        showHelp();
+        throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
     }
 
     Parameters::BagToVideoParameters parameters;
 
     // Handle bag directory
     parameters.sourceDirectory = arguments.at(1);
-    auto dirPath = parameters.sourceDirectory;
-    if (!std::filesystem::exists(parameters.sourceDirectory.toStdString())) {
-        std::cerr << "Bag file not found. Make sure that the bag file exists!" << std::endl;
-        return 0;
-    }
-    if (const auto doesDirContainBag = Utils::ROS::doesDirectoryContainBagFile(parameters.sourceDirectory); !doesDirContainBag) {
-        std::cerr << "The directory does not contain a bag file!" << std::endl;
-        return 0;
-    }
+    Utils::CLI::checkBagSourceDirectory(parameters.sourceDirectory);
 
     // Video directory
     parameters.targetDirectory = arguments.at(2);
-    dirPath = parameters.targetDirectory;
-    dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
-    if (!std::filesystem::exists(dirPath.toStdString())) {
-        std::cerr << "Invalid target directory. Please enter a valid one!" << std::endl;
-        return 0;
-    }
+    Utils::CLI::checkParentDirectory(parameters.targetDirectory);
+
     parameters.format = parameters.targetDirectory.right(3);
     if (parameters.format != "mp4" && parameters.format != "mkv") {
-        std::cerr << "The entered video name is not in correct format. Please make sure that the video file ends in mp4 or mkv!" << std::endl;
-        return 0;
+        throw std::runtime_error("The entered video name is in invalid format. Please make sure that the video has the ending 'mp4' or 'mkv'!");
     }
 
     // Check for optional arguments
@@ -75,13 +65,10 @@ main(int argc, char* argv[])
 
     if (arguments.size() > 3) {
         // Topic name
-        if (!Utils::CLI::isTopicNameValid(arguments, parameters.sourceDirectory, "sensor_msgs/msg/Image", parameters.topicName)) {
-            return 0;
-        }
+        Utils::CLI::checkTopicNameValidity(arguments, parameters.sourceDirectory, "sensor_msgs/msg/Image", parameters.topicName);
         // Framerate
         if (!Utils::CLI::checkArgumentValidity(arguments, "-r", "--rate", parameters.fps, 10, 60)) {
-            std::cerr << "Please enter a framerate in the range of 10 to 60!" << std::endl;
-            return 0;
+            throw std::runtime_error("Please enter a framerate in the range of 10 to 60!");
         }
 
         // Hardware acceleration
@@ -96,13 +83,7 @@ main(int argc, char* argv[])
 
     // Search for topic name in bag file if not specified
     if (parameters.topicName.isEmpty()) {
-        const auto& firstTopicWithImageType = Utils::ROS::getFirstTopicWithCertainType(parameters.sourceDirectory, "sensor_msgs/msg/Image");
-        if (firstTopicWithImageType == std::nullopt) {
-            std::cerr << "The bag file does not contain any image topics!" << std::endl;
-            return 0;
-        }
-
-        parameters.topicName = *firstTopicWithImageType;
+        Utils::CLI::checkForTargetTopic(parameters.sourceDirectory, parameters.topicName, true);
     }
 
     if (std::filesystem::exists(parameters.targetDirectory.toStdString())) {
@@ -125,8 +106,7 @@ main(int argc, char* argv[])
     });
     QObject::connect(encodingThread, &BagToVideoThread::finished, encodingThread, &QObject::deleteLater);
     QObject::connect(encodingThread, &BagToVideoThread::failed, [] {
-        std::cerr << "The video writing failed. Please make sure that all parameters are set correctly and disable the hardware acceleration, if necessary." << std::endl;
-        return 0;
+        throw std::runtime_error("The video writing failed. Please make sure that all parameters are set correctly and disable the hardware acceleration, if necessary.");
     });
 
     signal(SIGINT, [] (int signal) {

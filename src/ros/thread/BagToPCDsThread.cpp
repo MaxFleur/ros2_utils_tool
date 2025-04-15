@@ -34,7 +34,7 @@ BagToPCDsThread::run()
 
     // Prepare parameters
     const auto messageCount = Utils::ROS::getTopicMessageCount(m_sourceDirectory, m_topicName);
-    const auto messageCountNumberOfDigits = int(log10(messageCount) + 1);
+    const auto messageCountNumberOfDigits = int(log10(*messageCount) + 1);
 
     rosbag2_cpp::Reader reader;
     reader.open(m_sourceDirectory);
@@ -66,8 +66,8 @@ BagToPCDsThread::run()
 
             // Inform of progress update
             iterationCount++;
-            emit progressChanged("Writing pcd file " + QString::number(iterationCount) + " of " + QString::number(messageCount) + "...",
-                                 ((float) iterationCount / (float) messageCount) * 100);
+            emit progressChanged("Writing pcd file " + QString::number(iterationCount) + " of " + QString::number(*messageCount) + "...",
+                                 ((float) iterationCount / (float) *messageCount) * 100);
 
             // Have to create this as extra string to keep it atomic inside the mutex
             std::stringstream formatedIterationCount;

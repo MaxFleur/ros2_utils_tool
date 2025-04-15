@@ -29,22 +29,21 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto arguments = app.arguments();
-    if (Utils::CLI::containsInvalidParameters(arguments, { "-h", "--help", "-t", "--topic_name", "-r", "--rate" }) ||
-        arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
+    const QStringList checkList{ "-h", "--help", "-t", "--topic_name", "-r", "--rate" };
+    if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
+    }
+    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
+        showHelp();
+        throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
     }
 
     Parameters::PCDsToBagParameters parameters;
 
     // PCDs directory
     parameters.sourceDirectory = arguments.at(1);
-    auto dirPath = parameters.sourceDirectory;
-    dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
-    if (!std::filesystem::exists(dirPath.toStdString())) {
-        std::cerr << "The entered directory for the pcd files does not exist. Please specify a correct directory!" << std::endl;
-        return 0;
-    }
+    Utils::CLI::checkParentDirectory(parameters.sourceDirectory, false);
 
     auto containsPCDFiles = false;
     for (auto const& entry : std::filesystem::directory_iterator(parameters.sourceDirectory.toStdString())) {
@@ -54,18 +53,12 @@ main(int argc, char* argv[])
         }
     }
     if (!containsPCDFiles) {
-        std::cerr << "The entered directory for the pcd files does not contain any pcd files!" << std::endl;
-        return 0;
+        throw std::runtime_error("The entered directory for the pcd files does not contain any pcd files!");
     }
 
     // Handle bag directory
     parameters.targetDirectory = arguments.at(2);
-    dirPath = parameters.targetDirectory;
-    dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
-    if (!std::filesystem::exists(dirPath.toStdString())) {
-        std::cerr << "Invalid target directory. Please enter a valid one!" << std::endl;
-        return 0;
-    }
+    Utils::CLI::checkParentDirectory(parameters.targetDirectory);
 
     // Check for optional arguments
     if (arguments.size() > 3) {
@@ -75,8 +68,7 @@ main(int argc, char* argv[])
         }
         // Rate
         if (!Utils::CLI::checkArgumentValidity(arguments, "-r", "--rate", parameters.rate, 1, 30)) {
-            std::cerr << "Please enter a rate in the range of 1 to 30!" << std::endl;
-            return 0;
+            throw std::runtime_error("Please enter a rate in the range of 1 to 30!");
         }
     }
     // Apply default topic name if not assigned

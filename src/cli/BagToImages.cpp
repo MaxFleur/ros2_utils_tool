@@ -37,52 +37,39 @@ main(int argc, char* argv[])
     const auto& arguments = app.arguments();
     const QStringList checkList{ "-t", "-f", "-e", "-c", "-q", "-o", "-b", "-h",
                                  "--topic_name", "--format", "--exchange", "--colorless", "--quality", "--optimize", "--binary", "--help" };
-    if (Utils::CLI::containsInvalidParameters(arguments, checkList) ||
-        arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
+    if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
+    }
+    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
+        showHelp();
+        throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
     }
 
     Parameters::BagToImagesParameters parameters;
 
     // Handle bag directory
     parameters.sourceDirectory = arguments.at(1);
-    if (!std::filesystem::exists(parameters.sourceDirectory.toStdString())) {
-        std::cerr << "Bag file not found. Make sure that the bag file exists!" << std::endl;
-        return 0;
-    }
-    if (const auto doesDirContainBag = Utils::ROS::doesDirectoryContainBagFile(parameters.sourceDirectory); !doesDirContainBag) {
-        std::cerr << "The directory does not contain a bag file!" << std::endl;
-        return 0;
-    }
+    Utils::CLI::checkBagSourceDirectory(parameters.sourceDirectory);
 
     // Images directory
     parameters.targetDirectory = arguments.at(2);
-    auto dirPath = parameters.targetDirectory;
-    dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
-    if (!std::filesystem::exists(dirPath.toStdString())) {
-        std::cerr << "Invalid target directory. Please enter a valid one!" << std::endl;
-        return 0;
-    }
+    Utils::CLI::checkParentDirectory(parameters.targetDirectory);
 
     // Check for optional arguments
     if (arguments.size() > 3) {
         // Topic name
-        if (!Utils::CLI::isTopicNameValid(arguments, parameters.sourceDirectory, "sensor_msgs/msg/Image", parameters.topicName)) {
-            return 0;
-        }
+        Utils::CLI::checkTopicNameValidity(arguments, parameters.sourceDirectory, "sensor_msgs/msg/Image", parameters.topicName);
         // Quality
         if (!Utils::CLI::checkArgumentValidity(arguments, "-q", "--quality", parameters.quality, 0, 9)) {
-            std::cerr << "Please enter a quality value in the range of 0 to 9!" << std::endl;
-            return 0;
+            throw std::runtime_error("Please enter a quality value in the range of 0 to 9!");
         }
         // Format
         if (Utils::CLI::containsArguments(arguments, "-f", "--format")) {
             const auto qualityFormatIndex = Utils::CLI::getArgumentsIndex(arguments, "-f", "--format");
             if (arguments.at(qualityFormatIndex) == arguments.last() ||
                 (arguments.at(qualityFormatIndex + 1) != "jpg" && arguments.at(qualityFormatIndex + 1) != "png" && arguments.at(qualityFormatIndex + 1) != "bmp")) {
-                std::cerr << "Please enter either 'jpg', 'png' or 'bmp' for the format!" << std::endl;
-                return 0;
+                throw std::runtime_error("Please enter either 'jpg', 'png' or 'bmp' for the format!");
             }
             parameters.format = arguments.at(qualityFormatIndex + 1);
         }
@@ -99,13 +86,7 @@ main(int argc, char* argv[])
 
     // Search for topic name in bag file if not specified
     if (parameters.topicName.isEmpty()) {
-        const auto& firstTopicWithImageType = Utils::ROS::getFirstTopicWithCertainType(parameters.sourceDirectory, "sensor_msgs/msg/Image");
-        if (firstTopicWithImageType == std::nullopt) {
-            std::cerr << "The bag file does not contain any image topics!" << std::endl;
-            return 0;
-        }
-
-        parameters.topicName = *firstTopicWithImageType;
+        Utils::CLI::checkForTargetTopic(parameters.sourceDirectory, parameters.topicName, true);
     }
 
     if (std::filesystem::exists(parameters.targetDirectory.toStdString())) {

@@ -9,14 +9,13 @@ namespace Utils::ROS
 bool
 doesDirectoryContainBagFile(const QString& bagDirectory)
 {
-    rosbag2_cpp::Reader reader;
     try {
-        reader.open(bagDirectory.toStdString());
+        rosbag2_storage::MetadataIo metadataIO;
+        const auto& metadata = metadataIO.read_metadata(bagDirectory.toStdString());
     } catch (...) {
         return false;
     }
 
-    reader.close();
     return true;
 }
 
@@ -36,115 +35,148 @@ doesDirectoryContainCompressedBagFile(const QString& bagDirectory)
 }
 
 
-bool
-doesBagContainTopicName(const QString& bagDirectory, const QString& topicName)
+void
+spinNode(std::shared_ptr<rclcpp::Node> node)
 {
-    rosbag2_cpp::Reader reader;
-    reader.open(bagDirectory.toStdString());
+    // We spin a node for some time before getting any topics/services from it
+    // This implementation is based is based on ros2cli:
+    // https://github.com/ros2/ros2cli/blob/rolling/ros2cli/ros2cli/node/direct.py#L25
+    auto executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
+    executor->add_node(node);
 
-    const auto& topicsAndTypes = reader.get_all_topics_and_types();
-    const auto stdStringTopicName = topicName.toStdString();
+    rclcpp::Rate rate(50);
+    auto isFinished = false;
 
-    auto iter = std::find_if(topicsAndTypes.begin(), topicsAndTypes.end(), [&] (const auto& topic) {
-        return topic.name == stdStringTopicName;
+    auto timer = rclcpp::create_timer(node, node->get_clock(), rclcpp::Duration::from_seconds(0.1), [&isFinished] {
+        isFinished = true;
     });
-
-    reader.close();
-    return iter != topicsAndTypes.end();
+    while (!isFinished) {
+        executor->spin_once();
+        rate.sleep();
+    }
 }
 
 
-int
-getTopicMessageCount(const QString& bagDirectory, const QString& topicName)
+std::vector<std::pair<std::string, std::array<std::string, 3> > >
+getTopicInformation()
 {
-    rosbag2_cpp::Reader reader;
-    reader.open(bagDirectory.toStdString());
+    auto node = std::make_shared<rclcpp::Node>("topics_node");
+    spinNode(node);
 
-    const auto& topics = reader.get_metadata().topics_with_message_count;
-    const auto stdStringTopicName = topicName.toStdString();
+    std::vector<std::pair<std::string, std::array<std::string, 3> > > topicInformation;
+    const auto& currentTopicNamesAndTypes = node->get_topic_names_and_types();
+    topicInformation.reserve(currentTopicNamesAndTypes.size());
 
-    auto iter = std::find_if(topics.begin(), topics.end(), [&] (const auto& topic) {
-        return topic.topic_metadata.name == stdStringTopicName;
-    });
+    for (const auto& currentTopic : currentTopicNamesAndTypes) {
+        const auto numberOfPublishers = node->count_publishers(currentTopic.first);
+        const auto numberOfSubscribers = node->count_subscribers(currentTopic.first);
+        const std::array<std::string, 3> currentTopicInfo { { currentTopic.second.at(0),
+            std::to_string(numberOfPublishers), std::to_string(numberOfSubscribers) } };
 
-    reader.close();
-    return iter != topics.end() ? iter->message_count : 0;
+        topicInformation.emplace_back(std::make_pair(currentTopic.first, currentTopicInfo));
+    }
+
+    std::sort(topicInformation.begin(), topicInformation.end());
+    return topicInformation;
 }
 
 
-int
-getTopicMessageCount(const std::string& bagDirectory, const std::string& topicName)
+std::map<std::string, std::vector<std::string> >
+getServiceNamesAndTypes()
 {
-    return getTopicMessageCount(QString::fromStdString(bagDirectory), QString::fromStdString(topicName));
+    auto node = std::make_shared<rclcpp::Node>("services_node");
+    spinNode(node);
+
+    return node->get_service_names_and_types();
 }
 
 
 rosbag2_storage::BagMetadata
 getBagMetadata(const QString& bagDirectory)
 {
-    rosbag2_cpp::Reader reader;
+    rosbag2_storage::MetadataIo metadataIO;
+    const auto metadata = metadataIO.read_metadata(bagDirectory.toStdString());
 
-    reader.open(bagDirectory.toStdString());
-    const auto metaData = reader.get_metadata();
-    reader.close();
-
-    return metaData;
+    return metadata;
 }
 
 
-QString
-getTopicType(const QString& bagDirectory, const QString& topicName)
+std::optional<rosbag2_storage::TopicInformation>
+getTopicInBag(const QString& bagDirectory, const QString& topicName)
 {
-    rosbag2_cpp::Reader reader;
-    reader.open(bagDirectory.toStdString());
-
-    const auto& topicsAndTypes = reader.get_all_topics_and_types();
     const auto stdStringTopicName = topicName.toStdString();
 
-    auto iter = std::find_if(topicsAndTypes.begin(), topicsAndTypes.end(), [&] (const auto& topic) {
-        return topic.name == stdStringTopicName;
-    });
+    const auto& metadata = getBagMetadata(bagDirectory);
+    const auto& topics = metadata.topics_with_message_count;
 
-    reader.close();
-    return iter != topicsAndTypes.end() ? QString::fromStdString(iter->type) : "";
+    auto it = std::ranges::find_if(topics, [&] (const auto& topic) {
+        return topic.topic_metadata.name == stdStringTopicName;
+    });
+    return it != topics.end() ? std::optional(*it) : std::nullopt;
+}
+
+
+bool
+doesBagContainTopicName(const QString& bagDirectory, const QString& topicName)
+{
+    const auto& topic = getTopicInBag(bagDirectory, topicName);
+    return topic != std::nullopt;
+}
+
+
+std::optional<int>
+getTopicMessageCount(const QString& bagDirectory, const QString& topicName)
+{
+    const auto& topic = getTopicInBag(bagDirectory, topicName);
+    return topic == std::nullopt ? std::nullopt : std::optional(topic->message_count);
+}
+
+
+std::optional<int>
+getTopicMessageCount(const std::string& bagDirectory, const std::string& topicName)
+{
+    return getTopicMessageCount(QString::fromStdString(bagDirectory), QString::fromStdString(topicName));
+}
+
+
+std::optional<QString>
+getTopicType(const QString& bagDirectory, const QString& topicName)
+{
+    const auto& topic = getTopicInBag(bagDirectory, topicName);
+    return topic == std::nullopt ? std::nullopt : std::optional(QString::fromStdString(topic->topic_metadata.type));
 }
 
 
 std::optional<QString>
 getFirstTopicWithCertainType(const QString& bagDirectory, const QString& typeName)
 {
-    const auto& bagMetaData = Utils::ROS::getBagMetadata(bagDirectory);
-    const auto& topics = bagMetaData.topics_with_message_count;
+    const auto& metadata = getBagMetadata(bagDirectory);
+    const auto& topics = metadata.topics_with_message_count;
 
-    auto it = std::find_if(topics.begin(), topics.end(), [&] (const auto& topic) {
+    auto it = std::ranges::find_if(topics, [&] (const auto& topic) {
         return topic.topic_metadata.type == typeName.toStdString();
     });
-    if (it == topics.end()) {
-        return std::nullopt;
-    }
-
-    return QString::fromStdString(it->topic_metadata.name);
+    return it == topics.end() ? std::nullopt : std::optional(QString::fromStdString(it->topic_metadata.name));
 }
 
 
 QVector<QString>
 getBagTopics(const QString& bagDirectory, const QString& topicType)
 {
-    QVector<QString> videoTopics;
+    QVector<QString> bagTopics;
     if (const auto doesDirContainBag = doesDirectoryContainBagFile(bagDirectory); !doesDirContainBag) {
-        return videoTopics;
+        return bagTopics;
     }
 
-    rosbag2_cpp::Reader reader;
-    reader.open(bagDirectory.toStdString());
+    const auto& metadata = getBagMetadata(bagDirectory);
+    const auto& topics = metadata.topics_with_message_count;
 
-    for (const auto topicsAndTypes = reader.get_all_topics_and_types(); const auto& topicAndType : topicsAndTypes) {
-        if (topicAndType.type == topicType.toStdString()) {
-            videoTopics.push_back(QString::fromStdString(topicAndType.name));
+    for (const auto& topic : topics) {
+        if (topic.topic_metadata.type == topicType.toStdString()) {
+            bagTopics.push_back(QString::fromStdString(topic.topic_metadata.name));
         }
     }
-    reader.close();
-    return videoTopics;
+    return bagTopics;
 }
 
 

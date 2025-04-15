@@ -14,8 +14,10 @@
 
 #include "UtilsROS.hpp"
 
+#include <chrono>
+
 BagInfoWidget::BagInfoWidget(QWidget *parent) :
-    BasicInputWidget("Get Infos from Bag", ":/icons/bag_info", parent)
+    BasicInputWidget("Bag Info", ":/icons/bag_info", parent)
 {
     auto* const bagLineEdit = new QLineEdit();
     bagLineEdit->setToolTip("The source bag file directory.");
@@ -83,9 +85,24 @@ BagInfoWidget::displayBagInfo()
     // Fill tree with bag data
     QList<QTreeWidgetItem*> treeWidgetItems;
     treeWidgetItems.append(new QTreeWidgetItem({ "Duration (Nanoseconds):", QString::number(bagMetaData.duration.count()) }));
-    treeWidgetItems.append(new QTreeWidgetItem({ "Duration (Seconds):", QString::number((float) bagMetaData.duration.count() / 1000000000) }));
-    treeWidgetItems.append(new QTreeWidgetItem({ "Size:", QString::number((float) bagMetaData.bag_size / 1000000000) + " GB" }));
+    const auto durationInSeconds = QString::number((float) (bagMetaData.duration.count() / 1e9), 'f', 3);
+    treeWidgetItems.append(new QTreeWidgetItem({ "Duration (Seconds):", durationInSeconds == "0.000" ? "0.001" : durationInSeconds }));
+
+    const auto timeValue = std::chrono::system_clock::to_time_t(bagMetaData.starting_time);
+    std::stringstream stringStream;
+    stringStream << std::put_time(std::localtime(&timeValue), "%F %T");
+    // Use a more understandable time format
+    treeWidgetItems.append(new QTreeWidgetItem({ "Starting Time:", QString::fromStdString(stringStream.str()) }));
+    // Only show the last three digits
+    treeWidgetItems.append(new QTreeWidgetItem({ "Size:", QString::number((float) (bagMetaData.bag_size / 1e9), 'f', 3) + " GB" }));
     treeWidgetItems.append(new QTreeWidgetItem({ "Size (Message Count):", QString::number(bagMetaData.message_count) }));
+    treeWidgetItems.append(new QTreeWidgetItem({ "Storage Identifier:", QString::fromStdString(bagMetaData.storage_identifier) }));
+    treeWidgetItems.append(new QTreeWidgetItem({ "Compression Format:",
+                                                 bagMetaData.compression_mode == "" ? "None": QString::fromStdString(bagMetaData.compression_mode) }));
+    treeWidgetItems.append(new QTreeWidgetItem({ "Compression Mode:",
+                                                 bagMetaData.compression_format == "" ? "None": QString::fromStdString(bagMetaData.compression_format) }));
+    // Some empty space before the topic messages
+    treeWidgetItems.append(new QTreeWidgetItem({ "", "" }));
 
     auto* const topicMetaDataItem = new QTreeWidgetItem({ "Topic Information:" });
 

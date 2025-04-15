@@ -2,6 +2,7 @@
 
 #include <opencv2/videoio.hpp>
 
+#include "rclcpp/rclcpp.hpp"
 #include "rosbag2_cpp/writer.hpp"
 #include "sensor_msgs/msg/image.hpp"
 
@@ -39,6 +40,8 @@ VideoToBagThread::run()
 
     const auto frameCount = videoCapture.get(cv::CAP_PROP_FRAME_COUNT);
     const auto finalFPS = m_parameters.useCustomFPS ? m_parameters.fps : videoCapture.get(cv::CAP_PROP_FPS);
+    auto timeStamp = rclcpp::Clock(RCL_ROS_TIME).now();
+    const auto duration = rclcpp::Duration::from_seconds(1.0f / (float) finalFPS);
 
     rosbag2_cpp::Writer writer;
     writer.open(targetDirectoryStd);
@@ -65,13 +68,12 @@ VideoToBagThread::run()
         // Create empty sensor message
         sensor_msgs::msg::Image message;
         std_msgs::msg::Header header;
-        // Nanoseconds directly
-        rclcpp::Time time(static_cast<uint64_t>(((float) iterationCount / finalFPS) * 1e9));
+        timeStamp += duration;
 
         // Convert and write image
         const auto cvBridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::BGR8, frame);
         cvBridge.toImageMsg(message);
-        writer.write(message, m_topicName, time);
+        writer.write(message, m_topicName, timeStamp);
 
         emit progressChanged("Writing message " + QString::number(iterationCount) + " of " + QString::number(frameCount) + "...",
                              ((float) iterationCount / (float) frameCount) * 100);

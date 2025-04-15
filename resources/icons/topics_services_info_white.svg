@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<svg width="27mm" height="24.5mm" version="1.1" viewBox="0 0 27 24.5" xmlns="http://www.w3.org/2000/svg">
+ <g>
+  <g fill="none" stroke-linecap="round">
+   <circle cx="20.416" cy="17.9" r="5.8841" stroke="#FFF" stroke-linejoin="round" stroke-width="1.3"/>
+   <g stroke="#FFF" stroke-width="1.4816">
+    <path d="m19.489 21.995h1.8547"/>
+    <path d="m20.416 16.71v5.2499"/>
+    <path d="m19.56 16.71h0.85684"/>
+   </g>
+  </g>
+  <circle cx="20.416" cy="14.46" r=".95146" stroke="#FFF" fill="#FFF" stroke-width="0"/>
+  <g fill="none" stroke="#FFF" stroke-linecap="round" stroke-linejoin="round">
+   <g>
+    <rect x="14.316" y=".45802" width="10.177" height="4.899" ry=".79132"/>
+    <rect x=".55755" y="15.94" width="10.177" height="4.899" ry=".79132"/>
+    <ellipse cx="12.525" cy="10.649" rx="4.0939" ry="2.0598"/>
+    <rect transform="scale(1,-1)" x=".55755" y="-5.4926" width="10.177" height="4.899" ry=".79132"/>
+   </g>
+   <g stroke-width=".7">
+    <path d="m8.3208 10.716c-3.0871-1.293-3.2679-2.1424-3.316-4.8944"/>
+    <path d="m8.3208 10.716c-3.0871 1.293-3.2679 2.1424-3.316 4.8944"/>
+    <path d="m16.729 10.651c3.0871-1.293 3.2679-2.1424 3.316-4.8944"/>
+   </g>
+  </g>
+ </g>
+</svg>

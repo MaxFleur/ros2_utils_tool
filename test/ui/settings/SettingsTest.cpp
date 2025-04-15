@@ -13,11 +13,49 @@
 #include "Parameters.hpp"
 #include "PCDsToBagSettings.hpp"
 #include "PublishSettings.hpp"
+#include "RecordBagSettings.hpp"
 #include "RGBSettings.hpp"
 #include "VideoSettings.hpp"
 #include "VideoToBagSettings.hpp"
 
 #include <QSettings>
+
+void
+checkSettingsInvalidacy(const QSettings& settings, const QVector<QString>& settingNames)
+{
+    for (const auto& settingName : settingNames) {
+        REQUIRE(!settings.value(settingName).isValid());
+    }
+}
+
+
+template<typename T>
+concept SettingsReturnPrimitiveType = std::same_as<T, int> || std::same_as<T, bool>;
+
+// Verify modified settings
+template<typename T>
+requires SettingsReturnPrimitiveType<T>
+void
+verifiySettingPrimitive(const QSettings& settings, const QString& settingName, T expectedValue)
+{
+    REQUIRE(settings.value(settingName).isValid());
+
+    if constexpr (std::is_same_v<T, int>) {
+        REQUIRE(settings.value(settingName).toInt() == expectedValue);
+        return;
+    }
+    REQUIRE(settings.value(settingName).toBool() == expectedValue);
+}
+
+
+// Need this to allow qstring references
+void
+verifiySettingQString(const QSettings& settings, const QString& settingName, const QString& expectedValue)
+{
+    REQUIRE(settings.value(settingName).isValid());
+    REQUIRE(settings.value(settingName).toString() == expectedValue);
+}
+
 
 TEST_CASE("Settings Testing", "[ui]") {
     QSettings qSettings;
@@ -28,8 +66,7 @@ TEST_CASE("Settings Testing", "[ui]") {
     SECTION("Input Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("basic");
-            REQUIRE(!qSettings.value("source_dir").isValid());
-            REQUIRE(!qSettings.value("topic_name").isValid());
+            checkSettingsInvalidacy(qSettings, { "source_dir", "topic_name" });
             qSettings.endGroup();
         }
         SECTION("Write") {
@@ -41,18 +78,50 @@ TEST_CASE("Settings Testing", "[ui]") {
             settings.write();
 
             qSettings.beginGroup("basic");
-            REQUIRE(qSettings.value("source_dir").isValid());
-            REQUIRE(qSettings.value("topic_name").isValid());
-            REQUIRE(qSettings.value("source_dir").toString() == "/source/dir");
-            REQUIRE(qSettings.value("topic_name").toString() == "/test_topic_name");
+            verifiySettingQString(qSettings, "source_dir", "/source/dir");
+            verifiySettingQString(qSettings, "topic_name", "/test_topic_name");
+            qSettings.endGroup();
+        }
+    }
+    SECTION("Record Bag Params Test") {
+        SECTION("Read") {
+            qSettings.beginGroup("record");
+            checkSettingsInvalidacy(qSettings, { "topics", "all_topics", "show_advanced",
+                                                 "include_hidden_topics", "include_unpublished_topics" });
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Parameters::RecordBagParameters parameters;
+            RecordBagSettings settings(parameters, "record");
+
+            parameters.topics.push_back({ "/topic" });
+            parameters.allTopics = true;
+            parameters.showAdvancedOptions = true;
+            parameters.includeHiddenTopics = true;
+            parameters.includeUnpublishedTopics = true;
+            settings.write();
+
+            qSettings.beginGroup("record");
+            verifiySettingPrimitive(qSettings, "all_topics", true);
+            verifiySettingPrimitive(qSettings, "show_advanced", true);
+            verifiySettingPrimitive(qSettings, "include_hidden_topics", true);
+            verifiySettingPrimitive(qSettings, "include_unpublished_topics", true);
+
+            const auto size = qSettings.beginReadArray("topics");
+            for (auto i = 0; i < size; ++i) {
+                qSettings.setArrayIndex(i);
+                verifiySettingQString(qSettings, "name", "/topic");
+            }
+            REQUIRE(size == 1);
+            qSettings.endArray();
+
             qSettings.endGroup();
         }
     }
     SECTION("Dummmy Bag Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("dummy");
-            REQUIRE(!qSettings.value("topics").isValid());
-            REQUIRE(!qSettings.value("msg_count").isValid());
+            checkSettingsInvalidacy(qSettings, { "topics", "msg_count", "rate", "use_custom_rate" });
             qSettings.endGroup();
         }
         SECTION("Write") {
@@ -60,20 +129,21 @@ TEST_CASE("Settings Testing", "[ui]") {
             DummyBagSettings settings(parameters, "dummy");
 
             parameters.messageCount = 250;
+            parameters.rate = 25;
+            parameters.useCustomRate = true;
             parameters.topics.push_back({ "string", "example_name" });
             settings.write();
 
             qSettings.beginGroup("dummy");
-            REQUIRE(qSettings.value("msg_count").isValid());
-            REQUIRE(qSettings.value("msg_count").toInt() == 250);
+            verifiySettingPrimitive(qSettings, "msg_count", 250);
+            verifiySettingPrimitive(qSettings, "rate", 25);
+            verifiySettingPrimitive(qSettings, "use_custom_rate", true);
 
             const auto size = qSettings.beginReadArray("topics");
             for (auto i = 0; i < size; ++i) {
                 qSettings.setArrayIndex(i);
-                REQUIRE(qSettings.value("type").isValid());
-                REQUIRE(qSettings.value("type").toString() == "string");
-                REQUIRE(qSettings.value("name").isValid());
-                REQUIRE(qSettings.value("name").toString() == "example_name");
+                verifiySettingQString(qSettings, "type", "string");
+                verifiySettingQString(qSettings, "name", "example_name");
             }
             REQUIRE(size == 1);
             qSettings.endArray();
@@ -85,8 +155,7 @@ TEST_CASE("Settings Testing", "[ui]") {
     SECTION("Advanced Input Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("advanced");
-            REQUIRE(!qSettings.value("target_dir").isValid());
-            REQUIRE(!qSettings.value("show_advanced").isValid());
+            checkSettingsInvalidacy(qSettings, { "target_dir", "show_advanced" });
             qSettings.endGroup();
         }
         SECTION("Write") {
@@ -98,18 +167,15 @@ TEST_CASE("Settings Testing", "[ui]") {
             settings.write();
 
             qSettings.beginGroup("advanced");
-            REQUIRE(qSettings.value("target_dir").isValid());
-            REQUIRE(qSettings.value("target_dir").toString() == "/target/dir");
-            REQUIRE(qSettings.value("show_advanced").isValid());
-            REQUIRE(qSettings.value("show_advanced").toBool() == true);
+            verifiySettingQString(qSettings, "target_dir", "/target/dir");
+            verifiySettingPrimitive(qSettings, "show_advanced", true);
             qSettings.endGroup();
         }
     }
     SECTION("Merge Bags Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("merge");
-            REQUIRE(!qSettings.value("topics").isValid());
-            REQUIRE(!qSettings.value("second_source").isValid());
+            checkSettingsInvalidacy(qSettings, { "topics", "second_source" });
             qSettings.endGroup();
         }
         SECTION("Write") {
@@ -121,18 +187,14 @@ TEST_CASE("Settings Testing", "[ui]") {
             settings.write();
 
             qSettings.beginGroup("merge");
-            REQUIRE(qSettings.value("second_source").isValid());
-            REQUIRE(qSettings.value("second_source").toString() == "/path/to/other/bag");
+            verifiySettingQString(qSettings, "second_source", "/path/to/other/bag");
 
             const auto size = qSettings.beginReadArray("topics");
             for (auto i = 0; i < size; ++i) {
                 qSettings.setArrayIndex(i);
-                REQUIRE(qSettings.value("name").isValid());
-                REQUIRE(qSettings.value("name").toString() == "topic");
-                REQUIRE(qSettings.value("dir").isValid());
-                REQUIRE(qSettings.value("dir").toString() == "/path/to/other/bag");
-                REQUIRE(qSettings.value("is_selected").isValid());
-                REQUIRE(qSettings.value("is_selected").toBool() == true);
+                verifiySettingQString(qSettings, "name", "topic");
+                verifiySettingQString(qSettings, "dir", "/path/to/other/bag");
+                verifiySettingPrimitive(qSettings, "is_selected", true);
             }
             REQUIRE(size == 1);
             qSettings.endArray();
@@ -143,7 +205,7 @@ TEST_CASE("Settings Testing", "[ui]") {
     SECTION("PCDs to Bag Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("pcds_to_bag");
-            REQUIRE(!qSettings.value("rate").isValid());
+            checkSettingsInvalidacy(qSettings, { "rate" });
             qSettings.endGroup();
         }
         SECTION("Write") {
@@ -154,8 +216,7 @@ TEST_CASE("Settings Testing", "[ui]") {
             settings.write();
 
             qSettings.beginGroup("pcds_to_bag");
-            REQUIRE(qSettings.value("rate").isValid());
-            REQUIRE(qSettings.value("rate").toInt() == 10);
+            verifiySettingPrimitive(qSettings, "rate", 10);
             qSettings.endGroup();
         }
     }
@@ -163,7 +224,7 @@ TEST_CASE("Settings Testing", "[ui]") {
     SECTION("Delete Source Input Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("delete_source_param");
-            REQUIRE(!qSettings.value("delete_source").isValid());
+            checkSettingsInvalidacy(qSettings, { "delete_source" });
             qSettings.endGroup();
         }
         SECTION("Write") {
@@ -174,16 +235,14 @@ TEST_CASE("Settings Testing", "[ui]") {
             settings.write();
 
             qSettings.beginGroup("delete_source_param");
-            REQUIRE(qSettings.value("delete_source").isValid());
-            REQUIRE(qSettings.value("delete_source").toBool() == true);
+            verifiySettingPrimitive(qSettings, "delete_source", true);
             qSettings.endGroup();
         }
     }
     SECTION("Edit Bag Input Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("edit");
-            REQUIRE(!qSettings.value("topics").isValid());
-            REQUIRE(!qSettings.value("update_timestamps").isValid());
+            checkSettingsInvalidacy(qSettings, { "topics", "update_timestamps" });
             qSettings.endGroup();
         }
         SECTION("Write") {
@@ -196,22 +255,16 @@ TEST_CASE("Settings Testing", "[ui]") {
             settings.write();
 
             qSettings.beginGroup("edit");
-            REQUIRE(qSettings.value("update_timestamps").isValid());
-            REQUIRE(qSettings.value("update_timestamps").toBool() == true);
+            verifiySettingPrimitive(qSettings, "update_timestamps", true);
 
             const auto size = qSettings.beginReadArray("topics");
             for (auto i = 0; i < size; ++i) {
                 qSettings.setArrayIndex(i);
-                REQUIRE(qSettings.value("renamed_name").isValid());
-                REQUIRE(qSettings.value("renamed_name").toString() == "renamed_topic");
-                REQUIRE(qSettings.value("original_name").isValid());
-                REQUIRE(qSettings.value("original_name").toString() == "original_topic");
-                REQUIRE(qSettings.value("lower_boundary").isValid());
-                REQUIRE(qSettings.value("lower_boundary").toInt() == 42);
-                REQUIRE(qSettings.value("upper_boundary").isValid());
-                REQUIRE(qSettings.value("upper_boundary").toInt() == 1337);
-                REQUIRE(qSettings.value("is_selected").isValid());
-                REQUIRE(qSettings.value("is_selected").toBool() == true);
+                verifiySettingQString(qSettings, "renamed_name", "renamed_topic");
+                verifiySettingQString(qSettings, "original_name", "original_topic");
+                verifiySettingPrimitive(qSettings, "lower_boundary", 42);
+                verifiySettingPrimitive(qSettings, "upper_boundary", 1337);
+                verifiySettingPrimitive(qSettings, "is_selected", true);
             }
             REQUIRE(size == 1);
             qSettings.endArray();
@@ -222,7 +275,7 @@ TEST_CASE("Settings Testing", "[ui]") {
     SECTION("Compress Bag Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("compress_bag");
-            REQUIRE(!qSettings.value("compress_per_message").isValid());
+            checkSettingsInvalidacy(qSettings, { "compress_per_message", "delete_source" });
             qSettings.endGroup();
         }
         SECTION("Write") {
@@ -234,10 +287,8 @@ TEST_CASE("Settings Testing", "[ui]") {
             settings.write();
 
             qSettings.beginGroup("compress_bag");
-            REQUIRE(qSettings.value("compress_per_message").isValid());
-            REQUIRE(qSettings.value("compress_per_message").toBool() == true);
-            REQUIRE(qSettings.value("delete_source").isValid());
-            REQUIRE(qSettings.value("delete_source").toBool() == true);
+            verifiySettingPrimitive(qSettings, "compress_per_message", true);
+            verifiySettingPrimitive(qSettings, "delete_source", true);
             qSettings.endGroup();
         }
     }
@@ -245,7 +296,7 @@ TEST_CASE("Settings Testing", "[ui]") {
     SECTION("RGB Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("rgb");
-            REQUIRE(!qSettings.value("switch_red_blue").isValid());
+            checkSettingsInvalidacy(qSettings, { "switch_red_blue" });
             qSettings.endGroup();
         }
         SECTION("Write") {
@@ -256,19 +307,14 @@ TEST_CASE("Settings Testing", "[ui]") {
             settings.write();
 
             qSettings.beginGroup("rgb");
-            REQUIRE(qSettings.value("switch_red_blue").isValid());
-            REQUIRE(qSettings.value("switch_red_blue").toBool() == true);
+            verifiySettingPrimitive(qSettings, "switch_red_blue", true);
             qSettings.endGroup();
         }
     }
     SECTION("Bag to Images Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("images");
-            REQUIRE(!qSettings.value("format").isValid());
-            REQUIRE(!qSettings.value("quality").isValid());
-            REQUIRE(!qSettings.value("bw_images").isValid());
-            REQUIRE(!qSettings.value("jpg_optimize").isValid());
-            REQUIRE(!qSettings.value("png_bilevel").isValid());
+            checkSettingsInvalidacy(qSettings, { "format", "quality", "bw_images", "jpg_optimize", "png_bilevel" });
             qSettings.endGroup();
         }
         SECTION("Write") {
@@ -283,16 +329,11 @@ TEST_CASE("Settings Testing", "[ui]") {
             settings.write();
 
             qSettings.beginGroup("images");
-            REQUIRE(qSettings.value("format").isValid());
-            REQUIRE(qSettings.value("format").toString() == "jpg");
-            REQUIRE(qSettings.value("quality").isValid());
-            REQUIRE(qSettings.value("quality").toInt() == 10);
-            REQUIRE(qSettings.value("bw_images").isValid());
-            REQUIRE(qSettings.value("bw_images").toBool() == true);
-            REQUIRE(qSettings.value("jpg_optimize").isValid());
-            REQUIRE(qSettings.value("jpg_optimize").toBool() == true);
-            REQUIRE(qSettings.value("png_bilevel").isValid());
-            REQUIRE(qSettings.value("png_bilevel").toBool() == true);
+            verifiySettingQString(qSettings, "format", "jpg");
+            verifiySettingPrimitive(qSettings, "quality", 10);
+            verifiySettingPrimitive(qSettings, "bw_images", true);
+            verifiySettingPrimitive(qSettings, "jpg_optimize", true);
+            verifiySettingPrimitive(qSettings, "png_bilevel", true);
             qSettings.endGroup();
         }
     }
@@ -300,7 +341,7 @@ TEST_CASE("Settings Testing", "[ui]") {
     SECTION("Video Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("video");
-            REQUIRE(!qSettings.value("fps").isValid());
+            checkSettingsInvalidacy(qSettings, { "fps" });
             qSettings.endGroup();
         }
         SECTION("Write") {
@@ -311,17 +352,14 @@ TEST_CASE("Settings Testing", "[ui]") {
             settings.write();
 
             qSettings.beginGroup("video");
-            REQUIRE(qSettings.value("fps").isValid());
-            REQUIRE(qSettings.value("fps").toInt() == 15);
+            verifiySettingPrimitive(qSettings, "fps", 15);
             qSettings.endGroup();
         }
     }
     SECTION("Bag to Video Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("video");
-            REQUIRE(!qSettings.value("format").isValid());
-            REQUIRE(!qSettings.value("bw_images").isValid());
-            REQUIRE(!qSettings.value("lossless_images").isValid());
+            checkSettingsInvalidacy(qSettings, { "format", "bw_images", "lossless_images" });
             qSettings.endGroup();
         }
         SECTION("Write") {
@@ -334,19 +372,16 @@ TEST_CASE("Settings Testing", "[ui]") {
             settings.write();
 
             qSettings.beginGroup("video");
-            REQUIRE(qSettings.value("format").isValid());
-            REQUIRE(qSettings.value("format").toString() == "mkv");
-            REQUIRE(qSettings.value("bw_images").isValid());
-            REQUIRE(qSettings.value("bw_images").toBool() == true);
-            REQUIRE(qSettings.value("lossless_images").isValid());
-            REQUIRE(qSettings.value("lossless_images").toBool() == true);
+            verifiySettingQString(qSettings, "format", "mkv");
+            verifiySettingPrimitive(qSettings, "bw_images", true);
+            verifiySettingPrimitive(qSettings, "lossless_images", true);
             qSettings.endGroup();
         }
     }
     SECTION("Video to Bag Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("bag");
-            REQUIRE(!qSettings.value("custom_fps").isValid());
+            checkSettingsInvalidacy(qSettings, { "custom_fps" });
             qSettings.endGroup();
         }
         SECTION("Write") {
@@ -357,18 +392,14 @@ TEST_CASE("Settings Testing", "[ui]") {
             settings.write();
 
             qSettings.beginGroup("bag");
-            REQUIRE(qSettings.value("custom_fps").isValid());
-            REQUIRE(qSettings.value("custom_fps").toBool() == true);
+            verifiySettingPrimitive(qSettings, "custom_fps", true);
             qSettings.endGroup();
         }
     }
     SECTION("Publish Settings Test") {
         SECTION("Read") {
             qSettings.beginGroup("publish");
-            REQUIRE(!qSettings.value("width").isValid());
-            REQUIRE(!qSettings.value("height").isValid());
-            REQUIRE(!qSettings.value("loop").isValid());
-            REQUIRE(!qSettings.value("scale").isValid());
+            checkSettingsInvalidacy(qSettings, { "width", "height", "loop", "scale" });
             qSettings.endGroup();
         }
         SECTION("Write") {
@@ -382,14 +413,10 @@ TEST_CASE("Settings Testing", "[ui]") {
             settings.write();
 
             qSettings.beginGroup("publish");
-            REQUIRE(qSettings.value("width").isValid());
-            REQUIRE(qSettings.value("width").toInt() == 1280);
-            REQUIRE(qSettings.value("height").isValid());
-            REQUIRE(qSettings.value("height").toInt() == 720);
-            REQUIRE(qSettings.value("loop").isValid());
-            REQUIRE(qSettings.value("loop").toBool() == true);
-            REQUIRE(qSettings.value("scale").isValid());
-            REQUIRE(qSettings.value("scale").toBool() == true);
+            verifiySettingPrimitive(qSettings, "width", 1280);
+            verifiySettingPrimitive(qSettings, "height", 720);
+            verifiySettingPrimitive(qSettings, "loop", true);
+            verifiySettingPrimitive(qSettings, "scale", true);
             qSettings.endGroup();
         }
     }
@@ -397,43 +424,49 @@ TEST_CASE("Settings Testing", "[ui]") {
     SECTION("Dialog Settings Test") {
         qSettings.clear();
 
-        SECTION("Read") {
-            qSettings.beginGroup("dialog");
-            REQUIRE(!qSettings.value("max_threads").isValid());
-            REQUIRE(!qSettings.value("hw_acc").isValid());
-            REQUIRE(!qSettings.value("save_parameters").isValid());
-            REQUIRE(!qSettings.value("predefined_topic_names").isValid());
-            REQUIRE(!qSettings.value("check_ros2_naming_convention").isValid());
-            qSettings.endGroup();
+        SECTION("Class values") {
+            SECTION("Read") {
+                qSettings.beginGroup("dialog");
+                checkSettingsInvalidacy(qSettings, { "max_threads", "hw_acc", "save_parameters", "predefined_topic_names",
+                                                     "check_ros2_naming_convention", "ask_for_target_overwrite" });
+                qSettings.endGroup();
+            }
+            SECTION("Write") {
+                Parameters::DialogParameters parameters;
+                DialogSettings settings(parameters, "dialog");
+
+                parameters.maxNumberOfThreads = 4;
+                parameters.useHardwareAcceleration = true;
+                parameters.saveParameters = true;
+                parameters.usePredefinedTopicNames = true;
+                parameters.checkROS2NameConform = true;
+                parameters.askForTargetOverwrite = true;
+                settings.write();
+
+                qSettings.beginGroup("dialog");
+                verifiySettingPrimitive(qSettings, "max_threads", 4);
+                verifiySettingPrimitive(qSettings, "hw_acc", true);
+                verifiySettingPrimitive(qSettings, "save_parameters", true);
+                verifiySettingPrimitive(qSettings, "predefined_topic_names", true);
+                verifiySettingPrimitive(qSettings, "check_ros2_naming_convention", true);
+                verifiySettingPrimitive(qSettings, "ask_for_target_overwrite", true);
+                qSettings.endGroup();
+            }
         }
-        SECTION("Write") {
-            Parameters::DialogParameters parameters;
-            DialogSettings settings(parameters, "dialog");
+        SECTION("Static") {
+            SECTION("Read") {
+                REQUIRE(DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()) == std::thread::hardware_concurrency());
+                REQUIRE(DialogSettings::getStaticParameter("hw_acc", false) == false);
+            }
+            SECTION("Write") {
+                DialogSettings::writeStaticParameter("max_threads", static_cast<unsigned int>(4));
+                DialogSettings::writeStaticParameter("hw_acc", true);
 
-            parameters.maxNumberOfThreads = 4;
-            parameters.useHardwareAcceleration = true;
-            parameters.saveParameters = true;
-            parameters.usePredefinedTopicNames = true;
-            parameters.checkROS2NameConform = true;
-            settings.write();
-
-            qSettings.beginGroup("dialog");
-            REQUIRE(qSettings.value("max_threads").isValid());
-            REQUIRE(qSettings.value("max_threads").toInt() == 4);
-            REQUIRE(qSettings.value("hw_acc").isValid());
-            REQUIRE(qSettings.value("hw_acc").toBool() == true);
-            REQUIRE(qSettings.value("save_parameters").isValid());
-            REQUIRE(qSettings.value("save_parameters").toBool() == true);
-            REQUIRE(qSettings.value("predefined_topic_names").isValid());
-            REQUIRE(qSettings.value("predefined_topic_names").toBool() == true);
-            REQUIRE(qSettings.value("check_ros2_naming_convention").isValid());
-            REQUIRE(qSettings.value("check_ros2_naming_convention").toBool() == true);
-            qSettings.endGroup();
-
-            // Static functions
-            REQUIRE(DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()) == 4);
-            REQUIRE(DialogSettings::getStaticParameter("hw_acc", false) == true);
-            REQUIRE(DialogSettings::getStaticParameter("save_parameters", false) == true);
+                qSettings.beginGroup("dialog");
+                verifiySettingPrimitive(qSettings, "max_threads", 4);
+                verifiySettingPrimitive(qSettings, "hw_acc", true);
+                qSettings.endGroup();
+            }
         }
     }
 

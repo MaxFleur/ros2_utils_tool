@@ -34,36 +34,29 @@ main(int argc, char* argv[])
 
     const auto arguments = app.arguments();
     const QStringList checkList{ "-t", "-r", "-a", "-e", "-h", "--topic_name", "--rate", "--accelerate", "--exchange", "--help" };
-    if (Utils::CLI::containsInvalidParameters(arguments, checkList) ||
-        arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
+    if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
+    }
+    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
+        showHelp();
+        throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
     }
 
     Parameters::VideoToBagParameters parameters;
 
     // Video directory
     parameters.sourceDirectory = arguments.at(1);
-    auto dirPath = parameters.sourceDirectory;
-    dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
-    if (!std::filesystem::exists(dirPath.toStdString())) {
-        std::cerr << "The entered directory for the video file does not exist. Please specify a correct directory!" << std::endl;
-        return 0;
-    }
+    Utils::CLI::checkParentDirectory(parameters.sourceDirectory, false);
+
     const auto fileEnding = parameters.sourceDirectory.right(3);
     if (fileEnding != "mp4" && fileEnding != "mkv") {
-        std::cerr << "The entered video name is not in correct format. Please make sure that the video file ends in mp4 or mkv!" << std::endl;
-        return 0;
+        throw std::runtime_error("The entered video name is in invalid format. Please make sure that the video has the ending 'mp4' or 'mkv'!");
     }
 
     // Bag directory
     parameters.targetDirectory = arguments.at(2);
-    dirPath = parameters.targetDirectory;
-    dirPath.truncate(dirPath.lastIndexOf(QChar('/')));
-    if (!std::filesystem::exists(dirPath.toStdString())) {
-        std::cerr << "Invalid target directory. Please enter a valid one!" << std::endl;
-        return 0;
-    }
+    Utils::CLI::checkParentDirectory(parameters.targetDirectory);
 
     // Check for optional arguments
     auto useHardwareAcceleration = false;
@@ -76,8 +69,7 @@ main(int argc, char* argv[])
         // Framerate
         parameters.useCustomFPS = Utils::CLI::containsArguments(arguments, "-r", "--rate");
         if (!Utils::CLI::checkArgumentValidity(arguments, "-r", "--rate", parameters.fps, 10, 60)) {
-            std::cerr << "Please enter a framerate in the range of 10 to 60!" << std::endl;
-            return 0;
+            throw std::runtime_error("Please enter a framerate in the range of 10 to 60!");
         }
         // Hardware acceleration
         useHardwareAcceleration = Utils::CLI::containsArguments(arguments, "-a", "--accelerate");
@@ -111,9 +103,7 @@ main(int argc, char* argv[])
     });
     QObject::connect(videoToBagThread, &VideoToBagThread::finished, videoToBagThread, &QObject::deleteLater);
     QObject::connect(videoToBagThread, &VideoToBagThread::failed, [] {
-        std::cerr << "The bag creation failed. Please make sure that all parameters are set correctly "
-            "and disable the hardware acceleration, if necessary." << std::endl;
-        return 0;
+        throw std::runtime_error("Bag creation failed. Please make sure that all parameters are set correctly and disable the hardware acceleration, if necessary.");
     });
 
     signal(SIGINT, [] (int signal) {
