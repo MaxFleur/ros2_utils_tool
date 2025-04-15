@@ -17,10 +17,10 @@ find_package(rosbag2_cpp REQUIRED)
 find_package(rosbag2_transport REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
-if($ENV{ROS_DISTRO} STREQUAL "jazzy")
-    add_definitions(-DROS_JAZZY)
-else()
+if($ENV{ROS_DISTRO} STREQUAL "humble")
     add_definitions(-DROS_HUMBLE)
+else()
+    add_definitions(-DROS_JAZZY)
 endif()
 
 if(${Qt6_FOUND})

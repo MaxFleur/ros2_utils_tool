@@ -30,10 +30,10 @@
 
 #include <filesystem>
 
-#ifdef ROS_JAZZY
-#include <cv_bridge/cv_bridge.hpp>
-#else
+#ifdef ROS_HUMBLE
 #include <cv_bridge/cv_bridge.h>
+#else
+#include <cv_bridge/cv_bridge.hpp>
 #endif
 
 // Because of parallelized bag writing, the topic order in the output bag files might be different with each run

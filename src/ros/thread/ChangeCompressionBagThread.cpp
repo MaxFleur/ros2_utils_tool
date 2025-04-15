@@ -29,10 +29,10 @@ ChangeCompressionBagThread::run()
     outputStorage.uri = targetDirectoryStd;
 
     rosbag2_transport::RecordOptions outputRecord;
-#ifdef ROS_JAZZY
-    outputRecord.all_topics = true;
-#else
+#ifdef ROS_HUMBLE
     outputRecord.all = true;
+#else
+    outputRecord.all_topics = true;
 #endif
     if (m_compress) {
         outputRecord.compression_format = "zstd";
