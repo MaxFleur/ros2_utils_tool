@@ -53,7 +53,7 @@ TopicsServicesInfoWidget::TopicsServicesInfoWidget(QWidget *parent) :
 
 
 void
-TopicsServicesInfoWidget::fillTree()
+TopicsServicesInfoWidget::fillTree() const
 {
     m_treeWidget->clear();
 

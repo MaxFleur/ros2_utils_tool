@@ -46,14 +46,14 @@ BasicInputWidget::BasicInputWidget(const QString& headerText, const QString& ico
 
 
 void
-BasicInputWidget::enableOkButton(bool enable)
+BasicInputWidget::enableOkButton(bool enable) const
 {
     m_okButton->setEnabled(enable);
 }
 
 
 void
-BasicInputWidget::setPixmapLabelIcon()
+BasicInputWidget::setPixmapLabelIcon() const
 {
     const auto isDarkMode = Utils::UI::isDarkMode();
     // Don't need to provide full name, appendix is always the same

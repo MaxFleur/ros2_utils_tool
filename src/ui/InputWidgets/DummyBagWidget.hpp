@@ -35,7 +35,7 @@ private slots:
 
 private:
     std::optional<bool>
-    areTopicsValid() override;
+    areTopicsValid() const override;
 
 private:
     QVector<QPointer<DummyTopicWidget> > m_dummyTopicWidgets;

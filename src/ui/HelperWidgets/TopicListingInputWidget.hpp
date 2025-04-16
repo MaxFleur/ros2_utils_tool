@@ -30,15 +30,15 @@ protected slots:
     sourceButtonPressed();
 
     void
-    okButtonPressed();
+    okButtonPressed() const;
 
 protected:
     virtual std::optional<bool>
-    areTopicsValid() = 0;
+    areTopicsValid() const = 0;
 
     // Have to overwrite this one because we are using more additional icons then just the top one
     void
-    setPixmapLabelIcon();
+    setPixmapLabelIcon() const;
 
     bool
     event(QEvent *event);

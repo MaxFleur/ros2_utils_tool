@@ -36,7 +36,7 @@ protected:
     [[nodiscard]] bool
     areIOParametersValid(int            topicSize,
                          int            topicSizeWithoutDuplicates,
-                         const QString& secondSourceParameter = QString());
+                         const QString& secondSourceParameter = QString()) const;
 
 protected:
     QPointer<QTreeWidget> m_treeWidget;

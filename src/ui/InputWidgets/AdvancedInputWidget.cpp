@@ -150,7 +150,7 @@ AdvancedInputWidget::findTargetButtonPressed()
 
 
 void
-AdvancedInputWidget::okButtonPressed()
+AdvancedInputWidget::okButtonPressed() const
 {
     if (!m_okButton->isEnabled()) {
         return;

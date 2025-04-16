@@ -224,7 +224,7 @@ MergeBagsWidget::itemCheckStateChanged(QTreeWidgetItem* item, int column)
 
 
 void
-MergeBagsWidget::okButtonPressed()
+MergeBagsWidget::okButtonPressed() const
 {
     // Sets remove duplicates, so use such an instance to check for duplicate topic names
     QSet<QString> topicNameSet;

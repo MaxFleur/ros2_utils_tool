@@ -219,7 +219,7 @@ EditBagWidget::itemCheckStateChanged(QTreeWidgetItem* item, int column)
 
 
 void
-EditBagWidget::okButtonPressed()
+EditBagWidget::okButtonPressed() const
 {
     auto areROS2NamesValid = true;
     for (const auto& topic : m_parameters.topics) {

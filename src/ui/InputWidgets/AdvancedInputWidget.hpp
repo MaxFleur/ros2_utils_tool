@@ -32,7 +32,7 @@ protected slots:
     findTargetButtonPressed();
 
     virtual void
-    okButtonPressed();
+    okButtonPressed() const;
 
     void
     setVideoFormat(const QString& videoFormat)
