@@ -128,7 +128,7 @@ DummyBagWidget::useCustomRateCheckBoxPressed(int state)
 
 
 std::optional<bool>
-DummyBagWidget::areTopicsValid()
+DummyBagWidget::areTopicsValid() const
 {
     auto areROS2NamesValid = true;
     QSet<QString> topicNameSet;

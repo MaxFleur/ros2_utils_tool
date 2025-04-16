@@ -327,7 +327,7 @@ StartWidget::replaceWidgets(QWidget* fromWidget, QWidget* toWidget, int widgetId
 
 
 QPointer<QToolButton>
-StartWidget::createToolButton(const QString& buttonText)
+StartWidget::createToolButton(const QString& buttonText) const
 {
     auto* const toolButton = new QToolButton;
     toolButton->setText(buttonText);

@@ -69,7 +69,7 @@ TopicListingInputWidget::sourceButtonPressed()
 
 
 void
-TopicListingInputWidget::okButtonPressed()
+TopicListingInputWidget::okButtonPressed() const
 {
     if (m_parameters.sourceDirectory.isEmpty()) {
         Utils::UI::createCriticalMessageBox("No bag name specified!", "Please specify a bag name before continuing!");
@@ -94,7 +94,7 @@ TopicListingInputWidget::okButtonPressed()
 
 
 void
-TopicListingInputWidget::setPixmapLabelIcon()
+TopicListingInputWidget::setPixmapLabelIcon() const
 {
     const auto isDarkMode = Utils::UI::isDarkMode();
     m_headerPixmapLabel->setPixmap(QIcon(isDarkMode ? m_iconPath + "_white.svg" : m_iconPath + "_black.svg").pixmap(QSize(100, 45)));

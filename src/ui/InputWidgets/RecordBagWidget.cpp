@@ -142,7 +142,7 @@ RecordBagWidget::createNewTopicLineEdit(const QString& topicName, int index)
 
 
 std::optional<bool>
-RecordBagWidget::areTopicsValid()
+RecordBagWidget::areTopicsValid() const
 {
     QSet<QString> topicNameSet;
     for (QPointer<QLineEdit> lineEdit : m_topicLineEdits) {

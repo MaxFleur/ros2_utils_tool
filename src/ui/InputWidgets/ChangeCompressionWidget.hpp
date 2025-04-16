@@ -25,11 +25,11 @@ private slots:
     targetButtonPressed();
 
     void
-    okButtonPressed();
+    okButtonPressed() const;
 
 private:
     [[nodiscard]] bool
-    isBagFileValid(const QString& bagDirectory);
+    isBagFileValid(const QString& bagDirectory) const;
 
 private:
     QPointer<QLineEdit> m_targetLineEdit;

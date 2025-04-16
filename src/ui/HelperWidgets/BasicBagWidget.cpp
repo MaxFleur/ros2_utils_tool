@@ -82,7 +82,7 @@ BasicBagWidget::targetPushButtonPressed()
 
 bool
 BasicBagWidget::areIOParametersValid(int topicSize, int topicSizeWithOutDuplicates,
-                                     const QString& secondSourceParameter)
+                                     const QString& secondSourceParameter) const
 {
     QVector<QString> sourceParameters = { m_parameters.sourceDirectory };
     if (!secondSourceParameter.isEmpty()) {

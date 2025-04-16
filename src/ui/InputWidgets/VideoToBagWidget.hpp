@@ -29,7 +29,7 @@ private slots:
     useCustomFPSCheckBoxPressed(int state);
 
     void
-    okButtonPressed() override;
+    okButtonPressed() const override;
 
 private:
     QPointer<QFormLayout> m_advancedOptionsFormLayout;

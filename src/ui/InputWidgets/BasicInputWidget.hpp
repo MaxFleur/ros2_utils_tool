@@ -36,17 +36,17 @@ public:
 
 signals:
     void
-    back();
+    back() const;
 
     void
-    okPressed();
+    okPressed() const;
 
 protected:
     void
-    enableOkButton(bool enable);
+    enableOkButton(bool enable) const;
 
     void
-    setPixmapLabelIcon();
+    setPixmapLabelIcon() const;
 
     bool
     event(QEvent *event) override;
@@ -56,7 +56,7 @@ protected:
     void
     writeParameterToSettings(T&             settingsParameter,
                              const U&       newValue,
-                             BasicSettings& inputSettings)
+                             BasicSettings& inputSettings) const
     {
         settingsParameter = newValue;
         inputSettings.write();
