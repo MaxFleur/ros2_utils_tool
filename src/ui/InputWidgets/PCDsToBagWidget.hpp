@@ -23,7 +23,7 @@ private slots:
     findSourceButtonPressed() override;
 
     void
-    okButtonPressed() override;
+    okButtonPressed() const override;
 
 private:
     Parameters::PCDsToBagParameters& m_parameters;

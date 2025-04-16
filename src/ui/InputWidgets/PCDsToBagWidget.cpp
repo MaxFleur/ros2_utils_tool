@@ -93,7 +93,7 @@ PCDsToBagWidget::findSourceButtonPressed()
 
 
 void
-PCDsToBagWidget::okButtonPressed()
+PCDsToBagWidget::okButtonPressed() const
 {
     if (!m_okButton->isEnabled()) {
         return;

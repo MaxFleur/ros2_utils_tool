@@ -132,7 +132,7 @@ VideoToBagWidget::useCustomFPSCheckBoxPressed(int state)
 
 
 void
-VideoToBagWidget::okButtonPressed()
+VideoToBagWidget::okButtonPressed() const
 {
     if (!m_okButton->isEnabled()) {
         return;
