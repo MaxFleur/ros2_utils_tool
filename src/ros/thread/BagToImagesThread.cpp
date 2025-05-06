@@ -71,7 +71,9 @@ BagToImagesThread::run()
         }
     };
 
-    const auto writeImageFromQueue = [this, &targetDirectoryStd, &mutex, &iterationCount, &queue,
+    cv_bridge::CvImagePtr cvPointer;
+
+    const auto writeImageFromQueue = [this, &targetDirectoryStd, &mutex, &iterationCount, &queue, &cvPointer,
                                       serialization, messageCount, messageCountNumberOfDigits] {
         while (true) {
             mutex.lock();
@@ -88,7 +90,7 @@ BagToImagesThread::run()
             queue.pop_back();
 
             // Convert message to cv
-            auto cvPointer = cv_bridge::toCvCopy(*rosMsg, rosMsg->encoding);
+            cvPointer = cv_bridge::toCvCopy(*rosMsg, rosMsg->encoding);
             // Convert to grayscale
             if (m_parameters.format == "png" && m_parameters.pngBilevel) {
                 // Converting to a different channel seems to be saver then converting

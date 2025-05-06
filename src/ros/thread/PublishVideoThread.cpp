@@ -33,6 +33,14 @@ PublishVideoThread::run()
     auto iterator = 0;
     const auto frameCount = videoCapture.get(cv::CAP_PROP_FRAME_COUNT);
 
+    cv::Mat frame;
+    sensor_msgs::msg::Image message;
+
+    std_msgs::msg::Header header;
+    cv_bridge::CvImage cvBridge;
+    cvBridge.header = header;
+    cvBridge.encoding = sensor_msgs::image_encodings::BGR8;
+
     while (true) {
         if (isInterruptionRequested()) {
             return;
@@ -44,7 +52,7 @@ PublishVideoThread::run()
             iterator = 0;
         }
         // Capture image
-        cv::Mat frame;
+
         videoCapture >> frame;
         if (frame.empty()) {
             break;
@@ -57,11 +65,8 @@ PublishVideoThread::run()
             cv::resize(frame, frame, cv::Size(m_parameters.width, m_parameters.height), 0, 0);
         }
 
-        // Create empty sensor message
-        sensor_msgs::msg::Image message;
-        std_msgs::msg::Header header;
         // Convert and write image
-        const auto cvBridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::BGR8, frame);
+        cvBridge.image = frame;
         cvBridge.toImageMsg(message);
 
         m_publisher->publish(message);
