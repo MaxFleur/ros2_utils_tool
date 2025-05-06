@@ -218,6 +218,8 @@ runThread(QThread* thread, volatile sig_atomic_t& signalStatus)
     thread->start();
 
     // Look for SIGINT
+    rclcpp::Rate rate(50);
+
     while (!thread->isFinished()) {
         if (signalStatus == SIGINT) {
             thread->requestInterruption();
@@ -225,6 +227,7 @@ runThread(QThread* thread, volatile sig_atomic_t& signalStatus)
             std::cout << "" << std::endl;
             std::cout << "Interrupted" << std::endl;
         }
+        rate.sleep();
     }
 }
 }
