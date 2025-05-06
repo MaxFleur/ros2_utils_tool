@@ -225,6 +225,7 @@ runThread(QThread* thread, volatile sig_atomic_t& signalStatus)
             std::cout << "" << std::endl;
             std::cout << "Interrupted" << std::endl;
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
 }
 }

@@ -50,7 +50,10 @@ RecordBagThread::run()
     auto spinThread = std::thread([executor] {
         executor->spin();
     });
+
+    rclcpp::Rate rate(50);
     while (!isInterruptionRequested()) {
+        rate.sleep();
     }
 
     recorder->stop();

@@ -140,9 +140,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             // even if everything has been cleaned successfully. Need to call quit extra.
             thread->quit();
 
-            while (!thread->isFinished()) {
-                rate.sleep();
-            }
+            thread->wait();
 
             const auto& metaData = Utils::ROS::getBagMetadata("./recorded_bag");
             const auto& topics = metaData.topics_with_message_count;
@@ -182,9 +180,7 @@ TEST_CASE("Threads Testing", "[threads]") {
 
             thread->requestInterruption();
             thread->quit();
-            while (!thread->isFinished()) {
-                rate.sleep();
-            }
+            thread->wait();
 
             const auto& metaData = Utils::ROS::getBagMetadata("./recorded_bag");
             const auto& topics = metaData.topics_with_message_count;
@@ -207,8 +203,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         QObject::connect(thread, &DummyBagThread::finished, thread, &QObject::deleteLater);
 
         thread->start();
-        while (!thread->isFinished()) {
-        }
+        thread->wait();
 
         const auto& metaData = Utils::ROS::getBagMetadata("./dummy_bag");
         REQUIRE(metaData.message_count == 400);
@@ -252,8 +247,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         QObject::connect(thread, &EditBagThread::finished, thread, &QObject::deleteLater);
 
         thread->start();
-        while (!thread->isFinished()) {
-        }
+        thread->wait();
 
         const auto& metadata = Utils::ROS::getBagMetadata("./edited_bag");
         REQUIRE(metadata.message_count == 100);
@@ -286,8 +280,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             parameters.topics.push_back({ "/renamed_string", "./edited_bag", true });
 
             thread->start();
-            while (!thread->isFinished()) {
-            }
+            thread->wait();
 
             const auto& metadata = Utils::ROS::getBagMetadata("./merged_bag");
             REQUIRE(metadata.message_count == 150);
@@ -316,8 +309,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             parameters.topics.push_back({ "/renamed_string", "./edited_bag", true });
 
             thread->start();
-            while (!thread->isFinished()) {
-            }
+            thread->wait();
 
             const auto& metadata = Utils::ROS::getBagMetadata("./merged_bag");
             REQUIRE(metadata.message_count == 200);
@@ -354,8 +346,7 @@ TEST_CASE("Threads Testing", "[threads]") {
 
         const auto checkForThread = [] (BasicThread* thread, const std::string& targetDirectory) {
             thread->start();
-            while (!thread->isFinished()) {
-            }
+            thread->wait();
 
             rosbag2_storage::MetadataIo metaDataIO;
             auto metadata = metaDataIO.read_metadata(targetDirectory);
@@ -427,8 +418,7 @@ TEST_CASE("Threads Testing", "[threads]") {
 
         SECTION("Default Parameter Values") {
             thread->start();
-            while (!thread->isFinished()) {
-            }
+            thread->wait();
             // Codecs are generated out of char sequences, that's why we have these weird numbers
             // Codec number represents mp4v
             performVideoCheck(".mp4", 1983148141, 30, 252, 0, 1);
@@ -438,8 +428,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             parameters.exchangeRedBlueValues = true;
 
             thread->start();
-            while (!thread->isFinished()) {
-            }
+            thread->wait();
 
             performVideoCheck(".mp4", 1983148141, 60, 0, 0, 252);
         }
@@ -448,8 +437,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             parameters.useBWImages = true;
 
             thread->start();
-            while (!thread->isFinished()) {
-            }
+            thread->wait();
             // Codec number represents x264
             performVideoCheck(".mkv", 1734701165, 30, 30, 30, 30);
         }
@@ -489,8 +477,7 @@ TEST_CASE("Threads Testing", "[threads]") {
 
         SECTION("Default Parameter Values") {
             thread->start();
-            while (!thread->isFinished()) {
-            }
+            thread->wait();
 
             const auto& metadata = Utils::ROS::getBagMetadata("./video_bag");
             REQUIRE(metadata.message_count == 100);
@@ -506,8 +493,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             parameters.exchangeRedBlueValues = true;
 
             thread->start();
-            while (!thread->isFinished()) {
-            }
+            thread->wait();
 
             performBagCheck(1280, 720, 252, 0, 0);
         }
@@ -523,8 +509,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             QObject::connect(thread, &VideoToBagThread::finished, thread, &QObject::deleteLater);
 
             thread->start();
-            while (!thread->isFinished()) {
-            }
+            thread->wait();
 
             performBagCheck(1280, 720, 30, 30, 30);
             std::filesystem::remove("./video.mkv");
@@ -556,8 +541,7 @@ TEST_CASE("Threads Testing", "[threads]") {
 
         SECTION("Default Parameter Values") {
             thread->start();
-            while (!thread->isFinished()) {
-            }
+            thread->wait();
 
             performImageCheck(".jpg", 255, 0, 3);
         }
@@ -566,8 +550,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             parameters.exchangeRedBlueValues = true;
 
             thread->start();
-            while (!thread->isFinished()) {
-            }
+            thread->wait();
 
             performImageCheck(".png", 3, 0, 255);
         }
@@ -576,8 +559,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             parameters.useBWImages = true;
 
             thread->start();
-            while (!thread->isFinished()) {
-            }
+            thread->wait();
 
             performImageCheck(".bmp", 30, 30, 30);
         }
@@ -592,8 +574,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         QObject::connect(thread, &BagToPCDsThread::finished, thread, &QObject::deleteLater);
 
         thread->start();
-        while (!thread->isFinished()) {
-        }
+        thread->wait();
 
         const auto extensionCheckValues = getDirFileCountWithExtensions("./pcds", ".pcd");
         REQUIRE(extensionCheckValues[0] == 100);
@@ -613,8 +594,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         QObject::connect(thread, &PCDsToBagThread::finished, thread, &QObject::deleteLater);
 
         thread->start();
-        while (!thread->isFinished()) {
-        }
+        thread->wait();
 
         const auto& metaData = Utils::ROS::getBagMetadata("./bag_pcd");
         REQUIRE(metaData.message_count == 100);
