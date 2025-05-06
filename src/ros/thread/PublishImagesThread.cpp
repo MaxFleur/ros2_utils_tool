@@ -39,29 +39,32 @@ PublishImagesThread::run()
         frameCount++;
     }
 
-    const auto publishImageFiles = [this, &sortedImagesSet, &iterator, &rate, frameCount] {
+    cv::Mat frame;
+    sensor_msgs::msg::Image message;
+
+    cv_bridge::CvImage cvBridge;
+    cvBridge.encoding = sensor_msgs::image_encodings::BGR8;
+
+    const auto publishImageFiles = [this, &sortedImagesSet, &iterator, &rate, &frame, &message, &cvBridge, frameCount] {
         for (auto const& fileName : sortedImagesSet) {
             if (isInterruptionRequested()) {
                 break;
             }
             // Read image from file
-            auto mat = cv::imread(fileName, cv::IMREAD_COLOR);
-            if (mat.empty()) {
+            frame = cv::imread(fileName, cv::IMREAD_COLOR);
+            if (frame.empty()) {
                 continue;
             }
 
             if (m_parameters.exchangeRedBlueValues) {
-                cv::cvtColor(mat, mat, cv::COLOR_BGR2RGB);
+                cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
             }
             if (m_parameters.scale) {
-                cv::resize(mat, mat, cv::Size(m_parameters.width, m_parameters.height), 0, 0);
+                cv::resize(frame, frame, cv::Size(m_parameters.width, m_parameters.height), 0, 0);
             }
 
-            // Create empty sensor message
-            sensor_msgs::msg::Image message;
-            std_msgs::msg::Header header;
             // Convert and write image
-            const auto cvBridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::BGR8, mat);
+            cvBridge.image = frame;
             cvBridge.toImageMsg(message);
 
             m_publisher->publish(message);

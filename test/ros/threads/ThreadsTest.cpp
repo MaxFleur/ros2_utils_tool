@@ -462,12 +462,13 @@ TEST_CASE("Threads Testing", "[threads]") {
 
         rosbag2_cpp::Reader reader;
         rclcpp::Serialization<sensor_msgs::msg::Image> serialization;
+        cv_bridge::CvImagePtr cvPointer;
 
         auto* const thread = new VideoToBagThread(parameters, false);
         QObject::connect(thread, &VideoToBagThread::finished, thread, &QObject::deleteLater);
 
-        const auto performBagCheck = [&reader, &serialization] (unsigned int width, unsigned int height,
-                                                                int redValue, int greenValue, int blueValue) {
+        const auto performBagCheck = [&reader, &serialization, &cvPointer] (unsigned int width, unsigned int height,
+                                                                            int redValue, int greenValue, int blueValue) {
             reader.open("./video_bag");
             // Check first message values
             auto msg = reader.read_next();
@@ -477,7 +478,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             REQUIRE(rosMsg->width == width);
             REQUIRE(rosMsg->height == height);
 
-            auto cvPointer = cv_bridge::toCvCopy(*rosMsg, rosMsg->encoding);
+            cvPointer = cv_bridge::toCvCopy(*rosMsg, rosMsg->encoding);
             const auto& color = cvPointer->image.at<cv::Vec3b>(cv::Point(0, 0));
             REQUIRE(static_cast<int>(color[0]) == redValue);
             REQUIRE(static_cast<int>(color[1]) == greenValue);

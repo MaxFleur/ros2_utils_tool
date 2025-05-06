@@ -47,6 +47,14 @@ VideoToBagThread::run()
     writer.open(targetDirectoryStd);
     auto iterationCount = 0;
 
+    cv::Mat frame;
+    std_msgs::msg::Header header;
+    sensor_msgs::msg::Image message;
+
+    cv_bridge::CvImage cvBridge;
+    cvBridge.header = header;
+    cvBridge.encoding = sensor_msgs::image_encodings::BGR8;
+
     while (true) {
         if (isInterruptionRequested()) {
             writer.close();
@@ -54,7 +62,6 @@ VideoToBagThread::run()
         }
 
         // Capture image
-        cv::Mat frame;
         videoCapture >> frame;
         if (frame.empty()) {
             break;
@@ -66,12 +73,11 @@ VideoToBagThread::run()
         }
 
         // Create empty sensor message
-        sensor_msgs::msg::Image message;
-        std_msgs::msg::Header header;
         timeStamp += duration;
+        header.stamp = timeStamp;
 
         // Convert and write image
-        const auto cvBridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::BGR8, frame);
+        cvBridge.image = frame;
         cvBridge.toImageMsg(message);
         writer.write(message, m_topicName, timeStamp);
 
