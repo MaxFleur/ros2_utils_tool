@@ -29,10 +29,6 @@ PublishVideoThread::run()
         return;
     }
 
-    rclcpp::Rate rate(videoCapture.get(cv::CAP_PROP_FPS));
-    auto iterator = 0;
-    const auto frameCount = videoCapture.get(cv::CAP_PROP_FRAME_COUNT);
-
     cv::Mat frame;
     sensor_msgs::msg::Image message;
 
@@ -41,7 +37,12 @@ PublishVideoThread::run()
     cvBridge.header = header;
     cvBridge.encoding = sensor_msgs::image_encodings::BGR8;
 
-    while (true) {
+    const int rate = ((1000 / (float) videoCapture.get(cv::CAP_PROP_FPS)) * 1000);
+    auto iterator = 0;
+    const auto frameCount = videoCapture.get(cv::CAP_PROP_FRAME_COUNT);
+
+    auto timer = m_node->create_wall_timer(std::chrono::microseconds(rate),
+                                           [this, &iterator, &videoCapture, &frame, &message, &cvBridge, frameCount] {
         if (isInterruptionRequested()) {
             return;
         }
@@ -51,11 +52,11 @@ PublishVideoThread::run()
             videoCapture.set(cv::CAP_PROP_POS_FRAMES, 0);
             iterator = 0;
         }
-        // Capture image
 
+        // Capture image
         videoCapture >> frame;
         if (frame.empty()) {
-            break;
+            return;
         }
 
         if (m_parameters.exchangeRedBlueValues) {
@@ -70,14 +71,18 @@ PublishVideoThread::run()
         cvBridge.toImageMsg(message);
 
         m_publisher->publish(message);
-        // Spin node to publish the next frame
-        rclcpp::spin_some(m_node);
 
         emit progressChanged("Publishing image " + QString::number(iterator + 1) + " of " + QString::number(frameCount) + "...", PROGRESS);
         iterator++;
+    });
 
-        rate.sleep();
+    auto executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
+    executor->add_node(m_node);
+
+    while (!isInterruptionRequested()) {
+        executor->spin_once();
     }
 
+    timer->cancel();
     emit finished();
 }
