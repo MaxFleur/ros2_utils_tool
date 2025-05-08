@@ -105,20 +105,20 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
 
     QWidget* progressWidget;
     const auto setMovie = [this, &progressWidget, progressLabel, isDarkMode] (const QString& moviePath, int width, int height) {
-        auto* const movie = new QMovie(isDarkMode ? moviePath + "_white.gif" : moviePath + "_black.gif");
-        movie->setScaledSize(QSize(width, height));
+        m_movie = new QMovie(isDarkMode ? moviePath + "_white.gif" : moviePath + "_black.gif");
+        m_movie->setScaledSize(QSize(width, height));
 
         auto* const movieLabel = new QLabel;
-        movieLabel->setMovie(movie);
+        movieLabel->setMovie(m_movie);
         movieLabel->setAlignment(Qt::AlignHCenter);
         progressWidget = movieLabel;
 
-        connect(m_thread, &BasicThread::finished, this, [movie, progressLabel] {
-            movie->stop();
+        connect(m_thread, &BasicThread::finished, this, [this, progressLabel] {
+            m_movie->stop();
             progressLabel->setText("Done!");
         });
 
-        movie->start();
+        m_movie->start();
     };
 
     // Display a progress bar or play a gif
@@ -225,4 +225,21 @@ void
 ProgressWidget::startThread()
 {
     m_thread->start();
+}
+
+
+bool
+ProgressWidget::event(QEvent *event)
+{
+    [[unlikely]] if ((event->type() == QEvent::ApplicationPaletteChange || event->type() == QEvent::PaletteChange) && m_movie) {
+        m_movie->stop();
+
+        auto movieFileName = m_movie->fileName();
+        movieFileName.replace(movieFileName.contains("_black") ? "_black" : "_white",
+                              movieFileName.contains("_black") ? "_white" : "_black");
+        m_movie->setFileName(movieFileName);
+
+        m_movie->start();
+    }
+    return QWidget::event(event);
 }

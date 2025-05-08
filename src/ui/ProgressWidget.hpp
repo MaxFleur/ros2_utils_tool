@@ -3,6 +3,7 @@
 #include "Parameters.hpp"
 #include "UtilsUI.hpp"
 
+#include <QMovie>
 #include <QPointer>
 #include <QWidget>
 
@@ -34,5 +35,11 @@ signals:
     finished();
 
 private:
+    bool
+    event(QEvent *event) override;
+
+private:
     QPointer<BasicThread> m_thread;
+
+    QPointer<QMovie> m_movie;
 };
