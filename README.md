@@ -2,8 +2,9 @@
 
    ![License badge](https://img.shields.io/badge/License-EUPLv1.2-blue.svg)
    ![C++ badge](https://img.shields.io/badge/C++-20-blue.svg)
-   ![CI Ubuntu badge](https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/humble.yml/badge.svg?event=push)
-   ![CI Windows badge](https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/jazzy.yml/badge.svg?event=push)
+   ![Humble badge](https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/humble.yml/badge.svg?event=push)
+   ![Jazzy badge](https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/jazzy.yml/badge.svg?event=push)
+   ![Rolling badge](https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/rolling.yml/badge.svg?event=push)
    ![Tag badge](https://img.shields.io/badge/Release-v0.11.0-blue.svg)
 
 </div>
@@ -45,7 +46,7 @@ NOTE: The package is still under active development, so more tools might be adde
 ### Dependencies
 
 The following packages are required to be installed manually:
-- [ROS2](https://docs.ros.org/en/jazzy/index.html), both version **humble** and **jazzy** are supported.
+- [ROS2](https://docs.ros.org/en/jazzy/index.html). At the moment, **humble**, **jazzy** and **rolling** are supported.
 - [Qt6/Qt5](https://doc.qt.io/) for all UI as well as some convenience functionalities.
 - [catch2_ROS](https://index.ros.org/p/catch_ros2/) for Catch2-based unit tests with ROS2.
 
@@ -64,6 +65,9 @@ All dependencies aside from ROS2 can be installed at once using the following co
 
 **Jazzy**:\
 `sudo apt install libopencv-dev ros-jazzy-cv-bridge libpcl-dev qt6-base-dev qtbase5-dev ros-jazzy-catch-ros2`
+
+**Rolling**:\
+`sudo apt install libopencv-dev ros-rolling-cv-bridge libpcl-dev qt6-base-dev qtbase5-dev ros-rolling-catch-ros2`
 
 Alternatively, use `rosdep` to install all dependencies.
 
