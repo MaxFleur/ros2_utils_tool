@@ -97,7 +97,9 @@ DummyBagWidget::createNewDummyTopicWidget(const Parameters::DummyBagParameters::
     });
 
     // Keep it all inside the main form layout
-    m_formLayout->insertRow(m_formLayout->rowCount() - 3, "Topic " + QString::number(m_numberOfTopics + 1) + ":", dummyTopicWidget);
+    // Ensure that the plus and minus button stay below the newly formed widget (row count 4 means no topic widgets yet)
+    m_formLayout->insertRow(m_formLayout->rowCount() == 4 ? m_formLayout->rowCount() - 3 : m_formLayout->rowCount() - 4,
+                            "Topic " + QString::number(m_numberOfTopics + 1) + ":", dummyTopicWidget);
     m_dummyTopicWidgets.push_back(dummyTopicWidget);
 
     m_numberOfTopics++;
