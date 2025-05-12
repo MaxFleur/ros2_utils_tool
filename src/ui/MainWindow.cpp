@@ -25,7 +25,7 @@
 
 MainWindow::MainWindow()
 {
-    setWindowTitle("ROS Tools");
+    setWindowTitle("ROS2 Utils Tool");
     // We need to get some values without having to access the dialog beforehand
     DialogSettings settings(m_dialogParameters, "dialog");
 
