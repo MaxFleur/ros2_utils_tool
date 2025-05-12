@@ -12,7 +12,7 @@
 StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget *parent) :
     QWidget(parent), m_dialogParameters(dialogParameters)
 {
-    m_headerLabel = new QLabel("ROS TOOLS");
+    m_headerLabel = new QLabel("ROS2 UTILS TOOL");
     Utils::UI::setWidgetFontSize(m_headerLabel);
     m_headerLabel->setAlignment(Qt::AlignHCenter);
 
@@ -302,7 +302,7 @@ StartWidget::replaceWidgets(QWidget* fromWidget, QWidget* toWidget, int widgetId
 
     switch (m_widgetOnInstantiation) {
     case WIDGET_OVERALL:
-        m_headerLabel->setText("ROS TOOLS");
+        m_headerLabel->setText("ROS2 UTILS TOOL");
         break;
     case WIDGET_CONVERSION:
         m_headerLabel->setText("CONVERSION TOOLS");
