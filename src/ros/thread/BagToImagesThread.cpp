@@ -54,6 +54,7 @@ BagToImagesThread::run()
 
     const auto pushMessagesToQueue = [this, &reader, &queue, &mutex] {
         constexpr auto maximumInstancesForQueue = 100;
+        rosbag2_storage::SerializedBagMessageSharedPtr message;
 
         while (reader.has_next()) {
             if (isInterruptionRequested()) {
@@ -68,7 +69,7 @@ BagToImagesThread::run()
                     break;
                 }
 
-                auto message = reader.read_next();
+                message = reader.read_next();
                 if (message->topic_name != m_topicName) {
                     mutex.unlock();
                     continue;
@@ -80,9 +81,10 @@ BagToImagesThread::run()
     };
 
     cv_bridge::CvImagePtr cvPointer;
+    auto rosMessage = std::make_shared<sensor_msgs::msg::Image>();
 
-    const auto writeImageFromQueue = [this, &targetDirectoryStd, &mutex, &iterationCount, &queue, &cvPointer, &reader,
-                                      serialization, messageCount, messageCountNumberOfDigits] {
+    const auto writeImageFromQueue = [this, &targetDirectoryStd, &reader, &queue, &iterationCount, &mutex, &cvPointer,
+                                      rosMessage, serialization, messageCount, messageCountNumberOfDigits] {
         while (true) {
             mutex.lock();
             // Stop if interrupted or if everything has been read
@@ -98,12 +100,11 @@ BagToImagesThread::run()
 
             // Deserialize
             rclcpp::SerializedMessage serializedMessage(*queue.back()->serialized_data);
-            auto rosMsg = std::make_shared<sensor_msgs::msg::Image>();
-            serialization.deserialize_message(&serializedMessage, rosMsg.get());
+            serialization.deserialize_message(&serializedMessage, rosMessage.get());
             queue.pop_back();
 
             // Convert message to cv
-            cvPointer = cv_bridge::toCvCopy(*rosMsg, rosMsg->encoding);
+            cvPointer = cv_bridge::toCvCopy(rosMessage, rosMessage->encoding);
             // Convert to grayscale
             if (m_parameters.format == "png" && m_parameters.pngBilevel) {
                 // Converting to a different channel seems to be saver then converting
