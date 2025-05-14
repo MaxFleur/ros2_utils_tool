@@ -37,10 +37,14 @@ PCDsToBagThread::run()
         frameCount++;
     }
 
-    auto iterationCount = 1;
+    pcl::PCLPointCloud2 cloud;
+    sensor_msgs::msg::PointCloud2 message;
+    pcl::PCDReader reader;
+
     rosbag2_cpp::Writer writer;
     writer.open(targetDirectoryStd);
 
+    auto iterationCount = 1;
     auto timeStamp = rclcpp::Clock(RCL_ROS_TIME).now();
     const auto duration = rclcpp::Duration::from_seconds(1.0f / (float) m_parameters.rate);
 
@@ -48,23 +52,18 @@ PCDsToBagThread::run()
         if (isInterruptionRequested() || sortedPCDsSet.empty()) {
             break;
         }
-        // Create message
-        sensor_msgs::msg::PointCloud2 message;
 
         // Read pcd from file
-        pcl::PCDReader reader;
-        pcl::PCLPointCloud2 cloud;
         reader.read(*sortedPCDsSet.begin(), cloud);
-        sortedPCDsSet.erase(sortedPCDsSet.begin());
-
-        emit progressChanged("Writing pcd file " + QString::number(iterationCount) + " of " + QString::number(frameCount) + "...",
-                             ((float) iterationCount / (float) frameCount) * 100);
-        iterationCount++;
-
         timeStamp += duration;
         // Write
         pcl_conversions::fromPCL(cloud, message);
         writer.write(message, m_topicName, timeStamp);
+
+        sortedPCDsSet.erase(sortedPCDsSet.begin());
+        emit progressChanged("Writing pcd file " + QString::number(iterationCount) + " of " + QString::number(frameCount) + "...",
+                             ((float) iterationCount / (float) frameCount) * 100);
+        iterationCount++;
     }
 
     emit finished();
