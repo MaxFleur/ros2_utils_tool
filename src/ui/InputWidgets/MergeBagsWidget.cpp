@@ -45,6 +45,8 @@ MergeBagsWidget::MergeBagsWidget(Parameters::MergeBagsParameters& parameters, QW
     labelFont.setBold(true);
     m_sufficientSpaceLabel->setFont(labelFont);
 
+    m_deleteSourceCheckBox->setVisible(false);
+
     auto* const controlsLayout = new QVBoxLayout;
     controlsLayout->addStretch();
     controlsLayout->addWidget(m_headerPixmapLabel);
@@ -55,6 +57,7 @@ MergeBagsWidget::MergeBagsWidget(Parameters::MergeBagsParameters& parameters, QW
     controlsLayout->addWidget(m_treeWidget);
     controlsLayout->addWidget(m_targetBagNameWidget);
     controlsLayout->addWidget(m_sufficientSpaceLabel);
+    controlsLayout->addWidget(m_deleteSourceCheckBox);
     // Give it a more "squishy" look
     controlsLayout->setContentsMargins(30, 30, 30, 30);
     controlsLayout->addStretch();
@@ -192,6 +195,7 @@ MergeBagsWidget::createTopicTree(bool resetTopicsParameter)
     m_treeWidget->setVisible(true);
     m_targetBagNameWidget->setVisible(true);
     m_sufficientSpaceLabel->setVisible(true);
+    m_deleteSourceCheckBox->setVisible(true);
     m_okButton->setVisible(true);
 
     adjustSize();

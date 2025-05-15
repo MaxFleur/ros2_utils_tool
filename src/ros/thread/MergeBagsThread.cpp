@@ -45,5 +45,10 @@ MergeBagsThread::run()
     emit processing();
     // Do merge
     rosbag2_transport::bag_rewrite({ inputStorageFirstBag, inputStorageSecondBag }, outputBags);
+
+    if (m_parameters.deleteSource) {
+        std::filesystem::remove_all(m_sourceDirectory);
+        std::filesystem::remove_all(m_parameters.secondSourceDirectory.toStdString());
+    }
     emit finished();
 }

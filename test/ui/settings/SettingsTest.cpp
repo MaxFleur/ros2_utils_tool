@@ -172,36 +172,6 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
     }
-    SECTION("Merge Bags Params Test") {
-        SECTION("Read") {
-            qSettings.beginGroup("merge");
-            checkSettingsInvalidacy(qSettings, { "topics", "second_source" });
-            qSettings.endGroup();
-        }
-        SECTION("Write") {
-            Parameters::MergeBagsParameters parameters;
-            MergeBagsSettings settings(parameters, "merge");
-
-            parameters.secondSourceDirectory = "/path/to/other/bag";
-            parameters.topics.push_back({ "topic", "/path/to/other/bag", true });
-            settings.write();
-
-            qSettings.beginGroup("merge");
-            verifiySettingQString(qSettings, "second_source", "/path/to/other/bag");
-
-            const auto size = qSettings.beginReadArray("topics");
-            for (auto i = 0; i < size; ++i) {
-                qSettings.setArrayIndex(i);
-                verifiySettingQString(qSettings, "name", "topic");
-                verifiySettingQString(qSettings, "dir", "/path/to/other/bag");
-                verifiySettingPrimitive(qSettings, "is_selected", true);
-            }
-            REQUIRE(size == 1);
-            qSettings.endArray();
-
-            qSettings.endGroup();
-        }
-    }
     SECTION("PCDs to Bag Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("pcds_to_bag");
@@ -264,6 +234,36 @@ TEST_CASE("Settings Testing", "[ui]") {
                 verifiySettingQString(qSettings, "original_name", "original_topic");
                 verifiySettingPrimitive(qSettings, "lower_boundary", 42);
                 verifiySettingPrimitive(qSettings, "upper_boundary", 1337);
+                verifiySettingPrimitive(qSettings, "is_selected", true);
+            }
+            REQUIRE(size == 1);
+            qSettings.endArray();
+
+            qSettings.endGroup();
+        }
+    }
+    SECTION("Merge Bags Params Test") {
+        SECTION("Read") {
+            qSettings.beginGroup("merge");
+            checkSettingsInvalidacy(qSettings, { "topics", "second_source" });
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Parameters::MergeBagsParameters parameters;
+            MergeBagsSettings settings(parameters, "merge");
+
+            parameters.secondSourceDirectory = "/path/to/other/bag";
+            parameters.topics.push_back({ "topic", "/path/to/other/bag", true });
+            settings.write();
+
+            qSettings.beginGroup("merge");
+            verifiySettingQString(qSettings, "second_source", "/path/to/other/bag");
+
+            const auto size = qSettings.beginReadArray("topics");
+            for (auto i = 0; i < size; ++i) {
+                qSettings.setArrayIndex(i);
+                verifiySettingQString(qSettings, "name", "topic");
+                verifiySettingQString(qSettings, "dir", "/path/to/other/bag");
                 verifiySettingPrimitive(qSettings, "is_selected", true);
             }
             REQUIRE(size == 1);
