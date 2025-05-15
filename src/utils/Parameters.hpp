@@ -39,18 +39,6 @@ struct AdvancedParameters : BasicParameters {
     QString targetDirectory = "";
     bool    showAdvancedOptions = false;
 };
-struct MergeBagsParameters : AdvancedParameters {
-    struct MergeBagTopic {
-        QString name = "";
-        // Topic names might be identical across bags, but cannot be identical in the same bag.
-        // So store the bag directory as an additional identifier
-        QString bagDir = "";
-        bool    isSelected = true;
-    };
-
-    QVector<MergeBagTopic> topics = {};
-    QString                secondSourceDirectory = "";
-};
 struct PCDsToBagParameters : AdvancedParameters {
     int rate = 5;
 };
@@ -69,6 +57,18 @@ struct EditBagParameters : DeleteSourceParameters {
 
     QVector<EditBagTopic> topics = {};
     bool                  updateTimestamps = false;
+};
+struct MergeBagsParameters : DeleteSourceParameters {
+    struct MergeBagTopic {
+        QString name = "";
+        // Topic names might be identical across bags, but cannot be identical in the same bag.
+        // So store the bag directory as an additional identifier
+        QString bagDir = "";
+        bool    isSelected = true;
+    };
+
+    QVector<MergeBagTopic> topics = {};
+    QString                secondSourceDirectory = "";
 };
 struct CompressBagParameters : DeleteSourceParameters {
     bool compressPerMessage = false;

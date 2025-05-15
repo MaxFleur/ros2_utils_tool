@@ -43,9 +43,6 @@ EditBagWidget::EditBagWidget(Parameters::EditBagParameters& parameters, bool che
     m_editLabel->setFont(labelFont);
     m_differentDirsLabel->setFont(labelFont);
 
-    m_deleteSourceCheckBox = new QCheckBox("Delete Source Bag after Completion");
-    m_deleteSourceCheckBox->setTristate(false);
-    m_deleteSourceCheckBox->setChecked(m_parameters.deleteSource);
     m_deleteSourceCheckBox->setVisible(false);
 
     m_updateTimestampsCheckBox = new QCheckBox("Update Timestamps to current Time");
@@ -80,9 +77,6 @@ EditBagWidget::EditBagWidget(Parameters::EditBagParameters& parameters, bool che
 
     connect(m_findSourceButton, &QPushButton::clicked, this, [this] {
         createTopicTree(true);
-    });
-    connect(m_deleteSourceCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
-        writeParameterToSettings(m_parameters.deleteSource, state == Qt::Checked, m_settings);
     });
     connect(m_updateTimestampsCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.updateTimestamps, state == Qt::Checked, m_settings);

@@ -35,7 +35,6 @@ private:
     QPointer<QLabel> m_editLabel;
     QPointer<QLabel> m_differentDirsLabel;
 
-    QPointer<QCheckBox> m_deleteSourceCheckBox;
     QPointer<QCheckBox> m_updateTimestampsCheckBox;
 
     Parameters::EditBagParameters& m_parameters;
