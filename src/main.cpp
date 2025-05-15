@@ -2,8 +2,6 @@
 
 #include "rclcpp/rclcpp.hpp"
 
-#include <signal.h>
-
 #include <QApplication>
 
 int
@@ -16,14 +14,10 @@ main(int argc, char* argv[])
     MainWindow mainWindow;
     mainWindow.show();
 
-    rclcpp::Rate loopRate(60);
     while (rclcpp::ok()) {
         app.processEvents();
-        loopRate.sleep();
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
-
-    // Allow keyboard interrupts
-    signal(SIGINT, SIG_DFL);
 
     rclcpp::shutdown();
     return EXIT_SUCCESS;
