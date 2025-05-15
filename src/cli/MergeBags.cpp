@@ -140,7 +140,6 @@ main(int argc, char* argv[])
         signalStatus = signal;
     });
 
-    std::cout << "Merging bags. Please wait..." << std::endl;
     Utils::CLI::runThread(mergeBagsThread, signalStatus);
 
     return EXIT_SUCCESS;
