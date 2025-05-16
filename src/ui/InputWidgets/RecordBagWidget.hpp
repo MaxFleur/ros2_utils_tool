@@ -6,7 +6,6 @@
 
 #include <QPointer>
 
-class QFormLayout;
 class QLineEdit;
 class QWidget;
 
@@ -21,7 +20,7 @@ public:
 
 private slots:
     void
-    removeLineEdit();
+    removeLineEdit(int row);
 
     void
     createNewTopicLineEdit(const QString& topicName,
@@ -33,8 +32,6 @@ private:
 
 private:
     QVector<QPointer<QLineEdit> > m_topicLineEdits;
-
-    QPointer<QFormLayout> m_topicsFormLayout;
 
     Parameters::RecordBagParameters& m_parameters;
 
