@@ -19,15 +19,14 @@ TopicListingInputWidget::TopicListingInputWidget(Parameters::BasicParameters& pa
     BasicInputWidget(titleText, iconText, parent),
     m_parameters(parameters), m_settings(parameters, settingsIdentifierText)
 {
-    m_removeTopicButton = new QToolButton;
-    m_removeTopicButton->setToolTip("Remove the topic above.");
     m_addTopicButton = new QToolButton;
     m_addTopicButton->setToolTip("Add another topic.");
 
     m_topicButtonLayout = new QHBoxLayout;
     m_topicButtonLayout->addStretch();
-    m_topicButtonLayout->addWidget(m_removeTopicButton);
     m_topicButtonLayout->addWidget(m_addTopicButton);
+    m_topicButtonLayout->setSpacing(0);
+    m_topicButtonLayout->setContentsMargins(0, 0, 0, 0);
 
     m_controlsLayout = new QVBoxLayout;
     m_controlsLayout->addStretch();
@@ -98,7 +97,6 @@ TopicListingInputWidget::setPixmapLabelIcon() const
 {
     const auto isDarkMode = Utils::UI::isDarkMode();
     m_headerPixmapLabel->setPixmap(QIcon(isDarkMode ? m_iconPath + "_white.svg" : m_iconPath + "_black.svg").pixmap(QSize(100, 45)));
-    m_removeTopicButton->setIcon(QIcon(isDarkMode ? ":/icons/minus_white.svg" : ":/icons/minus_black.svg"));
     m_addTopicButton->setIcon(QIcon(isDarkMode ? ":/icons/plus_white.svg" : ":/icons/plus_black.svg"));
 }
 

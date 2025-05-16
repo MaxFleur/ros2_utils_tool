@@ -9,7 +9,11 @@
 
 #include <optional>
 
+class TopicWidget;
+
+class QFormLayout;
 class QHBoxLayout;
+class QLabel;
 class QToolButton;
 class QVBoxLayout;
 
@@ -44,9 +48,14 @@ protected:
     event(QEvent *event);
 
 protected:
-    QPointer<QToolButton> m_removeTopicButton;
+    // A QFormLayout provides no easy access to layout labels, so we keep them
+    // in an extra vector for renaming after a row was removed
+    QVector<QPointer<QLabel> > m_topicLabels;
+    QVector<QPointer<TopicWidget> > m_topicWidgets;
+
     QPointer<QToolButton> m_addTopicButton;
 
+    QPointer<QFormLayout> m_formLayout;
     QPointer<QHBoxLayout> m_topicButtonLayout;
     QPointer<QVBoxLayout> m_controlsLayout;
 
