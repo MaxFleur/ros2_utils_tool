@@ -176,11 +176,6 @@ EditBagWidget::createTopicTree(bool newTreeRequested)
     m_treeWidget->resizeColumnToContents(COL_TOPIC_TYPE);
     m_treeWidget->resizeColumnToContents(COL_MESSAGE_COUNT);
     m_treeWidget->resizeColumnToContents(COL_RENAMING);
-    m_treeWidget->setColumnWidth(COL_TOPIC_NAME, m_treeWidget->columnWidth(COL_TOPIC_NAME) + 10);
-    m_treeWidget->setColumnWidth(COL_TOPIC_TYPE, m_treeWidget->columnWidth(COL_TOPIC_TYPE) + 10);
-    // Adjusting the size will for whatever reason reset the column width above
-    const auto keptWidth = width() + BUFFER_SPACE;
-
     m_treeWidget->blockSignals(false);
 
     m_editLabel->setVisible(true);
@@ -190,9 +185,6 @@ EditBagWidget::createTopicTree(bool newTreeRequested)
     m_deleteSourceCheckBox->setVisible(true);
     m_updateTimestampsCheckBox->setVisible(true);
     m_okButton->setVisible(true);
-
-    adjustSize();
-    resize(QSize(keptWidth, height()));
 }
 
 
