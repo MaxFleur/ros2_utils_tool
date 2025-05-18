@@ -1,0 +1,29 @@
+name: kilted
+
+on: [push]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  run_kilted:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: kilted
+
+      - name: Install dependencies
+        run: sudo apt update && sudo apt install -y qt6-base-dev ros-kilted-catch-ros2
+
+      - name: Create workspace and copy repo there
+        run: mkdir -p ros2_ws/src/ros2_utils_tool && cp -r resources src test CMakeLists.txt package.xml ros2_ws/src/ros2_utils_tool
+
+      - name: Source ROS and build ws
+        run: cd ros2_ws && source /opt/ros/kilted/setup.bash && colcon build --packages-select ros2_utils_tool
+
+      - name: Source ws and run tests
+        run: cd ros2_ws && source install/setup.bash && ros2 run ros2_utils_tool tool_tests

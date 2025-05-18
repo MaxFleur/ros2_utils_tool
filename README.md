@@ -4,6 +4,7 @@
    ![C++ badge](https://img.shields.io/badge/C++-20-blue.svg)
    ![Humble badge](https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/humble.yml/badge.svg?event=push)
    ![Jazzy badge](https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/jazzy.yml/badge.svg?event=push)
+   ![Kilted badge](https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/kilted.yml/badge.svg?event=push)
    ![Rolling badge](https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/rolling.yml/badge.svg?event=push)
    ![Tag badge](https://img.shields.io/badge/Release-v0.11.0-blue.svg)
 
