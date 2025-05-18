@@ -128,7 +128,7 @@ EditBagWidget::createTopicTree(bool newTreeRequested)
         if (!itemAlreadyExists) {
             Parameters::EditBagParameters::EditBagTopic editBagTopic;
             editBagTopic.originalTopicName = QString::fromStdString(topicMetaData.name);
-            editBagTopic.upperBoundary = topicWithMessageCount.message_count;
+            editBagTopic.upperBoundary = topicWithMessageCount.message_count - 1;
             m_parameters.topics.push_back(editBagTopic);
         }
 
