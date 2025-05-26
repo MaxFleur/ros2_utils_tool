@@ -30,7 +30,7 @@ protected:
     void
     writeParameter(const QString& groupName,
                    const QString& identifier,
-                   T              parameter)
+                   T              parameter) const
     {
         QSettings settings;
         settings.beginGroup(groupName);
@@ -45,7 +45,7 @@ protected:
     void
     writeParameter(QSettings&     settings,
                    const QString& identifier,
-                   T              parameter)
+                   T              parameter) const
     {
         if (settings.value(identifier).value<T>() == parameter) {
             return;
@@ -66,7 +66,7 @@ protected:
     T
     readParameter(const QString& groupName,
                   const QString& identifier,
-                  T              defaultValue)
+                  T              defaultValue) const
     {
         QSettings settings;
         settings.beginGroup(groupName);
@@ -83,7 +83,7 @@ protected:
     T
     readParameter(QSettings&     settings,
                   const QString& identifier,
-                  T              defaultValue)
+                  T              defaultValue) const
     {
         T value;
         if constexpr (std::is_same_v<T, int> || std::is_same_v<T, unsigned int> ) {

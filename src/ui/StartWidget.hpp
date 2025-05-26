@@ -36,7 +36,7 @@ private:
                    bool     otherItemVisibility);
 
     QPointer<QToolButton>
-    createToolButton(const QString& buttonText);
+    createToolButton(const QString& buttonText) const;
 
     void
     setButtonIcons();

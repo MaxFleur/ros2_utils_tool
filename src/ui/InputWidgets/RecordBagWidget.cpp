@@ -1,10 +1,9 @@
 #include "RecordBagWidget.hpp"
 
-#include "UtilsROS.hpp"
+#include "TopicWidget.hpp"
 #include "UtilsUI.hpp"
 
 #include <QCheckBox>
-#include <QCompleter>
 #include <QFormLayout>
 #include <QLabel>
 #include <QPushButton>
@@ -28,11 +27,11 @@ RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QW
     auto* const manageTopicsButtonWidget = new QWidget;
     manageTopicsButtonWidget->setLayout(m_topicButtonLayout);
 
-    m_topicsFormLayout = new QFormLayout;
-    m_topicsFormLayout->addRow("", manageTopicsButtonWidget);
+    m_formLayout = new QFormLayout;
+    m_formLayout->addRow("", manageTopicsButtonWidget);
 
     auto* const topicsWidget = new QWidget;
-    topicsWidget->setLayout(m_topicsFormLayout);
+    topicsWidget->setLayout(m_formLayout);
     topicsWidget->setVisible(!m_parameters.allTopics);
 
     auto* const advancedOptionsCheckBox = new QCheckBox;
@@ -77,7 +76,6 @@ RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QW
         addNewTopic();
     }
 
-    connect(m_removeTopicButton, &QPushButton::clicked, this, &RecordBagWidget::removeLineEdit);
     connect(m_addTopicButton, &QPushButton::clicked, this, [addNewTopic] {
         addNewTopic();
     });
@@ -101,48 +99,48 @@ RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QW
 
 
 void
-RecordBagWidget::removeLineEdit()
+RecordBagWidget::removeLineEdit(int row)
 {
-    m_topicsFormLayout->removeRow(m_parameters.topics.size() - 1);
-    m_topicLineEdits.pop_back();
-    m_parameters.topics.pop_back();
+    m_formLayout->removeRow(row);
+    m_topicLabels.remove(row);
+    m_topicWidgets.remove(row);
+    m_parameters.topics.remove(row);
     m_settings.write();
     m_numberOfTopics--;
 
-    m_removeTopicButton->setEnabled(m_parameters.topics.size() != 1);
+    for (auto i = 0; i < m_topicLabels.size(); ++i) {
+        m_topicLabels[i]->setText("Topic " + QString::number(i + 1) + ":");
+    }
 }
 
 
 void
 RecordBagWidget::createNewTopicLineEdit(const QString& topicName, int index)
 {
-    const auto& currentTopicsAndTypes = Utils::ROS::getTopicInformation();
-    QStringList wordList;
-    for (const auto& currentTopic : currentTopicsAndTypes) {
-        wordList.append(QString::fromStdString(currentTopic.first));
-    }
+    m_topicLabels.push_back(new QLabel("Topic " + QString::number(m_numberOfTopics + 1) + ":"));
 
-    auto* const completer = new QCompleter(wordList);
-    completer->setCaseSensitivity(Qt::CaseInsensitive);
+    auto* const topicWidget = new TopicWidget(false, m_numberOfTopics != 0, "", topicName);
+    m_topicWidgets.push_back(topicWidget);
+    // Keep it all inside the main form layout
+    // Ensure that the plus button stays below the newly formed widget
+    m_formLayout->insertRow(m_formLayout->rowCount() - 1, m_topicLabels.back(), topicWidget);
 
-    auto* const topicLineEdit = new QLineEdit(topicName);
-    topicLineEdit->setPlaceholderText("Enter Topic Name...");
-    topicLineEdit->setCompleter(completer);
-
-    connect(topicLineEdit, &QLineEdit::textChanged, this, [this, index] (const QString& text) {
+    connect(topicWidget, &TopicWidget::topicNameChanged, this, [this, index] (const QString& text) {
         writeParameterToSettings(m_parameters.topics[index], text, m_settings);
     });
-
-    m_topicsFormLayout->insertRow(m_topicsFormLayout->rowCount() - 1, "Topic " + QString::number(m_numberOfTopics + 1) + ":", topicLineEdit);
-    m_topicLineEdits.push_back(topicLineEdit);
+    connect(topicWidget, &TopicWidget::topicRemoveButtonClicked, this, [this, topicWidget] {
+        removeLineEdit(topicWidget->property("id").toInt());
+    });
 
     m_numberOfTopics++;
-    m_removeTopicButton->setEnabled(m_parameters.topics.size() != 1);
+    for (auto i = 0; i < m_numberOfTopics; i++) {
+        m_topicWidgets[i]->setProperty("id", i);
+    }
 }
 
 
 std::optional<bool>
-RecordBagWidget::areTopicsValid()
+RecordBagWidget::areTopicsValid() const
 {
     QSet<QString> topicNameSet;
     for (QPointer<QLineEdit> lineEdit : m_topicLineEdits) {

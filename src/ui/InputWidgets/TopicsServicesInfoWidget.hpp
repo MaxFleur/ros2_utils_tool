@@ -17,7 +17,7 @@ public:
 
 private:
     void
-    fillTree();
+    fillTree() const;
 
 private:
     QPointer<QTreeWidget> m_treeWidget;

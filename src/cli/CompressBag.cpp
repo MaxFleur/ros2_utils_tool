@@ -18,7 +18,7 @@ showHelp()
     std::cout << "Usage: ros2 run mediassist4_ros_tools tool_compress_bag path/to/uncompressed/source/bag /path/to/compressed/target/bag \n" << std::endl;
     std::cout << "Additional parameters:" << std::endl;
     std::cout << "-m or --mode (file/message): Compress per file (file) or per message (message). File is default." << std::endl;
-    std::cout << "-k or --keep: Keep the source file after completion." << std::endl;
+    std::cout << "-d or --delete: Delete the source file after completion." << std::endl;
     std::cout << "-h or --help: Show this help." << std::endl;
 }
 
@@ -36,7 +36,7 @@ main(int argc, char* argv[])
         showHelp();
         return 0;
     }
-    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, { "-m", "--mode", "-k", "--keep" }); argument != std::nullopt) {
+    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, { "-m", "--mode", "-d", "--delete" }); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
     }
@@ -59,7 +59,6 @@ main(int argc, char* argv[])
     parameters.targetDirectory = arguments.at(2);
     Utils::CLI::checkParentDirectory(parameters.targetDirectory);
 
-    parameters.deleteSource = true;
     // Check for optional arguments
     if (arguments.size() > 3) {
         // Mode
@@ -72,7 +71,7 @@ main(int argc, char* argv[])
         }
 
         // Delete source
-        parameters.deleteSource = !Utils::CLI::containsArguments(arguments, "-k", "--keep");
+        parameters.deleteSource = Utils::CLI::containsArguments(arguments, "-d", "--delete");
     }
 
     if (std::filesystem::exists(parameters.targetDirectory.toStdString())) {

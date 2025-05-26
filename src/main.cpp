@@ -10,6 +10,7 @@ main(int argc, char* argv[])
     // Initialize ROS and Qt
     rclcpp::init(argc, argv);
     QApplication app(argc, argv);
+    app.setWindowIcon(QIcon(":/icons/main.svg"));
 
     MainWindow mainWindow;
     mainWindow.show();

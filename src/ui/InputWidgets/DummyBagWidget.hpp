@@ -7,9 +7,6 @@
 #include <QPointer>
 #include <QWidget>
 
-class DummyTopicWidget;
-
-class QFormLayout;
 class QSpinBox;
 
 // Widget used to manage creating a ROS bag with dummy data
@@ -24,7 +21,7 @@ public:
 
 private slots:
     void
-    removeDummyTopicWidget();
+    removeDummyTopicWidget(int row);
 
     void
     createNewDummyTopicWidget(const Parameters::DummyBagParameters::DummyBagTopic& topics,
@@ -35,12 +32,9 @@ private slots:
 
 private:
     std::optional<bool>
-    areTopicsValid() override;
+    areTopicsValid() const override;
 
 private:
-    QVector<QPointer<DummyTopicWidget> > m_dummyTopicWidgets;
-
-    QPointer<QFormLayout> m_formLayout;
     QPointer<QSpinBox> m_rateSpinBox;
 
     Parameters::DummyBagParameters& m_parameters;

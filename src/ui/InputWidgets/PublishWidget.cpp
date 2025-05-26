@@ -193,7 +193,7 @@ PublishWidget::scaleCheckBoxPressed(int state)
 
 
 void
-PublishWidget::okButtonPressed()
+PublishWidget::okButtonPressed() const
 {
     if (!m_okButton->isEnabled()) {
         return;

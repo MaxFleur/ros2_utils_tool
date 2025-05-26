@@ -43,9 +43,6 @@ EditBagWidget::EditBagWidget(Parameters::EditBagParameters& parameters, bool che
     m_editLabel->setFont(labelFont);
     m_differentDirsLabel->setFont(labelFont);
 
-    m_deleteSourceCheckBox = new QCheckBox("Delete Source Bag after Completion");
-    m_deleteSourceCheckBox->setTristate(false);
-    m_deleteSourceCheckBox->setChecked(m_parameters.deleteSource);
     m_deleteSourceCheckBox->setVisible(false);
 
     m_updateTimestampsCheckBox = new QCheckBox("Update Timestamps to current Time");
@@ -80,9 +77,6 @@ EditBagWidget::EditBagWidget(Parameters::EditBagParameters& parameters, bool che
 
     connect(m_findSourceButton, &QPushButton::clicked, this, [this] {
         createTopicTree(true);
-    });
-    connect(m_deleteSourceCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
-        writeParameterToSettings(m_parameters.deleteSource, state == Qt::Checked, m_settings);
     });
     connect(m_updateTimestampsCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.updateTimestamps, state == Qt::Checked, m_settings);
@@ -134,7 +128,7 @@ EditBagWidget::createTopicTree(bool newTreeRequested)
         if (!itemAlreadyExists) {
             Parameters::EditBagParameters::EditBagTopic editBagTopic;
             editBagTopic.originalTopicName = QString::fromStdString(topicMetaData.name);
-            editBagTopic.upperBoundary = topicWithMessageCount.message_count;
+            editBagTopic.upperBoundary = topicWithMessageCount.message_count - 1;
             m_parameters.topics.push_back(editBagTopic);
         }
 
@@ -182,11 +176,6 @@ EditBagWidget::createTopicTree(bool newTreeRequested)
     m_treeWidget->resizeColumnToContents(COL_TOPIC_TYPE);
     m_treeWidget->resizeColumnToContents(COL_MESSAGE_COUNT);
     m_treeWidget->resizeColumnToContents(COL_RENAMING);
-    m_treeWidget->setColumnWidth(COL_TOPIC_NAME, m_treeWidget->columnWidth(COL_TOPIC_NAME) + 10);
-    m_treeWidget->setColumnWidth(COL_TOPIC_TYPE, m_treeWidget->columnWidth(COL_TOPIC_TYPE) + 10);
-    // Adjusting the size will for whatever reason reset the column width above
-    const auto keptWidth = width() + BUFFER_SPACE;
-
     m_treeWidget->blockSignals(false);
 
     m_editLabel->setVisible(true);
@@ -196,9 +185,6 @@ EditBagWidget::createTopicTree(bool newTreeRequested)
     m_deleteSourceCheckBox->setVisible(true);
     m_updateTimestampsCheckBox->setVisible(true);
     m_okButton->setVisible(true);
-
-    adjustSize();
-    resize(QSize(keptWidth, height()));
 }
 
 
@@ -219,7 +205,7 @@ EditBagWidget::itemCheckStateChanged(QTreeWidgetItem* item, int column)
 
 
 void
-EditBagWidget::okButtonPressed()
+EditBagWidget::okButtonPressed() const
 {
     auto areROS2NamesValid = true;
     for (const auto& topic : m_parameters.topics) {

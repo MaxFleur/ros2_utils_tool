@@ -1,14 +1,14 @@
 #pragma once
 
-#include "AdvancedSettings.hpp"
 #include "BasicInputWidget.hpp"
+#include "DeleteSourceSettings.hpp"
 #include "Parameters.hpp"
 
-#include <QLineEdit>
 #include <QPointer>
 #include <QWidget>
 
-class QLabel;
+class QCheckBox;
+class QLineEdit;
 class QTreeWidget;
 class QTreeWidgetItem;
 
@@ -18,11 +18,11 @@ class BasicBagWidget : public BasicInputWidget
     Q_OBJECT
 public:
     explicit
-    BasicBagWidget(Parameters::AdvancedParameters& parameters,
-                   const QString&                  titleText,
-                   const QString&                  iconText,
-                   const QString&                  settingsIdentifierText,
-                   QWidget*                        parent = 0);
+    BasicBagWidget(Parameters::DeleteSourceParameters& parameters,
+                   const QString&                      titleText,
+                   const QString&                      iconText,
+                   const QString&                      settingsIdentifierText,
+                   QWidget*                            parent = 0);
 
 protected slots:
     virtual void
@@ -36,12 +36,13 @@ protected:
     [[nodiscard]] bool
     areIOParametersValid(int            topicSize,
                          int            topicSizeWithoutDuplicates,
-                         const QString& secondSourceParameter = QString());
+                         const QString& secondSourceParameter = QString()) const;
 
 protected:
     QPointer<QTreeWidget> m_treeWidget;
 
     QPointer<QLineEdit> m_targetLineEdit;
+    QPointer<QCheckBox> m_deleteSourceCheckBox;
 
     QPointer<QWidget> m_targetBagNameWidget;
 
@@ -50,7 +51,7 @@ protected:
     static constexpr int COL_TOPIC_TYPE = 2;
 
 private:
-    Parameters::AdvancedParameters& m_parameters;
+    Parameters::DeleteSourceParameters& m_parameters;
 
-    AdvancedSettings m_settings;
+    DeleteSourceSettings m_settings;
 };

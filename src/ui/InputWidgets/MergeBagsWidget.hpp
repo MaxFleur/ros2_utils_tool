@@ -29,7 +29,7 @@ private slots:
                           int              column) override;
 
     void
-    okButtonPressed();
+    okButtonPressed() const;
 
 private:
     QPointer<QLineEdit> m_secondSourceLineEdit;

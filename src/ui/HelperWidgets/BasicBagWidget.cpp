@@ -17,7 +17,7 @@
 
 #include <filesystem>
 
-BasicBagWidget::BasicBagWidget(Parameters::AdvancedParameters& parameters,
+BasicBagWidget::BasicBagWidget(Parameters::DeleteSourceParameters& parameters,
                                const QString& titleText, const QString& iconText, const QString& settingsIdentifierText,
                                QWidget *parent) :
     BasicInputWidget(titleText, iconText, parent),
@@ -29,6 +29,10 @@ BasicBagWidget::BasicBagWidget(Parameters::AdvancedParameters& parameters,
         writeParameterToSettings(m_parameters.sourceDirectory, QString(), m_settings);
     }
     m_sourceLineEdit->setText(m_parameters.sourceDirectory);
+
+    m_deleteSourceCheckBox = new QCheckBox("Delete Source Bag File(s) after Completion");
+    m_deleteSourceCheckBox->setTristate(false);
+    m_deleteSourceCheckBox->setChecked(m_parameters.deleteSource);
 
     m_treeWidget = new QTreeWidget;
     m_treeWidget->setVisible(false);
@@ -55,6 +59,9 @@ BasicBagWidget::BasicBagWidget(Parameters::AdvancedParameters& parameters,
 
     connect(m_treeWidget, &QTreeWidget::itemChanged, this, &BasicBagWidget::itemCheckStateChanged);
     connect(targetPushButton, &QPushButton::clicked, this, &BasicBagWidget::targetPushButtonPressed);
+    connect(m_deleteSourceCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
+        writeParameterToSettings(m_parameters.deleteSource, state == Qt::Checked, m_settings);
+    });
 }
 
 
@@ -82,7 +89,7 @@ BasicBagWidget::targetPushButtonPressed()
 
 bool
 BasicBagWidget::areIOParametersValid(int topicSize, int topicSizeWithOutDuplicates,
-                                     const QString& secondSourceParameter)
+                                     const QString& secondSourceParameter) const
 {
     QVector<QString> sourceParameters = { m_parameters.sourceDirectory };
     if (!secondSourceParameter.isEmpty()) {

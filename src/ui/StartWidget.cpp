@@ -12,7 +12,7 @@
 StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget *parent) :
     QWidget(parent), m_dialogParameters(dialogParameters)
 {
-    m_headerLabel = new QLabel("ROS TOOLS");
+    m_headerLabel = new QLabel("ROS2 UTILS TOOL");
     Utils::UI::setWidgetFontSize(m_headerLabel);
     m_headerLabel->setAlignment(Qt::AlignHCenter);
 
@@ -159,9 +159,9 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     backButtonLayout->addWidget(m_backButton);
     backButtonLayout->addStretch();
 
-    m_versionLabel = new QLabel("v0.11.0");
-    m_versionLabel->setToolTip("UI-based bag recording and topic/service listing,\n"
-                               "rate for dummy bags and many UI-improvements!");
+    m_versionLabel = new QLabel("v0.12.0");
+    m_versionLabel->setToolTip("UI and CLI usability improvements,\n"
+                               "better conversion tools performance and many bug fixes!");
 
     auto* const versionLayout = new QHBoxLayout;
     versionLayout->addStretch();
@@ -302,7 +302,7 @@ StartWidget::replaceWidgets(QWidget* fromWidget, QWidget* toWidget, int widgetId
 
     switch (m_widgetOnInstantiation) {
     case WIDGET_OVERALL:
-        m_headerLabel->setText("ROS TOOLS");
+        m_headerLabel->setText("ROS2 UTILS TOOL");
         break;
     case WIDGET_CONVERSION:
         m_headerLabel->setText("CONVERSION TOOLS");
@@ -327,7 +327,7 @@ StartWidget::replaceWidgets(QWidget* fromWidget, QWidget* toWidget, int widgetId
 
 
 QPointer<QToolButton>
-StartWidget::createToolButton(const QString& buttonText)
+StartWidget::createToolButton(const QString& buttonText) const
 {
     auto* const toolButton = new QToolButton;
     toolButton->setText(buttonText);

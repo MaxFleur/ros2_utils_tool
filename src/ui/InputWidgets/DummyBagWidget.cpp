@@ -1,6 +1,6 @@
 #include "DummyBagWidget.hpp"
 
-#include "DummyTopicWidget.hpp"
+#include "TopicWidget.hpp"
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
@@ -60,7 +60,6 @@ DummyBagWidget::DummyBagWidget(Parameters::DummyBagParameters& parameters, bool 
         writeParameterToSettings(m_parameters.messageCount, value, m_settings);
     });
     connect(useCustomRateCheckBox, &QCheckBox::stateChanged, this, &DummyBagWidget::useCustomRateCheckBoxPressed);
-    connect(m_removeTopicButton, &QPushButton::clicked, this, &DummyBagWidget::removeDummyTopicWidget);
     connect(m_addTopicButton, &QPushButton::clicked, this, [addNewTopic] {
         addNewTopic();
     });
@@ -71,40 +70,49 @@ DummyBagWidget::DummyBagWidget(Parameters::DummyBagParameters& parameters, bool 
 
 
 void
-DummyBagWidget::removeDummyTopicWidget()
+DummyBagWidget::removeDummyTopicWidget(int row)
 {
-    m_formLayout->removeRow(m_parameters.topics.size());
-    m_dummyTopicWidgets.pop_back();
-    m_parameters.topics.pop_back();
+    m_formLayout->removeRow(row);
+    m_topicLabels.remove(row - 1);
+    m_topicWidgets.remove(row - 1);
+    m_parameters.topics.remove(row - 1);
     m_settings.write();
     m_numberOfTopics--;
 
+    for (auto i = 0; i < m_topicLabels.size(); ++i) {
+        m_topicLabels[i]->setText("Topic " + QString::number(i + 1));
+    }
+
     m_addTopicButton->setEnabled(m_numberOfTopics != MAXIMUM_NUMBER_OF_TOPICS);
-    m_removeTopicButton->setEnabled(m_parameters.topics.size() != 1);
 }
 
 
 void
 DummyBagWidget::createNewDummyTopicWidget(const Parameters::DummyBagParameters::DummyBagTopic& topic, int index)
 {
-    auto* const dummyTopicWidget = new DummyTopicWidget(topic.type, topic.name);
+    m_topicLabels.push_back(new QLabel("Topic " + QString::number(m_numberOfTopics + 1) + ":"));
 
-    connect(dummyTopicWidget, &DummyTopicWidget::topicTypeChanged, this, [this, index] (const QString& text) {
+    auto* const topicWidget = new TopicWidget(true, m_numberOfTopics != 0, topic.type, topic.name);
+    m_topicWidgets.push_back(topicWidget);
+    // Keep it all inside the main form layout
+    // Ensure that the plus button stays below the newly formed widget
+    m_formLayout->insertRow(m_formLayout->rowCount() - 3, m_topicLabels.back(), topicWidget);
+
+    connect(topicWidget, &TopicWidget::topicTypeChanged, this, [this, index] (const QString& text) {
         writeParameterToSettings(m_parameters.topics[index].type, text, m_settings);
     });
-    connect(dummyTopicWidget, &DummyTopicWidget::topicNameChanged, this, [this, index] (const QString& text) {
+    connect(topicWidget, &TopicWidget::topicNameChanged, this, [this, index] (const QString& text) {
         writeParameterToSettings(m_parameters.topics[index].name, text, m_settings);
     });
-
-    // Keep it all inside the main form layout
-    // Ensure that the plus and minus button stay below the newly formed widget (row count 4 means no topic widgets yet)
-    m_formLayout->insertRow(m_formLayout->rowCount() == 4 ? m_formLayout->rowCount() - 3 : m_formLayout->rowCount() - 4,
-                            "Topic " + QString::number(m_numberOfTopics + 1) + ":", dummyTopicWidget);
-    m_dummyTopicWidgets.push_back(dummyTopicWidget);
+    connect(topicWidget, &TopicWidget::topicRemoveButtonClicked, this, [this, topicWidget] {
+        removeDummyTopicWidget(topicWidget->property("id").toInt());
+    });
 
     m_numberOfTopics++;
+    for (auto i = 0; i < m_numberOfTopics; i++) {
+        m_topicWidgets[i]->setProperty("id", i + 1);
+    }
     m_addTopicButton->setEnabled(m_numberOfTopics != MAXIMUM_NUMBER_OF_TOPICS);
-    m_removeTopicButton->setEnabled(m_parameters.topics.size() != 1);
 }
 
 
@@ -130,12 +138,12 @@ DummyBagWidget::useCustomRateCheckBoxPressed(int state)
 
 
 std::optional<bool>
-DummyBagWidget::areTopicsValid()
+DummyBagWidget::areTopicsValid() const
 {
     auto areROS2NamesValid = true;
     QSet<QString> topicNameSet;
 
-    for (QPointer<DummyTopicWidget> dummyTopicWidget : m_dummyTopicWidgets) {
+    for (auto dummyTopicWidget : m_topicWidgets) {
         if (dummyTopicWidget->getTopicName().isEmpty()) {
             Utils::UI::createCriticalMessageBox("Empty topic name!", "Please enter a topic name for every topic!");
             return std::nullopt;
@@ -151,5 +159,5 @@ DummyBagWidget::areTopicsValid()
         topicNameSet.insert(dummyTopicWidget->getTopicName());
     }
 
-    return topicNameSet.size() == m_dummyTopicWidgets.size();
+    return topicNameSet.size() == m_topicWidgets.size();
 }

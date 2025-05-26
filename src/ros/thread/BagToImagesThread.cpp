@@ -47,48 +47,64 @@ BagToImagesThread::run()
     rosbag2_cpp::Reader reader;
     reader.open(m_sourceDirectory);
     std::deque<rosbag2_storage::SerializedBagMessageSharedPtr> queue;
-    constexpr int maximumInstancesForQueue = 100;
 
     rclcpp::Serialization<sensor_msgs::msg::Image> serialization;
     auto iterationCount = 0;
     std::mutex mutex;
 
-    // Read 100 messages into queue
-    const auto readMessagesToQueue = [this, &reader, &queue] {
-        auto i = 0;
+    const auto pushMessagesToQueue = [this, &reader, &queue, &mutex] {
+        constexpr auto maximumInstancesForQueue = 100;
+        rosbag2_storage::SerializedBagMessageSharedPtr message;
 
-        while (reader.has_next() && i < maximumInstancesForQueue) {
+        while (reader.has_next()) {
             if (isInterruptionRequested()) {
                 return;
             }
 
-            auto message = reader.read_next();
-            if (message->topic_name != m_topicName) {
-                continue;
+            // Limit queue size to 100
+            while (queue.size() < maximumInstancesForQueue) {
+                mutex.lock();
+                if (isInterruptionRequested() || !reader.has_next()) {
+                    mutex.unlock();
+                    break;
+                }
+
+                message = reader.read_next();
+                if (message->topic_name != m_topicName) {
+                    mutex.unlock();
+                    continue;
+                }
+                queue.push_front(message);
+                mutex.unlock();
             }
-            queue.push_front(message);
-            i++;
         }
     };
 
-    const auto writeImageFromQueue = [this, &targetDirectoryStd, &mutex, &iterationCount, &queue,
-                                      serialization, messageCount, messageCountNumberOfDigits] {
+    cv_bridge::CvImagePtr cvPointer;
+    auto rosMessage = std::make_shared<sensor_msgs::msg::Image>();
+
+    const auto writeImageFromQueue = [this, &targetDirectoryStd, &reader, &queue, &iterationCount, &mutex, &cvPointer,
+                                      rosMessage, serialization, messageCount, messageCountNumberOfDigits] {
         while (true) {
             mutex.lock();
-
-            if (isInterruptionRequested() || queue.empty()) {
+            // Stop if interrupted or if everything has been read
+            if (isInterruptionRequested() || (queue.empty() && !reader.has_next())) {
                 mutex.unlock();
                 break;
+            }
+            // Queue might be empty, but there might still be more messages to come
+            if (queue.empty()) {
+                mutex.unlock();
+                continue;
             }
 
             // Deserialize
             rclcpp::SerializedMessage serializedMessage(*queue.back()->serialized_data);
-            auto rosMsg = std::make_shared<sensor_msgs::msg::Image>();
-            serialization.deserialize_message(&serializedMessage, rosMsg.get());
+            serialization.deserialize_message(&serializedMessage, rosMessage.get());
             queue.pop_back();
 
             // Convert message to cv
-            auto cvPointer = cv_bridge::toCvCopy(*rosMsg, rosMsg->encoding);
+            cvPointer = cv_bridge::toCvCopy(rosMessage, rosMessage->encoding);
             // Convert to grayscale
             if (m_parameters.format == "png" && m_parameters.pngBilevel) {
                 // Converting to a different channel seems to be saver then converting
@@ -126,24 +142,25 @@ BagToImagesThread::run()
     // Writing images might take lots of time, especially if higher compression is used. Thus, we aim to multithread the image writing.
     // However, the reader does not support parallel reading, thus we store the messages in a queue for parallel access.
     // Messages have a pretty large size and storing all of them at once might lead to an overflow quickly, though.
-    // Thus, iterate through the bag in steps of 100 messages:
-    // 1. Read 100 messages into the queue
-    // 2. Write messages to images, emptying the queue
-    // 3. Repeat until done
+    // Thus, we use a central queue storing up to 100 messages. One thread constantly writes messages into the queue,
+    // while the remaining threads will read messages out of and remove them from the queue.
     while (reader.has_next()) {
         if (isInterruptionRequested()) {
             return;
         }
 
-        readMessagesToQueue();
+        auto readingThread = std::thread([&pushMessagesToQueue] {
+            pushMessagesToQueue();
+        });
 
         std::vector<std::thread> threadPool;
-        for (unsigned int i = 0; i < m_numberOfThreads; ++i) {
+        for (unsigned int i = 0; i < m_numberOfThreads - 1; ++i) {
             threadPool.emplace_back(writeImageFromQueue);
         }
         for (auto& thread : threadPool) {
             thread.join();
         }
+        readingThread.join();
     }
 
     reader.close();

@@ -2,7 +2,7 @@
 
 MergeBagsSettings::MergeBagsSettings(Parameters::MergeBagsParameters& parameters,
                                      const QString&                   groupName) :
-    AdvancedSettings(parameters, groupName), m_parameters(parameters)
+    DeleteSourceSettings(parameters, groupName), m_parameters(parameters)
 {
     read();
 }
@@ -11,7 +11,7 @@ MergeBagsSettings::MergeBagsSettings(Parameters::MergeBagsParameters& parameters
 bool
 MergeBagsSettings::write()
 {
-    if (!AdvancedSettings::write()) {
+    if (!DeleteSourceSettings::write()) {
         return false;
     }
 
@@ -37,7 +37,7 @@ MergeBagsSettings::write()
 bool
 MergeBagsSettings::read()
 {
-    if (!AdvancedSettings::read()) {
+    if (!DeleteSourceSettings::read()) {
         return false;
     }
 

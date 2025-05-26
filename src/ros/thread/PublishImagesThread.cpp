@@ -23,9 +23,7 @@ PublishImagesThread::PublishImagesThread(const Parameters::PublishParameters& pa
 void
 PublishImagesThread::run()
 {
-    rclcpp::Rate rate(m_parameters.fps);
     std::set<std::filesystem::path> sortedImagesSet;
-    auto iterator = 0;
     auto frameCount = 0;
 
     emit informOfGatheringData();
@@ -38,53 +36,65 @@ PublishImagesThread::run()
         sortedImagesSet.insert(entry.path());
         frameCount++;
     }
+    auto setIterator = sortedImagesSet.begin();
 
-    const auto publishImageFiles = [this, &sortedImagesSet, &iterator, &rate, frameCount] {
-        for (auto const& fileName : sortedImagesSet) {
-            if (isInterruptionRequested()) {
-                break;
-            }
-            // Read image from file
-            auto mat = cv::imread(fileName, cv::IMREAD_COLOR);
-            if (mat.empty()) {
-                continue;
-            }
+    cv::Mat frame;
+    sensor_msgs::msg::Image message;
 
-            if (m_parameters.exchangeRedBlueValues) {
-                cv::cvtColor(mat, mat, cv::COLOR_BGR2RGB);
-            }
-            if (m_parameters.scale) {
-                cv::resize(mat, mat, cv::Size(m_parameters.width, m_parameters.height), 0, 0);
-            }
+    cv_bridge::CvImage cvBridge;
+    cvBridge.encoding = sensor_msgs::image_encodings::BGR8;
 
-            // Create empty sensor message
-            sensor_msgs::msg::Image message;
-            std_msgs::msg::Header header;
-            // Convert and write image
-            const auto cvBridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::BGR8, mat);
-            cvBridge.toImageMsg(message);
-
-            m_publisher->publish(message);
-            // Spin to publish the next frame
-            rclcpp::spin_some(m_node);
-
-            emit progressChanged("Publishing image " + QString::number(iterator + 1) + " of " + QString::number(frameCount) + "...", PROGRESS);
-            iterator++;
-
-            rate.sleep();
-        }
-
-        iterator = 0;
-    };
-
-    do {
+    const int rate = ((1000 / (float) m_parameters.fps) * 1000);
+    auto iterator = 0;
+    auto timer = m_node->create_wall_timer(std::chrono::microseconds(rate),
+                                           [this, &iterator, &setIterator, &frame, &cvBridge, &message, sortedImagesSet, frameCount] {
         if (isInterruptionRequested()) {
-            break;
+            return;
         }
-        publishImageFiles();
-    }
-    // Loop if set
-    while (m_parameters.loop);
 
+        // Loop if set
+        if (iterator == frameCount) {
+            if (m_parameters.loop) {
+                setIterator = sortedImagesSet.begin();
+                iterator = 0;
+            } else {
+                return;
+            }
+        }
+
+        // Read image from file
+        frame = cv::imread(*setIterator, cv::IMREAD_COLOR);
+        if (frame.empty()) {
+            iterator++;
+            setIterator++;
+            return;
+        }
+
+        if (m_parameters.exchangeRedBlueValues) {
+            cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
+        }
+        if (m_parameters.scale) {
+            cv::resize(frame, frame, cv::Size(m_parameters.width, m_parameters.height), 0, 0);
+        }
+
+        // Convert and write image
+        cvBridge.image = frame;
+        cvBridge.toImageMsg(message);
+
+        m_publisher->publish(message);
+
+        emit progressChanged("Publishing image " + QString::number(iterator + 1) + " of " + QString::number(frameCount) + "...", PROGRESS);
+        iterator++;
+        setIterator++;
+    });
+
+    auto executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
+    executor->add_node(m_node);
+
+    while (!isInterruptionRequested()) {
+        executor->spin_once();
+    }
+
+    timer->cancel();
     emit finished();
 }

@@ -139,7 +139,7 @@ ChangeCompressionWidget::targetButtonPressed()
 
 
 void
-ChangeCompressionWidget::okButtonPressed()
+ChangeCompressionWidget::okButtonPressed() const
 {
     if (const auto valid = isBagFileValid(m_parameters.sourceDirectory); !valid) {
         return;
@@ -153,7 +153,7 @@ ChangeCompressionWidget::okButtonPressed()
 
 
 bool
-ChangeCompressionWidget::isBagFileValid(const QString& bagDirectory)
+ChangeCompressionWidget::isBagFileValid(const QString& bagDirectory) const
 {
     if (m_compress) {
         if (!Utils::ROS::doesDirectoryContainBagFile(bagDirectory)) {

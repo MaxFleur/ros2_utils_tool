@@ -16,7 +16,9 @@ showHelp()
 {
     std::cout << "Usage: ros2 run mediassist4_ros_tools tool_merge_bags path/to/first/bag path/to/second/bag -t1 (...) -t2 (...) path/to/target/bag\n" << std::endl;
     std::cout << "Topic names after '-t1' are those contained in the first bag file, names after '-t2' in the second file." << std::endl;
-    std::cout << "Note that duplicate topics (equal topics contained in both bags) will be merged if both are specified." << std::endl;
+    std::cout << "Note that duplicate topics (equal topics contained in both bags) will be merged if both are specified.\n" << std::endl;
+    std::cout << "Additional parameters:" << std::endl;
+    std::cout << "-d or --delete: Delete the source bag files." << std::endl;
     std::cout << "-h or --help: Show this help." << std::endl;
 }
 
@@ -34,7 +36,8 @@ main(int argc, char* argv[])
         showHelp();
         return 0;
     }
-    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, { "-h", "--help", "-t1", "-t2" }); argument != std::nullopt) {
+    const QStringList checkList{ "-h", "--help", "-t1", "-t2", "-d", "--delete" };
+    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
     }
@@ -79,19 +82,23 @@ main(int argc, char* argv[])
         }
     }
 
+    // Handle source deletion here because it might affect topic and target name handling
+    parameters.deleteSource = Utils::CLI::containsArguments(arguments, "-d", "--delete");
+
     // Second bag
     if (!Utils::CLI::containsArguments(arguments, "-t2", "--topic2")) {
         throw std::runtime_error("Please specify '-t2' correctly!");
     }
     auto topicsSecondBagIndex = Utils::CLI::getArgumentsIndex(arguments, "-t2", "--topic2") + 1;
-    while (topicsSecondBagIndex != arguments.size() - 1) {
+    const auto boundary = parameters.deleteSource ? arguments.size() - 2 : arguments.size() - 1;
+    while (topicsSecondBagIndex != boundary) {
         if (!addTopicsToParameters(parameters.secondSourceDirectory, topicsSecondBagIndex)) {
             return 0;
         }
     }
 
     // Target file
-    parameters.targetDirectory = arguments.back();
+    parameters.targetDirectory = parameters.deleteSource ? arguments.at(arguments.size() - 2) : arguments.back();
     Utils::CLI::checkParentDirectory(parameters.targetDirectory);
 
     if (parameters.targetDirectory == parameters.sourceDirectory || parameters.targetDirectory == parameters.secondSourceDirectory) {
@@ -133,7 +140,6 @@ main(int argc, char* argv[])
         signalStatus = signal;
     });
 
-    std::cout << "Merging bags. Please wait..." << std::endl;
     Utils::CLI::runThread(mergeBagsThread, signalStatus);
 
     return EXIT_SUCCESS;

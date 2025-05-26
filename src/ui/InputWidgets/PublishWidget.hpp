@@ -31,7 +31,7 @@ private slots:
     scaleCheckBoxPressed(int state);
 
     void
-    okButtonPressed();
+    okButtonPressed() const;
 
 private:
     QPointer<QLineEdit> m_topicNameLineEdit;

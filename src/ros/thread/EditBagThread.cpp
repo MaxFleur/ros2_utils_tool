@@ -83,6 +83,7 @@ EditBagThread::run()
             reader.open(m_sourceDirectory);
             mutex.unlock();
 
+            rosbag2_storage::SerializedBagMessageSharedPtr message;
             size_t boundaryCounter = 0;
 
             while (reader.has_next()) {
@@ -91,7 +92,7 @@ EditBagThread::run()
                     return;
                 }
                 // Read the original message
-                auto message = reader.read_next();
+                message = reader.read_next();
                 if (message->topic_name != originalTopicNameStd) {
                     continue;
                 }
