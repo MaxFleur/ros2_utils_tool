@@ -25,7 +25,8 @@ private slots:
 
     void
     createNewDummyTopicWidget(const Parameters::DummyBagParameters::DummyBagTopic& topics,
-                              int                                                  index);
+                              int                                                  index,
+                              bool                                                 higherOffset = false);
 
     void
     useCustomRateCheckBoxPressed(int state);
@@ -44,4 +45,7 @@ private:
     const bool m_checkROS2NameConform;
 
     static constexpr int MAXIMUM_NUMBER_OF_TOPICS = 4;
+
+    static constexpr int TOPIC_WIDGET_OFFSET_LOWER = 3;
+    static constexpr int TOPIC_WIDGET_OFFSET_HIGHER = 4;
 };
