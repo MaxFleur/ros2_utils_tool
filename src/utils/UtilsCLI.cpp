@@ -126,9 +126,10 @@ shouldContinue(const std::string& message)
 
     while (true) {
         std::cout << message << std::endl;
-        std::cin >> input;
+        std::getline(std::cin, input);
 
-        if (input == "y") {
+        // 'Y' or 'Enter' key will accept
+        if (input == "y" || input.length() == 0) {
             return true;
         } else if (input == "n") {
             return false;
@@ -147,7 +148,7 @@ continueWithInvalidROS2Name(const QStringList& argumentsList, QString& parameter
         if (!Utils::ROS::isNameROS2Conform(topicName)) {
             const auto errorString = "The topic name does not follow the ROS2 naming convention! More information on ROS2 naming convention is found here:\n"
                                      "https://design.ros2.org/articles/topic_and_service_names.html\n"
-                                     "Do you want to continue anyways? [y/n]";
+                                     "Do you want to continue anyways? [y]/n";
             if (!shouldContinue(errorString)) {
                 return false;
             }

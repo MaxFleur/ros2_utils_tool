@@ -80,7 +80,7 @@ main(int argc, char* argv[])
             if (!Utils::ROS::isNameROS2Conform(argument) && areROS2NamesValid) {
                 const auto errorString = "The topic name does not follow the ROS2 naming convention! More information on ROS2 naming convention is found here:\n"
                                          "https://design.ros2.org/articles/topic_and_service_names.html\n"
-                                         "Do you want to continue anyways? [y/n]";
+                                         "Do you want to continue anyways? [y]/n";
                 if (!Utils::CLI::shouldContinue(errorString)) {
                     return 0;
                 }
@@ -110,7 +110,7 @@ main(int argc, char* argv[])
     }
 
     if (std::filesystem::exists(parameters.sourceDirectory.toStdString())) {
-        if (!Utils::CLI::shouldContinue("The dummy bag file already exists. Continue? [y/n]")) {
+        if (!Utils::CLI::shouldContinue("The dummy bag file already exists. Continue? [y]/n")) {
             return 0;
         }
     }

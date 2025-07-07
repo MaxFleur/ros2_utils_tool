@@ -106,12 +106,12 @@ main(int argc, char* argv[])
     }
 
     if (topicNameSet.size() != parameters.topics.size()) {
-        if (!Utils::CLI::shouldContinue("Duplicate topic names detected. These would be merged into one topic. Do you want to continue? [y/n]")) {
+        if (!Utils::CLI::shouldContinue("Duplicate topic names detected. These would be merged into one topic. Do you want to continue? [y]/n")) {
             return 0;
         }
     }
     if (std::filesystem::exists(parameters.targetDirectory.toStdString())) {
-        if (!Utils::CLI::shouldContinue("The target directory already exists. Continue and overwrite the target? [y/n]")) {
+        if (!Utils::CLI::shouldContinue("The target directory already exists. Continue and overwrite the target? [y]/n")) {
             return 0;
         }
     }

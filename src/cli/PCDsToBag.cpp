@@ -77,7 +77,7 @@ main(int argc, char* argv[])
     }
 
     if (std::filesystem::exists(parameters.targetDirectory.toStdString())) {
-        if (!Utils::CLI::shouldContinue("The bag file already exists. Continue? [y/n]")) {
+        if (!Utils::CLI::shouldContinue("The bag file already exists. Continue? [y]/n")) {
             return 0;
         }
     }
