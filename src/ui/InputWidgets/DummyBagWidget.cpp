@@ -43,10 +43,10 @@ DummyBagWidget::DummyBagWidget(Parameters::DummyBagParameters& parameters, bool 
     m_controlsLayout->addSpacing(20);
     m_controlsLayout->addStretch();
 
-    const auto addNewTopic = [this] {
+    const auto addNewTopic = [this] (bool higherOffset = false)  {
         m_parameters.topics.push_back({ "String", "" });
         m_settings.write();
-        createNewDummyTopicWidget({ "", "" }, m_parameters.topics.size() - 1);
+        createNewDummyTopicWidget({ "", "" }, m_parameters.topics.size() - 1, higherOffset);
     };
     // Create widgets for already existing topics
     for (auto i = 0; i < m_parameters.topics.size(); i++) {
@@ -61,7 +61,7 @@ DummyBagWidget::DummyBagWidget(Parameters::DummyBagParameters& parameters, bool 
     });
     connect(useCustomRateCheckBox, &QCheckBox::stateChanged, this, &DummyBagWidget::useCustomRateCheckBoxPressed);
     connect(m_addTopicButton, &QPushButton::clicked, this, [addNewTopic] {
-        addNewTopic();
+        addNewTopic(true);
     });
 
     setPixmapLabelIcon();
@@ -88,7 +88,7 @@ DummyBagWidget::removeDummyTopicWidget(int row)
 
 
 void
-DummyBagWidget::createNewDummyTopicWidget(const Parameters::DummyBagParameters::DummyBagTopic& topic, int index)
+DummyBagWidget::createNewDummyTopicWidget(const Parameters::DummyBagParameters::DummyBagTopic& topic, int index, bool higherOffset)
 {
     m_topicLabels.push_back(new QLabel("Topic " + QString::number(m_numberOfTopics + 1) + ":"));
 
@@ -96,7 +96,9 @@ DummyBagWidget::createNewDummyTopicWidget(const Parameters::DummyBagParameters::
     m_topicWidgets.push_back(topicWidget);
     // Keep it all inside the main form layout
     // Ensure that the plus button stays below the newly formed widget
-    m_formLayout->insertRow(m_formLayout->rowCount() - 3, m_topicLabels.back(), topicWidget);
+    m_formLayout->insertRow(higherOffset ? m_formLayout->rowCount() - TOPIC_WIDGET_OFFSET_HIGHER
+                                         : m_formLayout->rowCount() - TOPIC_WIDGET_OFFSET_LOWER,
+                            m_topicLabels.back(), topicWidget);
 
     connect(topicWidget, &TopicWidget::topicTypeChanged, this, [this, index] (const QString& text) {
         writeParameterToSettings(m_parameters.topics[index].type, text, m_settings);
