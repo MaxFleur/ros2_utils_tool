@@ -36,9 +36,17 @@ BagToVideoThread::run()
 
     auto iterationCount = 0;
     const auto topicNameStdString = m_topicName;
-    const auto videoEncoder = std::make_shared<VideoEncoder>(m_parameters.format == "mp4" ? cv::VideoWriter::fourcc('m', 'p', '4', 'v') :
-                                                             m_parameters.lossless ? cv::VideoWriter::fourcc('F', 'F', 'V', '1')
-                                                                                   : cv::VideoWriter::fourcc('X', '2', '6', '4'));
+
+    int codec;
+    // https://abcavi.kibi.ru/fourcc.php
+    if (m_parameters.format == "mp4") {
+        codec = cv::VideoWriter::fourcc('m', 'p', '4', 'v');
+    } else if (m_parameters.format == "avi") {
+        codec = m_parameters.lossless ? cv::VideoWriter::fourcc('R', 'G', 'B', 'A') : cv::VideoWriter::fourcc('F', 'M', 'P', '4');
+    } else {
+        codec = m_parameters.lossless ? cv::VideoWriter::fourcc('F', 'F', 'V', '1') : cv::VideoWriter::fourcc('X', '2', '6', '4');
+    }
+    const auto videoEncoder = std::make_shared<VideoEncoder>(codec);
 
     // Now the main encoding
     while (reader.has_next()) {

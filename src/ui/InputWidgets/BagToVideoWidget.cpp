@@ -20,6 +20,7 @@ BagToVideoWidget::BagToVideoWidget(Parameters::BagToVideoParameters& parameters,
     m_formatComboBox = new QComboBox;
     m_formatComboBox->addItem("mp4", 0);
     m_formatComboBox->addItem("mkv", 1);
+    m_formatComboBox->addItem("avi", 2);
     m_formatComboBox->setToolTip("The video format file.");
     m_formatComboBox->setCurrentText(m_parameters.format);
 
@@ -87,7 +88,7 @@ BagToVideoWidget::formatComboBoxTextChanged(const QString& text)
     if (m_useLosslessCheckBox) {
         m_advancedOptionsFormLayout->removeRow(m_useLosslessCheckBox);
     }
-    if (text == "mkv") {
+    if (text == "mkv" || text == "avi") {
         m_useLosslessCheckBox = new QCheckBox;
         m_useLosslessCheckBox->setToolTip("If the video images should be lossless. Improves video quality, but increases file size.");
         m_useLosslessCheckBox->setCheckState(m_parameters.lossless ? Qt::Checked : Qt::Unchecked);

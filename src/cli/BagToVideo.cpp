@@ -14,6 +14,7 @@ void
 showHelp()
 {
     std::cout << "Usage: ros2 run mediassist4_ros_tools tool_bag_to_video path/to/bag path/to/video\n" << std::endl;
+    std::cout << "Accepted video formats are mp4, mkv or avi." << std::endl;
     std::cout << "Additional parameters:" << std::endl;
     std::cout << "-t or --topic_name: Video topic inside the bag. If no topic name is specified, the first found video topic in the bag is taken.\n" << std::endl;
     std::cout << "-r or --rate: Framerate for the encoded video. Must be from 10 to 60." << std::endl;
@@ -56,8 +57,8 @@ main(int argc, char* argv[])
     Utils::CLI::checkParentDirectory(parameters.targetDirectory);
 
     parameters.format = parameters.targetDirectory.right(3);
-    if (parameters.format != "mp4" && parameters.format != "mkv") {
-        throw std::runtime_error("The entered video name is in invalid format. Please make sure that the video has the ending 'mp4' or 'mkv'!");
+    if (parameters.format != "mp4" && parameters.format != "mkv" && parameters.format != "avi") {
+        throw std::runtime_error("The entered video name is in invalid format. Please make sure that the video has the ending 'mp4', 'mkv' or 'avi'!");
     }
 
     // Check for optional arguments

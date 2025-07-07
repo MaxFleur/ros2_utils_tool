@@ -441,6 +441,16 @@ TEST_CASE("Threads Testing", "[threads]") {
             // Codec number represents x264
             performVideoCheck(".mkv", 1734701165, 30, 30, 30, 30);
         }
+        SECTION("AVI Lossless Values") {
+            parameters.targetDirectory = "./video.avi";
+            parameters.useBWImages = false;
+            parameters.lossless = true;
+
+            thread->start();
+            thread->wait();
+            performVideoCheck(".avi", 1983148141, 30, 252, 0, 1);
+        }
+        std::filesystem::remove("./video.avi");
     }
     SECTION("Video to Bag Thread Test") {
         Parameters::VideoToBagParameters parameters;
