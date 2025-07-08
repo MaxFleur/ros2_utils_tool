@@ -1,7 +1,8 @@
 #include "MergeBagsThread.hpp"
 
-#include "UtilsCLI.hpp"
 #include "Parameters.hpp"
+#include "UtilsCLI.hpp"
+#include "UtilsGeneral.hpp"
 #include "UtilsROS.hpp"
 
 #include <QCoreApplication>
@@ -105,6 +106,11 @@ main(int argc, char* argv[])
         throw std::runtime_error("The target file must have a different name than both input bag files!");
     }
 
+    if (const auto diskSpace = Utils::General::getAvailableDriveSpace(parameters.sourceDirectory); diskSpace < Utils::General::MINIMUM_RECOMMENDED_DRIVE_SPACE) {
+        if (!Utils::CLI::shouldContinue("Available disk space is very small (" + std::to_string(diskSpace) + " GB). Do you want to continue? [y]/n")) {
+            return 0;
+        }
+    }
     if (topicNameSet.size() != parameters.topics.size()) {
         if (!Utils::CLI::shouldContinue("Duplicate topic names detected. These would be merged into one topic. Do you want to continue? [y]/n")) {
             return 0;

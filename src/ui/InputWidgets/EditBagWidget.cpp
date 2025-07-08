@@ -34,8 +34,7 @@ EditBagWidget::EditBagWidget(Parameters::EditBagParameters& parameters, bool che
     m_treeWidget->headerItem()->setText(COL_RENAMING, "Rename Topic (Optional):");
     m_treeWidget->setRootIsDecorated(false);
 
-    m_differentDirsLabel = new QLabel("The edited bag needs to be a new file. However, you can choose to delete "
-                                      "the source file after creation.");
+    m_differentDirsLabel = new QLabel("A new bag file will be created, so make sure that enough space is available!");
     m_differentDirsLabel->setVisible(false);
 
     auto labelFont = m_editLabel->font();
@@ -61,6 +60,8 @@ EditBagWidget::EditBagWidget(Parameters::EditBagParameters& parameters, bool che
     controlsLayout->addWidget(m_editLabel);
     controlsLayout->addWidget(m_treeWidget);
     controlsLayout->addWidget(m_targetBagNameWidget);
+    controlsLayout->addLayout(m_diskSpaceLayout);
+    controlsLayout->addSpacing(10);
     controlsLayout->addWidget(m_differentDirsLabel);
     controlsLayout->addWidget(m_deleteSourceCheckBox);
     controlsLayout->addWidget(m_updateTimestampsCheckBox);
@@ -185,6 +186,8 @@ EditBagWidget::createTopicTree(bool newTreeRequested)
     m_deleteSourceCheckBox->setVisible(true);
     m_updateTimestampsCheckBox->setVisible(true);
     m_okButton->setVisible(true);
+
+    setDiskSpaceLayoutVisibility();
 }
 
 

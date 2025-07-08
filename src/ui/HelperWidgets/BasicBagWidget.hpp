@@ -8,6 +8,8 @@
 #include <QWidget>
 
 class QCheckBox;
+class QHBoxLayout;
+class QLabel;
 class QLineEdit;
 class QTreeWidget;
 class QTreeWidgetItem;
@@ -38,20 +40,38 @@ protected:
                          int            topicSizeWithoutDuplicates,
                          const QString& secondSourceParameter = QString()) const;
 
+    void
+    setDiskSpaceLayoutVisibility();
+
 protected:
     QPointer<QTreeWidget> m_treeWidget;
 
     QPointer<QLineEdit> m_targetLineEdit;
+    QPointer<QLabel> m_diskSpaceWarningLabel;
+    QPointer<QLabel> m_warningIconLabel;
     QPointer<QCheckBox> m_deleteSourceCheckBox;
 
     QPointer<QWidget> m_targetBagNameWidget;
+
+    QPointer<QHBoxLayout> m_diskSpaceLayout;
 
     static constexpr int COL_CHECKBOXES = 0;
     static constexpr int COL_TOPIC_NAME = 1;
     static constexpr int COL_TOPIC_TYPE = 2;
 
 private:
+    void
+    setPixmapLabelIcon() const;
+
+    bool
+    event(QEvent *event);
+
+private:
     Parameters::DeleteSourceParameters& m_parameters;
 
     DeleteSourceSettings m_settings;
+
+    bool m_isDiskSpaceSufficient{ true };
+
+    static constexpr int ICON_SIZE = 25;
 };

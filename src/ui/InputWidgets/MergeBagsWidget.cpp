@@ -56,6 +56,8 @@ MergeBagsWidget::MergeBagsWidget(Parameters::MergeBagsParameters& parameters, QW
     controlsLayout->addSpacing(10);
     controlsLayout->addWidget(m_treeWidget);
     controlsLayout->addWidget(m_targetBagNameWidget);
+    controlsLayout->addLayout(m_diskSpaceLayout);
+    controlsLayout->addSpacing(10);
     controlsLayout->addWidget(m_sufficientSpaceLabel);
     controlsLayout->addWidget(m_deleteSourceCheckBox);
     // Give it a more "squishy" look
@@ -200,6 +202,8 @@ MergeBagsWidget::createTopicTree(bool resetTopicsParameter)
 
     adjustSize();
     resize(QSize(keptWidth, height()));
+
+    setDiskSpaceLayoutVisibility();
 }
 
 

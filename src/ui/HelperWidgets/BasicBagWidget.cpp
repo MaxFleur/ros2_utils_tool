@@ -1,13 +1,16 @@
 #include "BasicBagWidget.hpp"
 
 #include "MessageCountWidget.hpp"
+#include "UtilsGeneral.hpp"
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
 #include <QCheckBox>
 #include <QDialogButtonBox>
+#include <QEvent>
 #include <QFileDialog>
 #include <QFormLayout>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
@@ -50,6 +53,24 @@ BasicBagWidget::BasicBagWidget(Parameters::DeleteSourceParameters& parameters,
     targetFormLayout->addRow("Target Location:", targetLineEditLayout);
     targetFormLayout->setContentsMargins(0, 0, 0, 0);
 
+    m_diskSpaceWarningLabel = new QLabel;
+    m_diskSpaceWarningLabel->setVisible(false);
+
+    auto labelFont = m_diskSpaceWarningLabel->font();
+    labelFont.setBold(true);
+    m_diskSpaceWarningLabel->setFont(labelFont);
+    auto palette = m_diskSpaceWarningLabel->palette();
+    palette.setColor(QPalette::WindowText, Qt::red);
+    m_diskSpaceWarningLabel->setPalette(palette);
+
+    m_warningIconLabel = new QLabel;
+    m_warningIconLabel->setVisible(false);
+
+    m_diskSpaceLayout = new QHBoxLayout;
+    m_diskSpaceLayout->addWidget(m_warningIconLabel);
+    m_diskSpaceLayout->addWidget(m_diskSpaceWarningLabel);
+    m_diskSpaceLayout->addStretch();
+
     m_targetBagNameWidget = new QWidget;
     m_targetBagNameWidget->setLayout(targetFormLayout);
     m_targetBagNameWidget->setVisible(false);
@@ -62,6 +83,8 @@ BasicBagWidget::BasicBagWidget(Parameters::DeleteSourceParameters& parameters,
     connect(m_deleteSourceCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.deleteSource, state == Qt::Checked, m_settings);
     });
+
+    setPixmapLabelIcon();
 }
 
 
@@ -121,6 +144,14 @@ BasicBagWidget::areIOParametersValid(int topicSize, int topicSizeWithOutDuplicat
         return false;
     }
 
+    if (!m_isDiskSpaceSufficient) {
+        auto *const msgBox = new QMessageBox(QMessageBox::Warning, "Small Disk Space!",
+                                             "The available disk space is very small. Are you sure you want to continue? ",
+                                             QMessageBox::Yes | QMessageBox::No);
+        if (const auto ret = msgBox->exec(); ret == QMessageBox::No) {
+            return false;
+        }
+    }
     if (!Utils::UI::continueForExistingTarget(m_parameters.targetDirectory, "Bag file", "bag file")) {
         return false;
     }
@@ -134,4 +165,34 @@ BasicBagWidget::areIOParametersValid(int topicSize, int topicSizeWithOutDuplicat
         }
     }
     return true;
+}
+
+
+void
+BasicBagWidget::setDiskSpaceLayoutVisibility()
+{
+    const auto diskSpace = Utils::General::getAvailableDriveSpace(m_sourceLineEdit->text());
+    m_isDiskSpaceSufficient = diskSpace > Utils::General::MINIMUM_RECOMMENDED_DRIVE_SPACE;
+    if (!m_isDiskSpaceSufficient) {
+        m_diskSpaceWarningLabel->setText("Free available space is only " + QString::number(diskSpace) + " GB!");
+    }
+    m_diskSpaceWarningLabel->setVisible(!m_isDiskSpaceSufficient);
+    m_warningIconLabel->setVisible(!m_isDiskSpaceSufficient);
+}
+
+
+void
+BasicBagWidget::setPixmapLabelIcon() const
+{
+    m_warningIconLabel->setPixmap(QIcon(":/icons/warning.svg").pixmap(QSize(ICON_SIZE, ICON_SIZE)));
+}
+
+
+bool
+BasicBagWidget::event(QEvent *event)
+{
+    [[unlikely]] if (event->type() == QEvent::ApplicationPaletteChange || event->type() == QEvent::PaletteChange) {
+        setPixmapLabelIcon();
+    }
+    return QWidget::event(event);
 }
