@@ -27,8 +27,8 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     settingsButtonLayout->addStretch();
     settingsButtonLayout->addWidget(m_settingsButton);
 
-    // Create four widgets: One for providing the overview for bag and publishing tools,
-    // one for bag, one for publishing and one for info tools
+    // Create five widgets: One for providing the overview for bag and publishing tools,
+    // one for conversion, one for bag, one for publishing and one for info tools
     // Overview widget
     m_conversionToolsButton = createToolButton("Conversion\nTools");
     m_bagToolsButton = createToolButton("Bag Tools");
@@ -55,11 +55,11 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     overallToolsWidget->setLayout(overallToolsMainLayout);
 
     // Conversion tools widget
-    m_bagToVideoPushButton = createToolButton("Bag to Video");
-    m_videoToBagPushButton = createToolButton("Video to Bag");
-    m_bagToPCDsPushButton = createToolButton("Bag to\nPCD Files");
-    m_PCDsToBagPushButton = createToolButton("PCD Files\nto Bag");
-    m_bagToImagesPushButton = createToolButton("Bag to Images");
+    m_bagToVideoPushButton = createToolButton("Bag to Video", "Convert images in a ROS bag video topic to a video file.");
+    m_videoToBagPushButton = createToolButton("Video to Bag", "Convert a video file to a ROS bag.");
+    m_bagToPCDsPushButton = createToolButton("Bag to\nPCD Files", "Convert point clouds in a ROS bag topic to a set of pcd files.");
+    m_PCDsToBagPushButton = createToolButton("PCD Files\nto Bag", "Convert a set of pcd files to a ROS bag.");
+    m_bagToImagesPushButton = createToolButton("Bag to Images", "Convert images in a ROS bag video topic to a set of image files.");
 
     auto* const conversionToolsUpperLayout = new QHBoxLayout;
     conversionToolsUpperLayout->addStretch();
@@ -89,12 +89,12 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     conversionToolsWidget->setLayout(conversionToolsMainLayout);
 
     // Bag tools widget
-    m_editBagButton = createToolButton("Edit Bag");
-    m_mergeBagsButton = createToolButton("Merge Bags");
-    m_recordBagButton = createToolButton("Record Bag");
-    m_dummyBagButton = createToolButton("Create\nDummy Bag");
-    m_compressBagButton = createToolButton("Compress\nBag");
-    m_decompressBagButton = createToolButton("Decompress\nBag");
+    m_editBagButton = createToolButton("Edit Bag", "Rename, remove and crop topics in a ROS bag.");
+    m_mergeBagsButton = createToolButton("Merge Bags", "Merge selected topics of two ROS bag files into a new one.");
+    m_recordBagButton = createToolButton("Record Bag", "Record selected topics into a bag file.");
+    m_dummyBagButton = createToolButton("Create\nDummy Bag", "Create a ROS bag file with dummy data.");
+    m_compressBagButton = createToolButton("Compress\nBag", "Decrease a ROS bag by creating a compressed variant.");
+    m_decompressBagButton = createToolButton("Decompress\nBag", "Decompress a compressed ROS bag.");
 
     auto* const bagToolsUpperLayout = new QHBoxLayout;
     bagToolsUpperLayout->addStretch();
@@ -125,8 +125,8 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     bagToolsWidget->setLayout(bagToolsMainLayout);
 
     // Publishing tools widget
-    m_publishVideoButton = createToolButton("Publish Video\nas ROS Topic");
-    m_publishImagesButton = createToolButton("Publish Images\nas ROS Topic");
+    m_publishVideoButton = createToolButton("Publish Video\nas ROS Topic", "Publish video file images as a ROS image topic.");
+    m_publishImagesButton = createToolButton("Publish Images\nas ROS Topic", "Publish a set of image files as a ROS image topic.");
 
     auto* const publishingToolsMainLayout = new QHBoxLayout;
     publishingToolsMainLayout->addStretch();
@@ -138,8 +138,9 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     publishingToolsWidget->setLayout(publishingToolsMainLayout);
 
     // Info tools widget
-    m_topicServiceInfoButton = createToolButton("Topics and\nService Info");
-    m_bagInfoButton = createToolButton("Bag\nInfos");
+    m_topicServiceInfoButton = createToolButton("Topics and\nService Info",
+                                                "Show available topics and services with additional information.");
+    m_bagInfoButton = createToolButton("Bag\nInfos", "Show information for a selected ROS bag.");
 
     auto* const infoToolsMainLayout = new QHBoxLayout;
     infoToolsMainLayout->addStretch();
@@ -327,10 +328,11 @@ StartWidget::replaceWidgets(QWidget* fromWidget, QWidget* toWidget, int widgetId
 
 
 QPointer<QToolButton>
-StartWidget::createToolButton(const QString& buttonText) const
+StartWidget::createToolButton(const QString& buttonText, const QString& tooltipText) const
 {
     auto* const toolButton = new QToolButton;
     toolButton->setText(buttonText);
+    toolButton->setToolTip(tooltipText);
     toolButton->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     toolButton->setIconSize(QSize(100, 45));
     toolButton->setFixedSize(QSize(150, 150));
