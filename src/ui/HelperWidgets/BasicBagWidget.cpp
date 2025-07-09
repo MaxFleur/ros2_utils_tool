@@ -1,5 +1,6 @@
 #include "BasicBagWidget.hpp"
 
+#include "DialogSettings.hpp"
 #include "MessageCountWidget.hpp"
 #include "UtilsGeneral.hpp"
 #include "UtilsROS.hpp"
@@ -144,7 +145,7 @@ BasicBagWidget::areIOParametersValid(int topicSize, int topicSizeWithOutDuplicat
         return false;
     }
 
-    if (!m_isDiskSpaceSufficient) {
+    if (!m_isDiskSpaceSufficient && DialogSettings::getStaticParameter("warn_low_disk_space", true)) {
         auto *const msgBox = new QMessageBox(QMessageBox::Warning, "Small Disk Space!",
                                              "The available disk space is very small. Are you sure you want to continue? ",
                                              QMessageBox::Yes | QMessageBox::No);

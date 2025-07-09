@@ -11,10 +11,10 @@
 #include <QSet>
 #include <QSpinBox>
 
-DummyBagWidget::DummyBagWidget(Parameters::DummyBagParameters& parameters, bool checkROS2NameConform, QWidget *parent) :
+DummyBagWidget::DummyBagWidget(Parameters::DummyBagParameters& parameters, bool warnROS2NameConvention, QWidget *parent) :
     TopicListingInputWidget(parameters, "Create Dummy Bag", ":/icons/dummy_bag", "dummy_bag", parent),
     m_parameters(parameters), m_settings(parameters, "dummy_bag"),
-    m_checkROS2NameConform(checkROS2NameConform)
+    m_warnROS2NameConvention(warnROS2NameConvention)
 {
     m_sourceLineEdit->setText(parameters.sourceDirectory);
     m_sourceLineEdit->setToolTip("The target dummy bag file directory.");
@@ -150,7 +150,7 @@ DummyBagWidget::areTopicsValid() const
             Utils::UI::createCriticalMessageBox("Empty topic name!", "Please enter a topic name for every topic!");
             return std::nullopt;
         }
-        if (m_checkROS2NameConform && !Utils::ROS::isNameROS2Conform(dummyTopicWidget->getTopicName()) && areROS2NamesValid) {
+        if (m_warnROS2NameConvention && !Utils::ROS::isNameROS2Conform(dummyTopicWidget->getTopicName()) && areROS2NamesValid) {
             if (const auto returnValue = Utils::UI::continueWithInvalidROS2Names(); !returnValue) {
                 return std::nullopt;
             }

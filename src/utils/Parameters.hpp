@@ -108,7 +108,8 @@ struct DialogParameters {
     bool         useHardwareAcceleration = false;
     bool         saveParameters = false;
     bool         usePredefinedTopicNames = true;
-    bool         checkROS2NameConform = false;
-    bool         askForTargetOverwrite = true;
+    bool         warnROS2NameConvention = false;
+    bool         warnTargetOverwrite = true;
+    bool         warnLowDiskSpace = true;
 };
 }

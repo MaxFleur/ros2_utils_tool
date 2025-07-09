@@ -17,7 +17,7 @@ class EditBagWidget : public BasicBagWidget
 public:
     explicit
     EditBagWidget(Parameters::EditBagParameters& parameters,
-                  bool                           checkROS2NameConform,
+                  bool                           warnROS2NameConvention,
                   QWidget*                       parent = 0);
 
 private slots:
@@ -41,7 +41,7 @@ private:
 
     EditBagSettings m_settings;
 
-    const bool m_checkROS2NameConform;
+    const bool m_warnROS2NameConvention;
 
     static constexpr int COL_MESSAGE_COUNT = 3;
     static constexpr int COL_RENAMING = 4;

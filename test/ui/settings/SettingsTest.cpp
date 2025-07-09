@@ -428,7 +428,7 @@ TEST_CASE("Settings Testing", "[ui]") {
             SECTION("Read") {
                 qSettings.beginGroup("dialog");
                 checkSettingsInvalidacy(qSettings, { "max_threads", "hw_acc", "save_parameters", "predefined_topic_names",
-                                                     "check_ros2_naming_convention", "ask_for_target_overwrite" });
+                                                     "warn_ros2_name_convention", "warn_target_overwrite", "warn_low_disk_space" });
                 qSettings.endGroup();
             }
             SECTION("Write") {
@@ -439,8 +439,9 @@ TEST_CASE("Settings Testing", "[ui]") {
                 parameters.useHardwareAcceleration = true;
                 parameters.saveParameters = true;
                 parameters.usePredefinedTopicNames = true;
-                parameters.checkROS2NameConform = true;
-                parameters.askForTargetOverwrite = true;
+                parameters.warnROS2NameConvention = true;
+                parameters.warnTargetOverwrite = true;
+                parameters.warnLowDiskSpace = true;
                 settings.write();
 
                 qSettings.beginGroup("dialog");
@@ -448,8 +449,9 @@ TEST_CASE("Settings Testing", "[ui]") {
                 verifiySettingPrimitive(qSettings, "hw_acc", true);
                 verifiySettingPrimitive(qSettings, "save_parameters", true);
                 verifiySettingPrimitive(qSettings, "predefined_topic_names", true);
-                verifiySettingPrimitive(qSettings, "check_ros2_naming_convention", true);
-                verifiySettingPrimitive(qSettings, "ask_for_target_overwrite", true);
+                verifiySettingPrimitive(qSettings, "warn_ros2_name_convention", true);
+                verifiySettingPrimitive(qSettings, "warn_target_overwrite", true);
+                verifiySettingPrimitive(qSettings, "warn_low_disk_space", true);
                 qSettings.endGroup();
             }
         }

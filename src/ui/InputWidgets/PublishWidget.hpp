@@ -19,7 +19,7 @@ class PublishWidget : public BasicInputWidget
 public:
     PublishWidget(Parameters::PublishParameters& parameters,
                   bool                           usePredefinedTopicName,
-                  bool                           checkROS2NameConform,
+                  bool                           warnROS2NameConvention,
                   bool                           publishVideo,
                   QWidget*                       parent = 0);
 
@@ -43,6 +43,6 @@ private:
 
     PublishSettings m_settings;
 
-    const bool m_checkROS2NameConform;
+    const bool m_warnROS2NameConvention;
     const bool m_publishVideo;
 };

@@ -20,11 +20,11 @@
 #include <filesystem>
 
 PublishWidget::PublishWidget(Parameters::PublishParameters& parameters, bool usePredefinedTopicName,
-                             bool checkROS2NameConform, bool publishVideo, QWidget *parent) :
+                             bool warnROS2NameConvention, bool publishVideo, QWidget *parent) :
     BasicInputWidget(publishVideo ? "Publish Video as ROS Topic" : "Publish Images as ROS Topic",
                      publishVideo ? ":/icons/publish_video" : ":/icons/publish_images", parent),
     m_parameters(parameters), m_settings(parameters, publishVideo ? "publish_video" : "publish_images"),
-    m_checkROS2NameConform(checkROS2NameConform), m_publishVideo(publishVideo)
+    m_warnROS2NameConvention(warnROS2NameConvention), m_publishVideo(publishVideo)
 {
     m_sourceLineEdit->setText(parameters.sourceDirectory);
     m_sourceLineEdit->setToolTip(m_publishVideo ? "The source video file directory." : "The source images file directory.");
@@ -199,7 +199,7 @@ PublishWidget::okButtonPressed() const
         return;
     }
 
-    if (m_checkROS2NameConform && !Utils::ROS::isNameROS2Conform(m_parameters.topicName)) {
+    if (m_warnROS2NameConvention && !Utils::ROS::isNameROS2Conform(m_parameters.topicName)) {
         if (const auto returnValue = Utils::UI::continueWithInvalidROS2Names(); !returnValue) {
             return;
         }

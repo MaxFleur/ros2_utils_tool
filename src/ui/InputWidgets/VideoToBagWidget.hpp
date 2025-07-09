@@ -18,7 +18,7 @@ class VideoToBagWidget : public AdvancedInputWidget
 public:
     VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
                      bool                              usePredefinedTopicName,
-                     bool                              checkROS2NameConform,
+                     bool                              warnROS2NameConvention,
                      QWidget*                          parent = 0);
 
 private slots:
@@ -39,5 +39,5 @@ private:
 
     VideoToBagSettings m_settings;
 
-    const bool m_checkROS2NameConform;
+    const bool m_warnROS2NameConvention;
 };

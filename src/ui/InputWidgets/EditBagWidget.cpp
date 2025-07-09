@@ -18,10 +18,10 @@
 
 #include <filesystem>
 
-EditBagWidget::EditBagWidget(Parameters::EditBagParameters& parameters, bool checkROS2NameConform, QWidget *parent) :
+EditBagWidget::EditBagWidget(Parameters::EditBagParameters& parameters, bool warnROS2NameConvention, QWidget *parent) :
     BasicBagWidget(parameters, "Edit Bag", ":/icons/edit_bag", "edit_bag", parent),
     m_parameters(parameters), m_settings(parameters, "edit_bag"),
-    m_checkROS2NameConform(checkROS2NameConform)
+    m_warnROS2NameConvention(warnROS2NameConvention)
 {
     auto* const formLayout = new QFormLayout;
     formLayout->addRow("Bag Location:", m_findSourceLayout);
@@ -219,7 +219,7 @@ EditBagWidget::okButtonPressed() const
             msgBox->exec();
             return;
         }
-        if (!topic.renamedTopicName.isEmpty() && m_checkROS2NameConform &&
+        if (!topic.renamedTopicName.isEmpty() && m_warnROS2NameConvention &&
             !Utils::ROS::isNameROS2Conform(topic.renamedTopicName) && areROS2NamesValid) {
             // Ask only once for invalid names
             areROS2NamesValid = false;

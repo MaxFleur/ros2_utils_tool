@@ -56,20 +56,20 @@ MainWindow::setInputWidget(Utils::UI::TOOL_ID mode)
         break;
     case Utils::UI::TOOL_ID::VIDEO_TO_BAG:
         basicInputWidget = new VideoToBagWidget(m_parametersVideoToBag, m_dialogParameters.usePredefinedTopicNames,
-                                                m_dialogParameters.checkROS2NameConform);
+                                                m_dialogParameters.warnROS2NameConvention);
         break;
     case Utils::UI::TOOL_ID::BAG_TO_PCDS:
         basicInputWidget = new BagToPCDsWidget(m_parametersBagToPCDs);
         break;
     case Utils::UI::TOOL_ID::PCDS_TO_BAG:
         basicInputWidget = new PCDsToBagWidget(m_parametersPCDsToBag, m_dialogParameters.usePredefinedTopicNames,
-                                               m_dialogParameters.checkROS2NameConform);
+                                               m_dialogParameters.warnROS2NameConvention);
         break;
     case Utils::UI::TOOL_ID::BAG_TO_IMAGES:
         basicInputWidget = new BagToImagesWidget(m_parametersBagToImages);
         break;
     case Utils::UI::TOOL_ID::EDIT_BAG:
-        basicInputWidget = new EditBagWidget(m_parametersEditBag, m_dialogParameters.checkROS2NameConform);
+        basicInputWidget = new EditBagWidget(m_parametersEditBag, m_dialogParameters.warnROS2NameConvention);
         break;
     case Utils::UI::TOOL_ID::MERGE_BAGS:
         basicInputWidget = new MergeBagsWidget(m_parametersMergeBags);
@@ -78,7 +78,7 @@ MainWindow::setInputWidget(Utils::UI::TOOL_ID mode)
         basicInputWidget = new RecordBagWidget(m_parametersRecordBag);
         break;
     case Utils::UI::TOOL_ID::DUMMY_BAG:
-        basicInputWidget = new DummyBagWidget(m_parametersDummyBag, m_dialogParameters.checkROS2NameConform);
+        basicInputWidget = new DummyBagWidget(m_parametersDummyBag, m_dialogParameters.warnROS2NameConvention);
         break;
     case Utils::UI::TOOL_ID::COMPRESS_BAG:
         basicInputWidget = new ChangeCompressionWidget(m_parametersCompressBag, true);
@@ -88,11 +88,11 @@ MainWindow::setInputWidget(Utils::UI::TOOL_ID mode)
         break;
     case Utils::UI::TOOL_ID::PUBLISH_VIDEO:
         basicInputWidget = new PublishWidget(m_parametersPublishVideo, m_dialogParameters.usePredefinedTopicNames,
-                                             m_dialogParameters.checkROS2NameConform, true);
+                                             m_dialogParameters.warnROS2NameConvention, true);
         break;
     case Utils::UI::TOOL_ID::PUBLISH_IMAGES:
         basicInputWidget = new PublishWidget(m_parametersPublishImages, m_dialogParameters.usePredefinedTopicNames,
-                                             m_dialogParameters.checkROS2NameConform, false);
+                                             m_dialogParameters.warnROS2NameConvention, false);
         break;
     case Utils::UI::TOOL_ID::TOPICS_SERVICES_INFO:
         basicInputWidget = new TopicsServicesInfoWidget;

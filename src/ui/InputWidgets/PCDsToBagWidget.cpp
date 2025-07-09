@@ -16,10 +16,10 @@
 #include <filesystem>
 
 PCDsToBagWidget::PCDsToBagWidget(Parameters::PCDsToBagParameters& parameters,
-                                 bool usePredefinedTopicName, bool checkROS2NameConform, QWidget *parent) :
+                                 bool usePredefinedTopicName, bool warnROS2NameConvention, QWidget *parent) :
     AdvancedInputWidget(parameters, "PCD Files to Bag", ":/icons/pcd_to_bag", "Files Dir:", "Bag Location:", "pcd_to_bag", OUTPUT_BAG, parent),
     m_parameters(parameters), m_settings(parameters, "pcd_to_bag"),
-    m_checkROS2NameConform(checkROS2NameConform)
+    m_warnROS2NameConvention(warnROS2NameConvention)
 {
     m_sourceLineEdit->setToolTip("The source pcd files directory.");
     m_targetLineEdit->setToolTip("The target bag file directory.");
@@ -99,7 +99,7 @@ PCDsToBagWidget::okButtonPressed() const
         return;
     }
 
-    if (m_checkROS2NameConform && !Utils::ROS::isNameROS2Conform(m_parameters.topicName)) {
+    if (m_warnROS2NameConvention && !Utils::ROS::isNameROS2Conform(m_parameters.topicName)) {
         if (const auto returnValue = Utils::UI::continueWithInvalidROS2Names(); !returnValue) {
             return;
         }

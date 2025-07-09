@@ -17,10 +17,10 @@
 #include <filesystem>
 
 VideoToBagWidget::VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
-                                   bool usePredefinedTopicName, bool checkROS2NameConform, QWidget *parent) :
+                                   bool usePredefinedTopicName, bool warnROS2NameConvention, QWidget *parent) :
     AdvancedInputWidget(parameters, "Video to Bag", ":/icons/video_to_bag", "Video Dir:", "Bag Location:", "vid_to_bag", OUTPUT_BAG, parent),
     m_parameters(parameters), m_settings(parameters, "vid_to_bag"),
-    m_checkROS2NameConform(checkROS2NameConform)
+    m_warnROS2NameConvention(warnROS2NameConvention)
 {
     m_sourceLineEdit->setToolTip("The source video file directory.");
     m_targetLineEdit->setToolTip("The target bag file directory.");
@@ -138,7 +138,7 @@ VideoToBagWidget::okButtonPressed() const
         return;
     }
 
-    if (m_checkROS2NameConform && !Utils::ROS::isNameROS2Conform(m_parameters.topicName)) {
+    if (m_warnROS2NameConvention && !Utils::ROS::isNameROS2Conform(m_parameters.topicName)) {
         if (const auto returnValue = Utils::UI::continueWithInvalidROS2Names(); !returnValue) {
             return;
         }
