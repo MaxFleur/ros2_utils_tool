@@ -77,6 +77,10 @@ bool
 continueWithInvalidROS2Name(const QStringList& argumentsList,
                             QString&           parameterTopicName);
 
+// If we should continue with an already existing target and/or low diskspace
+bool
+continueExistingTargetLowDiskSpace(const QString& directory);
+
 // Draws a small progress string in the following format:
 // ############################--------------------
 // 50 charactes, # shows the progress

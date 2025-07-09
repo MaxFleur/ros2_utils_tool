@@ -1,5 +1,6 @@
 #include "RecordBagWidget.hpp"
 
+#include "LowDiskSpaceWidget.hpp"
 #include "TopicWidget.hpp"
 #include "UtilsUI.hpp"
 
@@ -34,6 +35,8 @@ RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QW
     topicsWidget->setLayout(m_formLayout);
     topicsWidget->setVisible(!m_parameters.allTopics);
 
+    m_lowDiskSpaceWidget = new LowDiskSpaceWidget;
+
     auto* const advancedOptionsCheckBox = new QCheckBox;
     advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions);
     advancedOptionsCheckBox->setText("Show Advanced Options");
@@ -57,6 +60,8 @@ RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QW
     m_controlsLayout->addLayout(basicOptionsFormLayout);
     m_controlsLayout->addSpacing(10);
     m_controlsLayout->addWidget(topicsWidget);
+    m_controlsLayout->addSpacing(5);
+    m_controlsLayout->addWidget(m_lowDiskSpaceWidget);
     m_controlsLayout->addSpacing(10);
     m_controlsLayout->addWidget(advancedOptionsCheckBox);
     m_controlsLayout->addSpacing(10);
@@ -95,6 +100,7 @@ RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QW
     });
 
     setPixmapLabelIcon();
+    setLowDiskSpaceWidgetVisibility(m_sourceLineEdit->text());
 }
 
 

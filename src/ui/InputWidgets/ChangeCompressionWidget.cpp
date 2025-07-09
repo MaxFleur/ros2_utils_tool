@@ -1,5 +1,6 @@
 #include "ChangeCompressionWidget.hpp"
 
+#include "LowDiskSpaceWidget.hpp"
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
@@ -32,6 +33,8 @@ ChangeCompressionWidget::ChangeCompressionWidget(Parameters::CompressBagParamete
 
     auto* const deleteSourceCheckBox = new QCheckBox;
     deleteSourceCheckBox->setCheckState(m_parameters.deleteSource ? Qt::Checked : Qt::Unchecked);
+
+    m_lowDiskSpaceWidget = new LowDiskSpaceWidget;
 
     auto* const formLayout = new QFormLayout;
     formLayout->addRow("Source Bag Location:", m_findSourceLayout);
@@ -77,6 +80,8 @@ ChangeCompressionWidget::ChangeCompressionWidget(Parameters::CompressBagParamete
     controlsLayout->addWidget(m_headerLabel);
     controlsLayout->addSpacing(40);
     controlsLayout->addLayout(formLayout);
+    controlsLayout->addSpacing(5);
+    controlsLayout->addWidget(m_lowDiskSpaceWidget);
     controlsLayout->addSpacing(20);
     controlsLayout->addStretch();
 
@@ -103,6 +108,7 @@ ChangeCompressionWidget::ChangeCompressionWidget(Parameters::CompressBagParamete
     connect(okShortCut, &QShortcut::activated, this, &ChangeCompressionWidget::okButtonPressed);
 
     setPixmapLabelIcon();
+    setLowDiskSpaceWidgetVisibility(m_targetLineEdit->text());
 }
 
 
@@ -134,7 +140,9 @@ ChangeCompressionWidget::targetButtonPressed()
 
     writeParameterToSettings(m_parameters.targetDirectory, fileName, m_settings);
     m_targetLineEdit->setText(fileName);
+
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.targetDirectory.isEmpty());
+    setLowDiskSpaceWidgetVisibility(m_targetLineEdit->text());
 }
 
 
@@ -142,6 +150,9 @@ void
 ChangeCompressionWidget::okButtonPressed() const
 {
     if (const auto valid = isBagFileValid(m_parameters.sourceDirectory); !valid) {
+        return;
+    }
+    if (const auto sufficientSpace = showLowDiskSpaceMessageBox(); !sufficientSpace) {
         return;
     }
     if (!Utils::UI::continueForExistingTarget(m_parameters.targetDirectory, "Bagfile", "bag file")) {

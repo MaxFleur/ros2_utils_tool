@@ -1,5 +1,6 @@
 #include "UtilsCLI.hpp"
 
+#include "UtilsGeneral.hpp"
 #include "UtilsROS.hpp"
 
 #include <filesystem>
@@ -155,6 +156,24 @@ continueWithInvalidROS2Name(const QStringList& argumentsList, QString& parameter
         }
         parameterTopicName = topicName;
     }
+    return true;
+}
+
+
+bool
+continueExistingTargetLowDiskSpace(const QString& directory)
+{
+    if (const auto diskSpace = Utils::General::getAvailableDriveSpace(directory); diskSpace < Utils::General::MINIMUM_RECOMMENDED_DRIVE_SPACE) {
+        if (!Utils::CLI::shouldContinue("Available disk space is very small (" + std::to_string(diskSpace) + " GB). Do you want to continue? [y]/n")) {
+            return false;
+        }
+    }
+    if (std::filesystem::exists(directory.toStdString())) {
+        if (!Utils::CLI::shouldContinue("The target directory already exists. Continue and overwrite the target? [y]/n")) {
+            return false;
+        }
+    }
+
     return true;
 }
 

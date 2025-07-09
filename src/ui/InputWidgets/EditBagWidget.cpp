@@ -1,5 +1,6 @@
 #include "EditBagWidget.hpp"
 
+#include "LowDiskSpaceWidget.hpp"
 #include "MessageCountWidget.hpp"
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
@@ -60,7 +61,7 @@ EditBagWidget::EditBagWidget(Parameters::EditBagParameters& parameters, bool war
     controlsLayout->addWidget(m_editLabel);
     controlsLayout->addWidget(m_treeWidget);
     controlsLayout->addWidget(m_targetBagNameWidget);
-    controlsLayout->addLayout(m_diskSpaceLayout);
+    controlsLayout->addWidget(m_lowDiskSpaceWidget);
     controlsLayout->addSpacing(10);
     controlsLayout->addWidget(m_differentDirsLabel);
     controlsLayout->addWidget(m_deleteSourceCheckBox);
@@ -186,8 +187,6 @@ EditBagWidget::createTopicTree(bool newTreeRequested)
     m_deleteSourceCheckBox->setVisible(true);
     m_updateTimestampsCheckBox->setVisible(true);
     m_okButton->setVisible(true);
-
-    setDiskSpaceLayoutVisibility();
 }
 
 

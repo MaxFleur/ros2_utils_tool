@@ -109,10 +109,8 @@ main(int argc, char* argv[])
         parameters.topics.push_back({ topicTypes.at(i), topicNames.at(i) });
     }
 
-    if (std::filesystem::exists(parameters.sourceDirectory.toStdString())) {
-        if (!Utils::CLI::shouldContinue("The dummy bag file already exists. Continue? [y]/n")) {
-            return 0;
-        }
+    if (!Utils::CLI::continueExistingTargetLowDiskSpace(parameters.sourceDirectory)) {
+        return 0;
     }
 
     // Create thread and connect to its informations

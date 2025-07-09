@@ -5,6 +5,8 @@
 #include <QPointer>
 #include <QWidget>
 
+class LowDiskSpaceWidget;
+
 class QDialogButtonBox;
 class QHBoxLayout;
 class QLabel;
@@ -48,6 +50,12 @@ protected:
     void
     setPixmapLabelIcon() const;
 
+    void
+    setLowDiskSpaceWidgetVisibility(const QString& path);
+
+    [[nodiscard]] bool
+    showLowDiskSpaceMessageBox() const;
+
     bool
     event(QEvent *event) override;
 
@@ -63,6 +71,8 @@ protected:
     }
 
 protected:
+    QPointer<LowDiskSpaceWidget> m_lowDiskSpaceWidget;
+
     QPointer<QLabel> m_headerLabel;
     QPointer<QLabel> m_headerPixmapLabel;
     // All input widgets need some sort of source file, provide it here
@@ -77,4 +87,6 @@ protected:
     QPointer<QDialogButtonBox> m_dialogButtonBox;
 
     QString m_iconPath;
+    // Need to store this so we can possibly show it in the messagebox
+    float m_remainingSpace;
 };

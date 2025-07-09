@@ -100,7 +100,9 @@ VideoToBagWidget::findSourceButtonPressed()
     videoDirectoryDir.cdUp();
     if (const auto autoBagDirectory = videoDirectoryDir.path() + "/video_bag"; !std::filesystem::exists(autoBagDirectory.toStdString())) {
         m_targetLineEdit->setText(autoBagDirectory);
+
         writeParameterToSettings(m_parameters.targetDirectory, autoBagDirectory, m_settings);
+        setLowDiskSpaceWidgetVisibility(m_targetLineEdit->text());
     }
 
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.targetDirectory.isEmpty() && !m_parameters.topicName.isEmpty());
@@ -138,6 +140,9 @@ VideoToBagWidget::okButtonPressed() const
         return;
     }
 
+    if (const auto sufficientSpace = showLowDiskSpaceMessageBox(); !sufficientSpace) {
+        return;
+    }
     if (m_warnROS2NameConvention && !Utils::ROS::isNameROS2Conform(m_parameters.topicName)) {
         if (const auto returnValue = Utils::UI::continueWithInvalidROS2Names(); !returnValue) {
             return;

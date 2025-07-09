@@ -76,10 +76,8 @@ main(int argc, char* argv[])
         parameters.topicName = "/topic_point_cloud";
     }
 
-    if (std::filesystem::exists(parameters.targetDirectory.toStdString())) {
-        if (!Utils::CLI::shouldContinue("The bag file already exists. Continue? [y]/n")) {
-            return 0;
-        }
+    if (!Utils::CLI::continueExistingTargetLowDiskSpace(parameters.targetDirectory)) {
+        return 0;
     }
 
     // Create thread and connect to its informations

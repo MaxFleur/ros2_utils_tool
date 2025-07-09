@@ -6,7 +6,6 @@
 
 class QCheckBox;
 class QFormLayout;
-class QLineEdit;
 class QSlider;
 
 // The widget used to manage writing images out of a ROS bag

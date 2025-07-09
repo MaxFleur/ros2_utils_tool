@@ -1,5 +1,6 @@
 #include "MergeBagsWidget.hpp"
 
+#include "LowDiskSpaceWidget.hpp"
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
@@ -56,7 +57,7 @@ MergeBagsWidget::MergeBagsWidget(Parameters::MergeBagsParameters& parameters, QW
     controlsLayout->addSpacing(10);
     controlsLayout->addWidget(m_treeWidget);
     controlsLayout->addWidget(m_targetBagNameWidget);
-    controlsLayout->addLayout(m_diskSpaceLayout);
+    controlsLayout->addWidget(m_lowDiskSpaceWidget);
     controlsLayout->addSpacing(10);
     controlsLayout->addWidget(m_sufficientSpaceLabel);
     controlsLayout->addWidget(m_deleteSourceCheckBox);
@@ -202,8 +203,6 @@ MergeBagsWidget::createTopicTree(bool resetTopicsParameter)
 
     adjustSize();
     resize(QSize(keptWidth, height()));
-
-    setDiskSpaceLayoutVisibility();
 }
 
 

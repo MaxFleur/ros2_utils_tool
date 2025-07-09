@@ -60,10 +60,8 @@ main(int argc, char* argv[])
         Utils::CLI::checkForTargetTopic(parameters.sourceDirectory, parameters.topicName, false);
     }
 
-    if (std::filesystem::exists(parameters.targetDirectory.toStdString())) {
-        if (!Utils::CLI::shouldContinue("The target directory already exists. Continue? [y]/n")) {
-            return 0;
-        }
+    if (!Utils::CLI::continueExistingTargetLowDiskSpace(parameters.targetDirectory)) {
+        return 0;
     }
 
     // Create thread and connect to its informations
