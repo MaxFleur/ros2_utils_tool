@@ -6,8 +6,10 @@
 #include <pcl/point_types.h>
 #include <pcl_conversions/pcl_conversions.h>
 
+#include "geometry_msgs/msg/transform_stamped.hpp"
 #include "sensor_msgs/msg/image.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
+#include "tf2_msgs/msg/tf_message.hpp"
 
 #include <filesystem>
 #include <random>
@@ -109,6 +111,33 @@ DummyBagThread::run()
 
                     sensor_msgs::msg::PointCloud2 message;
                     pcl::toROSMsg(*cloud, message);
+                    writer.write(message, topicName.toStdString(), timeStamp);
+                } else {
+                    tf2_msgs::msg::TFMessage message;
+
+                    std::random_device randomDevice;
+                    std::mt19937 generator(randomDevice());
+                    std::uniform_real_distribution<> distribution(-1.0, 1.0);
+
+                    // Generate a tf2 message with three transformations, each containing randomized translation and rotation
+                    for (auto i = 0; i < 3; i++) {
+                        geometry_msgs::msg::TransformStamped transformStamped;
+
+                        transformStamped.header.stamp = timeStamp;
+                        transformStamped.header.frame_id = "world";
+                        transformStamped.child_frame_id = "child_tf2";
+
+                        transformStamped.transform.translation.x = distribution(generator);
+                        transformStamped.transform.translation.y = distribution(generator);
+                        transformStamped.transform.translation.z = distribution(generator);
+
+                        transformStamped.transform.rotation.x = distribution(generator);
+                        transformStamped.transform.rotation.y = distribution(generator);
+                        transformStamped.transform.rotation.z = distribution(generator);
+                        transformStamped.transform.rotation.w = distribution(generator);
+
+                        message.transforms.push_back(transformStamped);
+                    }
                     writer.write(message, topicName.toStdString(), timeStamp);
                 }
 

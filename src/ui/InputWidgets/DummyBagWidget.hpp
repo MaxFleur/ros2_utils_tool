@@ -44,5 +44,5 @@ private:
     const bool m_warnROS2NameConvention;
 
     static constexpr int TOPIC_WIDGET_OFFSET = 3;
-    static constexpr int MAXIMUM_NUMBER_OF_TOPICS = 4;
+    static constexpr int MAXIMUM_NUMBER_OF_TOPICS = 5;
 };

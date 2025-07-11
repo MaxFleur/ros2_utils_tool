@@ -15,8 +15,8 @@ void
 showHelp()
 {
     std::cout << "Usage: ros2 run mediassist4_ros_tools tool_dummy_bag path/to/bag topic_name_1 topic_type_1 (...)\n" << std::endl;
-    std::cout << "Topic type is either 'String', 'Integer', 'Image' or 'PointCloud'." << std::endl;
-    std::cout << "You can write up to four topics.\n" << std::endl;
+    std::cout << "Topic type is either 'String', 'Integer', 'Image', 'PointCloud' or 'TF2'." << std::endl;
+    std::cout << "You can write up to five topics.\n" << std::endl;
     std::cout << "Additional parameters:" << std::endl;
     std::cout << "-m or --message-count: Number of messages in the bag file. Must be between 1 and 1000, default is 100." << std::endl;
     std::cout << "-r or --rate: \"Frame\"rate of messages in the bag file. Must be between 1 and 100, default is 10.\n" << std::endl;
@@ -33,8 +33,9 @@ main(int argc, char* argv[])
     // Create application
     QCoreApplication app(argc, argv);
 
-    const auto arguments = app.arguments();
-    if (arguments.size() < 4 || arguments.size() > 14 || arguments.contains("--help") || arguments.contains("-h")) {
+    const auto& arguments = app.arguments();
+    // 18 means all five topics plus every possible flag
+    if (arguments.size() < 4 || arguments.size() > 18 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
     }
@@ -91,8 +92,8 @@ main(int argc, char* argv[])
             topicNames.push_back(argument);
             topicNameSet.insert(argument);
         } else {
-            if (argument != "String" && argument != "Integer" && argument != "Image" && argument != "PointCloud") {
-                throw std::runtime_error("The topic type must be either 'String', 'Integer', 'Image' or 'PointCloud'!");
+            if (argument != "String" && argument != "Integer" && argument != "Image" && argument != "PointCloud" && argument != "TF2") {
+                throw std::runtime_error("The topic type must be either 'String', 'Integer', 'Image', 'PointCloud' or 'TF2'!");
             }
             topicTypes.push_back(argument);
         }
@@ -103,6 +104,9 @@ main(int argc, char* argv[])
     }
     if (topicNameSet.size() != topicNames.size()) {
         throw std::runtime_error("Duplicate topic names detected. Please make sure that every topic name is unique!");
+    }
+    if (topicNames.size() > 5) {
+        throw std::runtime_error("Please add a maximum of five topics!");
     }
 
     // Create thread parameters

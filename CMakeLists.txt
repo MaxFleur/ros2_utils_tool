@@ -11,11 +11,13 @@ set(CMAKE_AUTORCC ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(cv_bridge REQUIRED)
+find_package(geometry_msgs REQUIRED)
 find_package(pcl_conversions REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rosbag2_cpp REQUIRED)
 find_package(rosbag2_transport REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(tf2_msgs REQUIRED)
 
 if($ENV{ROS_DISTRO} STREQUAL "humble")
     add_definitions(-DROS_HUMBLE)
@@ -73,7 +75,8 @@ add_executable(tool_video_to_bag
 
 if($ENV{ROS_DISTRO} STREQUAL "kilted")
     target_link_libraries(tool_ui
-        rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp rosbag2_transport::rosbag2_transport cv_bridge::cv_bridge pcl_conversions::pcl_conversions ${sensor_msgs_TARGETS}
+        rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp rosbag2_transport::rosbag2_transport cv_bridge::cv_bridge ${geometry_msgs_TARGETS}
+        pcl_conversions::pcl_conversions ${sensor_msgs_TARGETS} ${tf2_msgs_TARGETS}
         Qt::Widgets rt_ui
     )
     target_link_libraries(tool_bag_to_images
@@ -121,13 +124,13 @@ if($ENV{ROS_DISTRO} STREQUAL "kilted")
         Qt::Widgets rt_video_to_bag_thread rt_utils
     )
 else()
-    ament_target_dependencies(tool_ui cv_bridge pcl_conversions rclcpp rosbag2_cpp rosbag2_transport sensor_msgs)
+    ament_target_dependencies(tool_ui cv_bridge geometry_msgs pcl_conversions rclcpp rosbag2_cpp rosbag2_transport sensor_msgs tf2_msgs)
     ament_target_dependencies(tool_bag_to_images cv_bridge rosbag2_cpp sensor_msgs)
     ament_target_dependencies(tool_bag_to_pcds pcl_conversions rosbag2_cpp sensor_msgs)
     ament_target_dependencies(tool_bag_to_video cv_bridge rosbag2_cpp sensor_msgs)
     ament_target_dependencies(tool_compress_bag rosbag2_cpp rosbag2_transport sensor_msgs)
     ament_target_dependencies(tool_decompress_bag rosbag2_cpp rosbag2_transport sensor_msgs)
-    ament_target_dependencies(tool_dummy_bag cv_bridge pcl_conversions rosbag2_cpp sensor_msgs)
+    ament_target_dependencies(tool_dummy_bag cv_bridge geometry_msgs pcl_conversions rosbag2_cpp sensor_msgs tf2_msgs)
     ament_target_dependencies(tool_merge_bags rosbag2_cpp rosbag2_transport sensor_msgs)
     ament_target_dependencies(tool_pcds_to_bag pcl_conversions rosbag2_cpp sensor_msgs)
     ament_target_dependencies(tool_publish_images cv_bridge rclcpp rosbag2_cpp sensor_msgs)
