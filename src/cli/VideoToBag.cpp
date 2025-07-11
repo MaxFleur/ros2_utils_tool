@@ -20,6 +20,7 @@ showHelp()
     std::cout << "-r or --rate: Framerate for the image stream. Must be from 10 to 60. If no rate is specified, the video's rate will be taken." << std::endl;
     std::cout << "-a or --accelerate: Use hardware acceleration." << std::endl;
     std::cout << "-e or --exchange: Exchange red and blue values.\n" << std::endl;
+    std::cout << "-s or --suppress: Suppress any warnings.\n" << std::endl;
     std::cout << "-h or --help: Show this help." << std::endl;
 }
 
@@ -33,7 +34,7 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto arguments = app.arguments();
-    const QStringList checkList{ "-t", "-r", "-a", "-e", "-h", "--topic_name", "--rate", "--accelerate", "--exchange", "--help" };
+    const QStringList checkList{ "-t", "-r", "-a", "-e", "-s", "-h", "--topic_name", "--rate", "--accelerate", "--exchange", "--suppress", "--help" };
     if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
@@ -82,7 +83,7 @@ main(int argc, char* argv[])
         parameters.topicName = "/topic_video";
     }
 
-    if (!Utils::CLI::continueExistingTargetLowDiskSpace(parameters.targetDirectory)) {
+    if (!Utils::CLI::continueExistingTargetLowDiskSpace(arguments, parameters.targetDirectory)) {
         return 0;
     }
 

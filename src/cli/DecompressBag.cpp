@@ -17,7 +17,8 @@ showHelp()
 {
     std::cout << "Usage: ros2 run mediassist4_ros_tools tool_decompress_bag path/to/compressed/source/bag /path/to/uncompressed/target/bag \n" << std::endl;
     std::cout << "Additional parameters:" << std::endl;
-    std::cout << "-d or --delete: Delete the source file after completion." << std::endl;
+    std::cout << "-d or --delete: Delete the source file after completion.\n" << std::endl;
+    std::cout << "-s or --suppress: Suppress any warnings.\n" << std::endl;
     std::cout << "-h or --help: Show this help." << std::endl;
 }
 
@@ -35,7 +36,7 @@ main(int argc, char* argv[])
         showHelp();
         return 0;
     }
-    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, { "-d", "--delete" }); argument != std::nullopt) {
+    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, { "-d", "-s", "--delete", "--suppress" }); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
     }
@@ -61,7 +62,7 @@ main(int argc, char* argv[])
         parameters.deleteSource = Utils::CLI::containsArguments(arguments, "-d", "--delete");
     }
 
-    if (!Utils::CLI::continueExistingTargetLowDiskSpace(parameters.targetDirectory)) {
+    if (!Utils::CLI::continueExistingTargetLowDiskSpace(arguments, parameters.targetDirectory)) {
         return 0;
     }
 

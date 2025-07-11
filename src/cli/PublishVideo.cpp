@@ -23,6 +23,7 @@ showHelp()
     std::cout << "-a or --accelerate: Use hardware acceleration." << std::endl;
     std::cout << "-e or --exchange: Exchange red and blue values." << std::endl;
     std::cout << "-l or --loop: Loop the video.\n" << std::endl;
+    std::cout << "-s or --suppress: Suppress any warnings.\n" << std::endl;
     std::cout << "-h or --help: Show this help." << std::endl;
 }
 
@@ -37,7 +38,7 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto arguments = app.arguments();
-    const QStringList checkList{ "-t", "-s", "-a", "-e", "-l", "-h", "--topic_name", "--scale", "--accelerate", "--exchange", "--loop", "--help" };
+    const QStringList checkList{ "-t", "-s", "-a", "-e", "-l", "-s", "-h", "--topic_name", "--scale", "--accelerate", "--exchange", "--loop", "--suppress", "--help" };
     if (arguments.size() < 2 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;

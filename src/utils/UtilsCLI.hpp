@@ -74,12 +74,13 @@ shouldContinue(const std::string& message);
 
 // If we should continue with an invalid ROS2 name
 bool
-continueWithInvalidROS2Name(const QStringList& argumentsList,
+continueWithInvalidROS2Name(const QStringList& arguments,
                             QString&           parameterTopicName);
 
 // If we should continue with an already existing target and/or low diskspace
 bool
-continueExistingTargetLowDiskSpace(const QString& directory);
+continueExistingTargetLowDiskSpace(const QStringList& arguments,
+                                   const QString&     directory);
 
 // Draws a small progress string in the following format:
 // ############################--------------------

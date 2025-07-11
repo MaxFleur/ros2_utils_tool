@@ -19,7 +19,8 @@ showHelp()
     std::cout << "You can write up to four topics.\n" << std::endl;
     std::cout << "Additional parameters:" << std::endl;
     std::cout << "-m or --message-count: Number of messages in the bag file. Must be between 1 and 1000, default is 100." << std::endl;
-    std::cout << "-r or --rate: \"Frame\"rate of messages in the bag file. Must be between 1 and 100, default is 10." << std::endl;
+    std::cout << "-r or --rate: \"Frame\"rate of messages in the bag file. Must be between 1 and 100, default is 10.\n" << std::endl;
+    std::cout << "-s or --suppress: Suppress any warnings.\n" << std::endl;
     std::cout << "-h or --help: Show this help." << std::endl;
 }
 
@@ -37,7 +38,7 @@ main(int argc, char* argv[])
         showHelp();
         return 0;
     }
-    const QStringList checkList{ "-h", "--help", "-m", "--message-count", "-r", "--rate" };
+    const QStringList checkList{ "-m", "-r", "-s", "-h", "--message-count", "--rate", "--suppress", "--help" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
@@ -77,14 +78,16 @@ main(int argc, char* argv[])
         const auto argument = arguments.at(i);
 
         if (i % 2 == 0) {
-            if (!Utils::ROS::isNameROS2Conform(argument) && areROS2NamesValid) {
-                const auto errorString = "The topic name does not follow the ROS2 naming convention! More information on ROS2 naming convention is found here:\n"
-                                         "https://design.ros2.org/articles/topic_and_service_names.html\n"
-                                         "Do you want to continue anyways? [y]/n";
-                if (!Utils::CLI::shouldContinue(errorString)) {
-                    return 0;
+            if (!Utils::CLI::containsArguments(arguments, "-s", "--suppress")) {
+                if (!Utils::ROS::isNameROS2Conform(argument) && areROS2NamesValid) {
+                    const auto errorString = "The topic name does not follow the ROS2 naming convention! More information on ROS2 naming convention is found here:\n"
+                                             "https://design.ros2.org/articles/topic_and_service_names.html\n"
+                                             "Do you want to continue anyways? [y]/n";
+                    if (!Utils::CLI::shouldContinue(errorString)) {
+                        return 0;
+                    }
+                    areROS2NamesValid = false;
                 }
-                areROS2NamesValid = false;
             }
             topicNames.push_back(argument);
             topicNameSet.insert(argument);
@@ -109,7 +112,7 @@ main(int argc, char* argv[])
         parameters.topics.push_back({ topicTypes.at(i), topicNames.at(i) });
     }
 
-    if (!Utils::CLI::continueExistingTargetLowDiskSpace(parameters.sourceDirectory)) {
+    if (!Utils::CLI::continueExistingTargetLowDiskSpace(arguments, parameters.sourceDirectory)) {
         return 0;
     }
 

@@ -16,6 +16,7 @@ showHelp()
     std::cout << "Usage: ros2 run mediassist4_ros_tools tool_bag_to_pcds path/to/bag path/to/pcds\n" << std::endl;
     std::cout << "Additional parameters:" << std::endl;
     std::cout << "-t or --topic_name: Point cloud topic inside the bag. If no topic name is specified, the first found point cloud topic in the bag is taken.\n" << std::endl;
+    std::cout << "-s or --suppress: Suppress any warnings.\n" << std::endl;
     std::cout << "-h or --help: Show this help." << std::endl;
 }
 
@@ -29,7 +30,7 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto& arguments = app.arguments();
-    const QStringList checkList{ "-t", "-h", "--topic_name", "--help" };
+    const QStringList checkList{ "-t", "-s", "-h", "--topic_name", "--suppress", "--help" };
     if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
@@ -60,7 +61,7 @@ main(int argc, char* argv[])
         Utils::CLI::checkForTargetTopic(parameters.sourceDirectory, parameters.topicName, false);
     }
 
-    if (!Utils::CLI::continueExistingTargetLowDiskSpace(parameters.targetDirectory)) {
+    if (!Utils::CLI::continueExistingTargetLowDiskSpace(arguments, parameters.targetDirectory)) {
         return 0;
     }
 

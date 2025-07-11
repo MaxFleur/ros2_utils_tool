@@ -22,6 +22,7 @@ showHelp()
     std::cout << "-e or --exchange: Exchange red and blue values." << std::endl;
     std::cout << "-c or --colorless: Use colorless images." << std::endl;
     std::cout << "-l or --lossless (mkv only): Use lossless images.\n" << std::endl;
+    std::cout << "-s or --suppress: Suppress any warnings.\n" << std::endl;
     std::cout << "-h or --help: Show this help." << std::endl;
 }
 
@@ -35,8 +36,8 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto arguments = app.arguments();
-    const QStringList checkList{ "-t", "-r", "-a", "-e", "-c", "-l", "-h",
-                                 "--topic_name", "--rate", "--accelerate", "--exchange", "--colorless", "--lossless", "--help" };
+    const QStringList checkList{ "-t", "-r", "-a", "-e", "-c", "-l", "-s", "-h",
+                                 "--topic_name", "--rate", "--accelerate", "--exchange", "--colorless", "--lossless", "--suppress", "--help" };
     if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
@@ -87,7 +88,7 @@ main(int argc, char* argv[])
         Utils::CLI::checkForTargetTopic(parameters.sourceDirectory, parameters.topicName, true);
     }
 
-    if (!Utils::CLI::continueExistingTargetLowDiskSpace(parameters.targetDirectory)) {
+    if (!Utils::CLI::continueExistingTargetLowDiskSpace(arguments, parameters.targetDirectory)) {
         return 0;
     }
 

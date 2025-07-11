@@ -22,6 +22,7 @@ showHelp()
     std::cout << "-q 0-9 or --quality 0-9 (jpg and png only): Image quality, must be between 0 and 9 (9 is highest, 8 is default)." << std::endl;
     std::cout << "-o or --optimize (jpg only): Optimize jpg file size." << std::endl;
     std::cout << "-b or --binary (png only): Write images with only black and white pixels.\n" << std::endl;
+    std::cout << "-s or --suppress: Suppress any warnings.\n" << std::endl;
     std::cout << "-h or --help: Show this help." << std::endl;
 }
 
@@ -35,8 +36,8 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto& arguments = app.arguments();
-    const QStringList checkList{ "-t", "-f", "-e", "-c", "-q", "-o", "-b", "-h",
-                                 "--topic_name", "--format", "--exchange", "--colorless", "--quality", "--optimize", "--binary", "--help" };
+    const QStringList checkList{ "-t", "-f", "-e", "-c", "-q", "-o", "-b", "-s", "-h",
+                                 "--topic_name", "--format", "--exchange", "--colorless", "--quality", "--optimize", "--binary", "--suppress", "--help" };
     if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
@@ -89,7 +90,7 @@ main(int argc, char* argv[])
         Utils::CLI::checkForTargetTopic(parameters.sourceDirectory, parameters.topicName, true);
     }
 
-    if (!Utils::CLI::continueExistingTargetLowDiskSpace(parameters.targetDirectory)) {
+    if (!Utils::CLI::continueExistingTargetLowDiskSpace(arguments, parameters.targetDirectory)) {
         return 0;
     }
 

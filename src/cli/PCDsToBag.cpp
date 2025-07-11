@@ -16,6 +16,7 @@ showHelp()
     std::cout << "Additional parameters:" << std::endl;
     std::cout << "-t or --topic_name: Topic name in the bag file. If this is empty, the name '/topic_point_cloud' will be used.\n" << std::endl;
     std::cout << "-r or --rate: Rate ('clouds per second'). Must be between 1 and 30, default is 5.\n" << std::endl;
+    std::cout << "-s or --suppress: Suppress any warnings.\n" << std::endl;
     std::cout << "-h or --help: Show this help." << std::endl;
 }
 
@@ -29,7 +30,7 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto arguments = app.arguments();
-    const QStringList checkList{ "-h", "--help", "-t", "--topic_name", "-r", "--rate" };
+    const QStringList checkList{ "-t", "-r", "-s", "-h", "--topic_name", "--rate", "--suppress", "--help" };
     if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
@@ -76,7 +77,7 @@ main(int argc, char* argv[])
         parameters.topicName = "/topic_point_cloud";
     }
 
-    if (!Utils::CLI::continueExistingTargetLowDiskSpace(parameters.targetDirectory)) {
+    if (!Utils::CLI::continueExistingTargetLowDiskSpace(arguments, parameters.targetDirectory)) {
         return 0;
     }
 

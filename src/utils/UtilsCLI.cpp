@@ -140,12 +140,16 @@ shouldContinue(const std::string& message)
 
 
 bool
-continueWithInvalidROS2Name(const QStringList& argumentsList, QString& parameterTopicName)
+continueWithInvalidROS2Name(const QStringList& arguments, QString& parameterTopicName)
 {
-    if (Utils::CLI::containsArguments(argumentsList, "-t", "--topic_name")) {
-        checkTopicParameterPosition(argumentsList);
+    if (containsArguments(arguments, "-s", "--suppress")) {
+        return true;
+    }
 
-        const auto& topicName = argumentsList.at(Utils::CLI::getArgumentsIndex(argumentsList, "-t", "--topic_name") + 1);
+    if (Utils::CLI::containsArguments(arguments, "-t", "--topic_name")) {
+        checkTopicParameterPosition(arguments);
+
+        const auto& topicName = arguments.at(Utils::CLI::getArgumentsIndex(arguments, "-t", "--topic_name") + 1);
         if (!Utils::ROS::isNameROS2Conform(topicName)) {
             const auto errorString = "The topic name does not follow the ROS2 naming convention! More information on ROS2 naming convention is found here:\n"
                                      "https://design.ros2.org/articles/topic_and_service_names.html\n"
@@ -161,8 +165,12 @@ continueWithInvalidROS2Name(const QStringList& argumentsList, QString& parameter
 
 
 bool
-continueExistingTargetLowDiskSpace(const QString& directory)
+continueExistingTargetLowDiskSpace(const QStringList& arguments, const QString& directory)
 {
+    if (Utils::CLI::containsArguments(arguments, "-s", "--suppress")) {
+        return true;
+    }
+
     if (const auto diskSpace = Utils::General::getAvailableDriveSpace(directory); diskSpace < Utils::General::MINIMUM_RECOMMENDED_DRIVE_SPACE) {
         if (!Utils::CLI::shouldContinue("Available disk space is very small (" + std::to_string(diskSpace) + " GB). Do you want to continue? [y]/n")) {
             return false;
