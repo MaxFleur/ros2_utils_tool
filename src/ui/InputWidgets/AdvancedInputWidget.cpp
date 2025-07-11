@@ -29,8 +29,23 @@ AdvancedInputWidget::AdvancedInputWidget(Parameters::AdvancedParameters& paramet
     m_topicNameComboBox->setMinimumWidth(200);
 
     if (!m_parameters.sourceDirectory.isEmpty()) {
-        Utils::UI::fillComboBoxWithTopics(m_topicNameComboBox, m_parameters.sourceDirectory,
-                                          m_outputFormat == OUTPUT_PCDS ? "sensor_msgs/msg/PointCloud2" : "sensor_msgs/msg/Image");
+        QString topicType;
+
+        switch (m_outputFormat) {
+        case OUTPUT_VIDEO:
+        case OUTPUT_IMAGES:
+            topicType = "sensor_msgs/msg/Image";
+            break;
+        case OUTPUT_PCDS:
+            topicType = "sensor_msgs/msg/PointCloud2";
+            break;
+        case OUTPUT_JSON:
+            topicType = "tf2_msgs/msg/TFMessage";
+            break;
+        default:
+            break;
+        }
+        Utils::UI::fillComboBoxWithTopics(m_topicNameComboBox, m_parameters.sourceDirectory, topicType);
 
         if (!m_parameters.topicName.isEmpty()) {
             m_topicNameComboBox->setCurrentText(m_parameters.topicName);
@@ -94,7 +109,7 @@ AdvancedInputWidget::findSourceButtonPressed()
     switch (m_outputFormat) {
     case OUTPUT_VIDEO:
         topicType = "sensor_msgs/msg/Image";
-        autoTargetDir = "/bag_video." + m_videoFormat;
+        autoTargetDir = "/bag_video." + m_fileFormat;
         break;
     case OUTPUT_IMAGES:
         topicType = "sensor_msgs/msg/Image";
@@ -103,6 +118,10 @@ AdvancedInputWidget::findSourceButtonPressed()
     case OUTPUT_PCDS:
         topicType = "sensor_msgs/msg/PointCloud2";
         autoTargetDir = "/pcd_files";
+        break;
+    case OUTPUT_JSON:
+        topicType = "tf2_msgs/msg/TFMessage";
+        autoTargetDir = "/bag_transforms." + m_fileFormat;
         break;
     default:
         break;
@@ -137,11 +156,14 @@ AdvancedInputWidget::findTargetButtonPressed()
     QString fileName;
     switch (m_outputFormat) {
     case OUTPUT_VIDEO:
-        fileName = QFileDialog::getSaveFileName(this, "Save Video", "", m_videoFormat + " files (*." + m_videoFormat + ")");
+        fileName = QFileDialog::getSaveFileName(this, "Save Video", "", m_fileFormat + " files (*." + m_fileFormat + ")");
         break;
     case OUTPUT_IMAGES:
     case OUTPUT_PCDS:
         fileName = QFileDialog::getExistingDirectory(this, "Save Files", "", QFileDialog::ShowDirsOnly);
+        break;
+    case OUTPUT_JSON:
+        fileName = QFileDialog::getSaveFileName(this, "Save Json", "", m_fileFormat + " files (*." + m_fileFormat + ")");
         break;
     case OUTPUT_BAG:
         fileName = QFileDialog::getSaveFileName(this, "Save Bag");

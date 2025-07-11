@@ -11,12 +11,18 @@
 #include "PublishImagesThread.hpp"
 #include "PublishVideoThread.hpp"
 #include "RecordBagThread.hpp"
+#include "TF2ToJsonThread.hpp"
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 #include "VideoToBagThread.hpp"
 
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/videoio.hpp>
+
+#include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_cloud.h>
@@ -590,6 +596,64 @@ TEST_CASE("Threads Testing", "[threads]") {
 
             performImageCheck(".bmp", 30, 30, 30);
         }
+    }
+    SECTION("TF2 to Json Thread Test") {
+        Parameters::TF2ToJsonParameters parameters;
+        parameters.sourceDirectory = "./dummy_bag";
+        parameters.targetDirectory = "./transforms.json";
+        parameters.topicName = "/dummy_tf2";
+        parameters.keepTimestamps = true;
+
+        const auto verifyTransforms = [] (bool containsHeaderStamp) {
+            QFile file("./transforms.json");
+
+            file.open(QFile::ReadOnly);
+            const auto document = QJsonDocument::fromJson(file.readAll());
+            file.close();
+
+            const auto documentArray = document.array();
+            REQUIRE(documentArray.size() == 100);
+
+            for (auto i = 0; i < documentArray.size(); ++i) {
+                const auto messageObject = documentArray.at(i).toObject();
+                REQUIRE(messageObject.contains("message_" + QString::number(i)));
+
+                const auto messageValue = messageObject.value("message_" + QString::number(i));
+                const auto messageValueObject = messageValue.toObject();
+
+                for (auto j = 0; j < 3; ++j) {
+                    const auto transformValue = messageValueObject.value("transform_" + QString::number(j));
+                    const auto transformValueObject = transformValue.toObject();
+
+                    REQUIRE(transformValueObject.keys().contains("header_frame_id"));
+                    REQUIRE(transformValueObject.keys().contains("child_frame_id"));
+                    REQUIRE(transformValueObject.keys().contains("translation"));
+                    REQUIRE(transformValueObject.keys().contains("rotation"));
+                    REQUIRE(transformValueObject.keys().contains("header_stamp") == containsHeaderStamp);
+                }
+            }
+        };
+
+        auto* const thread = new TF2ToJsonThread(parameters);
+        QObject::connect(thread, &TF2ToJsonThread::finished, thread, &QObject::deleteLater);
+
+
+        SECTION("Default Parameter Values") {
+            thread->start();
+            thread->wait();
+
+            verifyTransforms(true);
+        }
+        SECTION("Without Timestamp") {
+            parameters.keepTimestamps = false;
+
+            thread->start();
+            thread->wait();
+
+            verifyTransforms(false);
+        }
+
+        std::filesystem::remove_all("./transforms.json");
     }
     SECTION("Bag to PCDs Thread Test") {
         Parameters::AdvancedParameters parameters;

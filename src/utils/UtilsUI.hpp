@@ -55,6 +55,7 @@ enum class TOOL_ID {
     BAG_TO_PCDS,
     PCDS_TO_BAG,
     BAG_TO_IMAGES,
+    TF2_TO_JSON,
     EDIT_BAG,
     MERGE_BAGS,
     RECORD_BAG,

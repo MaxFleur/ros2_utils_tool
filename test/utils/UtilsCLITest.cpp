@@ -122,10 +122,11 @@ TEST_CASE("Utils CLI Testing", "[utils]") {
     }
     SECTION("Check target topic test") {
         QString topicName = "";
-        REQUIRE_NOTHROW(Utils::CLI::checkForTargetTopic("test_bag_file", topicName, true));
+        REQUIRE_NOTHROW(Utils::CLI::checkForTargetTopic("test_bag_file", topicName, "sensor_msgs/msg/Image"));
         REQUIRE(topicName == "/topic_image");
 
-        CHECK_THROWS_WITH(Utils::CLI::checkForTargetTopic("test_bag_file", topicName, false), "The bag file does not contain any point cloud topics!");
+        CHECK_THROWS_WITH(Utils::CLI::checkForTargetTopic("test_bag_file", topicName, "sensor_msgs/msg/PointCloud2"),
+                          "The bag file does not contain any topics of type 'sensor_msgs/msg/PointCloud2'!");
     }
     SECTION("Progress string test") {
         auto progressString = Utils::CLI::drawProgressString(0);

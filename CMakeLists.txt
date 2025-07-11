@@ -69,14 +69,17 @@ add_executable(tool_publish_images
 add_executable(tool_publish_video
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/PublishVideo.cpp
 )
+add_executable(tool_tf2_to_json
+    ${CMAKE_CURRENT_LIST_DIR}/src/cli/TF2ToJson.cpp
+)
 add_executable(tool_video_to_bag
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/VideoToBag.cpp
 )
 
 if($ENV{ROS_DISTRO} STREQUAL "kilted")
     target_link_libraries(tool_ui
-        rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp rosbag2_transport::rosbag2_transport cv_bridge::cv_bridge ${geometry_msgs_TARGETS}
-        pcl_conversions::pcl_conversions ${sensor_msgs_TARGETS} ${tf2_msgs_TARGETS}
+        rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp rosbag2_transport::rosbag2_transport cv_bridge::cv_bridge
+        pcl_conversions::pcl_conversions ${geometry_msgs_TARGETS} ${sensor_msgs_TARGETS} ${tf2_msgs_TARGETS}
         Qt::Widgets rt_ui
     )
     target_link_libraries(tool_bag_to_images
@@ -100,7 +103,7 @@ if($ENV{ROS_DISTRO} STREQUAL "kilted")
         Qt::Widgets rt_change_compression_thread rt_utils
     )
     target_link_libraries(tool_dummy_bag
-        rosbag2_cpp::rosbag2_cpp cv_bridge::cv_bridge pcl_conversions::pcl_conversions ${sensor_msgs_TARGETS}
+        rosbag2_cpp::rosbag2_cpp cv_bridge::cv_bridge pcl_conversions::pcl_conversions ${sensor_msgs_TARGETS} ${tf2_msgs_TARGETS}
         Qt::Widgets rt_dummy_bag_thread rt_utils
     )
     target_link_libraries(tool_merge_bags
@@ -119,6 +122,10 @@ if($ENV{ROS_DISTRO} STREQUAL "kilted")
         rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp cv_bridge::cv_bridge ${sensor_msgs_TARGETS}
         Qt::Widgets rt_publish_video_thread rt_utils
     )
+    target_link_libraries(tool_tf2_to_json
+        rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp ${geometry_msgs_TARGETS} ${std_msgs_TARGETS} ${tf2_msgs_TARGETS}
+        Qt::Widgets rt_tf2_to_json_thread rt_utils
+    )
     target_link_libraries(tool_video_to_bag
         rosbag2_cpp::rosbag2_cpp cv_bridge::cv_bridge ${sensor_msgs_TARGETS}
         Qt::Widgets rt_video_to_bag_thread rt_utils
@@ -135,6 +142,7 @@ else()
     ament_target_dependencies(tool_pcds_to_bag pcl_conversions rosbag2_cpp sensor_msgs)
     ament_target_dependencies(tool_publish_images cv_bridge rclcpp rosbag2_cpp sensor_msgs)
     ament_target_dependencies(tool_publish_video cv_bridge rclcpp rosbag2_cpp sensor_msgs)
+    ament_target_dependencies(tool_tf2_to_json rosbag2_cpp tf2_msgs)
     ament_target_dependencies(tool_video_to_bag cv_bridge rosbag2_cpp sensor_msgs)
 
     target_link_libraries(tool_ui
@@ -170,6 +178,9 @@ else()
     target_link_libraries(tool_publish_video
         Qt::Widgets rt_publish_video_thread rt_utils
     )
+    target_link_libraries(tool_tf2_to_json
+        Qt::Widgets rt_tf2_to_json_thread rt_utils
+    )
     target_link_libraries(tool_video_to_bag
         Qt::Widgets rt_video_to_bag_thread rt_utils
     )
@@ -187,6 +198,7 @@ install(TARGETS
     tool_pcds_to_bag
     tool_publish_images
     tool_publish_video
+    tool_tf2_to_json
     tool_video_to_bag
     tool_tests
     DESTINATION lib/${PROJECT_NAME}/

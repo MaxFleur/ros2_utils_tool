@@ -75,7 +75,7 @@ BagToVideoWidget::BagToVideoWidget(Parameters::BagToVideoParameters& parameters,
         writeParameterToSettings(m_parameters.useBWImages, state == Qt::Checked, m_settings);
     });
 
-    setVideoFormat(m_formatComboBox->currentText());
+    setFileFormat(m_formatComboBox->currentText());
 }
 
 
@@ -112,5 +112,5 @@ BagToVideoWidget::formatComboBoxTextChanged(const QString& text)
     m_targetLineEdit->setText(newLineEditText);
 
     writeParameterToSettings(m_parameters.targetDirectory, newLineEditText, m_settings);
-    setVideoFormat(text);
+    setFileFormat(text);
 }

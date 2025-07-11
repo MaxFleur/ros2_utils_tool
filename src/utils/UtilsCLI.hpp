@@ -66,7 +66,7 @@ checkParentDirectory(const QString& directory,
 void
 checkForTargetTopic(const QString& directory,
                     QString&       parameterTopicName,
-                    bool           isTopicOfImageType);
+                    const QString& topicType);
 
 // Ask if the tool should continue for cases of invalidacies
 bool

@@ -15,6 +15,7 @@
 #include "PublishSettings.hpp"
 #include "RecordBagSettings.hpp"
 #include "RGBSettings.hpp"
+#include "TF2ToJsonSettings.hpp"
 #include "VideoSettings.hpp"
 #include "VideoToBagSettings.hpp"
 
@@ -187,6 +188,26 @@ TEST_CASE("Settings Testing", "[ui]") {
 
             qSettings.beginGroup("pcds_to_bag");
             verifiySettingPrimitive(qSettings, "rate", 10);
+            qSettings.endGroup();
+        }
+    }
+    SECTION("TF2 to Json Params Test") {
+        SECTION("Read") {
+            qSettings.beginGroup("tf2_to_json");
+            checkSettingsInvalidacy(qSettings, { "compact_output", "keep_timestamps" });
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Parameters::TF2ToJsonParameters parameters;
+            TF2ToJsonSettings settings(parameters, "tf2_to_json");
+
+            parameters.compactOutput = true;
+            parameters.keepTimestamps = true;
+            settings.write();
+
+            qSettings.beginGroup("tf2_to_json");
+            verifiySettingPrimitive(qSettings, "compact_output", true);
+            verifiySettingPrimitive(qSettings, "keep_timestamps", true);
             qSettings.endGroup();
         }
     }

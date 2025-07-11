@@ -13,6 +13,7 @@
 #include "PublishImagesThread.hpp"
 #include "PublishVideoThread.hpp"
 #include "RecordBagThread.hpp"
+#include "TF2ToJsonThread.hpp"
 #include "VideoToBagThread.hpp"
 
 #include <QLabel>
@@ -46,6 +47,9 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
     case Utils::UI::TOOL_ID::BAG_TO_IMAGES:
         m_thread = new BagToImagesThread(dynamic_cast<Parameters::BagToImagesParameters&>(parameters),
                                          DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
+        break;
+    case Utils::UI::TOOL_ID::TF2_TO_JSON:
+        m_thread = new TF2ToJsonThread(dynamic_cast<Parameters::TF2ToJsonParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_ID::EDIT_BAG:
         m_thread = new EditBagThread(dynamic_cast<Parameters::EditBagParameters&>(parameters),

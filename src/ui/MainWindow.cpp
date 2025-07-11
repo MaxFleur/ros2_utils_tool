@@ -13,6 +13,7 @@
 #include "PublishWidget.hpp"
 #include "RecordBagWidget.hpp"
 #include "StartWidget.hpp"
+#include "TF2ToJsonWidget.hpp"
 #include "TopicsServicesInfoWidget.hpp"
 #include "VideoToBagWidget.hpp"
 
@@ -67,6 +68,9 @@ MainWindow::setInputWidget(Utils::UI::TOOL_ID mode)
         break;
     case Utils::UI::TOOL_ID::BAG_TO_IMAGES:
         basicInputWidget = new BagToImagesWidget(m_parametersBagToImages);
+        break;
+    case Utils::UI::TOOL_ID::TF2_TO_JSON:
+        basicInputWidget = new TF2ToJsonWidget(m_parametersTF2ToJson);
         break;
     case Utils::UI::TOOL_ID::EDIT_BAG:
         basicInputWidget = new EditBagWidget(m_parametersEditBag, m_dialogParameters.warnROS2NameConvention);
@@ -132,6 +136,9 @@ MainWindow::setProgressWidget(Utils::UI::TOOL_ID mode)
         break;
     case Utils::UI::TOOL_ID::BAG_TO_IMAGES:
         progressWidget = new ProgressWidget("Writing Images...", m_parametersBagToImages, mode);
+        break;
+    case Utils::UI::TOOL_ID::TF2_TO_JSON:
+        progressWidget = new ProgressWidget("Writing Json File(s)...", m_parametersTF2ToJson, mode);
         break;
     case Utils::UI::TOOL_ID::EDIT_BAG:
         progressWidget = new ProgressWidget("Writing edited Bag File...", m_parametersEditBag, mode);

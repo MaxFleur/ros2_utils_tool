@@ -108,13 +108,11 @@ checkParentDirectory(const QString& directory, bool isTarget)
 
 
 void
-checkForTargetTopic(const QString& directory, QString& parameterTopicName, bool isTopicOfImageType)
+checkForTargetTopic(const QString& directory, QString& parameterTopicName, const QString& topicType)
 {
-    const auto targetTopicName = Utils::ROS::getFirstTopicWithCertainType(directory, isTopicOfImageType ? "sensor_msgs/msg/Image"
-                                                                                                        : "sensor_msgs/msg/PointCloud2");
+    const auto targetTopicName = Utils::ROS::getFirstTopicWithCertainType(directory, topicType);
     if (targetTopicName == std::nullopt) {
-        throw std::runtime_error(isTopicOfImageType ? "The bag file does not contain any image topics!"
-                                                    : "The bag file does not contain any point cloud topics!");
+        throw std::runtime_error("The bag file does not contain any topics of type '" + topicType.toStdString() + "'!");
     }
 
     parameterTopicName = *targetTopicName;

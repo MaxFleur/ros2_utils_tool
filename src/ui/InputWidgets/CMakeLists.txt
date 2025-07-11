@@ -31,6 +31,8 @@ target_sources(rt_input_widgets INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/PublishWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/RecordBagWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RecordBagWidget.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/TF2ToJsonWidget.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/TF2ToJsonWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/TopicsServicesInfoWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/TopicsServicesInfoWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/VideoToBagWidget.cpp
