@@ -57,7 +57,7 @@ checkArgumentValidity(const QStringList& argumentsList, const QString& shortArg,
 void
 checkTopicParameterPosition(const QStringList& argumentsList)
 {
-    if (const auto topicNameIndex = Utils::CLI::getArgumentsIndex(argumentsList, "-t", "--topic_name");
+    if (const auto topicNameIndex = getArgumentsIndex(argumentsList, "-t", "--topic_name");
         argumentsList.at(topicNameIndex) == argumentsList.last()) {
         throw std::runtime_error("Please enter a valid topic name!");
     }
@@ -67,10 +67,10 @@ checkTopicParameterPosition(const QStringList& argumentsList)
 void
 checkTopicNameValidity(const QStringList& argumentsList, const QString& bagDirectory, const QString& topicType, QString& topicNameToSet)
 {
-    if (Utils::CLI::containsArguments(argumentsList, "-t", "--topic_name")) {
+    if (containsArguments(argumentsList, "-t", "--topic_name")) {
         checkTopicParameterPosition(argumentsList);
 
-        const auto& topicName = argumentsList.at(Utils::CLI::getArgumentsIndex(argumentsList, "-t", "--topic_name") + 1);
+        const auto& topicName = argumentsList.at(getArgumentsIndex(argumentsList, "-t", "--topic_name") + 1);
         if (!Utils::ROS::doesBagContainTopicName(bagDirectory, topicName)) {
             throw std::runtime_error("Topic '" + topicName.toStdString() + "' has not been found in the bag file!");
         }
@@ -99,10 +99,11 @@ checkParentDirectory(const QString& directory, bool isTarget)
 {
     auto parentDirectory = directory;
     parentDirectory.truncate(parentDirectory.lastIndexOf(QChar('/')));
-    if (!std::filesystem::exists(parentDirectory.toStdString())) {
-        throw std::runtime_error(isTarget ? "Invalid target directory. Please enter a valid one!"
-                                          : "Invalid source directory. Please enter a valid one!");
+
+    if (std::filesystem::exists(parentDirectory.toStdString())) {
+        return;
     }
+    throw std::runtime_error(isTarget ? "Invalid target directory. Please enter a valid one!" : "Invalid source directory. Please enter a valid one!");
 }
 
 
@@ -145,21 +146,22 @@ continueWithInvalidROS2Name(const QStringList& arguments, QString& parameterTopi
     if (containsArguments(arguments, "-s", "--suppress")) {
         return true;
     }
-
-    if (Utils::CLI::containsArguments(arguments, "-t", "--topic_name")) {
-        checkTopicParameterPosition(arguments);
-
-        const auto& topicName = arguments.at(Utils::CLI::getArgumentsIndex(arguments, "-t", "--topic_name") + 1);
-        if (!Utils::ROS::isNameROS2Conform(topicName)) {
-            const auto errorString = "The topic name does not follow the ROS2 naming convention! More information on ROS2 naming convention is found here:\n"
-                                     "https://design.ros2.org/articles/topic_and_service_names.html\n"
-                                     "Do you want to continue anyways? [y]/n";
-            if (!shouldContinue(errorString)) {
-                return false;
-            }
-        }
-        parameterTopicName = topicName;
+    if (!containsArguments(arguments, "-t", "--topic_name")) {
+        return true;
     }
+
+    checkTopicParameterPosition(arguments);
+
+    const auto& topicName = arguments.at(getArgumentsIndex(arguments, "-t", "--topic_name") + 1);
+    if (!Utils::ROS::isNameROS2Conform(topicName)) {
+        const auto errorString = "The topic name does not follow the ROS2 naming convention! More information on ROS2 naming convention is found here:\n"
+                                 "https://design.ros2.org/articles/topic_and_service_names.html\n"
+                                 "Do you want to continue anyways? [y]/n";
+        if (!shouldContinue(errorString)) {
+            return false;
+        }
+    }
+    parameterTopicName = topicName;
     return true;
 }
 
@@ -167,17 +169,17 @@ continueWithInvalidROS2Name(const QStringList& arguments, QString& parameterTopi
 bool
 continueExistingTargetLowDiskSpace(const QStringList& arguments, const QString& directory)
 {
-    if (Utils::CLI::containsArguments(arguments, "-s", "--suppress")) {
+    if (containsArguments(arguments, "-s", "--suppress")) {
         return true;
     }
 
     if (const auto diskSpace = Utils::General::getAvailableDriveSpace(directory); diskSpace < Utils::General::MINIMUM_RECOMMENDED_DRIVE_SPACE) {
-        if (!Utils::CLI::shouldContinue("Available disk space is very small (" + std::to_string(diskSpace) + " GB). Do you want to continue? [y]/n")) {
+        if (!shouldContinue("Available disk space is very small (" + std::to_string(diskSpace) + " GB). Do you want to continue? [y]/n")) {
             return false;
         }
     }
     if (std::filesystem::exists(directory.toStdString())) {
-        if (!Utils::CLI::shouldContinue("The target directory already exists. Continue and overwrite the target? [y]/n")) {
+        if (!shouldContinue("The target directory already exists. Continue and overwrite the target? [y]/n")) {
             return false;
         }
     }

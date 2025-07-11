@@ -78,17 +78,16 @@ main(int argc, char* argv[])
         const auto argument = arguments.at(i);
 
         if (i % 2 == 0) {
-            if (!Utils::CLI::containsArguments(arguments, "-s", "--suppress")) {
-                if (!Utils::ROS::isNameROS2Conform(argument) && areROS2NamesValid) {
-                    const auto errorString = "The topic name does not follow the ROS2 naming convention! More information on ROS2 naming convention is found here:\n"
-                                             "https://design.ros2.org/articles/topic_and_service_names.html\n"
-                                             "Do you want to continue anyways? [y]/n";
-                    if (!Utils::CLI::shouldContinue(errorString)) {
-                        return 0;
-                    }
-                    areROS2NamesValid = false;
+            if (!Utils::ROS::isNameROS2Conform(argument) && areROS2NamesValid && !Utils::CLI::containsArguments(arguments, "-s", "--suppress")) {
+                const auto errorString = "The topic name does not follow the ROS2 naming convention! More information on ROS2 naming convention is found here:\n"
+                                         "https://design.ros2.org/articles/topic_and_service_names.html\n"
+                                         "Do you want to continue anyways? [y]/n";
+                if (!Utils::CLI::shouldContinue(errorString)) {
+                    return 0;
                 }
+                areROS2NamesValid = false;
             }
+
             topicNames.push_back(argument);
             topicNameSet.insert(argument);
         } else {
