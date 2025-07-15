@@ -46,23 +46,14 @@ ChangeCompressionWidget::ChangeCompressionWidget(Parameters::CompressBagParamete
         fileRadioButton->setToolTip("Compresses the entire bag file. More efficient, but takes more time.");
         fileRadioButton->setChecked(!m_parameters.compressPerMessage);
 
-        auto* const fileRadioButtonLayout = new QVBoxLayout;
-        fileRadioButtonLayout->addWidget(fileRadioButton);
-        fileRadioButtonLayout->addStretch();
-
         auto* const messageRadioButton = new QRadioButton("Compress per Message");
         messageRadioButton->setToolTip("Compresses each message individually. Faster, but less efficient.");
         messageRadioButton->setChecked(m_parameters.compressPerMessage);
-        // If we put both radio buttons in a single layout, they will appear shifted in the form layout.
-        // To prevent this, we use a separate layout for each button.
-        auto* const messageRadioButtonLayout = new QVBoxLayout;
-        messageRadioButtonLayout->addWidget(messageRadioButton);
-        messageRadioButtonLayout->addStretch();
 
         // Dummy space
         formLayout->addRow("", new QLabel(""));
-        formLayout->addRow("Compression Mode:", fileRadioButtonLayout);
-        formLayout->addRow("", messageRadioButtonLayout);
+        formLayout->addRow("Compression Mode:", fileRadioButton);
+        formLayout->addRow("", messageRadioButton);
 
         connect(fileRadioButton, &QRadioButton::toggled, this, [this, messageRadioButton] (bool switched) {
             writeParameterToSettings(m_parameters.compressPerMessage, !switched, m_settings);
