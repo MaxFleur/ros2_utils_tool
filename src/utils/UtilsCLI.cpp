@@ -141,16 +141,18 @@ shouldContinue(const std::string& message)
 bool
 continueWithInvalidROS2Name(const QStringList& arguments, QString& parameterTopicName)
 {
-    if (containsArguments(arguments, "-s", "--suppress")) {
-        return true;
-    }
     if (!containsArguments(arguments, "-t", "--topic_name")) {
         return true;
     }
 
     checkTopicParameterPosition(arguments);
-
     const auto& topicName = arguments.at(getArgumentsIndex(arguments, "-t", "--topic_name") + 1);
+
+    if (containsArguments(arguments, "-s", "--suppress")) {
+        parameterTopicName = topicName;
+        return true;
+    }
+
     if (!Utils::ROS::isNameROS2Conform(topicName)) {
         const auto errorString = "The topic name does not follow the ROS2 naming convention! More information on ROS2 naming convention is found here:\n"
                                  "https://design.ros2.org/articles/topic_and_service_names.html\n"
