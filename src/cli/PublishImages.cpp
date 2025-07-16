@@ -37,12 +37,13 @@ main(int argc, char* argv[])
     rclcpp::init(argc, argv);
     QCoreApplication app(argc, argv);
 
-    const auto arguments = app.arguments();
-    const QStringList checkList{ "-t", "-s", "-r", "-e", "-l", "-s", "-h", "--topic_name", "--scale", "--rate", "--exchange", "--loop", "--suppress", "--help" };
+    const auto& arguments = app.arguments();
     if (arguments.size() < 2 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
     }
+
+    const QStringList checkList{ "-t", "-s", "-r", "-e", "-l", "-s", "--topic_name", "--scale", "--rate", "--exchange", "--loop", "--suppress" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");

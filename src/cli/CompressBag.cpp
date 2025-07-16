@@ -32,11 +32,12 @@ main(int argc, char* argv[])
     // Create application
     QCoreApplication app(argc, argv);
 
-    const auto arguments = app.arguments();
+    const auto& arguments = app.arguments();
     if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
     }
+
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, { "-m", "-d", "-s", "--mode", "--delete", "--suppress" }); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");

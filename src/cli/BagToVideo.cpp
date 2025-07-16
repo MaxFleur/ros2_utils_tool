@@ -35,13 +35,14 @@ main(int argc, char* argv[])
     // Create application
     QCoreApplication app(argc, argv);
 
-    const auto arguments = app.arguments();
-    const QStringList checkList{ "-t", "-r", "-a", "-e", "-c", "-l", "-s", "-h",
-                                 "--topic_name", "--rate", "--accelerate", "--exchange", "--colorless", "--lossless", "--suppress", "--help" };
+    const auto& arguments = app.arguments();
     if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
     }
+
+    const QStringList checkList{ "-t", "-r", "-a", "-e", "-c", "-l", "-s",
+                                 "--topic_name", "--rate", "--accelerate", "--exchange", "--colorless", "--lossless", "--suppress" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");

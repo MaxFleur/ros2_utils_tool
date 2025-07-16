@@ -39,7 +39,8 @@ main(int argc, char* argv[])
         showHelp();
         return 0;
     }
-    const QStringList checkList{ "-m", "-r", "-s", "-h", "--message-count", "--rate", "--suppress", "--help" };
+
+    const QStringList checkList{ "-m", "-r", "-s", "--message-count", "--rate", "--suppress" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
