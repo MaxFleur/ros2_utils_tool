@@ -162,9 +162,9 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     backButtonLayout->addWidget(m_backButton);
     backButtonLayout->addStretch();
 
-    m_versionLabel = new QLabel("v0.12.0");
-    m_versionLabel->setToolTip("UI and CLI usability improvements,\n"
-                               "better conversion tools performance and many bug fixes!");
+    m_versionLabel = new QLabel("v0.13.0");
+    m_versionLabel->setToolTip("TF to Json tool, dummy bag tool tf support,\n"
+                               "a low diskspace warning and CLI optimizations!");
 
     auto* const versionLayout = new QHBoxLayout;
     versionLayout->addStretch();

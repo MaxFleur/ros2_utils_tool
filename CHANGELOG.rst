@@ -2,6 +2,31 @@
 Changelog for the ros2_utils_tool
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.13.0 (2025-07-31)
+-------------------
+**New:**
+
+* A feature to extract tf2 messages out of a ROS bag file to json.
+* TF2 support for the dummy bag tool. Additionally, this tool can now write up to five topics into a bag file!
+* AVI support for the bag to video tool.
+* UI - A new widget shown if disk space is low for every tool generating data, including a new warning messagebox. The messagebox can be disabled in a new option.
+* UI - Tooltips for the starting widget tool buttons.
+* CLI - A flag "-s" or "--suppress" to execute a tool without showing any warnings.
+
+**Changed/Improved:**
+
+* CLI - For y/n questions, just pressing Enter now automatically confirms.
+* CLI - Changed the '-s' flag for scaling published images or videos to '-sc'.
+* UI - The bag info tool now displays the bag size in GiB instead of GB.
+
+**Fixed:**
+
+* Deprecation warnings when compiling with Kilted.
+* UI - Topics added in the Dummy Bag Widget were inserted into the wrong row.
+
+**Other:**
+* Added a Changelog.rst.
+
 0.12.0 (2025-05-26)
 -------------------
 **New:**
