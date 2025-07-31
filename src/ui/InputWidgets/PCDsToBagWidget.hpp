@@ -15,7 +15,7 @@ class PCDsToBagWidget : public AdvancedInputWidget
 public:
     PCDsToBagWidget(Parameters::PCDsToBagParameters& parameters,
                     bool                             usePredefinedTopicName,
-                    bool                             checkROS2NameConform,
+                    bool                             warnROS2NameConvention,
                     QWidget*                         parent = 0);
 
 private slots:
@@ -30,5 +30,5 @@ private:
 
     PCDsToBagSettings m_settings;
 
-    const bool m_checkROS2NameConform;
+    const bool m_warnROS2NameConvention;
 };

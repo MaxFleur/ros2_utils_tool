@@ -17,10 +17,10 @@
 #include <filesystem>
 
 VideoToBagWidget::VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
-                                   bool usePredefinedTopicName, bool checkROS2NameConform, QWidget *parent) :
+                                   bool usePredefinedTopicName, bool warnROS2NameConvention, QWidget *parent) :
     AdvancedInputWidget(parameters, "Video to Bag", ":/icons/video_to_bag", "Video Dir:", "Bag Location:", "vid_to_bag", OUTPUT_BAG, parent),
     m_parameters(parameters), m_settings(parameters, "vid_to_bag"),
-    m_checkROS2NameConform(checkROS2NameConform)
+    m_warnROS2NameConvention(warnROS2NameConvention)
 {
     m_sourceLineEdit->setToolTip("The source video file directory.");
     m_targetLineEdit->setToolTip("The target bag file directory.");
@@ -87,7 +87,7 @@ VideoToBagWidget::findSourceButtonPressed()
     }
 
     QFileInfo fileInfo(videoDir);
-    if (fileInfo.suffix().toLower() != "mp4" && fileInfo.suffix().toLower() != "mkv") {
+    if (fileInfo.suffix().toLower() != "mp4" && fileInfo.suffix().toLower() != "mkv" && fileInfo.suffix().toLower() != "avi") {
         auto *const msgBox = new QMessageBox(QMessageBox::Critical, "Wrong format!", "The video must be in mp4 or mkv format!", QMessageBox::Ok);
         msgBox->exec();
         return;
@@ -100,7 +100,9 @@ VideoToBagWidget::findSourceButtonPressed()
     videoDirectoryDir.cdUp();
     if (const auto autoBagDirectory = videoDirectoryDir.path() + "/video_bag"; !std::filesystem::exists(autoBagDirectory.toStdString())) {
         m_targetLineEdit->setText(autoBagDirectory);
+
         writeParameterToSettings(m_parameters.targetDirectory, autoBagDirectory, m_settings);
+        setLowDiskSpaceWidgetVisibility(m_targetLineEdit->text());
     }
 
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.targetDirectory.isEmpty() && !m_parameters.topicName.isEmpty());
@@ -138,7 +140,10 @@ VideoToBagWidget::okButtonPressed() const
         return;
     }
 
-    if (m_checkROS2NameConform && !Utils::ROS::isNameROS2Conform(m_parameters.topicName)) {
+    if (const auto sufficientSpace = showLowDiskSpaceMessageBox(); !sufficientSpace) {
+        return;
+    }
+    if (m_warnROS2NameConvention && !Utils::ROS::isNameROS2Conform(m_parameters.topicName)) {
         if (const auto returnValue = Utils::UI::continueWithInvalidROS2Names(); !returnValue) {
             return;
         }

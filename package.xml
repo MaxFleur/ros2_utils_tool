@@ -1,18 +1,20 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>ros2_utils_tool</name>
-  <version>0.12.0</version>
+  <version>0.13.0</version>
   <description>The ros2_utils_tool package</description>
 
   <maintainer email="m.fleury@nct-dresden.de">maxime</maintainer>
   <license>EUPLv1.2</license>
 
   <depend>cv_bridge</depend>
+  <depend>geometry_msgs</depend>
   <depend>pcl_conversions</depend>
   <depend>rclcpp</depend>
   <depend>rosbag2_cpp</depend>
   <depend>rosbag2_transport</depend>
   <depend>sensor_msgs</depend>
+  <depend>tf2_msgs</depend>
 
   <test_depend>catch_ros2</test_depend>
 

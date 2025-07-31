@@ -1,5 +1,6 @@
 #include "TopicListingInputWidget.hpp"
 
+#include "LowDiskSpaceWidget.hpp"
 #include "UtilsUI.hpp"
 
 #include <QEvent>
@@ -19,6 +20,8 @@ TopicListingInputWidget::TopicListingInputWidget(Parameters::BasicParameters& pa
     BasicInputWidget(titleText, iconText, parent),
     m_parameters(parameters), m_settings(parameters, settingsIdentifierText)
 {
+    m_lowDiskSpaceWidget = new LowDiskSpaceWidget;
+
     m_addTopicButton = new QToolButton;
     m_addTopicButton->setToolTip("Add another topic.");
 
@@ -64,6 +67,8 @@ TopicListingInputWidget::sourceButtonPressed()
 
     writeParameterToSettings(m_parameters.sourceDirectory, fileName, m_settings);
     m_sourceLineEdit->setText(fileName);
+
+    setLowDiskSpaceWidgetVisibility(m_sourceLineEdit->text());
 }
 
 
@@ -84,6 +89,9 @@ TopicListingInputWidget::okButtonPressed() const
         return;
     }
 
+    if (const auto sufficientSpace = showLowDiskSpaceMessageBox(); !sufficientSpace) {
+        return;
+    }
     if (!Utils::UI::continueForExistingTarget(m_parameters.sourceDirectory, "Bagfile", "bag file")) {
         return;
     }

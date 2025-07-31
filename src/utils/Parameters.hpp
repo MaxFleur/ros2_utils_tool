@@ -42,6 +42,10 @@ struct AdvancedParameters : BasicParameters {
 struct PCDsToBagParameters : AdvancedParameters {
     int rate = 5;
 };
+struct TF2ToJsonParameters : AdvancedParameters {
+    bool compactOutput = true;
+    bool keepTimestamps = false;
+};
 
 struct DeleteSourceParameters : AdvancedParameters {
     bool deleteSource = false;
@@ -108,7 +112,8 @@ struct DialogParameters {
     bool         useHardwareAcceleration = false;
     bool         saveParameters = false;
     bool         usePredefinedTopicNames = true;
-    bool         checkROS2NameConform = false;
-    bool         askForTargetOverwrite = true;
+    bool         warnROS2NameConvention = false;
+    bool         warnTargetOverwrite = true;
+    bool         warnLowDiskSpace = true;
 };
 }

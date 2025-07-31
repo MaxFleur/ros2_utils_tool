@@ -1,19 +1,18 @@
 #include "BasicBagWidget.hpp"
 
+#include "DialogSettings.hpp"
+#include "LowDiskSpaceWidget.hpp"
 #include "MessageCountWidget.hpp"
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
 #include <QCheckBox>
-#include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QFormLayout>
-#include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QToolButton>
 #include <QTreeWidget>
-#include <QVBoxLayout>
 
 #include <filesystem>
 
@@ -54,6 +53,8 @@ BasicBagWidget::BasicBagWidget(Parameters::DeleteSourceParameters& parameters,
     m_targetBagNameWidget->setLayout(targetFormLayout);
     m_targetBagNameWidget->setVisible(false);
 
+    m_lowDiskSpaceWidget = new LowDiskSpaceWidget;
+
     m_okButton->setEnabled(true);
     m_okButton->setVisible(false);
 
@@ -62,6 +63,9 @@ BasicBagWidget::BasicBagWidget(Parameters::DeleteSourceParameters& parameters,
     connect(m_deleteSourceCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.deleteSource, state == Qt::Checked, m_settings);
     });
+
+    setPixmapLabelIcon();
+    setLowDiskSpaceWidgetVisibility(m_targetLineEdit->text());
 }
 
 
@@ -84,6 +88,7 @@ BasicBagWidget::targetPushButtonPressed()
 
     m_targetLineEdit->setText(fileName);
     writeParameterToSettings(m_parameters.targetDirectory, fileName, m_settings);
+    setLowDiskSpaceWidgetVisibility(m_targetLineEdit->text());
 }
 
 
@@ -121,6 +126,9 @@ BasicBagWidget::areIOParametersValid(int topicSize, int topicSizeWithOutDuplicat
         return false;
     }
 
+    if (const auto sufficientSpace = showLowDiskSpaceMessageBox(); !sufficientSpace) {
+        return false;
+    }
     if (!Utils::UI::continueForExistingTarget(m_parameters.targetDirectory, "Bag file", "bag file")) {
         return false;
     }

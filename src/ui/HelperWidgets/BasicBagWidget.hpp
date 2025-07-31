@@ -4,11 +4,12 @@
 #include "DeleteSourceSettings.hpp"
 #include "Parameters.hpp"
 
+#include <QLineEdit>
 #include <QPointer>
 #include <QWidget>
 
 class QCheckBox;
-class QLineEdit;
+class QHBoxLayout;
 class QTreeWidget;
 class QTreeWidgetItem;
 
@@ -46,6 +47,8 @@ protected:
 
     QPointer<QWidget> m_targetBagNameWidget;
 
+    QPointer<QHBoxLayout> m_diskSpaceLayout;
+
     static constexpr int COL_CHECKBOXES = 0;
     static constexpr int COL_TOPIC_NAME = 1;
     static constexpr int COL_TOPIC_TYPE = 2;
@@ -54,4 +57,6 @@ private:
     Parameters::DeleteSourceParameters& m_parameters;
 
     DeleteSourceSettings m_settings;
+
+    bool m_isDiskSpaceSufficient{ true };
 };

@@ -1,5 +1,6 @@
 #include "DummyBagWidget.hpp"
 
+#include "LowDiskSpaceWidget.hpp"
 #include "TopicWidget.hpp"
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
@@ -11,10 +12,10 @@
 #include <QSet>
 #include <QSpinBox>
 
-DummyBagWidget::DummyBagWidget(Parameters::DummyBagParameters& parameters, bool checkROS2NameConform, QWidget *parent) :
+DummyBagWidget::DummyBagWidget(Parameters::DummyBagParameters& parameters, bool warnROS2NameConvention, QWidget *parent) :
     TopicListingInputWidget(parameters, "Create Dummy Bag", ":/icons/dummy_bag", "dummy_bag", parent),
     m_parameters(parameters), m_settings(parameters, "dummy_bag"),
-    m_checkROS2NameConform(checkROS2NameConform)
+    m_warnROS2NameConvention(warnROS2NameConvention)
 {
     m_sourceLineEdit->setText(parameters.sourceDirectory);
     m_sourceLineEdit->setToolTip("The target dummy bag file directory.");
@@ -40,13 +41,16 @@ DummyBagWidget::DummyBagWidget(Parameters::DummyBagParameters& parameters, bool 
     m_formLayout->addRow("Use Custom Rate:", useCustomRateCheckBox);
 
     m_controlsLayout->addLayout(m_formLayout);
+    m_controlsLayout->addSpacing(5);
+    m_controlsLayout->addWidget(m_lowDiskSpaceWidget);
     m_controlsLayout->addSpacing(20);
     m_controlsLayout->addStretch();
+    m_controlsLayout->setAlignment(m_lowDiskSpaceWidget, Qt::AlignCenter);
 
-    const auto addNewTopic = [this] (bool higherOffset = false)  {
+    const auto addNewTopic = [this]  {
         m_parameters.topics.push_back({ "String", "" });
         m_settings.write();
-        createNewDummyTopicWidget({ "", "" }, m_parameters.topics.size() - 1, higherOffset);
+        createNewDummyTopicWidget({ "", "" }, m_parameters.topics.size() - 1);
     };
     // Create widgets for already existing topics
     for (auto i = 0; i < m_parameters.topics.size(); i++) {
@@ -61,10 +65,11 @@ DummyBagWidget::DummyBagWidget(Parameters::DummyBagParameters& parameters, bool 
     });
     connect(useCustomRateCheckBox, &QCheckBox::stateChanged, this, &DummyBagWidget::useCustomRateCheckBoxPressed);
     connect(m_addTopicButton, &QPushButton::clicked, this, [addNewTopic] {
-        addNewTopic(true);
+        addNewTopic();
     });
 
     setPixmapLabelIcon();
+    setLowDiskSpaceWidgetVisibility(m_sourceLineEdit->text());
     useCustomRateCheckBoxPressed(m_parameters.useCustomRate);
 }
 
@@ -88,7 +93,7 @@ DummyBagWidget::removeDummyTopicWidget(int row)
 
 
 void
-DummyBagWidget::createNewDummyTopicWidget(const Parameters::DummyBagParameters::DummyBagTopic& topic, int index, bool higherOffset)
+DummyBagWidget::createNewDummyTopicWidget(const Parameters::DummyBagParameters::DummyBagTopic& topic, int index)
 {
     m_topicLabels.push_back(new QLabel("Topic " + QString::number(m_numberOfTopics + 1) + ":"));
 
@@ -96,9 +101,7 @@ DummyBagWidget::createNewDummyTopicWidget(const Parameters::DummyBagParameters::
     m_topicWidgets.push_back(topicWidget);
     // Keep it all inside the main form layout
     // Ensure that the plus button stays below the newly formed widget
-    m_formLayout->insertRow(higherOffset ? m_formLayout->rowCount() - TOPIC_WIDGET_OFFSET_HIGHER
-                                         : m_formLayout->rowCount() - TOPIC_WIDGET_OFFSET_LOWER,
-                            m_topicLabels.back(), topicWidget);
+    m_formLayout->insertRow(m_formLayout->rowCount() - TOPIC_WIDGET_OFFSET, m_topicLabels.back(), topicWidget);
 
     connect(topicWidget, &TopicWidget::topicTypeChanged, this, [this, index] (const QString& text) {
         writeParameterToSettings(m_parameters.topics[index].type, text, m_settings);
@@ -150,7 +153,7 @@ DummyBagWidget::areTopicsValid() const
             Utils::UI::createCriticalMessageBox("Empty topic name!", "Please enter a topic name for every topic!");
             return std::nullopt;
         }
-        if (m_checkROS2NameConform && !Utils::ROS::isNameROS2Conform(dummyTopicWidget->getTopicName()) && areROS2NamesValid) {
+        if (m_warnROS2NameConvention && !Utils::ROS::isNameROS2Conform(dummyTopicWidget->getTopicName()) && areROS2NamesValid) {
             if (const auto returnValue = Utils::UI::continueWithInvalidROS2Names(); !returnValue) {
                 return std::nullopt;
             }

@@ -1,5 +1,6 @@
 #include "AdvancedInputWidget.hpp"
 
+#include "LowDiskSpaceWidget.hpp"
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
@@ -28,8 +29,23 @@ AdvancedInputWidget::AdvancedInputWidget(Parameters::AdvancedParameters& paramet
     m_topicNameComboBox->setMinimumWidth(200);
 
     if (!m_parameters.sourceDirectory.isEmpty()) {
-        Utils::UI::fillComboBoxWithTopics(m_topicNameComboBox, m_parameters.sourceDirectory,
-                                          m_outputFormat == OUTPUT_PCDS ? "sensor_msgs/msg/PointCloud2" : "sensor_msgs/msg/Image");
+        QString topicType;
+
+        switch (m_outputFormat) {
+        case OUTPUT_VIDEO:
+        case OUTPUT_IMAGES:
+            topicType = "sensor_msgs/msg/Image";
+            break;
+        case OUTPUT_PCDS:
+            topicType = "sensor_msgs/msg/PointCloud2";
+            break;
+        case OUTPUT_JSON:
+            topicType = "tf2_msgs/msg/TFMessage";
+            break;
+        default:
+            break;
+        }
+        Utils::UI::fillComboBoxWithTopics(m_topicNameComboBox, m_parameters.sourceDirectory, topicType);
 
         if (!m_parameters.topicName.isEmpty()) {
             m_topicNameComboBox->setCurrentText(m_parameters.topicName);
@@ -44,12 +60,16 @@ AdvancedInputWidget::AdvancedInputWidget(Parameters::AdvancedParameters& paramet
     m_basicOptionsFormLayout->addRow(sourceFormLayoutName, m_findSourceLayout);
     m_basicOptionsFormLayout->addRow(targetFormLayoutName, targetLocationLayout);
 
+    m_lowDiskSpaceWidget = new LowDiskSpaceWidget;
+
     m_controlsLayout = new QVBoxLayout;
     m_controlsLayout->addStretch();
     m_controlsLayout->addWidget(m_headerPixmapLabel);
     m_controlsLayout->addWidget(m_headerLabel);
     m_controlsLayout->addSpacing(40);
     m_controlsLayout->addLayout(m_basicOptionsFormLayout);
+    m_controlsLayout->addSpacing(5);
+    m_controlsLayout->addWidget(m_lowDiskSpaceWidget);
     m_controlsLayout->addSpacing(5);
 
     auto* const controlsSqueezedLayout = new QHBoxLayout;
@@ -71,6 +91,8 @@ AdvancedInputWidget::AdvancedInputWidget(Parameters::AdvancedParameters& paramet
     connect(findTargetButton, &QPushButton::clicked, this, &AdvancedInputWidget::findTargetButtonPressed);
     connect(m_dialogButtonBox, &QDialogButtonBox::accepted, this, &AdvancedInputWidget::okButtonPressed);
     connect(okShortCut, &QShortcut::activated, this, &AdvancedInputWidget::okButtonPressed);
+
+    setLowDiskSpaceWidgetVisibility(m_targetLineEdit->text());
 }
 
 
@@ -87,7 +109,7 @@ AdvancedInputWidget::findSourceButtonPressed()
     switch (m_outputFormat) {
     case OUTPUT_VIDEO:
         topicType = "sensor_msgs/msg/Image";
-        autoTargetDir = "/bag_video." + m_videoFormat;
+        autoTargetDir = "/bag_video." + m_fileFormat;
         break;
     case OUTPUT_IMAGES:
         topicType = "sensor_msgs/msg/Image";
@@ -96,6 +118,10 @@ AdvancedInputWidget::findSourceButtonPressed()
     case OUTPUT_PCDS:
         topicType = "sensor_msgs/msg/PointCloud2";
         autoTargetDir = "/pcd_files";
+        break;
+    case OUTPUT_JSON:
+        topicType = "tf2_msgs/msg/TFMessage";
+        autoTargetDir = "/bag_transforms." + m_fileFormat;
         break;
     default:
         break;
@@ -114,7 +140,9 @@ AdvancedInputWidget::findSourceButtonPressed()
     bagDirectoryDir.cdUp();
     if (const auto autoTargetDirectory = bagDirectoryDir.path() + autoTargetDir; !std::filesystem::exists(autoTargetDirectory.toStdString())) {
         m_targetLineEdit->setText(autoTargetDirectory);
+
         writeParameterToSettings(m_parameters.targetDirectory, autoTargetDirectory, m_settings);
+        setLowDiskSpaceWidgetVisibility(m_targetLineEdit->text());
     }
 
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() &&
@@ -128,11 +156,14 @@ AdvancedInputWidget::findTargetButtonPressed()
     QString fileName;
     switch (m_outputFormat) {
     case OUTPUT_VIDEO:
-        fileName = QFileDialog::getSaveFileName(this, "Save Video", "", m_videoFormat + " files (*." + m_videoFormat + ")");
+        fileName = QFileDialog::getSaveFileName(this, "Save Video", "", m_fileFormat + " files (*." + m_fileFormat + ")");
         break;
     case OUTPUT_IMAGES:
     case OUTPUT_PCDS:
         fileName = QFileDialog::getExistingDirectory(this, "Save Files", "", QFileDialog::ShowDirsOnly);
+        break;
+    case OUTPUT_JSON:
+        fileName = QFileDialog::getSaveFileName(this, "Save Json", "", m_fileFormat + " files (*." + m_fileFormat + ")");
         break;
     case OUTPUT_BAG:
         fileName = QFileDialog::getSaveFileName(this, "Save Bag");
@@ -144,8 +175,10 @@ AdvancedInputWidget::findTargetButtonPressed()
 
     writeParameterToSettings(m_parameters.targetDirectory, fileName, m_settings);
     m_targetLineEdit->setText(fileName);
+
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() &&
                    !m_parameters.topicName.isEmpty() && !m_parameters.targetDirectory.isEmpty());
+    setLowDiskSpaceWidgetVisibility(m_targetLineEdit->text());
 }
 
 
@@ -156,6 +189,9 @@ AdvancedInputWidget::okButtonPressed() const
         return;
     }
 
+    if (const auto sufficientSpace = showLowDiskSpaceMessageBox(); !sufficientSpace) {
+        return;
+    }
     if (!Utils::ROS::doesDirectoryContainBagFile(m_parameters.sourceDirectory)) {
         Utils::UI::createCriticalMessageBox("Invalid bag file!", "The source bag file seems to be invalid or broken!");
         return;

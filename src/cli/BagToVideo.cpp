@@ -14,6 +14,7 @@ void
 showHelp()
 {
     std::cout << "Usage: ros2 run mediassist4_ros_tools tool_bag_to_video path/to/bag path/to/video\n" << std::endl;
+    std::cout << "Accepted video formats are mp4, mkv or avi." << std::endl;
     std::cout << "Additional parameters:" << std::endl;
     std::cout << "-t or --topic_name: Video topic inside the bag. If no topic name is specified, the first found video topic in the bag is taken.\n" << std::endl;
     std::cout << "-r or --rate: Framerate for the encoded video. Must be from 10 to 60." << std::endl;
@@ -21,6 +22,7 @@ showHelp()
     std::cout << "-e or --exchange: Exchange red and blue values." << std::endl;
     std::cout << "-c or --colorless: Use colorless images." << std::endl;
     std::cout << "-l or --lossless (mkv only): Use lossless images.\n" << std::endl;
+    std::cout << "-s or --suppress: Suppress any warnings.\n" << std::endl;
     std::cout << "-h or --help: Show this help." << std::endl;
 }
 
@@ -33,13 +35,14 @@ main(int argc, char* argv[])
     // Create application
     QCoreApplication app(argc, argv);
 
-    const auto arguments = app.arguments();
-    const QStringList checkList{ "-t", "-r", "-a", "-e", "-c", "-l", "-h",
-                                 "--topic_name", "--rate", "--accelerate", "--exchange", "--colorless", "--lossless", "--help" };
+    const auto& arguments = app.arguments();
     if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
     }
+
+    const QStringList checkList{ "-t", "-r", "-a", "-e", "-c", "-l", "-s",
+                                 "--topic_name", "--rate", "--accelerate", "--exchange", "--colorless", "--lossless", "--suppress" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
@@ -56,8 +59,8 @@ main(int argc, char* argv[])
     Utils::CLI::checkParentDirectory(parameters.targetDirectory);
 
     parameters.format = parameters.targetDirectory.right(3);
-    if (parameters.format != "mp4" && parameters.format != "mkv") {
-        throw std::runtime_error("The entered video name is in invalid format. Please make sure that the video has the ending 'mp4' or 'mkv'!");
+    if (parameters.format != "mp4" && parameters.format != "mkv" && parameters.format != "avi") {
+        throw std::runtime_error("The entered video name is in invalid format. Please make sure that the video has the ending 'mp4', 'mkv' or 'avi'!");
     }
 
     // Check for optional arguments
@@ -83,13 +86,11 @@ main(int argc, char* argv[])
 
     // Search for topic name in bag file if not specified
     if (parameters.topicName.isEmpty()) {
-        Utils::CLI::checkForTargetTopic(parameters.sourceDirectory, parameters.topicName, true);
+        Utils::CLI::checkForTargetTopic(parameters.sourceDirectory, parameters.topicName, "sensor_msgs/msg/Image");
     }
 
-    if (std::filesystem::exists(parameters.targetDirectory.toStdString())) {
-        if (!Utils::CLI::shouldContinue("The video already exists. Continue? [y/n]")) {
-            return 0;
-        }
+    if (!Utils::CLI::continueExistingTargetLowDiskSpace(arguments, parameters.targetDirectory)) {
+        return 0;
     }
 
     // Create thread and connect to its informations

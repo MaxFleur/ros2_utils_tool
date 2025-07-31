@@ -27,8 +27,8 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     settingsButtonLayout->addStretch();
     settingsButtonLayout->addWidget(m_settingsButton);
 
-    // Create four widgets: One for providing the overview for bag and publishing tools,
-    // one for bag, one for publishing and one for info tools
+    // Create five widgets: One for providing the overview for bag and publishing tools,
+    // one for conversion, one for bag, one for publishing and one for info tools
     // Overview widget
     m_conversionToolsButton = createToolButton("Conversion\nTools");
     m_bagToolsButton = createToolButton("Bag Tools");
@@ -55,11 +55,12 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     overallToolsWidget->setLayout(overallToolsMainLayout);
 
     // Conversion tools widget
-    m_bagToVideoPushButton = createToolButton("Bag to Video");
-    m_videoToBagPushButton = createToolButton("Video to Bag");
-    m_bagToPCDsPushButton = createToolButton("Bag to\nPCD Files");
-    m_PCDsToBagPushButton = createToolButton("PCD Files\nto Bag");
-    m_bagToImagesPushButton = createToolButton("Bag to Images");
+    m_bagToVideoPushButton = createToolButton("Bag to Video", "Convert images in a ROS bag video topic to a video file.");
+    m_videoToBagPushButton = createToolButton("Video to Bag", "Convert a video file to a ROS bag.");
+    m_bagToPCDsPushButton = createToolButton("Bag to\nPCD Files", "Convert point clouds in a ROS bag topic to a set of pcd files.");
+    m_PCDsToBagPushButton = createToolButton("PCD Files\nto Bag", "Convert a set of pcd files to a ROS bag.");
+    m_bagToImagesPushButton = createToolButton("Bag to Images", "Convert images in a ROS bag video topic to a set of image files.");
+    m_tf2ToJsonPushButton = createToolButton("Bag TF2\nto JSON", "Convert transformations in a ROS bag tf2 topic to json.");
 
     auto* const conversionToolsUpperLayout = new QHBoxLayout;
     conversionToolsUpperLayout->addStretch();
@@ -76,6 +77,7 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     auto* const conversionToolsLowerLayout = new QHBoxLayout;
     conversionToolsLowerLayout->addStretch();
     conversionToolsLowerLayout->addWidget(m_bagToImagesPushButton);
+    conversionToolsLowerLayout->addWidget(m_tf2ToJsonPushButton);
     conversionToolsLowerLayout->addStretch();
 
     auto* const conversionToolsMainLayout = new QVBoxLayout;
@@ -89,12 +91,12 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     conversionToolsWidget->setLayout(conversionToolsMainLayout);
 
     // Bag tools widget
-    m_editBagButton = createToolButton("Edit Bag");
-    m_mergeBagsButton = createToolButton("Merge Bags");
-    m_recordBagButton = createToolButton("Record Bag");
-    m_dummyBagButton = createToolButton("Create\nDummy Bag");
-    m_compressBagButton = createToolButton("Compress\nBag");
-    m_decompressBagButton = createToolButton("Decompress\nBag");
+    m_editBagButton = createToolButton("Edit Bag", "Rename, remove and crop topics in a ROS bag.");
+    m_mergeBagsButton = createToolButton("Merge Bags", "Merge selected topics of two ROS bag files into a new one.");
+    m_recordBagButton = createToolButton("Record Bag", "Record selected topics into a bag file.");
+    m_dummyBagButton = createToolButton("Create\nDummy Bag", "Create a ROS bag file with dummy data.");
+    m_compressBagButton = createToolButton("Compress\nBag", "Decrease a ROS bag by creating a compressed variant.");
+    m_decompressBagButton = createToolButton("Decompress\nBag", "Decompress a compressed ROS bag.");
 
     auto* const bagToolsUpperLayout = new QHBoxLayout;
     bagToolsUpperLayout->addStretch();
@@ -125,8 +127,8 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     bagToolsWidget->setLayout(bagToolsMainLayout);
 
     // Publishing tools widget
-    m_publishVideoButton = createToolButton("Publish Video\nas ROS Topic");
-    m_publishImagesButton = createToolButton("Publish Images\nas ROS Topic");
+    m_publishVideoButton = createToolButton("Publish Video\nas ROS Topic", "Publish video file images as a ROS image topic.");
+    m_publishImagesButton = createToolButton("Publish Images\nas ROS Topic", "Publish a set of image files as a ROS image topic.");
 
     auto* const publishingToolsMainLayout = new QHBoxLayout;
     publishingToolsMainLayout->addStretch();
@@ -138,8 +140,9 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     publishingToolsWidget->setLayout(publishingToolsMainLayout);
 
     // Info tools widget
-    m_topicServiceInfoButton = createToolButton("Topics and\nService Info");
-    m_bagInfoButton = createToolButton("Bag\nInfos");
+    m_topicServiceInfoButton = createToolButton("Topics and\nService Info",
+                                                "Show available topics and services with additional information.");
+    m_bagInfoButton = createToolButton("Bag\nInfos", "Show information for a selected ROS bag.");
 
     auto* const infoToolsMainLayout = new QHBoxLayout;
     infoToolsMainLayout->addStretch();
@@ -159,9 +162,9 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     backButtonLayout->addWidget(m_backButton);
     backButtonLayout->addStretch();
 
-    m_versionLabel = new QLabel("v0.12.0");
-    m_versionLabel->setToolTip("UI and CLI usability improvements,\n"
-                               "better conversion tools performance and many bug fixes!");
+    m_versionLabel = new QLabel("v0.13.0");
+    m_versionLabel->setToolTip("TF to Json tool, dummy bag tool tf support,\n"
+                               "a low diskspace warning and CLI optimizations!");
 
     auto* const versionLayout = new QHBoxLayout;
     versionLayout->addStretch();
@@ -231,6 +234,9 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     });
     connect(m_bagToImagesPushButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_ID::BAG_TO_IMAGES);
+    });
+    connect(m_tf2ToJsonPushButton, &QPushButton::clicked, this, [this] {
+        emit toolRequested(Utils::UI::TOOL_ID::TF2_TO_JSON);
     });
     connect(m_editBagButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_ID::EDIT_BAG);
@@ -327,10 +333,11 @@ StartWidget::replaceWidgets(QWidget* fromWidget, QWidget* toWidget, int widgetId
 
 
 QPointer<QToolButton>
-StartWidget::createToolButton(const QString& buttonText) const
+StartWidget::createToolButton(const QString& buttonText, const QString& tooltipText) const
 {
     auto* const toolButton = new QToolButton;
     toolButton->setText(buttonText);
+    toolButton->setToolTip(tooltipText);
     toolButton->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     toolButton->setIconSize(QSize(100, 45));
     toolButton->setFixedSize(QSize(150, 150));
@@ -357,6 +364,7 @@ StartWidget::setButtonIcons()
     m_bagToPCDsPushButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_to_pcd_white.svg" : ":/icons/bag_to_pcd_black.svg"));
     m_PCDsToBagPushButton->setIcon(QIcon(isDarkMode ? ":/icons/pcd_to_bag_white.svg" : ":/icons/pcd_to_bag_black.svg"));
     m_bagToImagesPushButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_to_images_white.svg" : ":/icons/bag_to_images_black.svg"));
+    m_tf2ToJsonPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tf2_to_json_white.svg" : ":/icons/tf2_to_json_black.svg"));
 
     m_editBagButton->setIcon(QIcon(isDarkMode ? ":/icons/edit_bag_white.svg" : ":/icons/edit_bag_black.svg"));
     m_mergeBagsButton->setIcon(QIcon(isDarkMode ? ":/icons/merge_bags_white.svg" : ":/icons/merge_bags_black.svg"));

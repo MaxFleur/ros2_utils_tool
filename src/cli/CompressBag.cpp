@@ -18,7 +18,8 @@ showHelp()
     std::cout << "Usage: ros2 run mediassist4_ros_tools tool_compress_bag path/to/uncompressed/source/bag /path/to/compressed/target/bag \n" << std::endl;
     std::cout << "Additional parameters:" << std::endl;
     std::cout << "-m or --mode (file/message): Compress per file (file) or per message (message). File is default." << std::endl;
-    std::cout << "-d or --delete: Delete the source file after completion." << std::endl;
+    std::cout << "-d or --delete: Delete the source file after completion.\n" << std::endl;
+    std::cout << "-s or --suppress: Suppress any warnings.\n" << std::endl;
     std::cout << "-h or --help: Show this help." << std::endl;
 }
 
@@ -31,12 +32,13 @@ main(int argc, char* argv[])
     // Create application
     QCoreApplication app(argc, argv);
 
-    const auto arguments = app.arguments();
+    const auto& arguments = app.arguments();
     if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
     }
-    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, { "-m", "--mode", "-d", "--delete" }); argument != std::nullopt) {
+
+    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, { "-m", "-d", "-s", "--mode", "--delete", "--suppress" }); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
     }
@@ -74,10 +76,8 @@ main(int argc, char* argv[])
         parameters.deleteSource = Utils::CLI::containsArguments(arguments, "-d", "--delete");
     }
 
-    if (std::filesystem::exists(parameters.targetDirectory.toStdString())) {
-        if (!Utils::CLI::shouldContinue("The target directory already exists. Continue? [y/n]")) {
-            return 0;
-        }
+    if (!Utils::CLI::continueExistingTargetLowDiskSpace(arguments, parameters.targetDirectory)) {
+        return 0;
     }
 
     // Create thread and connect to its informations

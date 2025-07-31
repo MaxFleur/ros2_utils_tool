@@ -1,5 +1,6 @@
 #include "MergeBagsWidget.hpp"
 
+#include "LowDiskSpaceWidget.hpp"
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
@@ -56,6 +57,8 @@ MergeBagsWidget::MergeBagsWidget(Parameters::MergeBagsParameters& parameters, QW
     controlsLayout->addSpacing(10);
     controlsLayout->addWidget(m_treeWidget);
     controlsLayout->addWidget(m_targetBagNameWidget);
+    controlsLayout->addWidget(m_lowDiskSpaceWidget);
+    controlsLayout->addSpacing(10);
     controlsLayout->addWidget(m_sufficientSpaceLabel);
     controlsLayout->addWidget(m_deleteSourceCheckBox);
     // Give it a more "squishy" look

@@ -1,7 +1,8 @@
 #include "MergeBagsThread.hpp"
 
-#include "UtilsCLI.hpp"
 #include "Parameters.hpp"
+#include "UtilsCLI.hpp"
+#include "UtilsGeneral.hpp"
 #include "UtilsROS.hpp"
 
 #include <QCoreApplication>
@@ -18,7 +19,8 @@ showHelp()
     std::cout << "Topic names after '-t1' are those contained in the first bag file, names after '-t2' in the second file." << std::endl;
     std::cout << "Note that duplicate topics (equal topics contained in both bags) will be merged if both are specified.\n" << std::endl;
     std::cout << "Additional parameters:" << std::endl;
-    std::cout << "-d or --delete: Delete the source bag files." << std::endl;
+    std::cout << "-d or --delete: Delete the source bag files.\n" << std::endl;
+    std::cout << "-s or --suppress: Suppress any warnings.\n" << std::endl;
     std::cout << "-h or --help: Show this help." << std::endl;
 }
 
@@ -31,12 +33,13 @@ main(int argc, char* argv[])
     // Create application
     QCoreApplication app(argc, argv);
 
-    const auto arguments = app.arguments();
+    const auto& arguments = app.arguments();
     if (arguments.size() < 8 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
     }
-    const QStringList checkList{ "-h", "--help", "-t1", "-t2", "-d", "--delete" };
+
+    const QStringList checkList{ "-t1", "-t2", "-d", "-s", "--delete", "--suppress" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
@@ -89,8 +92,16 @@ main(int argc, char* argv[])
     if (!Utils::CLI::containsArguments(arguments, "-t2", "--topic2")) {
         throw std::runtime_error("Please specify '-t2' correctly!");
     }
+
+    auto boundary = arguments.size() - 1;
+    if (parameters.deleteSource) {
+        boundary--;
+    }
+    if (Utils::CLI::containsArguments(arguments, "-s", "--suppress")) {
+        boundary--;
+    }
+
     auto topicsSecondBagIndex = Utils::CLI::getArgumentsIndex(arguments, "-t2", "--topic2") + 1;
-    const auto boundary = parameters.deleteSource ? arguments.size() - 2 : arguments.size() - 1;
     while (topicsSecondBagIndex != boundary) {
         if (!addTopicsToParameters(parameters.secondSourceDirectory, topicsSecondBagIndex)) {
             return 0;
@@ -98,22 +109,20 @@ main(int argc, char* argv[])
     }
 
     // Target file
-    parameters.targetDirectory = parameters.deleteSource ? arguments.at(arguments.size() - 2) : arguments.back();
+    parameters.targetDirectory = arguments.at(boundary);
     Utils::CLI::checkParentDirectory(parameters.targetDirectory);
 
     if (parameters.targetDirectory == parameters.sourceDirectory || parameters.targetDirectory == parameters.secondSourceDirectory) {
         throw std::runtime_error("The target file must have a different name than both input bag files!");
     }
 
-    if (topicNameSet.size() != parameters.topics.size()) {
-        if (!Utils::CLI::shouldContinue("Duplicate topic names detected. These would be merged into one topic. Do you want to continue? [y/n]")) {
+    if (topicNameSet.size() != parameters.topics.size() && !Utils::CLI::containsArguments(arguments, "-s", "--suppress")) {
+        if (!Utils::CLI::shouldContinue("Duplicate topic names detected. These would be merged into one topic. Do you want to continue? [y]/n")) {
             return 0;
         }
     }
-    if (std::filesystem::exists(parameters.targetDirectory.toStdString())) {
-        if (!Utils::CLI::shouldContinue("The target directory already exists. Continue and overwrite the target? [y/n]")) {
-            return 0;
-        }
+    if (!Utils::CLI::continueExistingTargetLowDiskSpace(arguments, parameters.targetDirectory)) {
+        return 0;
     }
 
     // Create thread and connect to its informations

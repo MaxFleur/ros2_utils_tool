@@ -20,6 +20,7 @@ showHelp()
     std::cout << "-r or --rate: Framerate for the image stream. Must be from 10 to 60. If no rate is specified, the video's rate will be taken." << std::endl;
     std::cout << "-a or --accelerate: Use hardware acceleration." << std::endl;
     std::cout << "-e or --exchange: Exchange red and blue values.\n" << std::endl;
+    std::cout << "-s or --suppress: Suppress any warnings.\n" << std::endl;
     std::cout << "-h or --help: Show this help." << std::endl;
 }
 
@@ -32,12 +33,13 @@ main(int argc, char* argv[])
     // Create application
     QCoreApplication app(argc, argv);
 
-    const auto arguments = app.arguments();
-    const QStringList checkList{ "-t", "-r", "-a", "-e", "-h", "--topic_name", "--rate", "--accelerate", "--exchange", "--help" };
+    const auto& arguments = app.arguments();
     if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
     }
+
+    const QStringList checkList{ "-t", "-r", "-a", "-e", "-s", "--topic_name", "--rate", "--accelerate", "--exchange", "--suppress" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
@@ -82,10 +84,8 @@ main(int argc, char* argv[])
         parameters.topicName = "/topic_video";
     }
 
-    if (std::filesystem::exists(parameters.targetDirectory.toStdString())) {
-        if (!Utils::CLI::shouldContinue("The bag file already exists. Continue? [y/n]")) {
-            return 0;
-        }
+    if (!Utils::CLI::continueExistingTargetLowDiskSpace(arguments, parameters.targetDirectory)) {
+        return 0;
     }
 
     // Create thread and connect to its informations

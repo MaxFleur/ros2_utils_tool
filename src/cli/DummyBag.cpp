@@ -15,11 +15,12 @@ void
 showHelp()
 {
     std::cout << "Usage: ros2 run mediassist4_ros_tools tool_dummy_bag path/to/bag topic_name_1 topic_type_1 (...)\n" << std::endl;
-    std::cout << "Topic type is either 'String', 'Integer', 'Image' or 'PointCloud'." << std::endl;
-    std::cout << "You can write up to four topics.\n" << std::endl;
+    std::cout << "Topic type is either 'String', 'Integer', 'Image', 'PointCloud' or 'TF2'." << std::endl;
+    std::cout << "You can write up to five topics.\n" << std::endl;
     std::cout << "Additional parameters:" << std::endl;
     std::cout << "-m or --message-count: Number of messages in the bag file. Must be between 1 and 1000, default is 100." << std::endl;
-    std::cout << "-r or --rate: \"Frame\"rate of messages in the bag file. Must be between 1 and 100, default is 10." << std::endl;
+    std::cout << "-r or --rate: \"Frame\"rate of messages in the bag file. Must be between 1 and 100, default is 10.\n" << std::endl;
+    std::cout << "-s or --suppress: Suppress any warnings.\n" << std::endl;
     std::cout << "-h or --help: Show this help." << std::endl;
 }
 
@@ -32,12 +33,14 @@ main(int argc, char* argv[])
     // Create application
     QCoreApplication app(argc, argv);
 
-    const auto arguments = app.arguments();
-    if (arguments.size() < 4 || arguments.size() > 14 || arguments.contains("--help") || arguments.contains("-h")) {
+    const auto& arguments = app.arguments();
+    // 18 means all five topics plus every possible flag
+    if (arguments.size() < 4 || arguments.size() > 18 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
     }
-    const QStringList checkList{ "-h", "--help", "-m", "--message-count", "-r", "--rate" };
+
+    const QStringList checkList{ "-m", "-r", "-s", "--message-count", "--rate", "--suppress" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
@@ -77,20 +80,21 @@ main(int argc, char* argv[])
         const auto argument = arguments.at(i);
 
         if (i % 2 == 0) {
-            if (!Utils::ROS::isNameROS2Conform(argument) && areROS2NamesValid) {
+            if (!Utils::ROS::isNameROS2Conform(argument) && areROS2NamesValid && !Utils::CLI::containsArguments(arguments, "-s", "--suppress")) {
                 const auto errorString = "The topic name does not follow the ROS2 naming convention! More information on ROS2 naming convention is found here:\n"
                                          "https://design.ros2.org/articles/topic_and_service_names.html\n"
-                                         "Do you want to continue anyways? [y/n]";
+                                         "Do you want to continue anyways? [y]/n";
                 if (!Utils::CLI::shouldContinue(errorString)) {
                     return 0;
                 }
                 areROS2NamesValid = false;
             }
+
             topicNames.push_back(argument);
             topicNameSet.insert(argument);
         } else {
-            if (argument != "String" && argument != "Integer" && argument != "Image" && argument != "PointCloud") {
-                throw std::runtime_error("The topic type must be either 'String', 'Integer', 'Image' or 'PointCloud'!");
+            if (argument != "String" && argument != "Integer" && argument != "Image" && argument != "PointCloud" && argument != "TF2") {
+                throw std::runtime_error("The topic type must be either 'String', 'Integer', 'Image', 'PointCloud' or 'TF2'!");
             }
             topicTypes.push_back(argument);
         }
@@ -102,6 +106,9 @@ main(int argc, char* argv[])
     if (topicNameSet.size() != topicNames.size()) {
         throw std::runtime_error("Duplicate topic names detected. Please make sure that every topic name is unique!");
     }
+    if (topicNames.size() > 5) {
+        throw std::runtime_error("Please add a maximum of five topics!");
+    }
 
     // Create thread parameters
     QVector<Parameters::DummyBagParameters::DummyBagTopic> topics;
@@ -109,10 +116,8 @@ main(int argc, char* argv[])
         parameters.topics.push_back({ topicTypes.at(i), topicNames.at(i) });
     }
 
-    if (std::filesystem::exists(parameters.sourceDirectory.toStdString())) {
-        if (!Utils::CLI::shouldContinue("The dummy bag file already exists. Continue? [y/n]")) {
-            return 0;
-        }
+    if (!Utils::CLI::continueExistingTargetLowDiskSpace(arguments, parameters.sourceDirectory)) {
+        return 0;
     }
 
     // Create thread and connect to its informations

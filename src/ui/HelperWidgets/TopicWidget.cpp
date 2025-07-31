@@ -30,6 +30,7 @@ TopicWidget::TopicWidget(bool isDummyWidget, bool addRemoveButton, const QString
         topicTypeComboBox->addItem("Integer", 1);
         topicTypeComboBox->addItem("Image", 2);
         topicTypeComboBox->addItem("Point Cloud", 3);
+        topicTypeComboBox->addItem("TF2", 4);
         if (!topicTypeText.isEmpty()) {
             topicTypeComboBox->setCurrentText(topicTypeText);
         }

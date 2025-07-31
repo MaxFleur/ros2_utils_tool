@@ -1,5 +1,6 @@
 #include "ChangeCompressionWidget.hpp"
 
+#include "LowDiskSpaceWidget.hpp"
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
@@ -33,6 +34,8 @@ ChangeCompressionWidget::ChangeCompressionWidget(Parameters::CompressBagParamete
     auto* const deleteSourceCheckBox = new QCheckBox;
     deleteSourceCheckBox->setCheckState(m_parameters.deleteSource ? Qt::Checked : Qt::Unchecked);
 
+    m_lowDiskSpaceWidget = new LowDiskSpaceWidget;
+
     auto* const formLayout = new QFormLayout;
     formLayout->addRow("Source Bag Location:", m_findSourceLayout);
     formLayout->addRow("Target Bag Location:", targetLocationLayout);
@@ -43,23 +46,14 @@ ChangeCompressionWidget::ChangeCompressionWidget(Parameters::CompressBagParamete
         fileRadioButton->setToolTip("Compresses the entire bag file. More efficient, but takes more time.");
         fileRadioButton->setChecked(!m_parameters.compressPerMessage);
 
-        auto* const fileRadioButtonLayout = new QVBoxLayout;
-        fileRadioButtonLayout->addWidget(fileRadioButton);
-        fileRadioButtonLayout->addStretch();
-
         auto* const messageRadioButton = new QRadioButton("Compress per Message");
         messageRadioButton->setToolTip("Compresses each message individually. Faster, but less efficient.");
         messageRadioButton->setChecked(m_parameters.compressPerMessage);
-        // If we put both radio buttons in a single layout, they will appear shifted in the form layout.
-        // To prevent this, we use a separate layout for each button.
-        auto* const messageRadioButtonLayout = new QVBoxLayout;
-        messageRadioButtonLayout->addWidget(messageRadioButton);
-        messageRadioButtonLayout->addStretch();
 
         // Dummy space
         formLayout->addRow("", new QLabel(""));
-        formLayout->addRow("Compression Mode:", fileRadioButtonLayout);
-        formLayout->addRow("", messageRadioButtonLayout);
+        formLayout->addRow("Compression Mode:", fileRadioButton);
+        formLayout->addRow("", messageRadioButton);
 
         connect(fileRadioButton, &QRadioButton::toggled, this, [this, messageRadioButton] (bool switched) {
             writeParameterToSettings(m_parameters.compressPerMessage, !switched, m_settings);
@@ -77,6 +71,8 @@ ChangeCompressionWidget::ChangeCompressionWidget(Parameters::CompressBagParamete
     controlsLayout->addWidget(m_headerLabel);
     controlsLayout->addSpacing(40);
     controlsLayout->addLayout(formLayout);
+    controlsLayout->addSpacing(5);
+    controlsLayout->addWidget(m_lowDiskSpaceWidget);
     controlsLayout->addSpacing(20);
     controlsLayout->addStretch();
 
@@ -103,6 +99,7 @@ ChangeCompressionWidget::ChangeCompressionWidget(Parameters::CompressBagParamete
     connect(okShortCut, &QShortcut::activated, this, &ChangeCompressionWidget::okButtonPressed);
 
     setPixmapLabelIcon();
+    setLowDiskSpaceWidgetVisibility(m_targetLineEdit->text());
 }
 
 
@@ -134,7 +131,9 @@ ChangeCompressionWidget::targetButtonPressed()
 
     writeParameterToSettings(m_parameters.targetDirectory, fileName, m_settings);
     m_targetLineEdit->setText(fileName);
+
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.targetDirectory.isEmpty());
+    setLowDiskSpaceWidgetVisibility(m_targetLineEdit->text());
 }
 
 
@@ -142,6 +141,9 @@ void
 ChangeCompressionWidget::okButtonPressed() const
 {
     if (const auto valid = isBagFileValid(m_parameters.sourceDirectory); !valid) {
+        return;
+    }
+    if (const auto sufficientSpace = showLowDiskSpaceMessageBox(); !sufficientSpace) {
         return;
     }
     if (!Utils::UI::continueForExistingTarget(m_parameters.targetDirectory, "Bagfile", "bag file")) {

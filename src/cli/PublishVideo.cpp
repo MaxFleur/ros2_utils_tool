@@ -19,10 +19,11 @@ showHelp()
     std::cout << "The video must have an ending of .mp4 or .mkv." << std::endl;
     std::cout << "Additional parameters:" << std::endl;
     std::cout << "-t or --topic_name: Topic name. If this is empty, the name '/topic_video' will be taken.\n" << std::endl;
-    std::cout << "-s width height or --scale width height: Scale. width must be between 1 and 3840, height between 1 and 2160.\n" << std::endl;
+    std::cout << "-sc width height or --scale width height: Scale. width must be between 1 and 3840, height between 1 and 2160.\n" << std::endl;
     std::cout << "-a or --accelerate: Use hardware acceleration." << std::endl;
     std::cout << "-e or --exchange: Exchange red and blue values." << std::endl;
     std::cout << "-l or --loop: Loop the video.\n" << std::endl;
+    std::cout << "-s or --suppress: Suppress any warnings.\n" << std::endl;
     std::cout << "-h or --help: Show this help." << std::endl;
 }
 
@@ -36,12 +37,13 @@ main(int argc, char* argv[])
     rclcpp::init(argc, argv);
     QCoreApplication app(argc, argv);
 
-    const auto arguments = app.arguments();
-    const QStringList checkList{ "-t", "-s", "-a", "-e", "-l", "-h", "--topic_name", "--scale", "--accelerate", "--exchange", "--loop", "--help" };
+    const auto& arguments = app.arguments();
     if (arguments.size() < 2 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
     }
+
+    const QStringList checkList{ "-t", "-sc", "-a", "-e", "-l", "-s", "--topic_name", "--scale", "--accelerate", "--exchange", "--loop", "--suppress" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
@@ -68,11 +70,11 @@ main(int argc, char* argv[])
             return 0;
         }
         // Scale
-        parameters.scale = Utils::CLI::containsArguments(arguments, "-s", "--scale");
-        if (!Utils::CLI::checkArgumentValidity(arguments, "-s", "--scale", parameters.width, 1, 3840)) {
+        parameters.scale = Utils::CLI::containsArguments(arguments, "-sc", "--scale");
+        if (!Utils::CLI::checkArgumentValidity(arguments, "-sc", "--scale", parameters.width, 1, 3840)) {
             throw std::runtime_error("Please enter a width value between 1 and 3840!");
         }
-        if (!Utils::CLI::checkArgumentValidity(arguments, "-s", "--scale", parameters.height, 1, 2160, 2)) {
+        if (!Utils::CLI::checkArgumentValidity(arguments, "-sc", "--scale", parameters.height, 1, 2160, 2)) {
             throw std::runtime_error("Please enter a height value between 1 and 2160!");
         }
         parameters.scale = true;

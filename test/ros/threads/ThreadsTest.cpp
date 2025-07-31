@@ -11,12 +11,18 @@
 #include "PublishImagesThread.hpp"
 #include "PublishVideoThread.hpp"
 #include "RecordBagThread.hpp"
+#include "TF2ToJsonThread.hpp"
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 #include "VideoToBagThread.hpp"
 
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/videoio.hpp>
+
+#include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_cloud.h>
@@ -27,6 +33,7 @@
 #include "rosbag2_cpp/reader.hpp"
 #include "sensor_msgs/msg/image.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
+#include "tf2_msgs/msg/tf_message.hpp"
 
 #include <filesystem>
 
@@ -68,7 +75,7 @@ getDirFileCountWithExtensions(const std::string& dir, const std::string& extensi
 
 template<typename T>
 concept MessageType = std::same_as<T, std_msgs::msg::Int32> || std::same_as<T, std_msgs::msg::String> ||
-                      std::same_as<T, sensor_msgs::msg::PointCloud2>;
+                      std::same_as<T, tf2_msgs::msg::TFMessage> || std::same_as<T, sensor_msgs::msg::PointCloud2>;
 
 // Verify all messages of string, int or point cloud type inside an input bag file
 template<typename T>
@@ -96,7 +103,7 @@ verifyMessages(const std::string& bagDirectory, const std::string& topicName,
             REQUIRE(rosMsg->data == index + 1);
         } else if constexpr (std::is_same_v<T, std_msgs::msg::String>) {
             REQUIRE(rosMsg->data == "Message " + std::to_string(index + 1));
-        } else {
+        } else if constexpr (std::is_same_v<T, sensor_msgs::msg::PointCloud2>) {
             pcl::PointCloud<pcl::PointXYZRGB>::Ptr fileCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
             pcl::PointCloud<pcl::PointXYZRGB>::Ptr messageCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
 
@@ -111,6 +118,10 @@ verifyMessages(const std::string& bagDirectory, const std::string& topicName,
             REQUIRE_THAT(fileCloud->at(0).r, Catch::Matchers::WithinAbs(messageCloud->at(0).r, 0.001));
             REQUIRE_THAT(fileCloud->at(0).g, Catch::Matchers::WithinAbs(messageCloud->at(0).g, 0.001));
             REQUIRE_THAT(fileCloud->at(0).b, Catch::Matchers::WithinAbs(messageCloud->at(0).b, 0.001));
+        } else {
+            REQUIRE(rosMsg->transforms[0].header.frame_id == "world");
+            REQUIRE(rosMsg->transforms[0].child_frame_id == "child_tf2");
+            REQUIRE(rosMsg->transforms.size() == 3);
         }
 
         index++;
@@ -198,6 +209,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.topics.push_back({ "Integer", "/dummy_integer" });
         parameters.topics.push_back({ "String", "/dummy_string" });
         parameters.topics.push_back({ "Point Cloud", "/dummy_points" });
+        parameters.topics.push_back({ "TF2", "/dummy_tf2" });
 
         auto* const thread = new DummyBagThread(parameters, std::thread::hardware_concurrency());
         QObject::connect(thread, &DummyBagThread::finished, thread, &QObject::deleteLater);
@@ -206,32 +218,39 @@ TEST_CASE("Threads Testing", "[threads]") {
         thread->wait();
 
         const auto& metaData = Utils::ROS::getBagMetadata("./dummy_bag");
-        REQUIRE(metaData.message_count == 400);
+        REQUIRE(metaData.message_count == 500);
         const auto& topics = metaData.topics_with_message_count;
-        REQUIRE(topics.size() == 4);
+        REQUIRE(topics.size() == 5);
         REQUIRE(topics.at(0).message_count == 100);
         REQUIRE(topics.at(1).message_count == 100);
         REQUIRE(topics.at(2).message_count == 100);
         REQUIRE(topics.at(3).message_count == 100);
+        REQUIRE(topics.at(4).message_count == 100);
 
         auto topicIndex = getTopicIndex(topics, "/dummy_image");
-        REQUIRE(topicIndex < 4);
+        REQUIRE(topicIndex < 5);
         REQUIRE(topics.at(topicIndex).topic_metadata.type == "sensor_msgs/msg/Image");
         topicIndex = getTopicIndex(topics, "/dummy_string");
-        REQUIRE(topicIndex < 4);
+        REQUIRE(topicIndex < 5);
         REQUIRE(topics.at(topicIndex).topic_metadata.type == "std_msgs/msg/String");
         topicIndex = getTopicIndex(topics, "/dummy_integer");
-        REQUIRE(topicIndex < 4);
+        REQUIRE(topicIndex < 5);
         REQUIRE(topics.at(topicIndex).topic_metadata.type == "std_msgs/msg/Int32");
         topicIndex = getTopicIndex(topics, "/dummy_points");
-        REQUIRE(topicIndex < 4);
+        REQUIRE(topicIndex < 5);
         REQUIRE(topics.at(topicIndex).topic_metadata.type == "sensor_msgs/msg/PointCloud2");
+        topicIndex = getTopicIndex(topics, "/dummy_tf2");
+        REQUIRE(topicIndex < 5);
+        REQUIRE(topics.at(topicIndex).topic_metadata.type == "tf2_msgs/msg/TFMessage");
 
         rclcpp::Serialization<std_msgs::msg::Int32> serializationInt;
         rclcpp::Serialization<std_msgs::msg::String> serializationString;
+        rclcpp::Serialization<tf2_msgs::msg::TFMessage> serializationTF2;
+        // No use in verifying point clouds because the point contents are randomized
 
         verifyMessages("./dummy_bag", "/dummy_int", serializationInt, 0);
         verifyMessages("./dummy_bag", "/dummy_string", serializationString, 0);
+        verifyMessages("./dummy_bag", "/dummy_tf2", serializationTF2, 0);
     }
     // Create edited bag out of dummy bag
     SECTION("Edit Bag Thread Test") {
@@ -350,27 +369,31 @@ TEST_CASE("Threads Testing", "[threads]") {
 
             rosbag2_storage::MetadataIo metaDataIO;
             auto metadata = metaDataIO.read_metadata(targetDirectory);
-            REQUIRE(metadata.message_count == 400);
+            REQUIRE(metadata.message_count == 500);
             const auto& topics = metadata.topics_with_message_count;
 
-            REQUIRE(topics.size() == 4);
+            REQUIRE(topics.size() == 5);
             REQUIRE(topics.at(0).message_count == 100);
             REQUIRE(topics.at(1).message_count == 100);
             REQUIRE(topics.at(2).message_count == 100);
             REQUIRE(topics.at(3).message_count == 100);
+            REQUIRE(topics.at(4).message_count == 100);
 
             auto topicIndex = getTopicIndex(topics, "/dummy_image");
-            REQUIRE(topicIndex < 4);
+            REQUIRE(topicIndex < 5);
             REQUIRE(topics.at(topicIndex).topic_metadata.type == "sensor_msgs/msg/Image");
             topicIndex = getTopicIndex(topics, "/dummy_string");
-            REQUIRE(topicIndex < 4);
+            REQUIRE(topicIndex < 5);
             REQUIRE(topics.at(topicIndex).topic_metadata.type == "std_msgs/msg/String");
             topicIndex = getTopicIndex(topics, "/dummy_integer");
-            REQUIRE(topicIndex < 4);
+            REQUIRE(topicIndex < 5);
             REQUIRE(topics.at(topicIndex).topic_metadata.type == "std_msgs/msg/Int32");
             topicIndex = getTopicIndex(topics, "/dummy_points");
-            REQUIRE(topicIndex < 4);
+            REQUIRE(topicIndex < 5);
             REQUIRE(topics.at(topicIndex).topic_metadata.type == "sensor_msgs/msg/PointCloud2");
+            topicIndex = getTopicIndex(topics, "/dummy_tf2");
+            REQUIRE(topicIndex < 5);
+            REQUIRE(topics.at(topicIndex).topic_metadata.type == "tf2_msgs/msg/TFMessage");
         };
 
         SECTION("By File") {
@@ -441,6 +464,16 @@ TEST_CASE("Threads Testing", "[threads]") {
             // Codec number represents x264
             performVideoCheck(".mkv", 1734701165, 30, 30, 30, 30);
         }
+        SECTION("AVI Lossless Values") {
+            parameters.targetDirectory = "./video.avi";
+            parameters.useBWImages = false;
+            parameters.lossless = true;
+
+            thread->start();
+            thread->wait();
+            performVideoCheck(".avi", 1983148141, 30, 252, 0, 1);
+        }
+        std::filesystem::remove("./video.avi");
     }
     SECTION("Video to Bag Thread Test") {
         Parameters::VideoToBagParameters parameters;
@@ -563,6 +596,64 @@ TEST_CASE("Threads Testing", "[threads]") {
 
             performImageCheck(".bmp", 30, 30, 30);
         }
+    }
+    SECTION("TF2 to Json Thread Test") {
+        Parameters::TF2ToJsonParameters parameters;
+        parameters.sourceDirectory = "./dummy_bag";
+        parameters.targetDirectory = "./transforms.json";
+        parameters.topicName = "/dummy_tf2";
+        parameters.keepTimestamps = true;
+
+        const auto verifyTransforms = [] (bool containsHeaderStamp) {
+            QFile file("./transforms.json");
+
+            file.open(QFile::ReadOnly);
+            const auto document = QJsonDocument::fromJson(file.readAll());
+            file.close();
+
+            const auto documentArray = document.array();
+            REQUIRE(documentArray.size() == 100);
+
+            for (auto i = 0; i < documentArray.size(); ++i) {
+                const auto messageObject = documentArray.at(i).toObject();
+                REQUIRE(messageObject.contains("message_" + QString::number(i)));
+
+                const auto messageValue = messageObject.value("message_" + QString::number(i));
+                const auto messageValueObject = messageValue.toObject();
+
+                for (auto j = 0; j < 3; ++j) {
+                    const auto transformValue = messageValueObject.value("transform_" + QString::number(j));
+                    const auto transformValueObject = transformValue.toObject();
+
+                    REQUIRE(transformValueObject.keys().contains("header_frame_id"));
+                    REQUIRE(transformValueObject.keys().contains("child_frame_id"));
+                    REQUIRE(transformValueObject.keys().contains("translation"));
+                    REQUIRE(transformValueObject.keys().contains("rotation"));
+                    REQUIRE(transformValueObject.keys().contains("header_stamp") == containsHeaderStamp);
+                }
+            }
+        };
+
+        auto* const thread = new TF2ToJsonThread(parameters);
+        QObject::connect(thread, &TF2ToJsonThread::finished, thread, &QObject::deleteLater);
+
+
+        SECTION("Default Parameter Values") {
+            thread->start();
+            thread->wait();
+
+            verifyTransforms(true);
+        }
+        SECTION("Without Timestamp") {
+            parameters.keepTimestamps = false;
+
+            thread->start();
+            thread->wait();
+
+            verifyTransforms(false);
+        }
+
+        std::filesystem::remove_all("./transforms.json");
     }
     SECTION("Bag to PCDs Thread Test") {
         Parameters::AdvancedParameters parameters;

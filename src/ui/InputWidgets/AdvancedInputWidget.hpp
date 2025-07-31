@@ -35,9 +35,9 @@ protected slots:
     okButtonPressed() const;
 
     void
-    setVideoFormat(const QString& videoFormat)
+    setFileFormat(const QString& videoFormat)
     {
-        m_videoFormat = videoFormat;
+        m_fileFormat = videoFormat;
     }
 
 protected:
@@ -50,14 +50,15 @@ protected:
     static constexpr int OUTPUT_VIDEO = 0;
     static constexpr int OUTPUT_IMAGES = 1;
     static constexpr int OUTPUT_PCDS = 2;
-    static constexpr int OUTPUT_BAG = 3;
+    static constexpr int OUTPUT_JSON = 3;
+    static constexpr int OUTPUT_BAG = 4;
 
 private:
     Parameters::AdvancedParameters& m_parameters;
 
     AdvancedSettings m_settings;
 
-    QString m_videoFormat;
+    QString m_fileFormat;
 
     const int m_outputFormat;
 };

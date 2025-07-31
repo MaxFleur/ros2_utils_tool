@@ -12,6 +12,7 @@
 #include <QTreeWidgetItem>
 #include <QVBoxLayout>
 
+#include "UtilsGeneral.hpp"
 #include "UtilsROS.hpp"
 
 #include <chrono>
@@ -94,7 +95,8 @@ BagInfoWidget::displayBagInfo()
     // Use a more understandable time format
     treeWidgetItems.append(new QTreeWidgetItem({ "Starting Time:", QString::fromStdString(stringStream.str()) }));
     // Only show the last three digits
-    treeWidgetItems.append(new QTreeWidgetItem({ "Size:", QString::number((float) (bagMetaData.bag_size / 1e9), 'f', 3) + " GB" }));
+    treeWidgetItems.append(new QTreeWidgetItem({ "Size:",
+                                                 QString::number((float) (bagMetaData.bag_size / (float) Utils::General::GIGABYTE_IN_BYTES), 'f', 3) + " GiB" }));
     treeWidgetItems.append(new QTreeWidgetItem({ "Size (Message Count):", QString::number(bagMetaData.message_count) }));
     treeWidgetItems.append(new QTreeWidgetItem({ "Storage Identifier:", QString::fromStdString(bagMetaData.storage_identifier) }));
     treeWidgetItems.append(new QTreeWidgetItem({ "Compression Format:",

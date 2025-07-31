@@ -22,6 +22,7 @@ showHelp()
     std::cout << "-q 0-9 or --quality 0-9 (jpg and png only): Image quality, must be between 0 and 9 (9 is highest, 8 is default)." << std::endl;
     std::cout << "-o or --optimize (jpg only): Optimize jpg file size." << std::endl;
     std::cout << "-b or --binary (png only): Write images with only black and white pixels.\n" << std::endl;
+    std::cout << "-s or --suppress: Suppress any warnings.\n" << std::endl;
     std::cout << "-h or --help: Show this help." << std::endl;
 }
 
@@ -35,12 +36,13 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto& arguments = app.arguments();
-    const QStringList checkList{ "-t", "-f", "-e", "-c", "-q", "-o", "-b", "-h",
-                                 "--topic_name", "--format", "--exchange", "--colorless", "--quality", "--optimize", "--binary", "--help" };
     if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
     }
+
+    const QStringList checkList{ "-t", "-f", "-e", "-c", "-q", "-o", "-b", "-s",
+                                 "--topic_name", "--format", "--exchange", "--colorless", "--quality", "--optimize", "--binary", "--suppress" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
@@ -86,13 +88,11 @@ main(int argc, char* argv[])
 
     // Search for topic name in bag file if not specified
     if (parameters.topicName.isEmpty()) {
-        Utils::CLI::checkForTargetTopic(parameters.sourceDirectory, parameters.topicName, true);
+        Utils::CLI::checkForTargetTopic(parameters.sourceDirectory, parameters.topicName, "sensor_msgs/msg/Image");
     }
 
-    if (std::filesystem::exists(parameters.targetDirectory.toStdString())) {
-        if (!Utils::CLI::shouldContinue("The image directory already exists. Continue? [y/n]")) {
-            return 0;
-        }
+    if (!Utils::CLI::continueExistingTargetLowDiskSpace(arguments, parameters.targetDirectory)) {
+        return 0;
     }
 
     // Create thread and connect to its informations

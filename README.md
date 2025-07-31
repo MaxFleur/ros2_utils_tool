@@ -2,7 +2,7 @@
 
    ![License badge](https://img.shields.io/badge/License-EUPLv1.2-blue.svg)
    ![C++ badge](https://img.shields.io/badge/C++-20-blue.svg)
-   ![Tag badge](https://img.shields.io/badge/Release-v0.12.0-blue.svg)
+   ![Tag badge](https://img.shields.io/badge/Release-v0.13.0-blue.svg)
 
 </div>
 <div align="center">
@@ -23,8 +23,8 @@
 The ros2_utils_tool package provides a complete UI-based tool for the everyday-usage of ROS2 with additional CLI support. Many tools have optional advanced options to customize outputs.
 
 <p align="center">
-  <img width="400" height="480" src="https://github.com/user-attachments/assets/0f493a2a-d409-49bc-8ca5-b98665f7be3a">
-  <img width="360" height="480" src="https://github.com/user-attachments/assets/53659e06-e993-4460-8237-cf6e73248d67">
+  <img width="400" height="480" src="https://github.com/user-attachments/assets/027cf65c-b03e-4882-9f72-43761cd1db6e">
+  <img width="360" height="480" src="https://github.com/user-attachments/assets/2847d943-9212-4672-9dd3-23e96e51b51e">
 </p>
 <p align="center">
   <img width="760" height="130" src="https://github.com/user-attachments/assets/b34534c8-c751-4fec-b58e-0643ea0b7f3f">
@@ -39,6 +39,7 @@ As of now, the tool provides the following functionalities:
 | Bag to PCDs | Export a ROS bag point cloud topic to a set of pcd files  |  X  |
 | PCDs to Bag | Port a set of PCD files to a ROS bag  |  X  |
 | Bag to Images | Export a ROS bag video topic to an image sequence |  X  |
+| Bag TF2 to JSON | Export a ROS bag tf2 topic to a json file |  X  |
 | Edit Bag | Rename, remove or crop topics in a ROS bag |    |
 | Merge Bags | Merge selected topics of two bags in a new ROS bag |  X  |
 | UI-based Bag Recording | Record a ROS bag | (X) (`ros2 bag record`)  |
@@ -73,14 +74,11 @@ The following packages are optional:
 
 All dependencies aside from ROS2 can be installed at once using the following command:
 
-**Humble**:\
-`sudo apt install libopencv-dev ros-humble-cv-bridge libpcl-dev qt6-base-dev qtbase5-dev ros-humble-catch-ros2`
+`sudo apt install libopencv-dev ros-&ROS_DISTRO-cv-bridge libpcl-dev qt6-base-dev qtbase5-dev ros-&ROS_DISTRO-catch-ros2`
 
-**Jazzy**:\
+For example for Jazzy:
+
 `sudo apt install libopencv-dev ros-jazzy-cv-bridge libpcl-dev qt6-base-dev qtbase5-dev ros-jazzy-catch-ros2`
-
-**Rolling**:\
-`sudo apt install libopencv-dev ros-rolling-cv-bridge libpcl-dev qt6-base-dev qtbase5-dev ros-rolling-catch-ros2`
 
 Alternatively, use `rosdep` to install all dependencies.
 
@@ -143,6 +141,12 @@ ros2 run ros2_utils_tool tool_bag_to_pcds /path/to/pcds /path/to/bag
 ros2 run ros2_utils_tool tool_bag_to_images /path/to/bag /path/to/images
 ```
 (Note that a topic can be specified optionally. If no topic is specified, the first available video topic is used. `image_format` needs to be either `jpg`, `bmp` or `png`, jpg is default).
+
+**Bag-TF2-to-JSON-Tool**:
+```
+ros2 run ros2_utils_tool tool_tf2_to_json /path/to/bag /path/to/output.json
+```
+(Note that a topic can be specified optionally. If no topic is specified, the first available tf2 topic is used).
 
 **Merge-Bags-Tool**:
 ```
