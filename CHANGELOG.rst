@@ -8,7 +8,7 @@ Changelog for the ros2_utils_tool
 
 * A feature to extract tf2 messages out of a ROS bag file to json.
 * TF2 support for the dummy bag tool. Additionally, this tool can now write up to five topics into a bag file!
-* AVI support for the bag to video tool.
+* AVI support for the bag to video and video to bag tool.
 * UI - A new widget shown if disk space is low for every tool generating data, including a new warning messagebox. The messagebox can be disabled in a new option.
 * UI - Tooltips for the starting widget tool buttons.
 * CLI - A flag "-s" or "--suppress" to execute a tool without showing any warnings.
@@ -25,6 +25,7 @@ Changelog for the ros2_utils_tool
 * UI - Topics added in the Dummy Bag Widget were inserted into the wrong row.
 
 **Other:**
+
 * Added a Changelog.rst.
 
 0.12.0 (2025-05-26)
@@ -51,6 +52,7 @@ Changelog for the ros2_utils_tool
 * CLI - The message 'Merging bags' showing twice when calling the merge bags tool.
 
 **Infrastructure:**
+
 * Support for kilted and rolling.
 
 0.11.0 (2025-04-15)
@@ -98,6 +100,7 @@ Changelog for the ros2_utils_tool
 * UI - Topics in the merge bag tool were sometimes stored with false selected values when (un)selected.
 
 **Infrastructure:**
+
 * Lower compile times due to CMake restructurements and improved dependency management.
 
 0.9.0 (2025-02-27)
@@ -120,6 +123,7 @@ Changelog for the ros2_utils_tool
 * CLI - The video to bag tool not recognizing custom rates.
 
 **Infrastructure:**
+
 * Added unit tests for all main tool threads.
 
 0.8.0 (2025-02-17)
@@ -146,6 +150,7 @@ Changelog for the ros2_utils_tool
 * UI - Further crashes when the edit bag main thread was started.
 
 **Infrastructure:**
+
 * Added dependencies to package.xml to simplify ROS dep installation. (Contributor: Iván López Broceño)
 
 0.7.2 (2025-02-07)
