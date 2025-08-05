@@ -15,12 +15,12 @@
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_compress_bag path/to/uncompressed/source/bag /path/to/compressed/target/bag \n" << std::endl;
-    std::cout << "Additional parameters:" << std::endl;
-    std::cout << "-m or --mode (file/message): Compress per file (file) or per message (message). File is default." << std::endl;
-    std::cout << "-d or --delete: Delete the source file after completion.\n" << std::endl;
-    std::cout << "-s or --suppress: Suppress any warnings.\n" << std::endl;
-    std::cout << "-h or --help: Show this help." << std::endl;
+    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_compress_bag path/to/uncompressed/source/bag /path/to/compressed/target/bag \n\n";
+    std::cout << "Additional parameters:\n";
+    std::cout << "-m or --mode (file/message): Compress per file (file) or per message (message). File is default.\n\n";
+    std::cout << "-d or --delete: Delete the source file after completion.\n\n";
+    std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "-h or --help: Show this help.\n";
 }
 
 
@@ -94,8 +94,8 @@ main(int argc, char* argv[])
         isCompressing = false;
         processingThread.join();
 
-        std::cout << "" << std::endl; // Extra line to stop flushing
-        std::cout << "Compressing finished!" << std::endl;
+        std::cout << "\n";// Extra line to stop flushing
+        std::cout << "Compressing finished!\n";
         return EXIT_SUCCESS;
     });
     QObject::connect(compressBagThread, &ChangeCompressionBagThread::finished, compressBagThread, &QObject::deleteLater);

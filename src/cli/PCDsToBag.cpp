@@ -12,12 +12,12 @@
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_pcds_to_bag path/to/pcds/dir path/to/bag\n" << std::endl;
-    std::cout << "Additional parameters:" << std::endl;
-    std::cout << "-t or --topic_name: Topic name in the bag file. If this is empty, the name '/topic_point_cloud' will be used.\n" << std::endl;
-    std::cout << "-r or --rate: Rate ('clouds per second'). Must be between 1 and 30, default is 5.\n" << std::endl;
-    std::cout << "-s or --suppress: Suppress any warnings.\n" << std::endl;
-    std::cout << "-h or --help: Show this help." << std::endl;
+    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_pcds_to_bag path/to/pcds/dir path/to/bag\n\n";
+    std::cout << "Additional parameters:\n";
+    std::cout << "-t or --topic_name: Topic name in the bag file. If this is empty, the name '/topic_point_cloud' will be used.\n";
+    std::cout << "-r or --rate: Number of messages per second. Must be between 1 and 30, default is 5.\n\n";
+    std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "-h or --help: Show this help.\n";
 }
 
 
@@ -91,8 +91,8 @@ main(int argc, char* argv[])
         std::cout << progressString.toStdString() << " " << progressStringCMD << " " << progress << "%" << "\r" << std::flush;
     });
     QObject::connect(pcdsToBagThread, &PCDsToBagThread::finished, [] {
-        std::cout << "" << std::endl; // Extra line to stop flushing
-        std::cout << "Writing finished!" << std::endl;
+        std::cout << "\n"; // Extra line to stop flushing
+        std::cout << "Writing finished!\n";
         return EXIT_SUCCESS;
     });
     QObject::connect(pcdsToBagThread, &PCDsToBagThread::finished, pcdsToBagThread, &QObject::deleteLater);
@@ -101,7 +101,7 @@ main(int argc, char* argv[])
         signalStatus = signal;
     });
 
-    std::cout << "Writing pcd files to bag. Please wait..." << std::endl;
+    std::cout << "Writing pcd files to bag. Please wait...\n";
     Utils::CLI::runThread(pcdsToBagThread, signalStatus);
 
     return EXIT_SUCCESS;

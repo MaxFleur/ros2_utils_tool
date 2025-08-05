@@ -13,13 +13,13 @@
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_tf2_to_json path/to/bag path/to/output.json\n" << std::endl;
-    std::cout << "Additional parameters:" << std::endl;
-    std::cout << "-t or --topic_name: tf2 topic inside the bag. If no topic name is specified, the first found tf2 topic in the bag is taken.\n" << std::endl;
-    std::cout << "-i or --indent: Indent the output file." << std::endl;
-    std::cout << "-k or --keep_timestamps: Keep the message's timestamp in the json file." << std::endl;
-    std::cout << "-s or --suppress: Suppress any warnings.\n" << std::endl;
-    std::cout << "-h or --help: Show this help." << std::endl;
+    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_tf2_to_json path/to/bag path/to/output.json\n\n";
+    std::cout << "Additional parameters:\n";
+    std::cout << "-t or --topic_name: tf2 topic inside the bag. If no topic name is specified, the first found tf2 topic in the bag is taken.\n\n";
+    std::cout << "-i or --indent: Indent the output file.\n";
+    std::cout << "-k or --keep_timestamps: Keep the message's timestamp in the json file.\n";
+    std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "-h or --help: Show this help.\n";
 }
 
 
@@ -80,8 +80,8 @@ main(int argc, char* argv[])
         std::cout << progressString.toStdString() << " " << progressStringCMD << " " << progress << "%" << "\r" << std::flush;
     });
     QObject::connect(tf2ToJsonThread, &TF2ToJsonThread::finished, [] {
-        std::cout << "" << std::endl; // Extra line to stop flushing
-        std::cout << "Writing json finished!" << std::endl;
+        std::cout << "\n"; // Extra line to stop flushing
+        std::cout << "Writing json finished!\n";
         return EXIT_SUCCESS;
     });
     QObject::connect(tf2ToJsonThread, &TF2ToJsonThread::finished, tf2ToJsonThread, &QObject::deleteLater);
@@ -90,7 +90,7 @@ main(int argc, char* argv[])
         signalStatus = signal;
     });
 
-    std::cout << "Writing json. Please wait..." << std::endl;
+    std::cout << "Writing json. Please wait...\n";
     Utils::CLI::runThread(tf2ToJsonThread, signalStatus);
 
     return EXIT_SUCCESS;
