@@ -85,7 +85,7 @@ bool
 continueForExistingTarget(const QString& targetDirectory, const QString& headerTextBeginning,
                           const QString& targetIdentifier)
 {
-    if (!DialogSettings::getStaticParameter("ask_for_target_overwrite", true)) {
+    if (!DialogSettings::getStaticParameter("warn_target_overwrite", true)) {
         return true;
     }
 
@@ -97,8 +97,8 @@ continueForExistingTarget(const QString& targetDirectory, const QString& headerT
                                              "This will overwrite all target files.",
                                              QMessageBox::Yes | QMessageBox::No);
         msgBox->setCheckBox(checkBox);
-        QObject::connect(checkBox, &QCheckBox::stateChanged, [] (int state){
-            DialogSettings::writeStaticParameter("ask_for_target_overwrite", state == Qt::Unchecked);
+        QObject::connect(checkBox, &QCheckBox::stateChanged, [] (int state) {
+            DialogSettings::writeStaticParameter("warn_target_overwrite", state == Qt::Unchecked);
         });
 
         if (const auto ret = msgBox->exec(); ret == QMessageBox::No) {
