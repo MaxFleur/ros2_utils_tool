@@ -13,11 +13,11 @@
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_bag_to_pcds path/to/bag path/to/pcds\n" << std::endl;
-    std::cout << "Additional parameters:" << std::endl;
-    std::cout << "-t or --topic_name: Point cloud topic inside the bag. If no topic name is specified, the first found point cloud topic in the bag is taken.\n" << std::endl;
-    std::cout << "-s or --suppress: Suppress any warnings.\n" << std::endl;
-    std::cout << "-h or --help: Show this help." << std::endl;
+    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_bag_to_pcds path/to/bag path/to/pcds\n\n";
+    std::cout << "Additional parameters:\n";
+    std::cout << "-t or --topic_name: Point cloud topic inside the bag. If no topic name is specified, the first found point cloud topic in the bag is taken.\n\n";
+    std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "-h or --help: Show this help.\n";
 }
 
 
@@ -73,8 +73,8 @@ main(int argc, char* argv[])
         std::cout << progressString.toStdString() << " " << progressStringCMD << " " << progress << "%" << "\r" << std::flush;
     });
     QObject::connect(bagToPCDsThread, &BagToPCDsThread::finished, [] {
-        std::cout << "" << std::endl; // Extra line to stop flushing
-        std::cout << "Writing pcds finished!" << std::endl;
+        std::cout << "\n"; // Extra line to stop flushing
+        std::cout << "Writing pcds finished!\n";
         return EXIT_SUCCESS;
     });
     QObject::connect(bagToPCDsThread, &BagToPCDsThread::finished, bagToPCDsThread, &QObject::deleteLater);
@@ -83,7 +83,7 @@ main(int argc, char* argv[])
         signalStatus = signal;
     });
 
-    std::cout << "Writing pcds. Please wait..." << std::endl;
+    std::cout << "Writing pcds. Please wait...\n";
     Utils::CLI::runThread(bagToPCDsThread, signalStatus);
 
     return EXIT_SUCCESS;

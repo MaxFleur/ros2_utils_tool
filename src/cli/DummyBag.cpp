@@ -14,14 +14,14 @@
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_dummy_bag path/to/bag topic_name_1 topic_type_1 (...)\n" << std::endl;
-    std::cout << "Topic type is either 'String', 'Integer', 'Image', 'PointCloud' or 'TF2'." << std::endl;
-    std::cout << "You can write up to five topics.\n" << std::endl;
-    std::cout << "Additional parameters:" << std::endl;
-    std::cout << "-m or --message-count: Number of messages in the bag file. Must be between 1 and 1000, default is 100." << std::endl;
-    std::cout << "-r or --rate: \"Frame\"rate of messages in the bag file. Must be between 1 and 100, default is 10.\n" << std::endl;
-    std::cout << "-s or --suppress: Suppress any warnings.\n" << std::endl;
-    std::cout << "-h or --help: Show this help." << std::endl;
+    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_dummy_bag path/to/bag topic_name_1 topic_type_1 (...)\n\n";
+    std::cout << "Topic type is either 'String', 'Integer', 'Image', 'PointCloud' or 'TF2'.\n";
+    std::cout << "You can write up to five topics.\n\n";
+    std::cout << "Additional parameters:\n";
+    std::cout << "-m or --message-count: Number of messages in the bag file. Must be between 1 and 1000, default is 100.\n";
+    std::cout << "-r or --rate: Number of messages per second. Must be between 1 and 100, default is 10.\n\n";
+    std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "-h or --help: Show this help.\n";
 }
 
 
@@ -134,8 +134,8 @@ main(int argc, char* argv[])
     QObject::connect(dummyBagThread, &DummyBagThread::finished, [] {
         // This signal is thrown even if SIGINT is called, but we haven't finished, only interrupted
         if (signalStatus != SIGINT) {
-            std::cout << "" << std::endl; // Extra line to stop flushing
-            std::cout << "Creating bag finished!" << std::endl;
+            std::cout << "\n"; // Extra line to stop flushing
+            std::cout << "Creating bag finished!\n";
         }
         return EXIT_SUCCESS;
     });
@@ -145,7 +145,7 @@ main(int argc, char* argv[])
         signalStatus = signal;
     });
 
-    std::cout << "Creating dummy bag. Please wait..." << std::endl;
+    std::cout << "Creating dummy bag. Please wait...\n";
     Utils::CLI::runThread(dummyBagThread, signalStatus);
 
     return EXIT_SUCCESS;
