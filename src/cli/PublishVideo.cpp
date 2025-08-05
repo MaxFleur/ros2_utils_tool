@@ -15,16 +15,16 @@
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_publish_video path/to/video\n" << std::endl;
-    std::cout << "The video must have an ending of .mp4 or .mkv." << std::endl;
-    std::cout << "Additional parameters:" << std::endl;
-    std::cout << "-t or --topic_name: Topic name. If this is empty, the name '/topic_video' will be taken.\n" << std::endl;
-    std::cout << "-sc width height or --scale width height: Scale. width must be between 1 and 3840, height between 1 and 2160.\n" << std::endl;
-    std::cout << "-a or --accelerate: Use hardware acceleration." << std::endl;
-    std::cout << "-e or --exchange: Exchange red and blue values." << std::endl;
-    std::cout << "-l or --loop: Loop the video.\n" << std::endl;
-    std::cout << "-s or --suppress: Suppress any warnings.\n" << std::endl;
-    std::cout << "-h or --help: Show this help." << std::endl;
+    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_publish_video path/to/video\n\n";
+    std::cout << "The video must have an ending of .mp4 or .mkv.\n\n";
+    std::cout << "Additional parameters:\n";
+    std::cout << "-t or --topic_name: Topic name. If this is empty, the name '/topic_video' will be taken.\n";
+    std::cout << "-sc width height or --scale width height: Scale. width must be between 1 and 3840, height between 1 and 2160.\n\n";
+    std::cout << "-a or --accelerate: Use hardware acceleration.\n";
+    std::cout << "-e or --exchange: Exchange red and blue values.\n";
+    std::cout << "-l or --loop: Loop the video.\n\n";
+    std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "-h or --help: Show this help.\n";
 }
 
 
@@ -105,7 +105,7 @@ main(int argc, char* argv[])
         signalStatus = signal;
     });
 
-    std::cout << "Publishing video..." << std::endl;
+    std::cout << "Publishing video...\n";
     Utils::CLI::runThread(publishVideoThread, signalStatus);
 
     rclcpp::shutdown();

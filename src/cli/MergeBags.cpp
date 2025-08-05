@@ -15,13 +15,13 @@
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_merge_bags path/to/first/bag path/to/second/bag -t1 (...) -t2 (...) path/to/target/bag\n" << std::endl;
-    std::cout << "Topic names after '-t1' are those contained in the first bag file, names after '-t2' in the second file." << std::endl;
-    std::cout << "Note that duplicate topics (equal topics contained in both bags) will be merged if both are specified.\n" << std::endl;
-    std::cout << "Additional parameters:" << std::endl;
-    std::cout << "-d or --delete: Delete the source bag files.\n" << std::endl;
-    std::cout << "-s or --suppress: Suppress any warnings.\n" << std::endl;
-    std::cout << "-h or --help: Show this help." << std::endl;
+    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_merge_bags path/to/first/bag path/to/second/bag -t1 (...) -t2 (...) path/to/target/bag\n\n";
+    std::cout << "Topic names after '-t1' are those contained in the first bag file, names after '-t2' in the second file.\n";
+    std::cout << "Note that duplicate topics (equal topics contained in both bags) will be merged if both are specified.\n\n";
+    std::cout << "Additional parameters:\n";
+    std::cout << "-d or --delete: Delete the source bag files.\n\n";
+    std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "-h or --help: Show this help.\n";
 }
 
 
@@ -139,8 +139,8 @@ main(int argc, char* argv[])
         isMerging = false;
         processingThread.join();
 
-        std::cout << "" << std::endl; // Extra line to stop flushing
-        std::cout << "Merging bags finished!" << std::endl;
+        std::cout << "\n"; // Extra line to stop flushing
+        std::cout << "Merging bags finished!\n";
         return EXIT_SUCCESS;
     });
     QObject::connect(mergeBagsThread, &MergeBagsThread::finished, mergeBagsThread, &QObject::deleteLater);
