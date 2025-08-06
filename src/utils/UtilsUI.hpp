@@ -35,15 +35,19 @@ createLineEditButtonLayout(QPointer<QLineEdit>   lineEdit,
 [[nodiscard]] bool
 continueWithInvalidROS2Names();
 
-// Creates a messagebox informing of a critical error
-void
-createCriticalMessageBox(const QString& headerText,
-                         const QString& mainText);
-
+// Create a messagebox asking if a user should continue if a target file is already existing
 bool
 continueForExistingTarget(const QString& targetDirectory,
                           const QString& headerTextBeginning,
                           const QString& targetIdentifier);
+
+[[nodiscard]] QCheckBox*
+createMessageBoxCheckBox(const QString& optionsIdentifier);
+
+// Creates a messagebox informing of a critical error
+void
+createCriticalMessageBox(const QString& headerText,
+                         const QString& mainText);
 
 // Checks if the application is in dark mode
 [[nodiscard]] bool

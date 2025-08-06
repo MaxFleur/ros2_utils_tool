@@ -73,23 +73,12 @@ continueWithInvalidROS2Names()
                           "<a href='https://design.ros2.org/articles/topic_and_service_names.html'>https://design.ros2.org/articles/topic_and_service_names.html</a><br>"
                           "Do you still want to continue?";
 
-    auto* const checkBox = new QCheckBox("Don't show this again");
     auto *const msgBox = new QMessageBox(QMessageBox::Warning, headerText, mainText, QMessageBox::Yes | QMessageBox::No);
 
+    auto* const checkBox = createMessageBoxCheckBox("warn_ros2_name_convention");
     msgBox->setCheckBox(checkBox);
-    QObject::connect(checkBox, &QCheckBox::stateChanged, [] (int state) {
-        DialogSettings::writeStaticParameter("warn_ros2_name_convention", state == Qt::Unchecked);
-    });
 
     return msgBox->exec() == QMessageBox::Yes;
-}
-
-
-void
-createCriticalMessageBox(const QString& headerText, const QString& mainText)
-{
-    auto *const msgBox = new QMessageBox(QMessageBox::Critical, headerText, mainText, QMessageBox::Ok);
-    msgBox->exec();
 }
 
 
@@ -102,16 +91,13 @@ continueForExistingTarget(const QString& targetDirectory, const QString& headerT
     }
 
     if (std::filesystem::exists(targetDirectory.toStdString())) {
-        auto* const checkBox = new QCheckBox("Don't show this again");
-
         auto *const msgBox = new QMessageBox(QMessageBox::Warning, headerTextBeginning + " already exists!",
                                              "The specified " + targetIdentifier + " already exists! Are you sure you want to continue? "
                                              "This will overwrite all target files.",
                                              QMessageBox::Yes | QMessageBox::No);
+
+        auto* const checkBox = createMessageBoxCheckBox("warn_target_overwrite");
         msgBox->setCheckBox(checkBox);
-        QObject::connect(checkBox, &QCheckBox::stateChanged, [] (int state) {
-            DialogSettings::writeStaticParameter("warn_target_overwrite", state == Qt::Unchecked);
-        });
 
         if (const auto ret = msgBox->exec(); ret == QMessageBox::No) {
             return false;
@@ -119,6 +105,27 @@ continueForExistingTarget(const QString& targetDirectory, const QString& headerT
     }
 
     return true;
+}
+
+
+QCheckBox*
+createMessageBoxCheckBox(const QString& optionsIdentifier)
+{
+    auto* const checkBox = new QCheckBox("Don't show this again");
+
+    QObject::connect(checkBox, &QCheckBox::stateChanged, [optionsIdentifier] (int state) {
+        DialogSettings::writeStaticParameter(optionsIdentifier, state == Qt::Unchecked);
+    });
+
+    return checkBox;
+}
+
+
+void
+createCriticalMessageBox(const QString& headerText, const QString& mainText)
+{
+    auto *const msgBox = new QMessageBox(QMessageBox::Critical, headerText, mainText, QMessageBox::Ok);
+    msgBox->exec();
 }
 
 
