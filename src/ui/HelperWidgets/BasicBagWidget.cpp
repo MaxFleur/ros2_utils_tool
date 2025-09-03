@@ -1,33 +1,39 @@
 #include "BasicBagWidget.hpp"
 
-#include "DialogSettings.hpp"
-#include "LowDiskSpaceWidget.hpp"
-#include "MessageCountWidget.hpp"
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
 #include <QCheckBox>
-#include <QFileDialog>
 #include <QFormLayout>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QToolButton>
 #include <QTreeWidget>
 
 #include <filesystem>
 
 BasicBagWidget::BasicBagWidget(Parameters::DeleteSourceParameters& parameters,
-                               const QString& titleText, const QString& iconText, const QString& settingsIdentifierText,
+                               const QString& titleText, const QString& iconText, const QString& settingsIdentifierText, const int outputFormat,
                                QWidget *parent) :
-    BasicInputWidget(titleText, iconText, parent),
+    AdvancedInputWidget(parameters, titleText, iconText, "Source Bag:", "Target Bag:", settingsIdentifierText, outputFormat, parent),
     m_parameters(parameters), m_settings(parameters, settingsIdentifierText)
 {
+    // Take the source and target form layout for manipulation
+    m_controlsLayout->takeAt(4);
+    // Reuse the target layout for a new form layout
+    const auto targetLocationRow = m_basicOptionsFormLayout->takeRow(1);
+
+    auto* const findTargetLayout = new QFormLayout;
+    findTargetLayout->addRow(targetLocationRow.labelItem->widget(), targetLocationRow.fieldItem->layout());
+
+    m_findTargetWidget = new QWidget;
+    m_findTargetWidget->setLayout(findTargetLayout);
+    m_findTargetWidget->setVisible(false);
+
     if (!std::filesystem::exists(m_parameters.sourceDirectory.toStdString()) ||
         !Utils::ROS::doesDirectoryContainBagFile(m_parameters.sourceDirectory)) {
         m_parameters.sourceDirectory = QString();
         writeParameterToSettings(m_parameters.sourceDirectory, QString(), m_settings);
     }
-    m_sourceLineEdit->setText(m_parameters.sourceDirectory);
 
     m_deleteSourceCheckBox = new QCheckBox("Delete Source Bag File(s) after Completion");
     m_deleteSourceCheckBox->setTristate(false);
@@ -41,31 +47,16 @@ BasicBagWidget::BasicBagWidget(Parameters::DeleteSourceParameters& parameters,
     m_treeWidget->headerItem()->setText(COL_TOPIC_TYPE, "Topic Type:");
     m_treeWidget->setRootIsDecorated(false);
 
-    m_targetLineEdit = new QLineEdit(m_parameters.targetDirectory);
-    auto* const targetPushButton = new QToolButton;
-    auto* const targetLineEditLayout = Utils::UI::createLineEditButtonLayout(m_targetLineEdit, targetPushButton);
-
-    auto* const targetFormLayout = new QFormLayout;
-    targetFormLayout->addRow("Target Location:", targetLineEditLayout);
-    targetFormLayout->setContentsMargins(0, 0, 0, 0);
-
-    m_targetBagNameWidget = new QWidget;
-    m_targetBagNameWidget->setLayout(targetFormLayout);
-    m_targetBagNameWidget->setVisible(false);
-
-    m_lowDiskSpaceWidget = new LowDiskSpaceWidget;
+    m_controlsLayout->addLayout(m_basicOptionsFormLayout);
+    m_controlsLayout->addSpacing(10);
 
     m_okButton->setEnabled(true);
     m_okButton->setVisible(false);
 
     connect(m_treeWidget, &QTreeWidget::itemChanged, this, &BasicBagWidget::itemCheckStateChanged);
-    connect(targetPushButton, &QPushButton::clicked, this, &BasicBagWidget::targetPushButtonPressed);
     connect(m_deleteSourceCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.deleteSource, state == Qt::Checked, m_settings);
     });
-
-    setPixmapLabelIcon();
-    setLowDiskSpaceWidgetVisibility(m_targetLineEdit->text());
 }
 
 
@@ -75,20 +66,6 @@ BasicBagWidget::itemCheckStateChanged(QTreeWidgetItem* item, int /* column */)
     // Disable item widgets, this improves distinction between enabed and disabled topics
     m_treeWidget->itemWidget(item, COL_TOPIC_NAME)->setEnabled(item->checkState(COL_CHECKBOXES) == Qt::Checked ? true : false);
     m_treeWidget->itemWidget(item, COL_TOPIC_TYPE)->setEnabled(item->checkState(COL_CHECKBOXES) == Qt::Checked ? true : false);
-}
-
-
-void
-BasicBagWidget::targetPushButtonPressed()
-{
-    const auto fileName = QFileDialog::getSaveFileName(this, "Target Bag File", "", "");
-    if (fileName.isEmpty()) {
-        return;
-    }
-
-    m_targetLineEdit->setText(fileName);
-    writeParameterToSettings(m_parameters.targetDirectory, fileName, m_settings);
-    setLowDiskSpaceWidgetVisibility(m_targetLineEdit->text());
 }
 
 

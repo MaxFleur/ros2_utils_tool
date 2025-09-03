@@ -106,8 +106,7 @@ MainWindow::setInputWidget(Utils::UI::TOOL_ID mode)
         break;
     }
 
-    resize(mode == Utils::UI::TOOL_ID::EDIT_BAG || mode == Utils::UI::TOOL_ID::MERGE_BAGS ? basicInputWidget->width() : DEFAULT_WIDTH,
-           mode == Utils::UI::TOOL_ID::EDIT_BAG || mode == Utils::UI::TOOL_ID::MERGE_BAGS ? basicInputWidget->height() : DEFAULT_HEIGHT);
+    resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     setCentralWidget(basicInputWidget);
 
     connect(basicInputWidget, &BasicInputWidget::back, this, &MainWindow::setStartWidget);

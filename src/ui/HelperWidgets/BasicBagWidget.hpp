@@ -1,10 +1,9 @@
 #pragma once
 
-#include "BasicInputWidget.hpp"
+#include "AdvancedInputWidget.hpp"
 #include "DeleteSourceSettings.hpp"
 #include "Parameters.hpp"
 
-#include <QLineEdit>
 #include <QPointer>
 #include <QWidget>
 
@@ -14,7 +13,7 @@ class QTreeWidget;
 class QTreeWidgetItem;
 
 // Widget for displaying bag contents for manipulation
-class BasicBagWidget : public BasicInputWidget
+class BasicBagWidget : public AdvancedInputWidget
 {
     Q_OBJECT
 public:
@@ -23,15 +22,13 @@ public:
                    const QString&                      titleText,
                    const QString&                      iconText,
                    const QString&                      settingsIdentifierText,
+                   const int                           outputFormat,
                    QWidget*                            parent = 0);
 
 protected slots:
     virtual void
     itemCheckStateChanged(QTreeWidgetItem* item,
                           int              column) = 0;
-
-    void
-    targetPushButtonPressed();
 
 protected:
     [[nodiscard]] bool
@@ -42,12 +39,11 @@ protected:
 protected:
     QPointer<QTreeWidget> m_treeWidget;
 
-    QPointer<QLineEdit> m_targetLineEdit;
     QPointer<QCheckBox> m_deleteSourceCheckBox;
 
-    QPointer<QWidget> m_targetBagNameWidget;
-
     QPointer<QHBoxLayout> m_diskSpaceLayout;
+
+    QPointer<QWidget> m_findTargetWidget;
 
     static constexpr int COL_CHECKBOXES = 0;
     static constexpr int COL_TOPIC_NAME = 1;

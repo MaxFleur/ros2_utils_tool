@@ -6,27 +6,19 @@
 #include "UtilsUI.hpp"
 
 #include <QCheckBox>
-#include <QDialogButtonBox>
 #include <QFileDialog>
-#include <QFormLayout>
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QShortcut>
-#include <QToolButton>
 #include <QTreeWidget>
-#include <QVBoxLayout>
 
 #include <filesystem>
 
 EditBagWidget::EditBagWidget(Parameters::EditBagParameters& parameters, bool warnROS2NameConvention, QWidget *parent) :
-    BasicBagWidget(parameters, "Edit Bag", ":/icons/edit_bag", "edit_bag", parent),
+    BasicBagWidget(parameters, "Edit Bag", ":/icons/edit_bag", "edit_bag", OUTPUT_BAG_EDITED, parent),
     m_parameters(parameters), m_settings(parameters, "edit_bag"),
     m_warnROS2NameConvention(warnROS2NameConvention)
 {
-    auto* const formLayout = new QFormLayout;
-    formLayout->addRow("Bag Location:", m_findSourceLayout);
-
     m_editLabel = new QLabel("Unselect all items you want to remove. Change the message count to crop messages.");
     m_editLabel->setVisible(false);
 
@@ -51,68 +43,54 @@ EditBagWidget::EditBagWidget(Parameters::EditBagParameters& parameters, bool war
     m_updateTimestampsCheckBox->setChecked(m_parameters.updateTimestamps);
     m_updateTimestampsCheckBox->setVisible(false);
 
-    auto* const controlsLayout = new QVBoxLayout;
-    controlsLayout->addStretch();
-    controlsLayout->addWidget(m_headerPixmapLabel);
-    controlsLayout->addWidget(m_headerLabel);
-    controlsLayout->addSpacing(30);
-    controlsLayout->addLayout(formLayout);
-    controlsLayout->addSpacing(10);
-    controlsLayout->addWidget(m_editLabel);
-    controlsLayout->addWidget(m_treeWidget);
-    controlsLayout->addWidget(m_targetBagNameWidget);
-    controlsLayout->addWidget(m_lowDiskSpaceWidget);
-    controlsLayout->addSpacing(10);
-    controlsLayout->addWidget(m_differentDirsLabel);
-    controlsLayout->addWidget(m_deleteSourceCheckBox);
-    controlsLayout->addWidget(m_updateTimestampsCheckBox);
+    m_controlsLayout->addWidget(m_editLabel);
+    m_controlsLayout->addWidget(m_treeWidget);
+    m_controlsLayout->addWidget(m_findTargetWidget);
+    m_controlsLayout->addWidget(m_lowDiskSpaceWidget);
+    m_controlsLayout->addSpacing(10);
+    m_controlsLayout->addWidget(m_differentDirsLabel);
+    m_controlsLayout->addWidget(m_deleteSourceCheckBox);
+    m_controlsLayout->addWidget(m_updateTimestampsCheckBox);
     // Give it a more "squishy" look
-    controlsLayout->setContentsMargins(30, 30, 30, 30);
-    controlsLayout->addStretch();
+    m_controlsLayout->setContentsMargins(30, 30, 30, 30);
+    m_controlsLayout->addStretch();
 
-    auto* const mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(controlsLayout);
-    mainLayout->addLayout(m_buttonLayout);
-    setLayout(mainLayout);
-
-    auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
-
-    connect(m_findSourceButton, &QPushButton::clicked, this, [this] {
-        createTopicTree(true);
-    });
     connect(m_updateTimestampsCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.updateTimestamps, state == Qt::Checked, m_settings);
     });
-    connect(m_dialogButtonBox, &QDialogButtonBox::accepted, this, &EditBagWidget::okButtonPressed);
-    connect(okShortCut, &QShortcut::activated, this, &EditBagWidget::okButtonPressed);
 
     if (!m_sourceLineEdit->text().isEmpty()) {
-        createTopicTree(false);
+        createTopicTree();
     }
 }
 
 
 void
-EditBagWidget::createTopicTree(bool newTreeRequested)
+EditBagWidget::findSourceButtonPressed()
 {
-    // Selecting a source file will necessarily need to creating a new tree, so put it in the same function
-    if (newTreeRequested) {
-        const auto bagDirectory = QFileDialog::getExistingDirectory(this, "Open Source Bag File", "",
-                                                                    QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-        if (bagDirectory.isEmpty()) {
-            return;
-        }
-        if (!Utils::ROS::doesDirectoryContainBagFile(bagDirectory)) {
-            Utils::UI::createCriticalMessageBox("Invalid bag file!", "The source bag file seems to be invalid or broken!");
-            return;
-        }
-
-        m_sourceLineEdit->setText(bagDirectory);
-        writeParameterToSettings(m_parameters.sourceDirectory, bagDirectory, m_settings);
-        m_parameters.topics.clear();
-        m_settings.write();
+    const auto bagDirectory = QFileDialog::getExistingDirectory(this, "Open Source Bag File", "",
+                                                                QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    if (bagDirectory.isEmpty()) {
+        return;
+    }
+    if (!Utils::ROS::doesDirectoryContainBagFile(bagDirectory)) {
+        Utils::UI::createCriticalMessageBox("Invalid bag file!", "The source bag file seems to be invalid or broken!");
+        return;
     }
 
+    writeParameterToSettings(m_parameters.sourceDirectory, bagDirectory, m_settings);
+    m_parameters.topics.clear();
+    m_settings.write();
+
+    m_sourceLineEdit->setText(bagDirectory);
+    fillTargetLineEdit();
+    createTopicTree();
+}
+
+
+void
+EditBagWidget::createTopicTree()
+{
     m_treeWidget->clear();
     m_treeWidget->blockSignals(true);
 
@@ -182,8 +160,8 @@ EditBagWidget::createTopicTree(bool newTreeRequested)
 
     m_editLabel->setVisible(true);
     m_treeWidget->setVisible(true);
-    m_targetBagNameWidget->setVisible(true);
     m_differentDirsLabel->setVisible(true);
+    m_findTargetWidget->setVisible(true);
     m_deleteSourceCheckBox->setVisible(true);
     m_updateTimestampsCheckBox->setVisible(true);
     m_okButton->setVisible(true);

@@ -40,6 +40,10 @@ protected slots:
     }
 
 protected:
+    void
+    fillTargetLineEdit();
+
+protected:
     QPointer<QLineEdit> m_targetLineEdit;
 
     QPointer<QFormLayout> m_basicOptionsFormLayout;
@@ -56,6 +60,8 @@ protected:
     static constexpr int OUTPUT_PCDS = 2;
     static constexpr int OUTPUT_JSON = 3;
     static constexpr int OUTPUT_BAG = 4;
+    static constexpr int OUTPUT_BAG_EDITED = 5;
+    static constexpr int OUTPUT_BAG_MERGED = 6;
 
 private:
     QString m_fileFormat;

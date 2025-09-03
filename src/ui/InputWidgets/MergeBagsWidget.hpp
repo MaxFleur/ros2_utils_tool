@@ -19,7 +19,7 @@ public:
 
 private slots:
     void
-    setSourceDirectory(bool isFirstSource);
+    findSourceButtonPressed() override;
 
     void
     createTopicTree(bool resetTopicsParameter);
@@ -29,7 +29,7 @@ private slots:
                           int              column) override;
 
     void
-    okButtonPressed() const;
+    okButtonPressed() const override;
 
 private:
     QPointer<QLineEdit> m_secondSourceLineEdit;
@@ -39,4 +39,6 @@ private:
     Parameters::MergeBagsParameters& m_parameters;
 
     MergeBagsSettings m_settings;
+
+    bool m_secondSourceButtonClicked { false };
 };
