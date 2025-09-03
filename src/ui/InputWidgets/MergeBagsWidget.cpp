@@ -4,31 +4,23 @@
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
-#include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QFormLayout>
 #include <QLabel>
-#include <QMessageBox>
 #include <QPushButton>
-#include <QShortcut>
 #include <QToolButton>
 #include <QTreeWidget>
-#include <QVBoxLayout>
 
 #include <filesystem>
 
 MergeBagsWidget::MergeBagsWidget(Parameters::MergeBagsParameters& parameters, QWidget *parent) :
-    BasicBagWidget(parameters, "Merge Bags", ":/icons/merge_bags", "merge_bags", parent),
+    BasicBagWidget(parameters, "Merge Bags", ":/icons/merge_bags", "merge_bags", OUTPUT_BAG_MERGED, parent),
     m_parameters(parameters), m_settings(parameters, "merge_bags")
 {
     m_secondSourceLineEdit = new QLineEdit;
     auto* const secondSourceButton = new QToolButton;
-
     auto* const secondSourceLayout = Utils::UI::createLineEditButtonLayout(m_secondSourceLineEdit, secondSourceButton);
-
-    auto* const formLayout = new QFormLayout;
-    formLayout->addRow("First Bag Location:", m_findSourceLayout);
-    formLayout->addRow("Second Bag Location:", secondSourceLayout);
+    m_basicOptionsFormLayout->addRow("Second Source Bag:", secondSourceLayout);
 
     if (!std::filesystem::exists(m_parameters.secondSourceDirectory.toStdString()) ||
         !Utils::ROS::doesDirectoryContainBagFile(m_parameters.secondSourceDirectory)) {
@@ -48,38 +40,21 @@ MergeBagsWidget::MergeBagsWidget(Parameters::MergeBagsParameters& parameters, QW
 
     m_deleteSourceCheckBox->setVisible(false);
 
-    auto* const controlsLayout = new QVBoxLayout;
-    controlsLayout->addStretch();
-    controlsLayout->addWidget(m_headerPixmapLabel);
-    controlsLayout->addWidget(m_headerLabel);
-    controlsLayout->addSpacing(30);
-    controlsLayout->addLayout(formLayout);
-    controlsLayout->addSpacing(10);
-    controlsLayout->addWidget(m_treeWidget);
-    controlsLayout->addWidget(m_targetBagNameWidget);
-    controlsLayout->addWidget(m_lowDiskSpaceWidget);
-    controlsLayout->addSpacing(10);
-    controlsLayout->addWidget(m_sufficientSpaceLabel);
-    controlsLayout->addWidget(m_deleteSourceCheckBox);
+    m_controlsLayout->addWidget(m_treeWidget);
+    m_controlsLayout->addWidget(m_findTargetWidget);
+    m_controlsLayout->addWidget(m_lowDiskSpaceWidget);
+    m_controlsLayout->addSpacing(10);
+    m_controlsLayout->addWidget(m_sufficientSpaceLabel);
+    m_controlsLayout->addWidget(m_deleteSourceCheckBox);
     // Give it a more "squishy" look
-    controlsLayout->setContentsMargins(30, 30, 30, 30);
-    controlsLayout->addStretch();
+    m_controlsLayout->setContentsMargins(30, 30, 30, 30);
+    m_controlsLayout->addStretch();
 
-    auto* const mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(controlsLayout);
-    mainLayout->addLayout(m_buttonLayout);
-    setLayout(mainLayout);
-
-    auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
-
-    connect(m_findSourceButton, &QPushButton::clicked, this, [this] {
-        setSourceDirectory(true);
-    });
     connect(secondSourceButton, &QPushButton::clicked, this, [this] {
-        setSourceDirectory(false);
+        m_secondSourceButtonClicked = true;
+        findSourceButtonPressed();
+        m_secondSourceButtonClicked = false;
     });
-    connect(m_dialogButtonBox, &QDialogButtonBox::accepted, this, &MergeBagsWidget::okButtonPressed);
-    connect(okShortCut, &QShortcut::activated, this, &MergeBagsWidget::okButtonPressed);
 
     if (!m_sourceLineEdit->text().isEmpty() && !m_secondSourceLineEdit->text().isEmpty()) {
         createTopicTree(false);
@@ -88,9 +63,9 @@ MergeBagsWidget::MergeBagsWidget(Parameters::MergeBagsParameters& parameters, QW
 
 
 void
-MergeBagsWidget::setSourceDirectory(bool isFirstSource)
+MergeBagsWidget::findSourceButtonPressed()
 {
-    QPointer<QLineEdit> lineEdit = isFirstSource ? m_sourceLineEdit : m_secondSourceLineEdit;
+    QPointer<QLineEdit> lineEdit = m_secondSourceButtonClicked ? m_secondSourceLineEdit : m_sourceLineEdit;
     const auto bagDirectory = QFileDialog::getExistingDirectory(this, "Open Source Bag File", "",
                                                                 QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     if (bagDirectory.isEmpty()) {
@@ -100,16 +75,18 @@ MergeBagsWidget::setSourceDirectory(bool isFirstSource)
         Utils::UI::createCriticalMessageBox("Invalid bag file!", "The source bag file seems to be invalid or broken!");
         return;
     }
-    const auto& otherSourcePath = isFirstSource ? m_parameters.secondSourceDirectory : m_parameters.sourceDirectory;
+    const auto& otherSourcePath = m_secondSourceButtonClicked ? m_parameters.sourceDirectory : m_parameters.secondSourceDirectory;
     if (bagDirectory == otherSourcePath) {
         Utils::UI::createCriticalMessageBox("Equal input bag files!", "The input files are identical. Please select a different file!");
         return;
     }
 
     lineEdit->setText(bagDirectory);
-    writeParameterToSettings(isFirstSource ? m_parameters.sourceDirectory : m_parameters.secondSourceDirectory, bagDirectory, m_settings);
+    writeParameterToSettings(m_secondSourceButtonClicked ? m_parameters.secondSourceDirectory : m_parameters.sourceDirectory, bagDirectory, m_settings);
     m_settings.write();
+
     if (!m_parameters.sourceDirectory.isEmpty() && !m_parameters.secondSourceDirectory.isEmpty()) {
+        fillTargetLineEdit();
         createTopicTree(true);
     }
 }
@@ -190,19 +167,14 @@ MergeBagsWidget::createTopicTree(bool resetTopicsParameter)
     m_treeWidget->resizeColumnToContents(COL_TOPIC_NAME);
     m_treeWidget->resizeColumnToContents(COL_TOPIC_TYPE);
     m_treeWidget->setColumnWidth(COL_TOPIC_NAME, m_treeWidget->columnWidth(COL_TOPIC_NAME) + 10);
-    // Adjusting the size will for whatever reason reset the column width above
-    const auto keptWidth = width();
 
     m_treeWidget->blockSignals(false);
 
     m_treeWidget->setVisible(true);
-    m_targetBagNameWidget->setVisible(true);
+    m_findTargetWidget->setVisible(true);
     m_sufficientSpaceLabel->setVisible(true);
     m_deleteSourceCheckBox->setVisible(true);
     m_okButton->setVisible(true);
-
-    adjustSize();
-    resize(QSize(keptWidth, height()));
 }
 
 

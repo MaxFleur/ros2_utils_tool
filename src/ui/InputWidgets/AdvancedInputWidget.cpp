@@ -72,37 +72,10 @@ AdvancedInputWidget::findSourceButtonPressed()
     if (bagDirectory.isEmpty()) {
         return;
     }
-    // Automatically fill with available topic names
-    QString autoTargetDir;
-    switch (m_outputFormat) {
-    case OUTPUT_VIDEO:
-        autoTargetDir = "/bag_video." + m_fileFormat;
-        break;
-    case OUTPUT_IMAGES:
-        autoTargetDir = "/image_files";
-        break;
-    case OUTPUT_PCDS:
-        autoTargetDir = "/pcd_files";
-        break;
-    case OUTPUT_JSON:
-        autoTargetDir = "/bag_transforms." + m_fileFormat;
-        break;
-    default:
-        break;
-    }
 
     m_sourceLineEdit->setText(bagDirectory);
     writeParameterToSettings(m_parameters.sourceDirectory, bagDirectory, m_settings);
-
-    QDir bagDirectoryDir(bagDirectory);
-    // Automatically fill up the target dir if there is no already existing name
-    bagDirectoryDir.cdUp();
-    if (const auto autoTargetDirectory = bagDirectoryDir.path() + autoTargetDir; !std::filesystem::exists(autoTargetDirectory.toStdString())) {
-        m_targetLineEdit->setText(autoTargetDirectory);
-
-        writeParameterToSettings(m_parameters.targetDirectory, autoTargetDirectory, m_settings);
-        setLowDiskSpaceWidgetVisibility(m_targetLineEdit->text());
-    }
+    fillTargetLineEdit();
 
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() &&
                    !m_parameters.topicName.isEmpty() && !m_parameters.targetDirectory.isEmpty());
@@ -125,6 +98,8 @@ AdvancedInputWidget::findTargetButtonPressed()
         fileName = QFileDialog::getSaveFileName(this, "Save Json", "", m_fileFormat + " files (*." + m_fileFormat + ")");
         break;
     case OUTPUT_BAG:
+    case OUTPUT_BAG_EDITED:
+    case OUTPUT_BAG_MERGED:
         fileName = QFileDialog::getSaveFileName(this, "Save Bag");
         break;
     }
@@ -162,4 +137,44 @@ AdvancedInputWidget::okButtonPressed() const
     }
 
     emit okPressed();
+}
+
+
+void
+AdvancedInputWidget::fillTargetLineEdit()
+{
+    QString autoTargetDir;
+
+    switch (m_outputFormat) {
+    case OUTPUT_VIDEO:
+        autoTargetDir = "/bag_video." + m_fileFormat;
+        break;
+    case OUTPUT_IMAGES:
+        autoTargetDir = "/image_files";
+        break;
+    case OUTPUT_PCDS:
+        autoTargetDir = "/pcd_files";
+        break;
+    case OUTPUT_JSON:
+        autoTargetDir = "/bag_transforms." + m_fileFormat;
+        break;
+    case OUTPUT_BAG_EDITED:
+        autoTargetDir = "/edited_bag";
+        break;
+    case OUTPUT_BAG_MERGED:
+        autoTargetDir = "/merged_bag";
+        break;
+    default:
+        break;
+    }
+
+    QDir bagDirectoryDir(m_sourceLineEdit->text());
+    // Automatically fill up the target dir if there is no already existing name
+    bagDirectoryDir.cdUp();
+    if (const auto autoTargetDirectory = bagDirectoryDir.path() + autoTargetDir; !std::filesystem::exists(autoTargetDirectory.toStdString())) {
+        m_targetLineEdit->setText(autoTargetDirectory);
+
+        writeParameterToSettings(m_parameters.targetDirectory, autoTargetDirectory, m_settings);
+        setLowDiskSpaceWidgetVisibility(m_targetLineEdit->text());
+    }
 }
