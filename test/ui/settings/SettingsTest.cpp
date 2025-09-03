@@ -75,12 +75,10 @@ TEST_CASE("Settings Testing", "[ui]") {
             BasicSettings settings(parameters, "basic");
 
             parameters.sourceDirectory = "/source/dir";
-            parameters.topicName = "/test_topic_name";
             settings.write();
 
             qSettings.beginGroup("basic");
             verifiySettingQString(qSettings, "source_dir", "/source/dir");
-            verifiySettingQString(qSettings, "topic_name", "/test_topic_name");
             qSettings.endGroup();
         }
     }
@@ -164,11 +162,13 @@ TEST_CASE("Settings Testing", "[ui]") {
             AdvancedSettings settings(parameters, "advanced");
 
             parameters.targetDirectory = "/target/dir";
+            parameters.topicName = "/test_topic_name";
             parameters.showAdvancedOptions = true;
             settings.write();
 
             qSettings.beginGroup("advanced");
             verifiySettingQString(qSettings, "target_dir", "/target/dir");
+            verifiySettingQString(qSettings, "topic_name", "/test_topic_name");
             verifiySettingPrimitive(qSettings, "show_advanced", true);
             qSettings.endGroup();
         }

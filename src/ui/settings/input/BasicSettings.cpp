@@ -16,7 +16,6 @@ BasicSettings::write()
     }
 
     writeParameter(m_groupName, "source_dir", m_parameters.sourceDirectory);
-    writeParameter(m_groupName, "topic_name", m_parameters.topicName);
 
     return true;
 }
@@ -30,7 +29,6 @@ BasicSettings::read()
     }
 
     m_parameters.sourceDirectory = readParameter(m_groupName, "source_dir", QString(""));
-    m_parameters.topicName = readParameter(m_groupName, "topic_name", QString(""));
 
     return true;
 }

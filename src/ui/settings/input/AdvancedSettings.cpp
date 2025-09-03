@@ -15,6 +15,7 @@ AdvancedSettings::write()
     }
 
     writeParameter(m_groupName, "target_dir", m_parameters.targetDirectory);
+    writeParameter(m_groupName, "topic_name", m_parameters.topicName);
     writeParameter(m_groupName, "show_advanced", m_parameters.showAdvancedOptions);
 
     return true;
@@ -29,6 +30,7 @@ AdvancedSettings::read()
     }
 
     m_parameters.targetDirectory = readParameter(m_groupName, "target_dir", QString(""));
+    m_parameters.topicName = readParameter(m_groupName, "topic_name", QString(""));
     m_parameters.showAdvancedOptions = readParameter(m_groupName, "show_advanced", false);
 
     return true;
