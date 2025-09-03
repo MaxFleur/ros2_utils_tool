@@ -4,7 +4,6 @@
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
-#include <QComboBox>
 #include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QFormLayout>
@@ -24,33 +23,6 @@ AdvancedInputWidget::AdvancedInputWidget(Parameters::AdvancedParameters& paramet
     m_parameters(parameters), m_settings(parameters, settingsIdentifier), m_outputFormat(outputFormat)
 {
     m_sourceLineEdit->setText(parameters.sourceDirectory);
-
-    m_topicNameComboBox = new QComboBox;
-    m_topicNameComboBox->setMinimumWidth(200);
-
-    if (!m_parameters.sourceDirectory.isEmpty()) {
-        QString topicType;
-
-        switch (m_outputFormat) {
-        case OUTPUT_VIDEO:
-        case OUTPUT_IMAGES:
-            topicType = "sensor_msgs/msg/Image";
-            break;
-        case OUTPUT_PCDS:
-            topicType = "sensor_msgs/msg/PointCloud2";
-            break;
-        case OUTPUT_JSON:
-            topicType = "tf2_msgs/msg/TFMessage";
-            break;
-        default:
-            break;
-        }
-        Utils::UI::fillComboBoxWithTopics(m_topicNameComboBox, m_parameters.sourceDirectory, topicType);
-
-        if (!m_parameters.topicName.isEmpty()) {
-            m_topicNameComboBox->setCurrentText(m_parameters.topicName);
-        }
-    }
 
     m_targetLineEdit = new QLineEdit(m_parameters.targetDirectory);
     auto* const findTargetButton = new QToolButton;
@@ -85,9 +57,6 @@ AdvancedInputWidget::AdvancedInputWidget(Parameters::AdvancedParameters& paramet
     auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
 
     connect(m_findSourceButton, &QPushButton::clicked, this, &AdvancedInputWidget::findSourceButtonPressed);
-    connect(m_topicNameComboBox, &QComboBox::currentTextChanged, this, [this] (const QString& text) {
-        writeParameterToSettings(m_parameters.topicName, text, m_settings);
-    });
     connect(findTargetButton, &QPushButton::clicked, this, &AdvancedInputWidget::findTargetButtonPressed);
     connect(m_dialogButtonBox, &QDialogButtonBox::accepted, this, &AdvancedInputWidget::okButtonPressed);
     connect(okShortCut, &QShortcut::activated, this, &AdvancedInputWidget::okButtonPressed);
@@ -104,32 +73,22 @@ AdvancedInputWidget::findSourceButtonPressed()
         return;
     }
     // Automatically fill with available topic names
-    QString topicType;
     QString autoTargetDir;
     switch (m_outputFormat) {
     case OUTPUT_VIDEO:
-        topicType = "sensor_msgs/msg/Image";
         autoTargetDir = "/bag_video." + m_fileFormat;
         break;
     case OUTPUT_IMAGES:
-        topicType = "sensor_msgs/msg/Image";
         autoTargetDir = "/image_files";
         break;
     case OUTPUT_PCDS:
-        topicType = "sensor_msgs/msg/PointCloud2";
         autoTargetDir = "/pcd_files";
         break;
     case OUTPUT_JSON:
-        topicType = "tf2_msgs/msg/TFMessage";
         autoTargetDir = "/bag_transforms." + m_fileFormat;
         break;
     default:
         break;
-    }
-
-    if (const auto containsTopics = Utils::UI::fillComboBoxWithTopics(m_topicNameComboBox, bagDirectory, topicType); !containsTopics) {
-        Utils::UI::createCriticalMessageBox("Topic not found!", "The bag file does not contain any corresponding topics!");
-        return;
     }
 
     m_sourceLineEdit->setText(bagDirectory);

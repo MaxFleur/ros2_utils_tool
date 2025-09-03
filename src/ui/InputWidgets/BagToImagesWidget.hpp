@@ -1,15 +1,15 @@
 #pragma once
 
-#include "AdvancedInputWidget.hpp"
 #include "BagToImagesSettings.hpp"
 #include "Parameters.hpp"
+#include "TopicComboBoxWidget.hpp"
 
 class QCheckBox;
 class QFormLayout;
 class QSlider;
 
 // The widget used to manage writing images out of a ROS bag
-class BagToImagesWidget : public AdvancedInputWidget
+class BagToImagesWidget : public TopicComboBoxWidget
 {
     Q_OBJECT
 

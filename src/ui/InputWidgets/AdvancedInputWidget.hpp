@@ -4,7 +4,6 @@
 #include "BasicInputWidget.hpp"
 #include "Parameters.hpp"
 
-class QComboBox;
 class QFormLayout;
 class QLineEdit;
 class QVBoxLayout;
@@ -41,11 +40,16 @@ protected slots:
     }
 
 protected:
-    QPointer<QComboBox> m_topicNameComboBox;
     QPointer<QLineEdit> m_targetLineEdit;
 
     QPointer<QFormLayout> m_basicOptionsFormLayout;
     QPointer<QVBoxLayout> m_controlsLayout;
+
+    Parameters::AdvancedParameters& m_parameters;
+
+    AdvancedSettings m_settings;
+
+    const int m_outputFormat;
 
     static constexpr int OUTPUT_VIDEO = 0;
     static constexpr int OUTPUT_IMAGES = 1;
@@ -54,11 +58,5 @@ protected:
     static constexpr int OUTPUT_BAG = 4;
 
 private:
-    Parameters::AdvancedParameters& m_parameters;
-
-    AdvancedSettings m_settings;
-
     QString m_fileFormat;
-
-    const int m_outputFormat;
 };

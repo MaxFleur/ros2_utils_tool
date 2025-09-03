@@ -18,7 +18,7 @@
 
 VideoToBagWidget::VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
                                    bool usePredefinedTopicName, bool warnROS2NameConvention, QWidget *parent) :
-    AdvancedInputWidget(parameters, "Video to Bag", ":/icons/video_to_bag", "Video Dir:", "Bag Location:", "vid_to_bag", OUTPUT_BAG, parent),
+    TopicComboBoxWidget(parameters, "Video to Bag", ":/icons/video_to_bag", "Video Dir:", "Bag Location:", "vid_to_bag", OUTPUT_BAG, parent),
     m_parameters(parameters), m_settings(parameters, "vid_to_bag"),
     m_warnROS2NameConvention(warnROS2NameConvention)
 {

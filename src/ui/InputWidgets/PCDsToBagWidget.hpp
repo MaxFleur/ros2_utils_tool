@@ -1,14 +1,14 @@
 #pragma once
 
-#include "AdvancedInputWidget.hpp"
 #include "PCDsToBagSettings.hpp"
 #include "Parameters.hpp"
+#include "TopicComboBoxWidget.hpp"
 
 #include <QPointer>
 #include <QWidget>
 
 // Widget used to write pcd files to a ROS bag file
-class PCDsToBagWidget : public AdvancedInputWidget
+class PCDsToBagWidget : public TopicComboBoxWidget
 {
     Q_OBJECT
 

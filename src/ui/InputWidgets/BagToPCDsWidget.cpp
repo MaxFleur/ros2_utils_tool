@@ -7,7 +7,7 @@
 #include <QLabel>
 
 BagToPCDsWidget::BagToPCDsWidget(Parameters::AdvancedParameters& parameters, QWidget *parent) :
-    AdvancedInputWidget(parameters, "Bag to PCD Files", ":/icons/bag_to_pcd", "Bag File:", "PCDs Location:", "bag_to_pcds", OUTPUT_PCDS, parent),
+    TopicComboBoxWidget(parameters, "Bag to PCD Files", ":/icons/bag_to_pcd", "Bag File:", "PCDs Location:", "bag_to_pcds", OUTPUT_PCDS, parent),
     m_parameters(parameters), m_settings(parameters, "bag_to_pcds")
 {
     m_sourceLineEdit->setToolTip("The source bag file directory.");
