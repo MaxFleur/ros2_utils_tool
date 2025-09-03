@@ -14,7 +14,6 @@ struct BasicParameters {
     ~BasicParameters() = default;
 
     QString sourceDirectory = "";
-    QString topicName = "";
 };
 struct RecordBagParameters : BasicParameters {
     QVector<QString> topics = {};
@@ -37,6 +36,7 @@ struct DummyBagParameters : BasicParameters {
 
 struct AdvancedParameters : BasicParameters {
     QString targetDirectory = "";
+    QString topicName = "";
     bool    showAdvancedOptions = false;
 };
 struct PCDsToBagParameters : AdvancedParameters {
