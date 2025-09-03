@@ -10,7 +10,7 @@
 #include <QSlider>
 
 BagToImagesWidget::BagToImagesWidget(Parameters::BagToImagesParameters& parameters, QWidget *parent) :
-    AdvancedInputWidget(parameters, "Bag to Images", ":/icons/bag_to_images", "Bag File:", "Images Location:", "bag_to_images", OUTPUT_IMAGES, parent),
+    TopicComboBoxWidget(parameters, "Bag to Images", ":/icons/bag_to_images", "Bag File:", "Images Location:", "bag_to_images", OUTPUT_IMAGES, parent),
     m_parameters(parameters), m_settings(parameters, "bag_to_images")
 {
     m_sourceLineEdit->setToolTip("The source bag file directory.");

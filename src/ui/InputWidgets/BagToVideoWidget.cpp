@@ -10,7 +10,7 @@
 #include <QSpinBox>
 
 BagToVideoWidget::BagToVideoWidget(Parameters::BagToVideoParameters& parameters, QWidget *parent) :
-    AdvancedInputWidget(parameters, "Bag to Video", ":/icons/bag_to_video", "Bag File:", "Video Location:", "bag_to_video", OUTPUT_VIDEO, parent),
+    TopicComboBoxWidget(parameters, "Bag to Video", ":/icons/bag_to_video", "Bag File:", "Video Location:", "bag_to_video", OUTPUT_VIDEO, parent),
     m_parameters(parameters), m_settings(parameters, "bag_to_video")
 {
     m_sourceLineEdit->setToolTip("The source bag file directory.");

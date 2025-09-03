@@ -1,14 +1,14 @@
 #pragma once
 
-#include "AdvancedInputWidget.hpp"
 #include "AdvancedSettings.hpp"
 #include "Parameters.hpp"
+#include "TopicComboBoxWidget.hpp"
 
 class QComboBox;
 class QLineEdit;
 
 // The widget used to manage writing pcd files out of a ROS bag
-class BagToPCDsWidget : public AdvancedInputWidget
+class BagToPCDsWidget : public TopicComboBoxWidget
 {
     Q_OBJECT
 

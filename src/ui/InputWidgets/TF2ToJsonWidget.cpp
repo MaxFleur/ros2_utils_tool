@@ -8,7 +8,7 @@
 #include <QRadioButton>
 
 TF2ToJsonWidget::TF2ToJsonWidget(Parameters::TF2ToJsonParameters& parameters, QWidget *parent) :
-    AdvancedInputWidget(parameters, "TF2 to Json", ":/icons/tf2_to_json", "Bag File:", "Json Location:", "tf2_to_json", OUTPUT_JSON, parent),
+    TopicComboBoxWidget(parameters, "TF2 to Json", ":/icons/tf2_to_json", "Bag File:", "Json Location:", "tf2_to_json", OUTPUT_JSON, parent),
     m_parameters(parameters), m_settings(parameters, "tf2_to_json")
 {
     m_sourceLineEdit->setToolTip("The source bag file directory.");
