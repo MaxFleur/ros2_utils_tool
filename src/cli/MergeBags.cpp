@@ -46,7 +46,6 @@ main(int argc, char* argv[])
     }
 
     Parameters::MergeBagsParameters parameters;
-    parameters.topicName = "";
 
     // Bag directories
     parameters.sourceDirectory = arguments.at(1);

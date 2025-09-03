@@ -22,7 +22,7 @@
 
 DummyBagThread::DummyBagThread(const Parameters::DummyBagParameters& parameters,
                                unsigned int numberOfThreads, QObject* parent) :
-    BasicThread(parameters.sourceDirectory, parameters.topicName, parent),
+    BasicThread(parameters.sourceDirectory, "", parent),
     m_parameters(parameters), m_numberOfThreads(numberOfThreads)
 {
 }
