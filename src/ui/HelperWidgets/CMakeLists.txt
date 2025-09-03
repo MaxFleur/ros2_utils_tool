@@ -11,6 +11,8 @@ target_sources(rt_helper_widgets INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/LowDiskSpaceWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/TopicWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/TopicWidget.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/TopicComboBoxWidget.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/TopicComboBoxWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/MessageCountWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/MessageCountWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/TopicListingInputWidget.cpp

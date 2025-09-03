@@ -1,14 +1,14 @@
 #pragma once
 
-#include "AdvancedInputWidget.hpp"
 #include "TF2ToJsonSettings.hpp"
+#include "TopicComboBoxWidget.hpp"
 #include "Parameters.hpp"
 
 #include <QPointer>
 #include <QWidget>
 
 // Widget used to configure a video encoding out of a ros bag
-class TF2ToJsonWidget : public AdvancedInputWidget
+class TF2ToJsonWidget : public TopicComboBoxWidget
 {
     Q_OBJECT
 

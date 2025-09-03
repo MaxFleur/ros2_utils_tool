@@ -1,8 +1,8 @@
 #pragma once
 
-#include "AdvancedInputWidget.hpp"
 #include "BagToVideoSettings.hpp"
 #include "Parameters.hpp"
+#include "TopicComboBoxWidget.hpp"
 
 #include <QPointer>
 #include <QWidget>
@@ -12,7 +12,7 @@ class QComboBox;
 class QFormLayout;
 
 // Widget used to configure a video encoding out of a ros bag
-class BagToVideoWidget : public AdvancedInputWidget
+class BagToVideoWidget : public TopicComboBoxWidget
 {
     Q_OBJECT
 

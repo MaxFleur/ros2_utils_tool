@@ -1,7 +1,7 @@
 #pragma once
 
-#include "AdvancedInputWidget.hpp"
 #include "Parameters.hpp"
+#include "TopicComboBoxWidget.hpp"
 #include "VideoToBagSettings.hpp"
 
 #include <QPointer>
@@ -11,7 +11,7 @@ class QFormLayout;
 class QSpinBox;
 
 // Widget used to write a video file to a ROS bag file
-class VideoToBagWidget : public AdvancedInputWidget
+class VideoToBagWidget : public TopicComboBoxWidget
 {
     Q_OBJECT
 
