@@ -62,6 +62,8 @@ protected:
     static constexpr int OUTPUT_BAG = 4;
     static constexpr int OUTPUT_BAG_EDITED = 5;
     static constexpr int OUTPUT_BAG_MERGED = 6;
+    static constexpr int OUTPUT_BAG_COMPRESSED = 7;
+    static constexpr int OUTPUT_BAG_DECOMPRESSED = 8;
 
 private:
     QString m_fileFormat;

@@ -1,14 +1,11 @@
 #pragma once
 
-#include "BasicInputWidget.hpp"
+#include "AdvancedInputWidget.hpp"
 #include "CompressBagSettings.hpp"
 #include "Parameters.hpp"
 
-class QComboBox;
-class QLineEdit;
-
 // The widget used to manage compressing a bag file
-class ChangeCompressionWidget : public BasicInputWidget
+class ChangeCompressionWidget : public AdvancedInputWidget
 {
     Q_OBJECT
 
@@ -19,21 +16,16 @@ public:
 
 private slots:
     void
-    sourceButtonPressed();
+    findSourceButtonPressed() override;
 
     void
-    targetButtonPressed();
-
-    void
-    okButtonPressed() const;
+    okButtonPressed() const override;
 
 private:
     [[nodiscard]] bool
     isBagFileValid(const QString& bagDirectory) const;
 
 private:
-    QPointer<QLineEdit> m_targetLineEdit;
-
     Parameters::CompressBagParameters& m_parameters;
 
     CompressBagSettings m_settings;
