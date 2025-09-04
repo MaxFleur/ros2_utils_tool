@@ -100,6 +100,8 @@ AdvancedInputWidget::findTargetButtonPressed()
     case OUTPUT_BAG:
     case OUTPUT_BAG_EDITED:
     case OUTPUT_BAG_MERGED:
+    case OUTPUT_BAG_COMPRESSED:
+    case OUTPUT_BAG_DECOMPRESSED:
         fileName = QFileDialog::getSaveFileName(this, "Save Bag");
         break;
     }
@@ -163,6 +165,12 @@ AdvancedInputWidget::fillTargetLineEdit()
         break;
     case OUTPUT_BAG_MERGED:
         autoTargetDir = "/merged_bag";
+        break;
+    case OUTPUT_BAG_COMPRESSED:
+        autoTargetDir = "/compressed_bag";
+        break;
+    case OUTPUT_BAG_DECOMPRESSED:
+        autoTargetDir = "/decompressed_bag";
         break;
     default:
         break;
