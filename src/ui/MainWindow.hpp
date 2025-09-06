@@ -41,6 +41,7 @@ private:
     Parameters::PCDsToBagParameters m_parametersPCDsToBag;
     Parameters::BagToImagesParameters m_parametersBagToImages;
     Parameters::TF2ToJsonParameters m_parametersTF2ToJson;
+    Parameters::BagToFileParameters m_parametersBagToFile;
     Parameters::EditBagParameters m_parametersEditBag;
     Parameters::MergeBagsParameters m_parametersMergeBags;
     Parameters::RecordBagParameters m_parametersRecordBag;

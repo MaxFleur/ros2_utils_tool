@@ -46,6 +46,17 @@ struct TF2ToJsonParameters : AdvancedParameters {
     bool compactOutput = true;
     bool keepTimestamps = false;
 };
+struct BagToFileParameters : AdvancedParameters {
+    struct BagTopic {
+        QString name = "";
+        bool    isSelected = true;
+    };
+
+    QVector<BagTopic> topics = {};
+    QString           format = "json";
+    bool              allTopics = true;
+    bool              singleFile = true;
+};
 
 struct DeleteSourceParameters : AdvancedParameters {
     bool deleteSource = false;

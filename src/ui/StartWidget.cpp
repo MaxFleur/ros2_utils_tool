@@ -61,30 +61,37 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     m_PCDsToBagPushButton = createToolButton("PCD Files\nto Bag", "Convert a set of pcd files to a ROS bag.");
     m_bagToImagesPushButton = createToolButton("Bag to Images", "Convert images in a ROS bag video topic to a set of image files.");
     m_tf2ToJsonPushButton = createToolButton("Bag TF2\nto JSON", "Convert transformations in a ROS bag tf2 topic to json.");
+    m_bagToFilePushButton = createToolButton("Bag\nto File", "Convert topics in a ROS bag to file.");
 
-    auto* const conversionToolsUpperLayout = new QHBoxLayout;
-    conversionToolsUpperLayout->addStretch();
-    conversionToolsUpperLayout->addWidget(m_bagToVideoPushButton);
-    conversionToolsUpperLayout->addWidget(m_videoToBagPushButton);
-    conversionToolsUpperLayout->addStretch();
+    auto* const conversionToolsFirstLayout = new QHBoxLayout;
+    conversionToolsFirstLayout->addStretch();
+    conversionToolsFirstLayout->addWidget(m_bagToVideoPushButton);
+    conversionToolsFirstLayout->addWidget(m_videoToBagPushButton);
+    conversionToolsFirstLayout->addStretch();
 
-    auto* const conversionToolsCenterLayout = new QHBoxLayout;
-    conversionToolsCenterLayout->addStretch();
-    conversionToolsCenterLayout->addWidget(m_bagToPCDsPushButton);
-    conversionToolsCenterLayout->addWidget(m_PCDsToBagPushButton);
-    conversionToolsCenterLayout->addStretch();
+    auto* const conversionToolsSecondLayout = new QHBoxLayout;
+    conversionToolsSecondLayout->addStretch();
+    conversionToolsSecondLayout->addWidget(m_bagToPCDsPushButton);
+    conversionToolsSecondLayout->addWidget(m_PCDsToBagPushButton);
+    conversionToolsSecondLayout->addStretch();
 
-    auto* const conversionToolsLowerLayout = new QHBoxLayout;
-    conversionToolsLowerLayout->addStretch();
-    conversionToolsLowerLayout->addWidget(m_bagToImagesPushButton);
-    conversionToolsLowerLayout->addWidget(m_tf2ToJsonPushButton);
-    conversionToolsLowerLayout->addStretch();
+    auto* const conversionToolsThirdLayout = new QHBoxLayout;
+    conversionToolsThirdLayout->addStretch();
+    conversionToolsThirdLayout->addWidget(m_bagToImagesPushButton);
+    conversionToolsThirdLayout->addWidget(m_tf2ToJsonPushButton);
+    conversionToolsThirdLayout->addStretch();
+
+    auto* const conversionToolFourthLayout = new QHBoxLayout;
+    conversionToolFourthLayout->addStretch();
+    conversionToolFourthLayout->addWidget(m_bagToFilePushButton);
+    conversionToolFourthLayout->addStretch();
 
     auto* const conversionToolsMainLayout = new QVBoxLayout;
     conversionToolsMainLayout->addStretch();
-    conversionToolsMainLayout->addLayout(conversionToolsUpperLayout);
-    conversionToolsMainLayout->addLayout(conversionToolsCenterLayout);
-    conversionToolsMainLayout->addLayout(conversionToolsLowerLayout);
+    conversionToolsMainLayout->addLayout(conversionToolsFirstLayout);
+    conversionToolsMainLayout->addLayout(conversionToolsSecondLayout);
+    conversionToolsMainLayout->addLayout(conversionToolsThirdLayout);
+    conversionToolsMainLayout->addLayout(conversionToolFourthLayout);
     conversionToolsMainLayout->addStretch();
 
     auto* const conversionToolsWidget = new QWidget;
@@ -238,6 +245,9 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     connect(m_tf2ToJsonPushButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_ID::TF2_TO_JSON);
     });
+    connect(m_bagToFilePushButton, &QPushButton::clicked, this, [this] {
+        emit toolRequested(Utils::UI::TOOL_ID::BAG_TO_FILE);
+    });
     connect(m_editBagButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_ID::EDIT_BAG);
     });
@@ -365,6 +375,7 @@ StartWidget::setButtonIcons()
     m_PCDsToBagPushButton->setIcon(QIcon(isDarkMode ? ":/icons/pcd_to_bag_white.svg" : ":/icons/pcd_to_bag_black.svg"));
     m_bagToImagesPushButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_to_images_white.svg" : ":/icons/bag_to_images_black.svg"));
     m_tf2ToJsonPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tf2_to_json_white.svg" : ":/icons/tf2_to_json_black.svg"));
+    m_bagToFilePushButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_to_file_white.svg" : ":/icons/bag_to_file_black.svg"));
 
     m_editBagButton->setIcon(QIcon(isDarkMode ? ":/icons/edit_bag_white.svg" : ":/icons/edit_bag_black.svg"));
     m_mergeBagsButton->setIcon(QIcon(isDarkMode ? ":/icons/merge_bags_white.svg" : ":/icons/merge_bags_black.svg"));

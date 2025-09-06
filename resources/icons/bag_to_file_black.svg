@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<svg width="69.2mm" height="34mm" version="1.1" viewBox="0 0 69.2 34" xmlns="http://www.w3.org/2000/svg">
+ <g stroke="#000" stroke-linecap="round">
+  <path class="UnoptimicedTransforms" transform="matrix(.70175 0 0 .70175 -20.517 -14.274)" d="m51.011 31.181h-12.952c-3.1644 2e-3 -11.317 21.586-3.8145 32.241 0.88052 1.2504 2.0052 3.1858 3.3218 3.2471h13.446m0.0013-35.488h12.952c3.1644 2e-3 11.317 21.586 3.8145 32.241-0.88052 1.2504-2.0052 3.1858-3.3218 3.2471h-13.446" fill="none" stroke-linejoin="round" stroke-width="3.5625"/>
+  <path d="m9.49 7.2557a5.7906 5.7906 0 0 1 5.7906-5.7906 5.7906 5.7906 0 0 1 5.7906 5.7906" fill-opacity="0" stroke-linejoin="round" stroke-width="2.5"/>
+  <g fill="none" stroke-width="2.5">
+   <path d="m32.191 20.478h10.968"/>
+   <path d="m38.781 17.28 4.3782 3.1974"/>
+   <path d="m38.781 23.675 4.3782-3.1974"/>
+  </g>
+  <g transform="matrix(1.1637 0 0 1.1637 -16.15 -.92774)" fill="none" stroke-linejoin="round" stroke-width="2.1484">
+   <path d="m53.86 7.5396v21.216h18.342v-15.143l-5.6901-6.073z"/>
+   <path d="m65.848 8.4321v5.5811h5.2551"/>
+  </g>
+  <g fill="none" stroke-width="1.5">
+   <path d="m50.73 11.575h5.7558"/>
+   <path d="m50.73 20.986h13.012"/>
+   <path d="m50.73 24.69h13.012"/>
+   <path d="m50.73 28.394h13.012"/>
+   <path d="m50.73 14.75h5.7558"/>
+  </g>
+ </g>
+</svg>

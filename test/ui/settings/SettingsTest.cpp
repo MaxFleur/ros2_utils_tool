@@ -1,6 +1,7 @@
 #include "catch_ros2/catch_ros2.hpp"
 
 #include "AdvancedSettings.hpp"
+#include "BagToFileSettings.hpp"
 #include "BagToImagesSettings.hpp"
 #include "BagToVideoSettings.hpp"
 #include "BasicSettings.hpp"
@@ -208,6 +209,39 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.beginGroup("tf2_to_json");
             verifiySettingPrimitive(qSettings, "compact_output", true);
             verifiySettingPrimitive(qSettings, "keep_timestamps", true);
+            qSettings.endGroup();
+        }
+    }
+    SECTION("Bag to File Params Test") {
+        SECTION("Read") {
+            qSettings.beginGroup("bag_to_file");
+            checkSettingsInvalidacy(qSettings, { "topics", "format", "all_topics", "single_file" });
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Parameters::BagToFileParameters parameters;
+            BagToFileSettings settings(parameters, "bag_to_file");
+
+            parameters.format = "yaml";
+            parameters.allTopics = true;
+            parameters.singleFile = true;
+            parameters.topics.push_back({ "topic", true });
+            settings.write();
+
+            qSettings.beginGroup("bag_to_file");
+            verifiySettingQString(qSettings, "format", "yaml");
+            verifiySettingPrimitive(qSettings, "all_topics", true);
+            verifiySettingPrimitive(qSettings, "single_file", true);
+
+            const auto size = qSettings.beginReadArray("topics");
+            for (auto i = 0; i < size; ++i) {
+                qSettings.setArrayIndex(i);
+                verifiySettingQString(qSettings, "name", "topic");
+                verifiySettingPrimitive(qSettings, "is_selected", true);
+            }
+            REQUIRE(size == 1);
+            qSettings.endArray();
+
             qSettings.endGroup();
         }
     }

@@ -7,6 +7,8 @@ target_include_directories (rt_all_threads
 )
 
 target_sources(rt_all_threads INTERFACE
+    ${CMAKE_CURRENT_LIST_DIR}/BagToFileThread.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/BagToFileThread.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToImagesThread.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToImagesThread.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToPCDsThread.cpp

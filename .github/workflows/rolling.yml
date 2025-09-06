@@ -17,7 +17,7 @@ jobs:
           required-ros-distributions: rolling
 
       - name: Install dependencies
-        run: sudo apt update && sudo apt install -y qt6-base-dev ros-rolling-catch-ros2
+        run: sudo apt update && sudo apt install -y qt6-base-dev ros-rolling-rosx-introspection ros-rolling-catch-ros2
 
       - name: Create workspace and copy repo there
         run: mkdir -p ros2_ws/src/ros2_utils_tool && cp -r resources src test CMakeLists.txt package.xml ros2_ws/src/ros2_utils_tool

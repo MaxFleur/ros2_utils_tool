@@ -16,6 +16,7 @@ find_package(pcl_conversions REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rosbag2_cpp REQUIRED)
 find_package(rosbag2_transport REQUIRED)
+find_package(rosx_introspection REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(tf2_msgs REQUIRED)
 
@@ -80,7 +81,7 @@ if($ENV{ROS_DISTRO} STREQUAL "kilted")
     target_link_libraries(tool_ui
         rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp rosbag2_transport::rosbag2_transport cv_bridge::cv_bridge
         pcl_conversions::pcl_conversions ${geometry_msgs_TARGETS} ${sensor_msgs_TARGETS} ${tf2_msgs_TARGETS}
-        Qt::Widgets rt_ui
+        rosx_introspection::rosx_introspection Qt::Widgets rt_ui
     )
     target_link_libraries(tool_bag_to_images
         rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp cv_bridge::cv_bridge ${sensor_msgs_TARGETS} ${std_msgs_TARGETS}
@@ -131,7 +132,7 @@ if($ENV{ROS_DISTRO} STREQUAL "kilted")
         Qt::Widgets rt_video_to_bag_thread rt_utils
     )
 else()
-    ament_target_dependencies(tool_ui cv_bridge geometry_msgs pcl_conversions rclcpp rosbag2_cpp rosbag2_transport sensor_msgs tf2_msgs)
+    ament_target_dependencies(tool_ui cv_bridge geometry_msgs pcl_conversions rclcpp rosbag2_cpp rosbag2_transport rosx_introspection sensor_msgs tf2_msgs)
     ament_target_dependencies(tool_bag_to_images cv_bridge rosbag2_cpp sensor_msgs)
     ament_target_dependencies(tool_bag_to_pcds pcl_conversions rosbag2_cpp sensor_msgs)
     ament_target_dependencies(tool_bag_to_video cv_bridge rosbag2_cpp sensor_msgs)

@@ -1,8 +1,9 @@
 #include "MainWindow.hpp"
 
 #include "BagInfoWidget.hpp"
-#include "BagToPCDsWidget.hpp"
+#include "BagToFileWidget.hpp"
 #include "BagToImagesWidget.hpp"
+#include "BagToPCDsWidget.hpp"
 #include "BagToVideoWidget.hpp"
 #include "ChangeCompressionWidget.hpp"
 #include "DummyBagWidget.hpp"
@@ -20,6 +21,7 @@
 #include "DialogSettings.hpp"
 
 #include <QCloseEvent>
+#include <QScrollArea>
 #include <QTimer>
 
 #include <csignal>
@@ -38,11 +40,21 @@ void
 MainWindow::setStartWidget()
 {
     auto* const startWidget = new StartWidget(m_dialogParameters);
+    // With more buttons, additonal scrolling looks better
+    auto* const scrollArea = new QScrollArea;
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setFrameShape(QFrame::NoFrame);
+    scrollArea->setWidget(startWidget);
+    // Make it so that only the scrollbar is visible
+    auto palette = scrollArea->palette();
+    palette.setColor(QPalette::Base, Qt::transparent);
+    scrollArea->setPalette(palette);
+
     // Resize event is not called inside the function, so use a delay
     QTimer::singleShot(1, [this] {
         resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     });
-    setCentralWidget(startWidget);
+    setCentralWidget(scrollArea);
     connect(startWidget, &StartWidget::toolRequested, this, &MainWindow::setInputWidget);
 }
 
@@ -71,6 +83,9 @@ MainWindow::setInputWidget(Utils::UI::TOOL_ID mode)
         break;
     case Utils::UI::TOOL_ID::TF2_TO_JSON:
         basicInputWidget = new TF2ToJsonWidget(m_parametersTF2ToJson);
+        break;
+    case Utils::UI::TOOL_ID::BAG_TO_FILE:
+        basicInputWidget = new BagToFileWidget(m_parametersBagToFile);
         break;
     case Utils::UI::TOOL_ID::EDIT_BAG:
         basicInputWidget = new EditBagWidget(m_parametersEditBag, m_dialogParameters.warnROS2NameConvention);
@@ -138,6 +153,9 @@ MainWindow::setProgressWidget(Utils::UI::TOOL_ID mode)
         break;
     case Utils::UI::TOOL_ID::TF2_TO_JSON:
         progressWidget = new ProgressWidget("Writing Json File(s)...", m_parametersTF2ToJson, mode);
+        break;
+    case Utils::UI::TOOL_ID::BAG_TO_FILE:
+        progressWidget = new ProgressWidget("Writing File(s)...", m_parametersBagToFile, mode);
         break;
     case Utils::UI::TOOL_ID::EDIT_BAG:
         progressWidget = new ProgressWidget("Writing edited Bag File...", m_parametersEditBag, mode);

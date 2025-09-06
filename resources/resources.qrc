@@ -13,6 +13,8 @@
 
         <file>icons/bag_info_black.svg</file>
         <file>icons/bag_info_white.svg</file>
+        <file>icons/bag_to_file_black.svg</file>
+        <file>icons/bag_to_file_white.svg</file>
         <file>icons/bag_to_pcd_black.svg</file>
         <file>icons/bag_to_pcd_white.svg</file>
         <file>icons/bag_to_images_black.svg</file>

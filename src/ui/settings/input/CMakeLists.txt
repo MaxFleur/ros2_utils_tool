@@ -7,6 +7,8 @@ target_include_directories (rt_settings_input
 target_sources(rt_settings_input INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/AdvancedSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/AdvancedSettings.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/BagToFileSettings.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/BagToFileSettings.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToImagesSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToImagesSettings.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToVideoSettings.cpp

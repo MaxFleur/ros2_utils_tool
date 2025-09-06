@@ -60,6 +60,7 @@ private:
     QPointer<QToolButton> m_PCDsToBagPushButton;
     QPointer<QToolButton> m_bagToImagesPushButton;
     QPointer<QToolButton> m_tf2ToJsonPushButton;
+    QPointer<QToolButton> m_bagToFilePushButton;
 
     QPointer<QToolButton> m_editBagButton;
     QPointer<QToolButton> m_mergeBagsButton;

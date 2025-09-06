@@ -1,5 +1,6 @@
 #include "ProgressWidget.hpp"
 
+#include "BagToFileThread.hpp"
 #include "BagToImagesThread.hpp"
 #include "BagToPCDsThread.hpp"
 #include "BagToVideoThread.hpp"
@@ -50,6 +51,9 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
         break;
     case Utils::UI::TOOL_ID::TF2_TO_JSON:
         m_thread = new TF2ToJsonThread(dynamic_cast<Parameters::TF2ToJsonParameters&>(parameters), this);
+        break;
+    case Utils::UI::TOOL_ID::BAG_TO_FILE:
+        m_thread = new BagToFileThread(dynamic_cast<Parameters::BagToFileParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_ID::EDIT_BAG:
         m_thread = new EditBagThread(dynamic_cast<Parameters::EditBagParameters&>(parameters),
