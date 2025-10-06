@@ -84,6 +84,9 @@ DummyBagWidget::removeDummyTopicWidget(int row)
     m_settings.write();
     m_numberOfTopics--;
 
+    for (auto i = 0; i < m_numberOfTopics; i++) {
+        m_topicWidgets[i]->setProperty("id", i + 1);
+    }
     for (auto i = 0; i < m_topicLabels.size(); ++i) {
         m_topicLabels[i]->setText("Topic " + QString::number(i + 1));
     }
