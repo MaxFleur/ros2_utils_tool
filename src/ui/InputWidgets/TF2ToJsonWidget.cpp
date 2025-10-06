@@ -47,7 +47,7 @@ TF2ToJsonWidget::TF2ToJsonWidget(Parameters::TF2ToJsonParameters& parameters, QW
 
     // Generally, enable ok only if we have a source and target directory and a topic name
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() &&
-                   !m_parameters.topicName.isEmpty() && !m_parameters.targetDirectory.isEmpty());
+                   !m_topicNameComboBox->currentText().isEmpty() && !m_parameters.targetDirectory.isEmpty());
 
     connect(advancedOptionsCheckBox, &QCheckBox::stateChanged, this, [this, advancedOptionsWidget] (int state) {
         writeParameterToSettings(m_parameters.showAdvancedOptions, state == Qt::Checked, m_settings);
