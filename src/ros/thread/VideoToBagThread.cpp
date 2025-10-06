@@ -43,8 +43,8 @@ VideoToBagThread::run()
     auto timeStamp = rclcpp::Clock(RCL_ROS_TIME).now();
     const auto duration = rclcpp::Duration::from_seconds(1.0f / (float) finalFPS);
 
-    rosbag2_cpp::Writer writer;
-    writer.open(targetDirectoryStd);
+    auto writer = std::make_unique<rosbag2_cpp::Writer>();
+    writer->open(targetDirectoryStd);
     auto iterationCount = 0;
 
     cv::Mat frame;
@@ -57,7 +57,7 @@ VideoToBagThread::run()
 
     while (true) {
         if (isInterruptionRequested()) {
-            writer.close();
+            writer->close();
             return;
         }
 
@@ -79,12 +79,12 @@ VideoToBagThread::run()
         // Convert and write image
         cvBridge.image = frame;
         cvBridge.toImageMsg(message);
-        writer.write(message, m_topicName, timeStamp);
+        writer->write(message, m_topicName, timeStamp);
 
         emit progressChanged("Writing message " + QString::number(iterationCount) + " of " + QString::number(frameCount) + "...",
                              ((float) iterationCount / (float) frameCount) * 100);
     }
 
-    writer.close();
+    writer->close();
     emit finished();
 }
