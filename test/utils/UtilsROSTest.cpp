@@ -16,8 +16,8 @@ TEST_CASE("Utils ROS Testing", "[utils]") {
     const auto bagDirectory = std::filesystem::path("test_bag_file");
     std::filesystem::remove_all(bagDirectory);
 
-    rosbag2_cpp::Writer writer;
-    writer.open(bagDirectory);
+    auto writer = std::make_shared<rosbag2_cpp::Writer>();
+    writer->open(bagDirectory);
 
     const auto qString = QString::fromStdString(bagDirectory);
 
@@ -25,7 +25,7 @@ TEST_CASE("Utils ROS Testing", "[utils]") {
         sensor_msgs::msg::Image imageMessage;
         imageMessage.width = 1;
         imageMessage.height = 1;
-        writer.write(imageMessage, "/topic_image", rclcpp::Clock().now());
+        writer->write(imageMessage, "/topic_image", rclcpp::Clock().now());
     }
     for (auto i = 0; i < 3; i++) {
         Utils::ROS::writeMessageToBag(std_msgs::msg::String(), "Message " + std::to_string(i), writer, "/topic_string", rclcpp::Clock().now());
@@ -33,7 +33,7 @@ TEST_CASE("Utils ROS Testing", "[utils]") {
     for (auto i = 0; i < 10; i++) {
         Utils::ROS::writeMessageToBag(std_msgs::msg::Int32(), i, writer, "/topic_integer", rclcpp::Clock().now());
     }
-    writer.close();
+    writer->close();
 
     // Create compressed bag file
     rosbag2_storage::StorageOptions inputStorage;

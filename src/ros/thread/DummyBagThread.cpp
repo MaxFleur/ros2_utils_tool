@@ -37,8 +37,8 @@ DummyBagThread::run()
         std::filesystem::remove_all(m_sourceDirectory);
     }
 
-    rosbag2_cpp::Writer writer;
-    writer.open(m_sourceDirectory);
+    auto writer = std::make_shared<rosbag2_cpp::Writer>();
+    writer->open(m_sourceDirectory);
 
     std::deque<Parameters::DummyBagParameters::DummyBagTopic> queue;
     for (const auto& topic : m_parameters.topics) {
@@ -49,7 +49,7 @@ DummyBagThread::run()
     std::atomic<int> iterationCount = 1;
 
     // Move to own lambda for multithreading
-    const auto writeDummyTopic = [this, &writer, &queue, &mutex, &iterationCount, maximumMessageCount] {
+    const auto writeDummyTopic = [this, &queue, &mutex, &iterationCount, writer, maximumMessageCount] {
         while (true) {
             mutex.lock();
             if (isInterruptionRequested() || queue.empty()) {
@@ -88,7 +88,7 @@ DummyBagThread::run()
 
                     const auto cvBridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::BGR8, mat);
                     cvBridge.toImageMsg(message);
-                    writer.write(message, topicName.toStdString(), timeStamp);
+                    writer->write(message, topicName.toStdString(), timeStamp);
                 } else if (topicType == "Point Cloud" || topicType == "PointCloud") {
                     // Create a randomized point cloud with 10 points
                     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>());
@@ -111,7 +111,7 @@ DummyBagThread::run()
 
                     sensor_msgs::msg::PointCloud2 message;
                     pcl::toROSMsg(*cloud, message);
-                    writer.write(message, topicName.toStdString(), timeStamp);
+                    writer->write(message, topicName.toStdString(), timeStamp);
                 } else {
                     tf2_msgs::msg::TFMessage message;
 
@@ -138,7 +138,7 @@ DummyBagThread::run()
 
                         message.transforms.push_back(transformStamped);
                     }
-                    writer.write(message, topicName.toStdString(), timeStamp);
+                    writer->write(message, topicName.toStdString(), timeStamp);
                 }
 
                 emit progressChanged("Writing message " + QString::number(iterationCount) + " of " + QString::number(maximumMessageCount) + "...",
@@ -157,6 +157,6 @@ DummyBagThread::run()
         thread.join();
     }
 
-    writer.close();
+    writer->close();
     emit finished();
 }

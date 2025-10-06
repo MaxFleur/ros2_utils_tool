@@ -36,8 +36,8 @@ BagToPCDsThread::run()
     const auto messageCount = Utils::ROS::getTopicMessageCount(m_sourceDirectory, m_topicName);
     const auto messageCountNumberOfDigits = int(log10(*messageCount) + 1);
 
-    rosbag2_cpp::Reader reader;
-    reader.open(m_sourceDirectory);
+    auto reader = std::make_shared<rosbag2_cpp::Reader>();
+    reader->open(m_sourceDirectory);
 
     rclcpp::Serialization<sensor_msgs::msg::PointCloud2> serialization;
     rosbag2_storage::SerializedBagMessageSharedPtr message;
@@ -47,18 +47,18 @@ BagToPCDsThread::run()
     std::mutex mutex;
 
     // Move to own lambda for multithreading
-    const auto writePCD = [this, &targetDirectoryStd, &reader, &message, &iterationCount, &mutex,
+    const auto writePCD = [this, &targetDirectoryStd, &message, &iterationCount, &mutex, reader,
                            serialization, rosMessage, messageCount, messageCountNumberOfDigits] {
         while (true) {
             mutex.lock();
 
-            if (isInterruptionRequested() || !reader.has_next()) {
+            if (isInterruptionRequested() || !reader->has_next()) {
                 mutex.unlock();
                 break;
             }
 
             // Deserialize
-            message = reader.read_next();
+            message = reader->read_next();
             if (message->topic_name != m_topicName) {
                 mutex.unlock();
                 continue;
@@ -87,7 +87,7 @@ BagToPCDsThread::run()
         }
     };
 
-    while (reader.has_next()) {
+    while (reader->has_next()) {
         if (isInterruptionRequested()) {
             return;
         }
@@ -101,7 +101,7 @@ BagToPCDsThread::run()
         }
     }
 
-    reader.close();
+    reader->close();
 
     emit finished();
 }
