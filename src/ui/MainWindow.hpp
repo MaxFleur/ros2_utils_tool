@@ -50,6 +50,8 @@ private:
 
     Parameters::PublishParameters m_parametersPublishVideo;
     Parameters::PublishParameters m_parametersPublishImages;
+
+    Parameters::SendTF2Parameters m_parametersSendTF2;
     // Parameters for settings dialog
     Parameters::DialogParameters m_dialogParameters;
 

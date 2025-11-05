@@ -11,6 +11,7 @@
 #include "PublishImagesThread.hpp"
 #include "PublishVideoThread.hpp"
 #include "RecordBagThread.hpp"
+#include "SendTF2Thread.hpp"
 #include "TF2ToJsonThread.hpp"
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
@@ -596,6 +597,41 @@ TEST_CASE("Threads Testing", "[threads]") {
 
             performImageCheck(".bmp", 30, 30, 30);
         }
+    }
+    SECTION("Send TF2 Test") {
+        Parameters::SendTF2Parameters parameters;
+        parameters.translation = { 0.0, 0.0, 0.0 };
+        parameters.rotation = { 0.1, 0.0, 0.0, 1.0 };
+        parameters.isStatic = false;
+
+        auto rotationX = 0.0;
+        auto run = true;
+
+        rclcpp::Rate loopRate(5);
+        auto node = std::make_shared<rclcpp::Node>("tf2_test");
+        auto callback = [node, &rotationX, &run](const tf2_msgs::msg::TFMessage& message) {
+            if (!run) {
+                return;
+            }
+
+            rotationX += message.transforms[0].transform.rotation.x;
+            run = false;
+        };
+        auto subscriber = node->create_subscription<tf2_msgs::msg::TFMessage>("/tf", 10, callback);
+
+        auto* thread = new SendTF2Thread(parameters);
+        thread->start();
+
+        while (run) {
+            rclcpp::spin_some(node);
+            loopRate.sleep();
+        }
+
+        REQUIRE(rotationX == 0.1);
+
+        thread->requestInterruption();
+        thread->wait();
+        delete thread;
     }
     SECTION("TF2 to Json Thread Test") {
         Parameters::TF2ToJsonParameters parameters;

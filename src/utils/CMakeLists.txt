@@ -5,6 +5,7 @@ target_include_directories (rt_utils
 ) 
 
 target_sources(rt_utils INTERFACE
+    ${CMAKE_CURRENT_LIST_DIR}/NodeWrapper.hpp
     ${CMAKE_CURRENT_LIST_DIR}/Parameters.hpp
     ${CMAKE_CURRENT_LIST_DIR}/UtilsCLI.cpp
     ${CMAKE_CURRENT_LIST_DIR}/UtilsCLI.hpp
@@ -19,5 +20,5 @@ target_sources(rt_utils INTERFACE
 )
 
 target_link_libraries(rt_utils
-    INTERFACE ${OpenCV_LIBS} Qt::Widgets rt_settings
+    INTERFACE ${OpenCV_LIBS} Qt::Widgets rt_settings tf2_ros::tf2_ros
 )

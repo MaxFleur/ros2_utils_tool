@@ -10,6 +10,8 @@
         <file>gifs/publishing_white.gif</file>
         <file>gifs/recording_black.gif</file>
         <file>gifs/recording_white.gif</file>
+        <file>gifs/sending_tf2_black.gif</file>
+        <file>gifs/sending_tf2_white.gif</file>
 
         <file>icons/bag_info_black.svg</file>
         <file>icons/bag_info_white.svg</file>
@@ -52,6 +54,8 @@
         <file>icons/publish_video_white.svg</file>
         <file>icons/record_bag_black.svg</file>
         <file>icons/record_bag_white.svg</file>
+        <file>icons/send_tf2_black.svg</file>
+        <file>icons/send_tf2_white.svg</file>
         <file>icons/topics_services_info_black.svg</file>
         <file>icons/topics_services_info_white.svg</file>
         <file>icons/tf2_to_json_black.svg</file>

@@ -47,6 +47,7 @@ As of now, the tool provides the following functionalities:
 | Compress Bag | Compress a bag file |  X  |
 | Decompress Bag | Decompress a bag file |  X  |
 | Video as ROS Topic | Publish a video file as a ROS image_msg topic |  X  |
+| Send TF2 | Send a static or non-static ROS transformation (tf2) |  X  |
 | Image Sequence as ROS Topic | Publish a file with images as ROS image_msg Topic |  X  |
 | UI-based topic/service information | UI-supported topic/service info vis | (X) (`ros2 topic list`/`ros2 service list`)  |
 | UI-based Bag Info | UI-supported bag info vis | (X) (`ros2 bag info`) |
@@ -181,6 +182,12 @@ ros2 run ros2_utils_tool tool_publish_video path/to/video
 ros2 run ros2_utils_tool tool_publish_images path/to/images
 ```
 (Note that a topic can be specified optionally. If no topic is specified, a predefined topic name will be taken. Images need to be of format `jpg`, `bmp` or `png`).
+
+**Send-TF2-Tool**:
+```
+ros2 run ros2_utils_tool tool_send_tf2
+```
+(Translation and rotation are specified using the flags `-t` and `-ro` respectively. Transformations are static per default, specifying an additional rate will send a nonstatic one instead).
 
 **Unit tests**:
 ```

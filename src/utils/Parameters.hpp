@@ -33,6 +33,13 @@ struct DummyBagParameters : BasicParameters {
     int                    rate = 10;
     bool                   useCustomRate = false;
 };
+struct SendTF2Parameters : BasicParameters {
+    std::array<double, 3> translation = { 0.0, 0.0, 0.0 };
+    std::array<double, 4> rotation = { 0.0, 0.0, 0.0, 1.0 };
+    QString               childFrameName = "";
+    int                   rate = 1;
+    bool                  isStatic = true;
+};
 
 struct AdvancedParameters : BasicParameters {
     QString targetDirectory = "";

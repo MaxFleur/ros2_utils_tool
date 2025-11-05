@@ -18,6 +18,7 @@ find_package(rosbag2_cpp REQUIRED)
 find_package(rosbag2_transport REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(tf2_msgs REQUIRED)
+find_package(tf2_ros REQUIRED)
 
 if($ENV{ROS_DISTRO} STREQUAL "humble")
     add_definitions(-DROS_HUMBLE)
@@ -68,6 +69,9 @@ add_executable(tool_publish_images
 )
 add_executable(tool_publish_video
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/PublishVideo.cpp
+)
+add_executable(tool_send_tf2
+    ${CMAKE_CURRENT_LIST_DIR}/src/cli/SendTF2.cpp
 )
 add_executable(tool_tf2_to_json
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/TF2ToJson.cpp
@@ -121,6 +125,10 @@ target_link_libraries(tool_publish_video
     rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp cv_bridge::cv_bridge ${sensor_msgs_TARGETS}
     Qt::Widgets rt_publish_video_thread rt_utils
 )
+target_link_libraries(tool_send_tf2
+    rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp ${tf2_msgs_TARGETS}
+    Qt::Widgets rt_send_tf2_thread rt_utils
+)
 target_link_libraries(tool_tf2_to_json
     rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp ${geometry_msgs_TARGETS} ${std_msgs_TARGETS} ${tf2_msgs_TARGETS}
     Qt::Widgets rt_tf2_to_json_thread rt_utils
@@ -162,6 +170,7 @@ install(TARGETS
     tool_pcds_to_bag
     tool_publish_images
     tool_publish_video
+    tool_send_tf2
     tool_tf2_to_json
     tool_video_to_bag
     tool_tests

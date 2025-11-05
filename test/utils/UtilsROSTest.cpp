@@ -9,6 +9,7 @@
 
 #include "sensor_msgs/msg/image.hpp"
 #include "std_msgs/msg/string.hpp"
+#include "tf2_msgs/msg/tf_message.hpp"
 
 #include <filesystem>
 
@@ -56,6 +57,19 @@ TEST_CASE("Utils ROS Testing", "[utils]") {
     outputBags.push_back({ outputStorage, outputRecord });
     rosbag2_transport::bag_rewrite({ inputStorage }, outputBags);
 
+    auto nodeWrapper = std::make_shared<NodeWrapper>("ros2_utils_ros_test");
+
+    SECTION("Send static transform test") {
+        auto rotationX = 0.0;
+
+        auto subscription = nodeWrapper->getNode()->create_subscription<tf2_msgs::msg::TFMessage>("/tf_static", 1, [&rotationX]
+                                                                                                  (const tf2_msgs::msg::TFMessage& msg) {
+            rotationX += msg.transforms[0].transform.rotation.x;
+        });
+
+        Utils::ROS::sendStaticTransformation({ 0.0, 0.0, 0.0 }, { 0.1, 0.1, 0.1, 1.0 }, nodeWrapper);
+        REQUIRE(rotationX == 0.1);
+    }
     SECTION("Does dir contain bag file test") {
         auto contains = Utils::ROS::doesDirectoryContainBagFile("path/to/random/location");
         REQUIRE(contains == false);
@@ -73,9 +87,8 @@ TEST_CASE("Utils ROS Testing", "[utils]") {
     SECTION("Topics and services test") {
         auto runThread = true;
         // Run some constant publishing in the background
-        auto publishingThread = std::thread([&runThread] {
-            auto node = std::make_shared<rclcpp::Node>("topics_publisher");
-            auto publisher = node->create_publisher<std_msgs::msg::Int32>("/example", 10);
+        auto publishingThread = std::thread([nodeWrapper, &runThread] {
+            auto publisher = nodeWrapper->getNode()->create_publisher<std_msgs::msg::Int32>("/example", 10);
             rclcpp::Rate rate(50);
 
             while (runThread) {
