@@ -73,8 +73,8 @@ add_executable(tool_publish_video
 add_executable(tool_send_tf2
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/SendTF2.cpp
 )
-add_executable(tool_tf2_to_json
-    ${CMAKE_CURRENT_LIST_DIR}/src/cli/TF2ToJson.cpp
+add_executable(tool_tf2_to_file
+    ${CMAKE_CURRENT_LIST_DIR}/src/cli/TF2ToFile.cpp
 )
 add_executable(tool_video_to_bag
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/VideoToBag.cpp
@@ -129,9 +129,9 @@ target_link_libraries(tool_send_tf2
     rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp ${tf2_msgs_TARGETS}
     Qt::Widgets rt_send_tf2_thread rt_utils
 )
-target_link_libraries(tool_tf2_to_json
+target_link_libraries(tool_tf2_to_file
     rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp ${geometry_msgs_TARGETS} ${std_msgs_TARGETS} ${tf2_msgs_TARGETS}
-    Qt::Widgets rt_tf2_to_json_thread rt_utils
+    Qt::Widgets rt_tf2_to_file_thread rt_utils
 )
 target_link_libraries(tool_video_to_bag
     rosbag2_cpp::rosbag2_cpp cv_bridge::cv_bridge ${sensor_msgs_TARGETS}
@@ -171,7 +171,7 @@ install(TARGETS
     tool_publish_images
     tool_publish_video
     tool_send_tf2
-    tool_tf2_to_json
+    tool_tf2_to_file
     tool_video_to_bag
     tool_tests
     DESTINATION lib/${PROJECT_NAME}/

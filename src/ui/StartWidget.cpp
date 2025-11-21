@@ -60,7 +60,7 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     m_bagToPCDsPushButton = createToolButton("Bag to\nPCD Files", "Convert point clouds in a ROS bag topic to a set of pcd files.");
     m_PCDsToBagPushButton = createToolButton("PCD Files\nto Bag", "Convert a set of pcd files to a ROS bag.");
     m_bagToImagesPushButton = createToolButton("Bag to Images", "Convert images in a ROS bag video topic to a set of image files.");
-    m_tf2ToJsonPushButton = createToolButton("Bag TF2\nto JSON", "Convert transformations in a ROS bag tf2 topic to json.");
+    m_tf2ToFilePushButton = createToolButton("Bag TF2\nto File", "Convert transformations in a ROS bag tf2 topic to file.");
 
     auto* const conversionToolsUpperLayout = new QHBoxLayout;
     conversionToolsUpperLayout->addStretch();
@@ -77,7 +77,7 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     auto* const conversionToolsLowerLayout = new QHBoxLayout;
     conversionToolsLowerLayout->addStretch();
     conversionToolsLowerLayout->addWidget(m_bagToImagesPushButton);
-    conversionToolsLowerLayout->addWidget(m_tf2ToJsonPushButton);
+    conversionToolsLowerLayout->addWidget(m_tf2ToFilePushButton);
     conversionToolsLowerLayout->addStretch();
 
     auto* const conversionToolsMainLayout = new QVBoxLayout;
@@ -247,8 +247,8 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     connect(m_bagToImagesPushButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_ID::BAG_TO_IMAGES);
     });
-    connect(m_tf2ToJsonPushButton, &QPushButton::clicked, this, [this] {
-        emit toolRequested(Utils::UI::TOOL_ID::TF2_TO_JSON);
+    connect(m_tf2ToFilePushButton, &QPushButton::clicked, this, [this] {
+        emit toolRequested(Utils::UI::TOOL_ID::TF2_TO_FILE);
     });
     connect(m_editBagButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_ID::EDIT_BAG);
@@ -379,7 +379,7 @@ StartWidget::setButtonIcons()
     m_bagToPCDsPushButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_to_pcd_white.svg" : ":/icons/bag_to_pcd_black.svg"));
     m_PCDsToBagPushButton->setIcon(QIcon(isDarkMode ? ":/icons/pcd_to_bag_white.svg" : ":/icons/pcd_to_bag_black.svg"));
     m_bagToImagesPushButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_to_images_white.svg" : ":/icons/bag_to_images_black.svg"));
-    m_tf2ToJsonPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tf2_to_json_white.svg" : ":/icons/tf2_to_json_black.svg"));
+    m_tf2ToFilePushButton->setIcon(QIcon(isDarkMode ? ":/icons/tf2_to_file_white.svg" : ":/icons/tf2_to_file_black.svg"));
 
     m_editBagButton->setIcon(QIcon(isDarkMode ? ":/icons/edit_bag_white.svg" : ":/icons/edit_bag_black.svg"));
     m_mergeBagsButton->setIcon(QIcon(isDarkMode ? ":/icons/merge_bags_white.svg" : ":/icons/merge_bags_black.svg"));

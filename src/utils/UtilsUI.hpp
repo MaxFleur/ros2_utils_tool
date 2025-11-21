@@ -49,6 +49,11 @@ void
 createCriticalMessageBox(const QString& headerText,
                          const QString& mainText);
 
+// Replaces a text appendix with another one
+const QString
+replaceTextAppendix(const QString& inputText,
+                    const QString& newAppendix);
+
 // Checks if the application is in dark mode
 [[nodiscard]] bool
 isDarkMode();
@@ -59,7 +64,7 @@ enum class TOOL_ID {
     BAG_TO_PCDS,
     PCDS_TO_BAG,
     BAG_TO_IMAGES,
-    TF2_TO_JSON,
+    TF2_TO_FILE,
     EDIT_BAG,
     MERGE_BAGS,
     RECORD_BAG,

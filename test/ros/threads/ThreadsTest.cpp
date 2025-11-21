@@ -12,7 +12,7 @@
 #include "PublishVideoThread.hpp"
 #include "RecordBagThread.hpp"
 #include "SendTF2Thread.hpp"
-#include "TF2ToJsonThread.hpp"
+#include "TF2ToFileThread.hpp"
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 #include "VideoToBagThread.hpp"
@@ -35,6 +35,8 @@
 #include "sensor_msgs/msg/image.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
 #include "tf2_msgs/msg/tf_message.hpp"
+
+#include "yaml-cpp/yaml.h"
 
 #include <filesystem>
 
@@ -633,14 +635,14 @@ TEST_CASE("Threads Testing", "[threads]") {
         thread->wait();
         delete thread;
     }
-    SECTION("TF2 to Json Thread Test") {
-        Parameters::TF2ToJsonParameters parameters;
+    SECTION("TF2 to File Thread Test") {
+        Parameters::TF2ToFileParameters parameters;
         parameters.sourceDirectory = "./dummy_bag";
         parameters.targetDirectory = "./transforms.json";
         parameters.topicName = "/dummy_tf2";
         parameters.keepTimestamps = true;
 
-        const auto verifyTransforms = [] (bool containsHeaderStamp) {
+        const auto verifyTransformsJSON = [] (bool containsHeaderStamp) {
             QFile file("./transforms.json");
 
             file.open(QFile::ReadOnly);
@@ -670,26 +672,64 @@ TEST_CASE("Threads Testing", "[threads]") {
             }
         };
 
-        auto* const thread = new TF2ToJsonThread(parameters);
-        QObject::connect(thread, &TF2ToJsonThread::finished, thread, &QObject::deleteLater);
+        const auto verifyTransformsYAML = [] (bool containsHeaderStamp) {
+            const auto& fileNode = YAML::LoadFile("./transforms.yaml");
+            REQUIRE(fileNode.size() == 100);
 
+            for (std::size_t i = 0; i < fileNode.size(); i++) {
+                const auto& messageNode = fileNode["message_" + std::to_string(i)];
+                REQUIRE(messageNode.size() == 3);
 
-        SECTION("Default Parameter Values") {
+                for (auto j = 0; j < 3; ++j) {
+                    const auto& transformNode = messageNode["transform_" + std::to_string(j)];
+                    if (containsHeaderStamp) {
+                        REQUIRE(transformNode.size() == 5);
+                    } else {
+                        REQUIRE(transformNode.size() == 4);
+                    }
+                }
+            }
+        };
+
+        auto* const thread = new TF2ToFileThread(parameters);
+        QObject::connect(thread, &TF2ToFileThread::finished, thread, &QObject::deleteLater);
+
+        SECTION("Default Parameter Values - JSON") {
             thread->start();
             thread->wait();
 
-            verifyTransforms(true);
+            verifyTransformsJSON(true);
         }
-        SECTION("Without Timestamp") {
+        SECTION("Without Timestamp - JSON") {
             parameters.keepTimestamps = false;
 
             thread->start();
             thread->wait();
 
-            verifyTransforms(false);
+            verifyTransformsJSON(false);
         }
 
         std::filesystem::remove_all("./transforms.json");
+        parameters.targetDirectory = "./transforms.yaml";
+
+        SECTION("Default Parameter Values - YAML") {
+            parameters.keepTimestamps = true;
+
+            thread->start();
+            thread->wait();
+
+            verifyTransformsYAML(true);
+        }
+        SECTION("Without Timestamp - YAML") {
+            parameters.keepTimestamps = false;
+
+            thread->start();
+            thread->wait();
+
+            verifyTransformsYAML(false);
+        }
+
+        std::filesystem::remove_all("./transforms.yaml");
     }
     SECTION("Bag to PCDs Thread Test") {
         Parameters::AdvancedParameters parameters;

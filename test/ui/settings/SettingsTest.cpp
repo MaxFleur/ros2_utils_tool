@@ -16,7 +16,7 @@
 #include "RecordBagSettings.hpp"
 #include "RGBSettings.hpp"
 #include "SendTF2Settings.hpp"
-#include "TF2ToJsonSettings.hpp"
+#include "TF2ToFileSettings.hpp"
 #include "VideoSettings.hpp"
 #include "VideoToBagSettings.hpp"
 
@@ -194,23 +194,23 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
     }
-    SECTION("TF2 to Json Params Test") {
+    SECTION("TF2 to File Params Test") {
         SECTION("Read") {
-            qSettings.beginGroup("tf2_to_json");
-            checkSettingsInvalidacy(qSettings, { "compact_output", "keep_timestamps" });
+            qSettings.beginGroup("tf2_to_file");
+            checkSettingsInvalidacy(qSettings, { "keep_timestamps", "compact_output" });
             qSettings.endGroup();
         }
         SECTION("Write") {
-            Parameters::TF2ToJsonParameters parameters;
-            TF2ToJsonSettings settings(parameters, "tf2_to_json");
+            Parameters::TF2ToFileParameters parameters;
+            TF2ToFileSettings settings(parameters, "tf2_to_file");
 
             parameters.compactOutput = true;
             parameters.keepTimestamps = true;
             settings.write();
 
-            qSettings.beginGroup("tf2_to_json");
-            verifiySettingPrimitive(qSettings, "compact_output", true);
+            qSettings.beginGroup("tf2_to_file");
             verifiySettingPrimitive(qSettings, "keep_timestamps", true);
+            verifiySettingPrimitive(qSettings, "compact_output", true);
             qSettings.endGroup();
         }
     }

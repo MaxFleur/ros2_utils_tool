@@ -129,6 +129,17 @@ createCriticalMessageBox(const QString& headerText, const QString& mainText)
 }
 
 
+const QString
+replaceTextAppendix(const QString& inputText, const QString& newAppendix)
+{
+    auto newText = inputText;
+    newText.truncate(newText.lastIndexOf(QChar('.')));
+    newText += "." + newAppendix;
+
+    return newText;
+}
+
+
 bool
 isDarkMode()
 {

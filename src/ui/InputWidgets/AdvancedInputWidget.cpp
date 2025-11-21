@@ -94,8 +94,8 @@ AdvancedInputWidget::findTargetButtonPressed()
     case OUTPUT_PCDS:
         fileName = QFileDialog::getExistingDirectory(this, "Save Files", "", QFileDialog::ShowDirsOnly);
         break;
-    case OUTPUT_JSON:
-        fileName = QFileDialog::getSaveFileName(this, "Save Json", "", m_fileFormat + " files (*." + m_fileFormat + ")");
+    case OUTPUT_TF_TO_FILE:
+        fileName = QFileDialog::getSaveFileName(this, "Save File", "", m_fileFormat + " files (*." + m_fileFormat + ")");
         break;
     case OUTPUT_BAG:
     case OUTPUT_BAG_EDITED:
@@ -157,7 +157,7 @@ AdvancedInputWidget::fillTargetLineEdit()
     case OUTPUT_PCDS:
         autoTargetDir = "/pcd_files";
         break;
-    case OUTPUT_JSON:
+    case OUTPUT_TF_TO_FILE:
         autoTargetDir = "/bag_transforms." + m_fileFormat;
         break;
     case OUTPUT_BAG_EDITED:

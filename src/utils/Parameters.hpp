@@ -49,9 +49,9 @@ struct AdvancedParameters : BasicParameters {
 struct PCDsToBagParameters : AdvancedParameters {
     int rate = 5;
 };
-struct TF2ToJsonParameters : AdvancedParameters {
-    bool compactOutput = true;
+struct TF2ToFileParameters : AdvancedParameters {
     bool keepTimestamps = false;
+    bool compactOutput = true;
 };
 
 struct DeleteSourceParameters : AdvancedParameters {

@@ -106,9 +106,7 @@ BagToVideoWidget::formatComboBoxTextChanged(const QString& text)
     }
 
     // If the combo box item changes, apply a different appendix to the text in the video line edit
-    auto newLineEditText = m_targetLineEdit->text();
-    newLineEditText.truncate(newLineEditText.lastIndexOf(QChar('.')));
-    newLineEditText += "." + text;
+    const auto& newLineEditText = Utils::UI::replaceTextAppendix(m_targetLineEdit->text(), text);
     m_targetLineEdit->setText(newLineEditText);
 
     writeParameterToSettings(m_parameters.targetDirectory, newLineEditText, m_settings);

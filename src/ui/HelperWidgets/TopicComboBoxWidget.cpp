@@ -23,7 +23,7 @@ TopicComboBoxWidget::TopicComboBoxWidget(Parameters::AdvancedParameters& paramet
         case OUTPUT_PCDS:
             topicType = "sensor_msgs/msg/PointCloud2";
             break;
-        case OUTPUT_JSON:
+        case OUTPUT_TF_TO_FILE:
             topicType = "tf2_msgs/msg/TFMessage";
             break;
         default:
@@ -59,7 +59,7 @@ TopicComboBoxWidget::findSourceButtonPressed()
     case OUTPUT_PCDS:
         topicType = "sensor_msgs/msg/PointCloud2";
         break;
-    case OUTPUT_JSON:
+    case OUTPUT_TF_TO_FILE:
         topicType = "tf2_msgs/msg/TFMessage";
         break;
     default:
