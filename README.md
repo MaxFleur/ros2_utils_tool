@@ -2,7 +2,7 @@
 
    ![License badge](https://img.shields.io/badge/License-EUPLv1.2-blue.svg)
    ![C++ badge](https://img.shields.io/badge/C++-20-blue.svg)
-   ![Tag badge](https://img.shields.io/badge/Release-v0.13.0-blue.svg)
+   ![Tag badge](https://img.shields.io/badge/Release-v0.14.0-blue.svg)
 
 </div>
 <div align="center">
@@ -39,7 +39,7 @@ As of now, the tool provides the following functionalities:
 | Bag to PCDs | Export a ROS bag point cloud topic to a set of pcd files  |  X  |
 | PCDs to Bag | Port a set of PCD files to a ROS bag  |  X  |
 | Bag to Images | Export a ROS bag video topic to an image sequence |  X  |
-| Bag TF2 to JSON | Export a ROS bag tf2 topic to a json file |  X  |
+| Bag TF2 to File | Export a ROS bag tf2 topic to a json or yaml file |  X  |
 | Edit Bag | Rename, remove or crop topics in a ROS bag |    |
 | Merge Bags | Merge selected topics of two bags in a new ROS bag |  X  |
 | UI-based Bag Recording | Record a ROS bag | (X) (`ros2 bag record`)  |
@@ -143,11 +143,11 @@ ros2 run ros2_utils_tool tool_bag_to_images /path/to/bag /path/to/images
 ```
 (Note that a topic can be specified optionally. If no topic is specified, the first available video topic is used. `image_format` needs to be either `jpg`, `bmp` or `png`, jpg is default).
 
-**Bag-TF2-to-JSON-Tool**:
+**Bag-TF2-to-File-Tool**:
 ```
-ros2 run ros2_utils_tool tool_tf2_to_json /path/to/bag /path/to/output.json
+ros2 run ros2_utils_tool tool_tf2_to_file /path/to/bag /path/to/output
 ```
-(Note that a topic can be specified optionally. If no topic is specified, the first available tf2 topic is used).
+(Accepted file formats are json or yaml. Note that a topic can be specified optionally. If no topic is specified, the first available tf2 topic is used).
 
 **Merge-Bags-Tool**:
 ```
