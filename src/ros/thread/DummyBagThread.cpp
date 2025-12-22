@@ -58,7 +58,7 @@ DummyBagThread::run()
             }
 
             const auto topicType = queue.back().type;
-            const auto topicName = queue.back().name;
+            const auto topicName = queue.back().name.toStdString();
             queue.pop_back();
             mutex.unlock();
 
@@ -74,9 +74,15 @@ DummyBagThread::run()
                 timeStamp += duration;
                 // Write message depending on type
                 if (topicType == "String") {
-                    Utils::ROS::writeMessageToBag(std_msgs::msg::String(), "Message " + std::to_string(i), writer, topicName, timeStamp);
+                    std_msgs::msg::String message;
+                    message.data = "Message " + std::to_string(i);
+
+                    writer->write(message, topicName, timeStamp);
                 } else if (topicType == "Integer") {
-                    Utils::ROS::writeMessageToBag(std_msgs::msg::Int32(), i, writer, topicName, timeStamp);
+                    std_msgs::msg::Int32 message;
+                    message.data = i;
+
+                    writer->write(message, topicName, timeStamp);
                 } else if (topicType == "Image") {
                     // Create image which over time is lerped from blue to red
                     const auto blue = 255 - ((i - 1) * (255.0f / (float) m_parameters.messageCount));
@@ -88,7 +94,7 @@ DummyBagThread::run()
 
                     const auto cvBridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::BGR8, mat);
                     cvBridge.toImageMsg(message);
-                    writer->write(message, topicName.toStdString(), timeStamp);
+                    writer->write(message, topicName, timeStamp);
                 } else if (topicType == "Point Cloud" || topicType == "PointCloud") {
                     // Create a randomized point cloud with 10 points
                     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>());
@@ -111,7 +117,7 @@ DummyBagThread::run()
 
                     sensor_msgs::msg::PointCloud2 message;
                     pcl::toROSMsg(*cloud, message);
-                    writer->write(message, topicName.toStdString(), timeStamp);
+                    writer->write(message, topicName, timeStamp);
                 } else {
                     tf2_msgs::msg::TFMessage message;
 
@@ -138,7 +144,7 @@ DummyBagThread::run()
 
                         message.transforms.push_back(transformStamped);
                     }
-                    writer->write(message, topicName.toStdString(), timeStamp);
+                    writer->write(message, topicName, timeStamp);
                 }
 
                 emit progressChanged("Writing message " + QString::number(iterationCount) + " of " + QString::number(maximumMessageCount) + "...",

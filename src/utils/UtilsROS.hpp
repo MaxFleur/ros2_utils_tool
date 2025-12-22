@@ -15,26 +15,12 @@
 #include <string>
 
 template<typename T, typename U>
-concept WriteMessageParameter = (std::same_as<T, std_msgs::msg::String> && std::same_as<U, std::string>) ||
+concept WriteMessageParameter = (std::same_as<T, std_msgs::msg::String> && std::same_as<U, std::string&>) ||
                                 (std::same_as<T, std_msgs::msg::Int32> && std::same_as<U, int>);
 
 // ROS related util functions
 namespace Utils::ROS
 {
-template<typename T, typename U>
-requires WriteMessageParameter<T, U>
-void
-writeMessageToBag(T                                    message,
-                  const U                              messageData,
-                  std::shared_ptr<rosbag2_cpp::Writer> writer,
-                  const QString&                       topicName,
-                  const rclcpp::Time&                  timeStamp)
-{
-    message.data = messageData;
-    writer->write(message, topicName.toStdString(), timeStamp);
-}
-
-
 // Sends a static transformation using tf broadcaster
 // @NOTE: For whatever reason, just creating and spinning a local node
 //        does not work here, we have to spin a global node

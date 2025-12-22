@@ -28,11 +28,19 @@ TEST_CASE("Utils ROS Testing", "[utils]") {
         imageMessage.height = 1;
         writer->write(imageMessage, "/topic_image", rclcpp::Clock().now());
     }
+
+    std_msgs::msg::String messageString;
     for (auto i = 0; i < 3; i++) {
-        Utils::ROS::writeMessageToBag(std_msgs::msg::String(), "Message " + std::to_string(i), writer, "/topic_string", rclcpp::Clock().now());
+        messageString.data = "Message " + std::to_string(i);
+
+        writer->write(messageString, "/topic_string", rclcpp::Clock().now());
     }
+
+    std_msgs::msg::Int32 messageInt;
     for (auto i = 0; i < 10; i++) {
-        Utils::ROS::writeMessageToBag(std_msgs::msg::Int32(), i, writer, "/topic_integer", rclcpp::Clock().now());
+        messageInt.data = i;
+
+        writer->write(messageInt, "/topic_integer", rclcpp::Clock().now());
     }
     writer->close();
 
