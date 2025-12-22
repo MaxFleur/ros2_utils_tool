@@ -20,6 +20,7 @@ showHelp()
     std::cout << "Note that duplicate topics (equal topics contained in both bags) will be merged if both are specified.\n\n";
     std::cout << "Additional parameters:\n";
     std::cout << "-d or --delete: Delete the source bag files.\n\n";
+    std::cout << "-th or --threads: Number of threads, must be at least 1 (maximum is " << std::thread::hardware_concurrency() << ").\n\n";
     std::cout << "-s or --suppress: Suppress any warnings.\n\n";
     std::cout << "-h or --help: Show this help.\n";
 }
@@ -39,7 +40,7 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    const QStringList checkList{ "-t1", "-t2", "-d", "-s", "--delete", "--suppress" };
+    const QStringList checkList{ "-t1", "-t2", "-d", "-th", "-s", "--delete", "--threads", "--suppress" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
@@ -92,12 +93,22 @@ main(int argc, char* argv[])
         throw std::runtime_error("Please specify '-t2' correctly!");
     }
 
+    // Thread count
+    auto numberOfThreads = 1;
+    if (!Utils::CLI::checkArgumentValidity(arguments, "-th", "--threads", numberOfThreads, 1, std::thread::hardware_concurrency())) {
+        throw std::runtime_error("Please enter a thread count value in the range of 1 to " + std::to_string(std::thread::hardware_concurrency()) + "!");
+    }
+
+    // Boundary used to check for the second bags topics (parameters usually come after those)
     auto boundary = arguments.size() - 1;
     if (parameters.deleteSource) {
         boundary--;
     }
     if (Utils::CLI::containsArguments(arguments, "-s", "--suppress")) {
         boundary--;
+    }
+    if (Utils::CLI::containsArguments(arguments, "-th", "--threads")) {
+        boundary -= 2;
     }
 
     auto topicsSecondBagIndex = Utils::CLI::getArgumentsIndex(arguments, "-t2", "--topic2") + 1;
@@ -125,7 +136,7 @@ main(int argc, char* argv[])
     }
 
     // Create thread and connect to its informations
-    auto* const mergeBagsThread = new MergeBagsThread(parameters, std::thread::hardware_concurrency());
+    auto* const mergeBagsThread = new MergeBagsThread(parameters, numberOfThreads);
     auto isMerging = false;
     std::thread processingThread;
 

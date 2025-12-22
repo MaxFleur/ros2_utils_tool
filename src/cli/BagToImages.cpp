@@ -22,6 +22,7 @@ showHelp()
     std::cout << "-o or --optimize (jpg only): Optimize jpg file size.\n";
     std::cout << "-c or --colorless: Encode images without color.\n";
     std::cout << "-b or --binary (png only): Write images with only black and white pixels.\n\n";
+    std::cout << "-th or --threads: Number of threads, must be at least 1 (maximum is " << std::thread::hardware_concurrency() << ").\n\n";
     std::cout << "-s or --suppress: Suppress any warnings.\n\n";
     std::cout << "-h or --help: Show this help.\n";
 }
@@ -41,8 +42,8 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    const QStringList checkList{ "-t", "-f", "-e", "-c", "-q", "-o", "-b", "-s",
-                                 "--topic_name", "--format", "--exchange", "--colorless", "--quality", "--optimize", "--binary", "--suppress" };
+    const QStringList checkList{ "-t", "-f", "-e", "-c", "-q", "-o", "-b", "-th", "-s",
+                                 "--topic_name", "--format", "--exchange", "--colorless", "--quality", "--optimize", "--binary", "--threads", "--suppress" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
@@ -86,6 +87,12 @@ main(int argc, char* argv[])
         parameters.pngBilevel = parameters.format == "png" && Utils::CLI::containsArguments(arguments, "-b", "--binary");
     }
 
+    // Thread count
+    auto numberOfThreads = 1;
+    if (!Utils::CLI::checkArgumentValidity(arguments, "-th", "--threads", numberOfThreads, 1, std::thread::hardware_concurrency())) {
+        throw std::runtime_error("Please enter a thread count value in the range of 1 to " + std::to_string(std::thread::hardware_concurrency()) + "!");
+    }
+
     // Search for topic name in bag file if not specified
     if (parameters.topicName.isEmpty()) {
         Utils::CLI::checkForTargetTopic(parameters.sourceDirectory, parameters.topicName, "sensor_msgs/msg/Image");
@@ -96,7 +103,7 @@ main(int argc, char* argv[])
     }
 
     // Create thread and connect to its informations
-    auto* const bagToImagesThread = new BagToImagesThread(parameters, std::thread::hardware_concurrency());
+    auto* const bagToImagesThread = new BagToImagesThread(parameters, numberOfThreads);
     QObject::connect(bagToImagesThread, &BagToImagesThread::progressChanged, [] (const QString& progressString, int progress) {
         const auto progressStringCMD = Utils::CLI::drawProgressString(progress);
         // Always clear the last line for a nice "progress bar" feeling

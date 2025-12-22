@@ -16,6 +16,7 @@ showHelp()
     std::cout << "Usage: ros2 run mediassist4_ros_tools tool_bag_to_pcds path/to/bag path/to/pcds\n\n";
     std::cout << "Additional parameters:\n";
     std::cout << "-t or --topic_name: Point cloud topic inside the bag. If no topic name is specified, the first found point cloud topic in the bag is taken.\n\n";
+    std::cout << "-th or --threads: Number of threads, must be at least 1 (maximum is " << std::thread::hardware_concurrency() << ").\n\n";
     std::cout << "-s or --suppress: Suppress any warnings.\n\n";
     std::cout << "-h or --help: Show this help.\n";
 }
@@ -35,7 +36,8 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, { "-t", "-s", "--topic_name", "--suppress" }); argument != std::nullopt) {
+    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, { "-t", "-th", "-s", "--topic_name", "--threads", "--suppress" });
+        argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
     }
@@ -56,6 +58,12 @@ main(int argc, char* argv[])
         Utils::CLI::checkTopicNameValidity(arguments, parameters.sourceDirectory, "sensor_msgs/msg/PointCloud2", parameters.topicName);
     }
 
+    // Thread count
+    auto numberOfThreads = 1;
+    if (!Utils::CLI::checkArgumentValidity(arguments, "-th", "--threads", numberOfThreads, 1, std::thread::hardware_concurrency())) {
+        throw std::runtime_error("Please enter a thread count value in the range of 1 to " + std::to_string(std::thread::hardware_concurrency()) + "!");
+    }
+
     // Search for topic name in bag file if not specified
     if (parameters.topicName.isEmpty()) {
         Utils::CLI::checkForTargetTopic(parameters.sourceDirectory, parameters.topicName, "sensor_msgs/msg/PointCloud2");
@@ -66,7 +74,7 @@ main(int argc, char* argv[])
     }
 
     // Create thread and connect to its informations
-    auto* const bagToPCDsThread = new BagToPCDsThread(parameters, std::thread::hardware_concurrency());
+    auto* const bagToPCDsThread = new BagToPCDsThread(parameters, numberOfThreads);
     QObject::connect(bagToPCDsThread, &BagToPCDsThread::progressChanged, [] (const QString& progressString, int progress) {
         const auto progressStringCMD = Utils::CLI::drawProgressString(progress);
         // Always clear the last line for a nice "progress bar" feeling

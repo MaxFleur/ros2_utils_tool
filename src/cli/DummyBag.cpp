@@ -20,6 +20,7 @@ showHelp()
     std::cout << "Additional parameters:\n";
     std::cout << "-m or --message-count: Number of messages in the bag file. Must be between 1 and 1000, default is 100.\n";
     std::cout << "-r or --rate: Number of messages per second. Must be between 1 and 100, default is 10.\n\n";
+    std::cout << "-th or --threads: Number of threads, must be at least 1 (maximum is " << std::thread::hardware_concurrency() << ").\n\n";
     std::cout << "-s or --suppress: Suppress any warnings.\n\n";
     std::cout << "-h or --help: Show this help.\n";
 }
@@ -34,13 +35,13 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto& arguments = app.arguments();
-    // 18 means all five topics plus every possible flag
-    if (arguments.size() < 4 || arguments.size() > 18 || arguments.contains("--help") || arguments.contains("-h")) {
+    // 20 means all five topics plus every possible flag
+    if (arguments.size() < 4 || arguments.size() > 20 || arguments.contains("--help") || arguments.contains("-h")) {
         showHelp();
         return 0;
     }
 
-    const QStringList checkList{ "-m", "-r", "-s", "--message-count", "--rate", "--suppress" };
+    const QStringList checkList{ "-m", "-r", "-th", "-s", "--message-count", "--rate", "--threads", "--suppress" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
@@ -99,6 +100,12 @@ main(int argc, char* argv[])
         }
     }
 
+    // Thread count
+    auto numberOfThreads = 1;
+    if (!Utils::CLI::checkArgumentValidity(arguments, "-th", "--threads", numberOfThreads, 1, std::thread::hardware_concurrency())) {
+        throw std::runtime_error("Please enter a thread count value in the range of 1 to " + std::to_string(std::thread::hardware_concurrency()) + "!");
+    }
+
     if (topicTypes.size() != topicNames.size()) {
         throw std::runtime_error("Topic type and topic name size do not match. Please make sure to enter a name for each topic!");
     }
@@ -120,7 +127,7 @@ main(int argc, char* argv[])
     }
 
     // Create thread and connect to its informations
-    auto* const dummyBagThread = new DummyBagThread(parameters, parameters.topics.size());
+    auto* const dummyBagThread = new DummyBagThread(parameters, numberOfThreads);
     std::mutex mutex;
 
     QObject::connect(dummyBagThread, &DummyBagThread::progressChanged, [&mutex] (const QString& progressString, int progress) {

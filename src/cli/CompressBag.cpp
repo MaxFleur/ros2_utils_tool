@@ -19,6 +19,7 @@ showHelp()
     std::cout << "Additional parameters:\n";
     std::cout << "-m or --mode (file/message): Compress per file (file) or per message (message). File is default.\n\n";
     std::cout << "-d or --delete: Delete the source file after completion.\n\n";
+    std::cout << "-th or --threads: Number of threads, must be at least 1 (maximum is " << std::thread::hardware_concurrency() << ").\n\n";
     std::cout << "-s or --suppress: Suppress any warnings.\n\n";
     std::cout << "-h or --help: Show this help.\n";
 }
@@ -38,7 +39,8 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, { "-m", "-d", "-s", "--mode", "--delete", "--suppress" }); argument != std::nullopt) {
+    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, { "-m", "-d", "-th", "-s", "--mode", "--delete", "--threads", "--suppress" });
+        argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
     }
@@ -76,12 +78,18 @@ main(int argc, char* argv[])
         parameters.deleteSource = Utils::CLI::containsArguments(arguments, "-d", "--delete");
     }
 
+    // Thread count
+    auto numberOfThreads = 1;
+    if (!Utils::CLI::checkArgumentValidity(arguments, "-th", "--threads", numberOfThreads, 1, std::thread::hardware_concurrency())) {
+        throw std::runtime_error("Please enter a thread count value in the range of 1 to " + std::to_string(std::thread::hardware_concurrency()) + "!");
+    }
+
     if (!Utils::CLI::continueExistingTargetLowDiskSpace(arguments, parameters.targetDirectory)) {
         return 0;
     }
 
     // Create thread and connect to its informations
-    auto* const compressBagThread = new ChangeCompressionBagThread(parameters, std::thread::hardware_concurrency(), true);
+    auto* const compressBagThread = new ChangeCompressionBagThread(parameters, numberOfThreads, true);
     auto isCompressing = false;
     std::thread processingThread;
 
