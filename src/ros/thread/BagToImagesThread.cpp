@@ -154,7 +154,7 @@ BagToImagesThread::run()
         });
 
         std::vector<std::thread> threadPool;
-        for (unsigned int i = 0; i < m_numberOfThreads - 1; ++i) {
+        for (unsigned int i = 0; i < m_numberOfThreads; ++i) {
             threadPool.emplace_back(writeImageFromQueue);
         }
         for (auto& thread : threadPool) {
