@@ -13,7 +13,8 @@
 #include "PublishImagesThread.hpp"
 #include "PublishVideoThread.hpp"
 #include "RecordBagThread.hpp"
-#include "TF2ToJsonThread.hpp"
+#include "SendTF2Thread.hpp"
+#include "TF2ToFileThread.hpp"
 #include "VideoToBagThread.hpp"
 
 #include <QLabel>
@@ -48,8 +49,8 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
         m_thread = new BagToImagesThread(dynamic_cast<Parameters::BagToImagesParameters&>(parameters),
                                          DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
         break;
-    case Utils::UI::TOOL_ID::TF2_TO_JSON:
-        m_thread = new TF2ToJsonThread(dynamic_cast<Parameters::TF2ToJsonParameters&>(parameters), this);
+    case Utils::UI::TOOL_ID::TF2_TO_FILE:
+        m_thread = new TF2ToFileThread(dynamic_cast<Parameters::TF2ToFileParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_ID::EDIT_BAG:
         m_thread = new EditBagThread(dynamic_cast<Parameters::EditBagParameters&>(parameters),
@@ -82,6 +83,9 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
         break;
     case Utils::UI::TOOL_ID::PUBLISH_IMAGES:
         m_thread = new PublishImagesThread(dynamic_cast<Parameters::PublishParameters&>(parameters), this);
+        break;
+    case Utils::UI::TOOL_ID::SEND_TF2:
+        m_thread = new SendTF2Thread(dynamic_cast<Parameters::SendTF2Parameters&>(parameters), this);
         break;
     default:
         break;
@@ -146,6 +150,9 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
     case Utils::UI::TOOL_ID::PUBLISH_VIDEO:
     case Utils::UI::TOOL_ID::PUBLISH_IMAGES:
         setMovie(":/gifs/publishing", 120, 100);
+        break;
+    case Utils::UI::TOOL_ID::SEND_TF2:
+        setMovie(":/gifs/sending_tf2", 100, 100);
         break;
     default:
         auto* const progressBar = new QProgressBar;

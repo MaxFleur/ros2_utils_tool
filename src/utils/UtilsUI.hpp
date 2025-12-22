@@ -35,15 +35,24 @@ createLineEditButtonLayout(QPointer<QLineEdit>   lineEdit,
 [[nodiscard]] bool
 continueWithInvalidROS2Names();
 
+// Create a messagebox asking if a user should continue if a target file is already existing
+bool
+continueForExistingTarget(const QString& targetDirectory,
+                          const QString& headerTextBeginning,
+                          const QString& targetIdentifier);
+
+[[nodiscard]] QCheckBox*
+createMessageBoxCheckBox(const QString& optionsIdentifier);
+
 // Creates a messagebox informing of a critical error
 void
 createCriticalMessageBox(const QString& headerText,
                          const QString& mainText);
 
-bool
-continueForExistingTarget(const QString& targetDirectory,
-                          const QString& headerTextBeginning,
-                          const QString& targetIdentifier);
+// Replaces a text appendix with another one
+const QString
+replaceTextAppendix(const QString& inputText,
+                    const QString& newAppendix);
 
 // Checks if the application is in dark mode
 [[nodiscard]] bool
@@ -55,7 +64,7 @@ enum class TOOL_ID {
     BAG_TO_PCDS,
     PCDS_TO_BAG,
     BAG_TO_IMAGES,
-    TF2_TO_JSON,
+    TF2_TO_FILE,
     EDIT_BAG,
     MERGE_BAGS,
     RECORD_BAG,
@@ -64,6 +73,7 @@ enum class TOOL_ID {
     DECOMPRESS_BAG,
     PUBLISH_VIDEO,
     PUBLISH_IMAGES,
+    SEND_TF2,
     TOPICS_SERVICES_INFO,
     BAG_INFO
 };

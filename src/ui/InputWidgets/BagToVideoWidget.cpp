@@ -10,7 +10,7 @@
 #include <QSpinBox>
 
 BagToVideoWidget::BagToVideoWidget(Parameters::BagToVideoParameters& parameters, QWidget *parent) :
-    AdvancedInputWidget(parameters, "Bag to Video", ":/icons/bag_to_video", "Bag File:", "Video Location:", "bag_to_video", OUTPUT_VIDEO, parent),
+    TopicComboBoxWidget(parameters, "Bag to Video", ":/icons/bag_to_video", "Bag File:", "Video Location:", "bag_to_video", OUTPUT_VIDEO, parent),
     m_parameters(parameters), m_settings(parameters, "bag_to_video")
 {
     m_sourceLineEdit->setToolTip("The source bag file directory.");
@@ -55,7 +55,7 @@ BagToVideoWidget::BagToVideoWidget(Parameters::BagToVideoParameters& parameters,
 
     // Generally, enable ok only if we have a source and target directory and a topic name
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() &&
-                   !m_parameters.topicName.isEmpty() && !m_parameters.targetDirectory.isEmpty());
+                   !m_topicNameComboBox->currentText().isEmpty() && !m_parameters.targetDirectory.isEmpty());
 
     // Call once to potentially enable lossless images checkbox
     formatComboBoxTextChanged(m_formatComboBox->currentText());
@@ -106,9 +106,7 @@ BagToVideoWidget::formatComboBoxTextChanged(const QString& text)
     }
 
     // If the combo box item changes, apply a different appendix to the text in the video line edit
-    auto newLineEditText = m_targetLineEdit->text();
-    newLineEditText.truncate(newLineEditText.lastIndexOf(QChar('.')));
-    newLineEditText += "." + text;
+    const auto& newLineEditText = Utils::UI::replaceTextAppendix(m_targetLineEdit->text(), text);
     m_targetLineEdit->setText(newLineEditText);
 
     writeParameterToSettings(m_parameters.targetDirectory, newLineEditText, m_settings);

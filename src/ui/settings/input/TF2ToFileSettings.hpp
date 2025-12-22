@@ -3,9 +3,9 @@
 #include "AdvancedSettings.hpp"
 
 // Store tf2 to json parameters
-class TF2ToJsonSettings : public AdvancedSettings {
+class TF2ToFileSettings : public AdvancedSettings {
 public:
-    TF2ToJsonSettings(Parameters::TF2ToJsonParameters& parameters,
+    TF2ToFileSettings(Parameters::TF2ToFileParameters& parameters,
                       const QString&                   groupName);
 
     bool
@@ -16,5 +16,5 @@ private:
     read() override;
 
 private:
-    Parameters::TF2ToJsonParameters& m_parameters;
+    Parameters::TF2ToFileParameters& m_parameters;
 };

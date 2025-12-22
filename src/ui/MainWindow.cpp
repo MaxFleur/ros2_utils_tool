@@ -12,8 +12,9 @@
 #include "ProgressWidget.hpp"
 #include "PublishWidget.hpp"
 #include "RecordBagWidget.hpp"
+#include "SendTF2Widget.hpp"
 #include "StartWidget.hpp"
-#include "TF2ToJsonWidget.hpp"
+#include "TF2ToFileWidget.hpp"
 #include "TopicsServicesInfoWidget.hpp"
 #include "VideoToBagWidget.hpp"
 
@@ -69,8 +70,8 @@ MainWindow::setInputWidget(Utils::UI::TOOL_ID mode)
     case Utils::UI::TOOL_ID::BAG_TO_IMAGES:
         basicInputWidget = new BagToImagesWidget(m_parametersBagToImages);
         break;
-    case Utils::UI::TOOL_ID::TF2_TO_JSON:
-        basicInputWidget = new TF2ToJsonWidget(m_parametersTF2ToJson);
+    case Utils::UI::TOOL_ID::TF2_TO_FILE:
+        basicInputWidget = new TF2ToFileWidget(m_parametersTF2ToFile);
         break;
     case Utils::UI::TOOL_ID::EDIT_BAG:
         basicInputWidget = new EditBagWidget(m_parametersEditBag, m_dialogParameters.warnROS2NameConvention);
@@ -98,6 +99,12 @@ MainWindow::setInputWidget(Utils::UI::TOOL_ID mode)
         basicInputWidget = new PublishWidget(m_parametersPublishImages, m_dialogParameters.usePredefinedTopicNames,
                                              m_dialogParameters.warnROS2NameConvention, false);
         break;
+    case Utils::UI::TOOL_ID::SEND_TF2:
+        // There might be an active progress widget with a tf2 thread, which contains a ROS node.
+        // We have to destroy this node before creating a new SendTF2Widget to avoid having two nodes at the same time
+        delete centralWidget();
+        basicInputWidget = new SendTF2Widget(m_parametersSendTF2);
+        break;
     case Utils::UI::TOOL_ID::TOPICS_SERVICES_INFO:
         basicInputWidget = new TopicsServicesInfoWidget;
         break;
@@ -106,8 +113,7 @@ MainWindow::setInputWidget(Utils::UI::TOOL_ID mode)
         break;
     }
 
-    resize(mode == Utils::UI::TOOL_ID::EDIT_BAG || mode == Utils::UI::TOOL_ID::MERGE_BAGS ? basicInputWidget->width() : DEFAULT_WIDTH,
-           mode == Utils::UI::TOOL_ID::EDIT_BAG || mode == Utils::UI::TOOL_ID::MERGE_BAGS ? basicInputWidget->height() : DEFAULT_HEIGHT);
+    resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     setCentralWidget(basicInputWidget);
 
     connect(basicInputWidget, &BasicInputWidget::back, this, &MainWindow::setStartWidget);
@@ -137,8 +143,8 @@ MainWindow::setProgressWidget(Utils::UI::TOOL_ID mode)
     case Utils::UI::TOOL_ID::BAG_TO_IMAGES:
         progressWidget = new ProgressWidget("Writing Images...", m_parametersBagToImages, mode);
         break;
-    case Utils::UI::TOOL_ID::TF2_TO_JSON:
-        progressWidget = new ProgressWidget("Writing Json File(s)...", m_parametersTF2ToJson, mode);
+    case Utils::UI::TOOL_ID::TF2_TO_FILE:
+        progressWidget = new ProgressWidget("Writing File(s)...", m_parametersTF2ToFile, mode);
         break;
     case Utils::UI::TOOL_ID::EDIT_BAG:
         progressWidget = new ProgressWidget("Writing edited Bag File...", m_parametersEditBag, mode);
@@ -163,6 +169,12 @@ MainWindow::setProgressWidget(Utils::UI::TOOL_ID mode)
         break;
     case Utils::UI::TOOL_ID::PUBLISH_IMAGES:
         progressWidget = new ProgressWidget("Publishing Images...", m_parametersPublishImages, mode);
+        break;
+    case Utils::UI::TOOL_ID::SEND_TF2:
+        // The input widget contains a ROS node, which would still be active if we create the progress widget
+        // with an instance of the send tf2 thread. To avoid two nodes existing, destroy the input widget containg the first node
+        delete centralWidget();
+        progressWidget = new ProgressWidget("Sending TF2...", m_parametersSendTF2, mode);
         break;
     default:
         break;

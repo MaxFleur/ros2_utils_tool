@@ -2,6 +2,27 @@
 Changelog for the ros2_utils_tool
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.14.0 (2025-12-22)
+-------------------
+**New:**
+
+* A tool to send transformations (tf2). Both static and nonstatic transformations are supported.
+* The TF2 to File tool now supports yaml as file output.
+* UI - Automatic target names for the edit bag, merge bag and compress/decompress bag tool.
+* UI -  The ROS2 name convention and low diskspace warning messageboxes now also have "Do not show again" checkboxes.
+* CLI - A new parameter "-th" or "--threads" for the bag to images, bag to pcds, compress, decompress, dummy bag and merge bags tools to set the number of used threads.
+
+**Changed/Improved:**
+
+* CLI - Helping text structuring improvements.
+
+**Fixed:**
+
+* UI - The bag to images tool not starting if a thread count of 1 was configured in the settings.
+* UI - The "Do not show again" for the already existing target messagebox not working.
+* UI - Erroneous behavior in the dummy bag tool when removing multiple rows at once.
+* UI - The ok button being enabled when bag files without corresponding topic types were loaded for some conversion tools.
+
 0.13.0 (2025-07-31)
 -------------------
 **New:**

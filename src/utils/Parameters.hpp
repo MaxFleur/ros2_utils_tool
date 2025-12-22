@@ -14,7 +14,6 @@ struct BasicParameters {
     ~BasicParameters() = default;
 
     QString sourceDirectory = "";
-    QString topicName = "";
 };
 struct RecordBagParameters : BasicParameters {
     QVector<QString> topics = {};
@@ -34,17 +33,25 @@ struct DummyBagParameters : BasicParameters {
     int                    rate = 10;
     bool                   useCustomRate = false;
 };
+struct SendTF2Parameters : BasicParameters {
+    std::array<double, 3> translation = { 0.0, 0.0, 0.0 };
+    std::array<double, 4> rotation = { 0.0, 0.0, 0.0, 1.0 };
+    QString               childFrameName = "";
+    int                   rate = 1;
+    bool                  isStatic = true;
+};
 
 struct AdvancedParameters : BasicParameters {
     QString targetDirectory = "";
+    QString topicName = "";
     bool    showAdvancedOptions = false;
 };
 struct PCDsToBagParameters : AdvancedParameters {
     int rate = 5;
 };
-struct TF2ToJsonParameters : AdvancedParameters {
-    bool compactOutput = true;
+struct TF2ToFileParameters : AdvancedParameters {
     bool keepTimestamps = false;
+    bool compactOutput = true;
 };
 
 struct DeleteSourceParameters : AdvancedParameters {

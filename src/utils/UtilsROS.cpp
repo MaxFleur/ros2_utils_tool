@@ -3,9 +3,60 @@
 #include <QRegularExpression>
 
 #include "rosbag2_cpp/reader.hpp"
+#include "tf2_ros/static_transform_broadcaster.h"
 
 namespace Utils::ROS
 {
+void
+spinNode(std::shared_ptr<rclcpp::Node> node)
+{
+    // We spin a node for some time before getting any topics/services from it
+    // This implementation is based is based on ros2cli:
+    // https://github.com/ros2/ros2cli/blob/rolling/ros2cli/ros2cli/node/direct.py#L25
+    auto executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
+    executor->add_node(node);
+
+    rclcpp::Rate rate(50);
+    auto isFinished = false;
+
+    auto timer = rclcpp::create_timer(node, node->get_clock(), rclcpp::Duration::from_seconds(0.1), [&isFinished] {
+        isFinished = true;
+    });
+    while (!isFinished) {
+        executor->spin_once();
+        rate.sleep();
+    }
+}
+
+
+void
+sendStaticTransformation(const std::array<double, 3>& translation,
+                         const std::array<double, 4>& rotation,
+                         std::shared_ptr<NodeWrapper> nodeWrapper)
+{
+    auto node = nodeWrapper->getNode();
+    auto broadcaster = std::make_shared<tf2_ros::StaticTransformBroadcaster>(node);
+
+    geometry_msgs::msg::TransformStamped transformStamped;
+
+    transformStamped.header.stamp = node->get_clock()->now();
+    transformStamped.header.frame_id = "world";
+    transformStamped.child_frame_id = "tf_test";
+
+    transformStamped.transform.translation.x = translation[0];
+    transformStamped.transform.translation.y = translation[1];
+    transformStamped.transform.translation.z = translation[2];
+
+    transformStamped.transform.rotation.x = rotation[0];
+    transformStamped.transform.rotation.y = rotation[1];
+    transformStamped.transform.rotation.z = rotation[2];
+    transformStamped.transform.rotation.w = rotation[3];
+
+    broadcaster->sendTransform(transformStamped);
+    spinNode(node);
+}
+
+
 bool
 doesDirectoryContainBagFile(const QString& bagDirectory)
 {
@@ -32,28 +83,6 @@ doesDirectoryContainCompressedBagFile(const QString& bagDirectory)
     }
 
     return metadata.compression_mode == "MESSAGE" || metadata.compression_mode == "FILE";
-}
-
-
-void
-spinNode(std::shared_ptr<rclcpp::Node> node)
-{
-    // We spin a node for some time before getting any topics/services from it
-    // This implementation is based is based on ros2cli:
-    // https://github.com/ros2/ros2cli/blob/rolling/ros2cli/ros2cli/node/direct.py#L25
-    auto executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
-    executor->add_node(node);
-
-    rclcpp::Rate rate(50);
-    auto isFinished = false;
-
-    auto timer = rclcpp::create_timer(node, node->get_clock(), rclcpp::Duration::from_seconds(0.1), [&isFinished] {
-        isFinished = true;
-    });
-    while (!isFinished) {
-        executor->spin_once();
-        rate.sleep();
-    }
 }
 
 

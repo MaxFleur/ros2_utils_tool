@@ -4,7 +4,6 @@
 #include "BasicInputWidget.hpp"
 #include "Parameters.hpp"
 
-class QComboBox;
 class QFormLayout;
 class QLineEdit;
 class QVBoxLayout;
@@ -35,30 +34,37 @@ protected slots:
     okButtonPressed() const;
 
     void
-    setFileFormat(const QString& videoFormat)
+    setFileFormat(const QString& fileFormat)
     {
-        m_fileFormat = videoFormat;
+        m_fileFormat = fileFormat;
     }
 
 protected:
-    QPointer<QComboBox> m_topicNameComboBox;
+    void
+    fillTargetLineEdit();
+
+protected:
     QPointer<QLineEdit> m_targetLineEdit;
 
     QPointer<QFormLayout> m_basicOptionsFormLayout;
     QPointer<QVBoxLayout> m_controlsLayout;
 
-    static constexpr int OUTPUT_VIDEO = 0;
-    static constexpr int OUTPUT_IMAGES = 1;
-    static constexpr int OUTPUT_PCDS = 2;
-    static constexpr int OUTPUT_JSON = 3;
-    static constexpr int OUTPUT_BAG = 4;
-
-private:
     Parameters::AdvancedParameters& m_parameters;
 
     AdvancedSettings m_settings;
 
-    QString m_fileFormat;
-
     const int m_outputFormat;
+
+    static constexpr int OUTPUT_VIDEO = 0;
+    static constexpr int OUTPUT_IMAGES = 1;
+    static constexpr int OUTPUT_PCDS = 2;
+    static constexpr int OUTPUT_TF_TO_FILE = 3;
+    static constexpr int OUTPUT_BAG = 4;
+    static constexpr int OUTPUT_BAG_EDITED = 5;
+    static constexpr int OUTPUT_BAG_MERGED = 6;
+    static constexpr int OUTPUT_BAG_COMPRESSED = 7;
+    static constexpr int OUTPUT_BAG_DECOMPRESSED = 8;
+
+private:
+    QString m_fileFormat;
 };

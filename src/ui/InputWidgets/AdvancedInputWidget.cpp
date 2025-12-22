@@ -4,7 +4,6 @@
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
-#include <QComboBox>
 #include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QFormLayout>
@@ -24,33 +23,6 @@ AdvancedInputWidget::AdvancedInputWidget(Parameters::AdvancedParameters& paramet
     m_parameters(parameters), m_settings(parameters, settingsIdentifier), m_outputFormat(outputFormat)
 {
     m_sourceLineEdit->setText(parameters.sourceDirectory);
-
-    m_topicNameComboBox = new QComboBox;
-    m_topicNameComboBox->setMinimumWidth(200);
-
-    if (!m_parameters.sourceDirectory.isEmpty()) {
-        QString topicType;
-
-        switch (m_outputFormat) {
-        case OUTPUT_VIDEO:
-        case OUTPUT_IMAGES:
-            topicType = "sensor_msgs/msg/Image";
-            break;
-        case OUTPUT_PCDS:
-            topicType = "sensor_msgs/msg/PointCloud2";
-            break;
-        case OUTPUT_JSON:
-            topicType = "tf2_msgs/msg/TFMessage";
-            break;
-        default:
-            break;
-        }
-        Utils::UI::fillComboBoxWithTopics(m_topicNameComboBox, m_parameters.sourceDirectory, topicType);
-
-        if (!m_parameters.topicName.isEmpty()) {
-            m_topicNameComboBox->setCurrentText(m_parameters.topicName);
-        }
-    }
 
     m_targetLineEdit = new QLineEdit(m_parameters.targetDirectory);
     auto* const findTargetButton = new QToolButton;
@@ -85,9 +57,6 @@ AdvancedInputWidget::AdvancedInputWidget(Parameters::AdvancedParameters& paramet
     auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
 
     connect(m_findSourceButton, &QPushButton::clicked, this, &AdvancedInputWidget::findSourceButtonPressed);
-    connect(m_topicNameComboBox, &QComboBox::currentTextChanged, this, [this] (const QString& text) {
-        writeParameterToSettings(m_parameters.topicName, text, m_settings);
-    });
     connect(findTargetButton, &QPushButton::clicked, this, &AdvancedInputWidget::findTargetButtonPressed);
     connect(m_dialogButtonBox, &QDialogButtonBox::accepted, this, &AdvancedInputWidget::okButtonPressed);
     connect(okShortCut, &QShortcut::activated, this, &AdvancedInputWidget::okButtonPressed);
@@ -103,47 +72,10 @@ AdvancedInputWidget::findSourceButtonPressed()
     if (bagDirectory.isEmpty()) {
         return;
     }
-    // Automatically fill with available topic names
-    QString topicType;
-    QString autoTargetDir;
-    switch (m_outputFormat) {
-    case OUTPUT_VIDEO:
-        topicType = "sensor_msgs/msg/Image";
-        autoTargetDir = "/bag_video." + m_fileFormat;
-        break;
-    case OUTPUT_IMAGES:
-        topicType = "sensor_msgs/msg/Image";
-        autoTargetDir = "/image_files";
-        break;
-    case OUTPUT_PCDS:
-        topicType = "sensor_msgs/msg/PointCloud2";
-        autoTargetDir = "/pcd_files";
-        break;
-    case OUTPUT_JSON:
-        topicType = "tf2_msgs/msg/TFMessage";
-        autoTargetDir = "/bag_transforms." + m_fileFormat;
-        break;
-    default:
-        break;
-    }
-
-    if (const auto containsTopics = Utils::UI::fillComboBoxWithTopics(m_topicNameComboBox, bagDirectory, topicType); !containsTopics) {
-        Utils::UI::createCriticalMessageBox("Topic not found!", "The bag file does not contain any corresponding topics!");
-        return;
-    }
 
     m_sourceLineEdit->setText(bagDirectory);
     writeParameterToSettings(m_parameters.sourceDirectory, bagDirectory, m_settings);
-
-    QDir bagDirectoryDir(bagDirectory);
-    // Automatically fill up the target dir if there is no already existing name
-    bagDirectoryDir.cdUp();
-    if (const auto autoTargetDirectory = bagDirectoryDir.path() + autoTargetDir; !std::filesystem::exists(autoTargetDirectory.toStdString())) {
-        m_targetLineEdit->setText(autoTargetDirectory);
-
-        writeParameterToSettings(m_parameters.targetDirectory, autoTargetDirectory, m_settings);
-        setLowDiskSpaceWidgetVisibility(m_targetLineEdit->text());
-    }
+    fillTargetLineEdit();
 
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() &&
                    !m_parameters.topicName.isEmpty() && !m_parameters.targetDirectory.isEmpty());
@@ -162,10 +94,14 @@ AdvancedInputWidget::findTargetButtonPressed()
     case OUTPUT_PCDS:
         fileName = QFileDialog::getExistingDirectory(this, "Save Files", "", QFileDialog::ShowDirsOnly);
         break;
-    case OUTPUT_JSON:
-        fileName = QFileDialog::getSaveFileName(this, "Save Json", "", m_fileFormat + " files (*." + m_fileFormat + ")");
+    case OUTPUT_TF_TO_FILE:
+        fileName = QFileDialog::getSaveFileName(this, "Save File", "", m_fileFormat + " files (*." + m_fileFormat + ")");
         break;
     case OUTPUT_BAG:
+    case OUTPUT_BAG_EDITED:
+    case OUTPUT_BAG_MERGED:
+    case OUTPUT_BAG_COMPRESSED:
+    case OUTPUT_BAG_DECOMPRESSED:
         fileName = QFileDialog::getSaveFileName(this, "Save Bag");
         break;
     }
@@ -203,4 +139,50 @@ AdvancedInputWidget::okButtonPressed() const
     }
 
     emit okPressed();
+}
+
+
+void
+AdvancedInputWidget::fillTargetLineEdit()
+{
+    QString autoTargetDir;
+
+    switch (m_outputFormat) {
+    case OUTPUT_VIDEO:
+        autoTargetDir = "/bag_video." + m_fileFormat;
+        break;
+    case OUTPUT_IMAGES:
+        autoTargetDir = "/image_files";
+        break;
+    case OUTPUT_PCDS:
+        autoTargetDir = "/pcd_files";
+        break;
+    case OUTPUT_TF_TO_FILE:
+        autoTargetDir = "/bag_transforms." + m_fileFormat;
+        break;
+    case OUTPUT_BAG_EDITED:
+        autoTargetDir = "/edited_bag";
+        break;
+    case OUTPUT_BAG_MERGED:
+        autoTargetDir = "/merged_bag";
+        break;
+    case OUTPUT_BAG_COMPRESSED:
+        autoTargetDir = "/compressed_bag";
+        break;
+    case OUTPUT_BAG_DECOMPRESSED:
+        autoTargetDir = "/decompressed_bag";
+        break;
+    default:
+        break;
+    }
+
+    QDir bagDirectoryDir(m_sourceLineEdit->text());
+    // Automatically fill up the target dir if there is no already existing name
+    bagDirectoryDir.cdUp();
+    if (const auto autoTargetDirectory = bagDirectoryDir.path() + autoTargetDir; !std::filesystem::exists(autoTargetDirectory.toStdString())) {
+        m_targetLineEdit->setText(autoTargetDirectory);
+
+        writeParameterToSettings(m_parameters.targetDirectory, autoTargetDirectory, m_settings);
+        setLowDiskSpaceWidgetVisibility(m_targetLineEdit->text());
+    }
 }

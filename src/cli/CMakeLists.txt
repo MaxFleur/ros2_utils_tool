@@ -15,7 +15,8 @@ target_sources(rt_cli INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/PCDsToBag.cpp
     ${CMAKE_CURRENT_LIST_DIR}/PublishImages.cpp
     ${CMAKE_CURRENT_LIST_DIR}/PublishVideo.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/TF2ToJson.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/SendTF2.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/TF2ToFile.cpp
     ${CMAKE_CURRENT_LIST_DIR}/VideoToBag.cpp
 )
 

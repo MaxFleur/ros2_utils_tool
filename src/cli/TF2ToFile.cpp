@@ -1,10 +1,12 @@
-#include "TF2ToJsonThread.hpp"
+#include "TF2ToFileThread.hpp"
 
 #include "Parameters.hpp"
 #include "UtilsCLI.hpp"
+#include "UtilsGeneral.hpp"
 #include "UtilsROS.hpp"
 
 #include <QCoreApplication>
+#include <QFileInfo>
 #include <QObject>
 
 #include <filesystem>
@@ -13,13 +15,14 @@
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_tf2_to_json path/to/bag path/to/output.json\n" << std::endl;
-    std::cout << "Additional parameters:" << std::endl;
-    std::cout << "-t or --topic_name: tf2 topic inside the bag. If no topic name is specified, the first found tf2 topic in the bag is taken.\n" << std::endl;
-    std::cout << "-i or --indent: Indent the output file." << std::endl;
-    std::cout << "-k or --keep_timestamps: Keep the message's timestamp in the json file." << std::endl;
-    std::cout << "-s or --suppress: Suppress any warnings.\n" << std::endl;
-    std::cout << "-h or --help: Show this help." << std::endl;
+    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_tf2_to_file path/to/bag path/to/output/file\n\n";
+    std::cout << "Accepted file formats are json or yaml.\n\n";
+    std::cout << "Additional parameters:\n";
+    std::cout << "-t or --topic_name: tf2 topic inside the bag. If no topic name is specified, the first found tf2 topic in the bag is taken.\n\n";
+    std::cout << "-k or --keep_timestamps: Keep the message's timestamp in the output file.\n";
+    std::cout << "-i or --indent: Indent the output file (json only).\n\n";
+    std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "-h or --help: Show this help.\n";
 }
 
 
@@ -43,24 +46,26 @@ main(int argc, char* argv[])
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
     }
 
-    Parameters::TF2ToJsonParameters parameters;
+    Parameters::TF2ToFileParameters parameters;
 
     // Source bag directory
     parameters.sourceDirectory = arguments.at(1);
     Utils::CLI::checkBagSourceDirectory(parameters.sourceDirectory);
-    // json file directory
+    // Target file directory
     parameters.targetDirectory = arguments.at(2);
     Utils::CLI::checkParentDirectory(parameters.targetDirectory);
+    if (const auto fileExtension = Utils::General::getFileExtension(parameters.targetDirectory); fileExtension != "json" && fileExtension != "yaml") {
+        throw std::runtime_error("Please enter either 'json' or 'yaml' for the format!");
+    }
 
     // Check for optional arguments
     if (arguments.size() > 3) {
         // Topic name
         Utils::CLI::checkTopicNameValidity(arguments, parameters.sourceDirectory, "tf2_msgs/msg/TFMessage", parameters.topicName);
-
-        // Formatting
-        parameters.compactOutput = !Utils::CLI::containsArguments(arguments, "-i", "--indent");
         // Timestamps
         parameters.keepTimestamps = Utils::CLI::containsArguments(arguments, "-k", "--keep_timestamps");
+        // Indenting
+        parameters.compactOutput = !Utils::CLI::containsArguments(arguments, "-i", "--indent");
     }
 
     // Search for topic name in bag file if not specified
@@ -73,25 +78,25 @@ main(int argc, char* argv[])
     }
 
     // Create thread and connect to its informations
-    auto* const tf2ToJsonThread = new TF2ToJsonThread(parameters);
-    QObject::connect(tf2ToJsonThread, &TF2ToJsonThread::progressChanged, [] (const QString& progressString, int progress) {
+    auto* const tf2ToFileThread = new TF2ToFileThread(parameters);
+    QObject::connect(tf2ToFileThread, &TF2ToFileThread::progressChanged, [] (const QString& progressString, int progress) {
         const auto progressStringCMD = Utils::CLI::drawProgressString(progress);
         // Always clear the last line for a nice "progress bar" feeling
         std::cout << progressString.toStdString() << " " << progressStringCMD << " " << progress << "%" << "\r" << std::flush;
     });
-    QObject::connect(tf2ToJsonThread, &TF2ToJsonThread::finished, [] {
-        std::cout << "" << std::endl; // Extra line to stop flushing
-        std::cout << "Writing json finished!" << std::endl;
+    QObject::connect(tf2ToFileThread, &TF2ToFileThread::finished, [] {
+        std::cout << "\n"; // Extra line to stop flushing
+        std::cout << "Writing finished!\n";
         return EXIT_SUCCESS;
     });
-    QObject::connect(tf2ToJsonThread, &TF2ToJsonThread::finished, tf2ToJsonThread, &QObject::deleteLater);
+    QObject::connect(tf2ToFileThread, &TF2ToFileThread::finished, tf2ToFileThread, &QObject::deleteLater);
 
     signal(SIGINT, [] (int signal) {
         signalStatus = signal;
     });
 
-    std::cout << "Writing json. Please wait..." << std::endl;
-    Utils::CLI::runThread(tf2ToJsonThread, signalStatus);
+    std::cout << "Writing file. Please wait...\n";
+    Utils::CLI::runThread(tf2ToFileThread, signalStatus);
 
     return EXIT_SUCCESS;
 }

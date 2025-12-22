@@ -24,8 +24,8 @@ BagToVideoThread::BagToVideoThread(const Parameters::BagToVideoParameters& param
 void
 BagToVideoThread::run()
 {
-    rosbag2_cpp::Reader reader;
-    reader.open(m_sourceDirectory);
+    auto reader = std::make_unique<rosbag2_cpp::Reader>();
+    reader->open(m_sourceDirectory);
 
     // Prepare parameters
     const auto messageCount = Utils::ROS::getTopicMessageCount(m_sourceDirectory, m_topicName);
@@ -49,14 +49,14 @@ BagToVideoThread::run()
     const auto videoEncoder = std::make_shared<VideoEncoder>(codec);
 
     // Now the main encoding
-    while (reader.has_next()) {
+    while (reader->has_next()) {
         if (isInterruptionRequested()) {
-            reader.close();
+            reader->close();
             return;
         }
 
         // Read and deserialize the message
-        message = reader.read_next();
+        message = reader->read_next();
         if (message->topic_name != topicNameStdString) {
             continue;
         }
@@ -96,6 +96,6 @@ BagToVideoThread::run()
                              ((float) iterationCount / (float) *messageCount) * 100);
     }
 
-    reader.close();
+    reader->close();
     emit finished();
 }

@@ -13,17 +13,18 @@
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_bag_to_images path/to/bag path/to/images\n" << std::endl;
-    std::cout << "Additional parameters:" << std::endl;
-    std::cout << "-t or --topic_name: Video topic inside the bag. If no topic name is specified, the first found video topic in the bag is taken.\n" << std::endl;
-    std::cout << "-f or --format: Must be jpg, png or bmp (jpg is default)." << std::endl;
-    std::cout << "-e or --exchange: Exchange red and blue values." << std::endl;
-    std::cout << "-c or --colorless: Encode images without color.\n" << std::endl;
-    std::cout << "-q 0-9 or --quality 0-9 (jpg and png only): Image quality, must be between 0 and 9 (9 is highest, 8 is default)." << std::endl;
-    std::cout << "-o or --optimize (jpg only): Optimize jpg file size." << std::endl;
-    std::cout << "-b or --binary (png only): Write images with only black and white pixels.\n" << std::endl;
-    std::cout << "-s or --suppress: Suppress any warnings.\n" << std::endl;
-    std::cout << "-h or --help: Show this help." << std::endl;
+    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_bag_to_images path/to/bag path/to/images\n\n";
+    std::cout << "Additional parameters:\n";
+    std::cout << "-t or --topic_name: Video topic inside the bag. If no topic name is specified, the first found video topic in the bag is taken.\n";
+    std::cout << "-f or --format: Must be jpg, png or bmp (jpg is default).\n";
+    std::cout << "-q or --quality (jpg and png only): Image quality, must be between 0 and 9 (0 is lowest, 9 is highest, 8 is default).\n\n";
+    std::cout << "-e or --exchange: Exchange red and blue values.\n";
+    std::cout << "-o or --optimize (jpg only): Optimize jpg file size.\n";
+    std::cout << "-c or --colorless: Encode images without color.\n";
+    std::cout << "-b or --binary (png only): Write images with only black and white pixels.\n\n";
+    std::cout << "-th or --threads: Number of threads, must be at least 1 (maximum is " << std::thread::hardware_concurrency() << ").\n\n";
+    std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "-h or --help: Show this help.\n";
 }
 
 
@@ -41,8 +42,8 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    const QStringList checkList{ "-t", "-f", "-e", "-c", "-q", "-o", "-b", "-s",
-                                 "--topic_name", "--format", "--exchange", "--colorless", "--quality", "--optimize", "--binary", "--suppress" };
+    const QStringList checkList{ "-t", "-f", "-e", "-c", "-q", "-o", "-b", "-th", "-s",
+                                 "--topic_name", "--format", "--exchange", "--colorless", "--quality", "--optimize", "--binary", "--threads", "--suppress" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
@@ -86,6 +87,12 @@ main(int argc, char* argv[])
         parameters.pngBilevel = parameters.format == "png" && Utils::CLI::containsArguments(arguments, "-b", "--binary");
     }
 
+    // Thread count
+    auto numberOfThreads = 1;
+    if (!Utils::CLI::checkArgumentValidity(arguments, "-th", "--threads", numberOfThreads, 1, std::thread::hardware_concurrency())) {
+        throw std::runtime_error("Please enter a thread count value in the range of 1 to " + std::to_string(std::thread::hardware_concurrency()) + "!");
+    }
+
     // Search for topic name in bag file if not specified
     if (parameters.topicName.isEmpty()) {
         Utils::CLI::checkForTargetTopic(parameters.sourceDirectory, parameters.topicName, "sensor_msgs/msg/Image");
@@ -96,15 +103,15 @@ main(int argc, char* argv[])
     }
 
     // Create thread and connect to its informations
-    auto* const bagToImagesThread = new BagToImagesThread(parameters, std::thread::hardware_concurrency());
+    auto* const bagToImagesThread = new BagToImagesThread(parameters, numberOfThreads);
     QObject::connect(bagToImagesThread, &BagToImagesThread::progressChanged, [] (const QString& progressString, int progress) {
         const auto progressStringCMD = Utils::CLI::drawProgressString(progress);
         // Always clear the last line for a nice "progress bar" feeling
         std::cout << progressString.toStdString() << " " << progressStringCMD << " " << progress << "%" << "\r" << std::flush;
     });
     QObject::connect(bagToImagesThread, &BagToImagesThread::finished, [] {
-        std::cout << "" << std::endl; // Extra line to stop flushing
-        std::cout << "Writing images finished!" << std::endl;
+        std::cout << "\n"; // Extra line to stop flushing
+        std::cout << "Writing images finished!\n";
         return EXIT_SUCCESS;
     });
     QObject::connect(bagToImagesThread, &BagToImagesThread::finished, bagToImagesThread, &QObject::deleteLater);
@@ -113,7 +120,7 @@ main(int argc, char* argv[])
         signalStatus = signal;
     });
 
-    std::cout << "Writing images. Please wait..." << std::endl;
+    std::cout << "Writing images. Please wait...\n";
     Utils::CLI::runThread(bagToImagesThread, signalStatus);
 
     return EXIT_SUCCESS;

@@ -10,7 +10,7 @@
 #include <QSlider>
 
 BagToImagesWidget::BagToImagesWidget(Parameters::BagToImagesParameters& parameters, QWidget *parent) :
-    AdvancedInputWidget(parameters, "Bag to Images", ":/icons/bag_to_images", "Bag File:", "Images Location:", "bag_to_images", OUTPUT_IMAGES, parent),
+    TopicComboBoxWidget(parameters, "Bag to Images", ":/icons/bag_to_images", "Bag File:", "Images Location:", "bag_to_images", OUTPUT_IMAGES, parent),
     m_parameters(parameters), m_settings(parameters, "bag_to_images")
 {
     m_sourceLineEdit->setToolTip("The source bag file directory.");
@@ -51,7 +51,7 @@ BagToImagesWidget::BagToImagesWidget(Parameters::BagToImagesParameters& paramete
 
     // Generally, only enable this if the source bag, topic name and target dir line edit contain text
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() &&
-                   !m_parameters.topicName.isEmpty() && !m_parameters.targetDirectory.isEmpty());
+                   !m_topicNameComboBox->currentText().isEmpty() && !m_parameters.targetDirectory.isEmpty());
 
     connect(formatComboBox, &QComboBox::currentTextChanged, this, &BagToImagesWidget::adjustWidgetsToChangedFormat);
     connect(advancedOptionsCheckBox, &QCheckBox::stateChanged, this, [this, advancedOptionsWidget] (int state) {

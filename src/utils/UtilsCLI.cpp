@@ -125,7 +125,7 @@ shouldContinue(const std::string& message)
     std::string input;
 
     while (true) {
-        std::cout << message << std::endl;
+        std::cout << message << "\n";
         std::getline(std::cin, input);
 
         // 'Y' or 'Enter' key will accept
@@ -252,8 +252,8 @@ runThread(QThread* thread, volatile sig_atomic_t& signalStatus)
         if (signalStatus == SIGINT) {
             thread->requestInterruption();
             thread->wait();
-            std::cout << "" << std::endl;
-            std::cout << "Interrupted" << std::endl;
+            std::cout << "\n";
+            std::cout << "Interrupted\n";
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }

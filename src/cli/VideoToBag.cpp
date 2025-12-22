@@ -13,15 +13,15 @@
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_video_to_bag path/to/video path/to/bag\n" << std::endl;
-    std::cout << "The video must have an ending of .mp4 or .mkv." << std::endl;
-    std::cout << "Additional parameters:" << std::endl;
-    std::cout << "-t or --topic_name: Topic name. If this is empty, the name '/topic_video' will be taken.\n" << std::endl;
-    std::cout << "-r or --rate: Framerate for the image stream. Must be from 10 to 60. If no rate is specified, the video's rate will be taken." << std::endl;
-    std::cout << "-a or --accelerate: Use hardware acceleration." << std::endl;
-    std::cout << "-e or --exchange: Exchange red and blue values.\n" << std::endl;
-    std::cout << "-s or --suppress: Suppress any warnings.\n" << std::endl;
-    std::cout << "-h or --help: Show this help." << std::endl;
+    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_video_to_bag path/to/video path/to/bag\n\n";
+    std::cout << "The video must have an ending of .mp4 or .mkv.\n";
+    std::cout << "Additional parameters:\n";
+    std::cout << "-t or --topic_name: Topic name. If this is empty, the name '/topic_video' will be taken.\n";
+    std::cout << "-r or --rate: Framerate for the image stream. Must be from 10 to 60. If no rate is specified, the video's rate will be taken.\n\n";
+    std::cout << "-a or --accelerate: Use hardware acceleration.\n";
+    std::cout << "-e or --exchange: Exchange red and blue values.\n\n";
+    std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "-h or --help: Show this help.\n";
 }
 
 
@@ -97,8 +97,8 @@ main(int argc, char* argv[])
         std::cout << progressString.toStdString() << " " << progressStringCMD << " " << progress << "%" << "\r" << std::flush;
     });
     QObject::connect(videoToBagThread, &VideoToBagThread::finished, [] {
-        std::cout << "" << std::endl; // Extra line to stop flushing
-        std::cout << "Writing finished!" << std::endl;
+        std::cout << "\n";// Extra line to stop flushing
+        std::cout << "Writing finished!\n";
         return EXIT_SUCCESS;
     });
     QObject::connect(videoToBagThread, &VideoToBagThread::finished, videoToBagThread, &QObject::deleteLater);
@@ -110,7 +110,7 @@ main(int argc, char* argv[])
         signalStatus = signal;
     });
 
-    std::cout << "Writing video to bag. Please wait..." << std::endl;
+    std::cout << "Writing video to bag. Please wait...\n";
     Utils::CLI::runThread(videoToBagThread, signalStatus);
 
     return EXIT_SUCCESS;

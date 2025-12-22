@@ -22,14 +22,17 @@ public:
 
 private slots:
     void
-    createTopicTree(bool newTreeRequested);
+    findSourceButtonPressed() override;
+
+    void
+    createTopicTree();
 
     void
     itemCheckStateChanged(QTreeWidgetItem* item,
                           int              column) override;
 
     void
-    okButtonPressed() const;
+    okButtonPressed() const override;
 
 private:
     QPointer<QLabel> m_editLabel;

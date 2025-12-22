@@ -15,7 +15,8 @@
 #include "PublishSettings.hpp"
 #include "RecordBagSettings.hpp"
 #include "RGBSettings.hpp"
-#include "TF2ToJsonSettings.hpp"
+#include "SendTF2Settings.hpp"
+#include "TF2ToFileSettings.hpp"
 #include "VideoSettings.hpp"
 #include "VideoToBagSettings.hpp"
 
@@ -31,7 +32,7 @@ checkSettingsInvalidacy(const QSettings& settings, const QVector<QString>& setti
 
 
 template<typename T>
-concept SettingsReturnPrimitiveType = std::same_as<T, int> || std::same_as<T, bool>;
+concept SettingsReturnPrimitiveType = std::same_as<T, int> || std::same_as<T, bool> || std::same_as<T, double>;
 
 // Verify modified settings
 template<typename T>
@@ -43,9 +44,11 @@ verifiySettingPrimitive(const QSettings& settings, const QString& settingName, T
 
     if constexpr (std::is_same_v<T, int>) {
         REQUIRE(settings.value(settingName).toInt() == expectedValue);
-        return;
+    } else if constexpr (std::is_same_v<T, double>) {
+        REQUIRE(settings.value(settingName).toDouble() == expectedValue);
+    } else {
+        REQUIRE(settings.value(settingName).toBool() == expectedValue);
     }
-    REQUIRE(settings.value(settingName).toBool() == expectedValue);
 }
 
 
@@ -75,12 +78,10 @@ TEST_CASE("Settings Testing", "[ui]") {
             BasicSettings settings(parameters, "basic");
 
             parameters.sourceDirectory = "/source/dir";
-            parameters.topicName = "/test_topic_name";
             settings.write();
 
             qSettings.beginGroup("basic");
             verifiySettingQString(qSettings, "source_dir", "/source/dir");
-            verifiySettingQString(qSettings, "topic_name", "/test_topic_name");
             qSettings.endGroup();
         }
     }
@@ -164,11 +165,13 @@ TEST_CASE("Settings Testing", "[ui]") {
             AdvancedSettings settings(parameters, "advanced");
 
             parameters.targetDirectory = "/target/dir";
+            parameters.topicName = "/test_topic_name";
             parameters.showAdvancedOptions = true;
             settings.write();
 
             qSettings.beginGroup("advanced");
             verifiySettingQString(qSettings, "target_dir", "/target/dir");
+            verifiySettingQString(qSettings, "topic_name", "/test_topic_name");
             verifiySettingPrimitive(qSettings, "show_advanced", true);
             qSettings.endGroup();
         }
@@ -191,23 +194,23 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.endGroup();
         }
     }
-    SECTION("TF2 to Json Params Test") {
+    SECTION("TF2 to File Params Test") {
         SECTION("Read") {
-            qSettings.beginGroup("tf2_to_json");
-            checkSettingsInvalidacy(qSettings, { "compact_output", "keep_timestamps" });
+            qSettings.beginGroup("tf2_to_file");
+            checkSettingsInvalidacy(qSettings, { "keep_timestamps", "compact_output" });
             qSettings.endGroup();
         }
         SECTION("Write") {
-            Parameters::TF2ToJsonParameters parameters;
-            TF2ToJsonSettings settings(parameters, "tf2_to_json");
+            Parameters::TF2ToFileParameters parameters;
+            TF2ToFileSettings settings(parameters, "tf2_to_file");
 
             parameters.compactOutput = true;
             parameters.keepTimestamps = true;
             settings.write();
 
-            qSettings.beginGroup("tf2_to_json");
-            verifiySettingPrimitive(qSettings, "compact_output", true);
+            qSettings.beginGroup("tf2_to_file");
             verifiySettingPrimitive(qSettings, "keep_timestamps", true);
+            verifiySettingPrimitive(qSettings, "compact_output", true);
             qSettings.endGroup();
         }
     }
@@ -438,6 +441,45 @@ TEST_CASE("Settings Testing", "[ui]") {
             verifiySettingPrimitive(qSettings, "height", 720);
             verifiySettingPrimitive(qSettings, "loop", true);
             verifiySettingPrimitive(qSettings, "scale", true);
+            qSettings.endGroup();
+        }
+    }
+
+    SECTION("Send TF2 Test") {
+        SECTION("Read") {
+            qSettings.beginGroup("send_tf2");
+            checkSettingsInvalidacy(qSettings, { "translation_x", "translation_y", "translation_z",
+                                                 "rotation_x", "rotation_y", "rotation_z", "rotation_w",
+                                                 "rate", "is_static" });
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Parameters::SendTF2Parameters parameters;
+            SendTF2Settings settings(parameters, "send_tf2");
+
+            parameters.translation[0] = 1.337;
+            parameters.translation[1] = 4.2;
+            parameters.translation[2] = 3.14159;
+            parameters.rotation[0] = 1.234;
+            parameters.rotation[1] = 6.7;
+            parameters.rotation[2] = 2.71828;
+            parameters.rotation[3] = -4.321;
+            parameters.childFrameName = "test";
+            parameters.rate = 3;
+            parameters.isStatic = true;
+            settings.write();
+
+            qSettings.beginGroup("send_tf2");
+            verifiySettingPrimitive(qSettings, "translation_x", 1.337);
+            verifiySettingPrimitive(qSettings, "translation_y", 4.2);
+            verifiySettingPrimitive(qSettings, "translation_z", 3.14159);
+            verifiySettingPrimitive(qSettings, "rotation_x", 1.234);
+            verifiySettingPrimitive(qSettings, "rotation_y", 6.7);
+            verifiySettingPrimitive(qSettings, "rotation_z", 2.71828);
+            verifiySettingPrimitive(qSettings, "rotation_w", -4.321);
+            verifiySettingQString(qSettings, "name", "test");
+            verifiySettingPrimitive(qSettings, "rate", 3);
+            verifiySettingPrimitive(qSettings, "is_static", true);
             qSettings.endGroup();
         }
     }

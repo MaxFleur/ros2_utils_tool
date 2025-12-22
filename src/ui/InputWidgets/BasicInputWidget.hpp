@@ -15,9 +15,8 @@ class QPushButton;
 class QToolButton;
 
 template<typename T, typename U>
-concept InputParameterSetting = (std::same_as<T, U> &&
-                                 (std::same_as<T, QString> || std::same_as<T, int> ||
-                                  std::same_as<T, size_t> || std::same_as<T, bool>));
+concept InputParameterSetting = (std::same_as<T, U> && (std::same_as<T, QString> || std::same_as<T, int> ||
+                                                        std::same_as<T, size_t> || std::same_as<T, bool> || std::same_as<T, double>));
 
 // The basic input widget all other input widgets derive from
 // Each input widget uses a corresponding parameter and settings member.

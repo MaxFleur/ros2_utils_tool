@@ -60,7 +60,7 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     m_bagToPCDsPushButton = createToolButton("Bag to\nPCD Files", "Convert point clouds in a ROS bag topic to a set of pcd files.");
     m_PCDsToBagPushButton = createToolButton("PCD Files\nto Bag", "Convert a set of pcd files to a ROS bag.");
     m_bagToImagesPushButton = createToolButton("Bag to Images", "Convert images in a ROS bag video topic to a set of image files.");
-    m_tf2ToJsonPushButton = createToolButton("Bag TF2\nto JSON", "Convert transformations in a ROS bag tf2 topic to json.");
+    m_tf2ToFilePushButton = createToolButton("Bag TF2\nto File", "Convert transformations in a ROS bag tf2 topic to file.");
 
     auto* const conversionToolsUpperLayout = new QHBoxLayout;
     conversionToolsUpperLayout->addStretch();
@@ -77,7 +77,7 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     auto* const conversionToolsLowerLayout = new QHBoxLayout;
     conversionToolsLowerLayout->addStretch();
     conversionToolsLowerLayout->addWidget(m_bagToImagesPushButton);
-    conversionToolsLowerLayout->addWidget(m_tf2ToJsonPushButton);
+    conversionToolsLowerLayout->addWidget(m_tf2ToFilePushButton);
     conversionToolsLowerLayout->addStretch();
 
     auto* const conversionToolsMainLayout = new QVBoxLayout;
@@ -129,11 +129,23 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     // Publishing tools widget
     m_publishVideoButton = createToolButton("Publish Video\nas ROS Topic", "Publish video file images as a ROS image topic.");
     m_publishImagesButton = createToolButton("Publish Images\nas ROS Topic", "Publish a set of image files as a ROS image topic.");
+    m_sendTF2Button = createToolButton("Send TF2\nMessage", "Send a tf2 message to /tf or /tf_static.");
 
-    auto* const publishingToolsMainLayout = new QHBoxLayout;
+    auto* const publishingToolsLowerLayout = new QHBoxLayout;
+    publishingToolsLowerLayout->addStretch();
+    publishingToolsLowerLayout->addWidget(m_publishVideoButton);
+    publishingToolsLowerLayout->addWidget(m_publishImagesButton);
+    publishingToolsLowerLayout->addStretch();
+
+    auto* const publishingToolsUpperLayout = new QHBoxLayout;
+    publishingToolsUpperLayout->addStretch();
+    publishingToolsUpperLayout->addWidget(m_sendTF2Button);
+    publishingToolsUpperLayout->addStretch();
+
+    auto* const publishingToolsMainLayout = new QVBoxLayout;
     publishingToolsMainLayout->addStretch();
-    publishingToolsMainLayout->addWidget(m_publishVideoButton);
-    publishingToolsMainLayout->addWidget(m_publishImagesButton);
+    publishingToolsMainLayout->addLayout(publishingToolsLowerLayout);
+    publishingToolsMainLayout->addLayout(publishingToolsUpperLayout);
     publishingToolsMainLayout->addStretch();
 
     auto* const publishingToolsWidget = new QWidget;
@@ -162,9 +174,9 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     backButtonLayout->addWidget(m_backButton);
     backButtonLayout->addStretch();
 
-    m_versionLabel = new QLabel("v0.13.0");
-    m_versionLabel->setToolTip("TF to Json tool, dummy bag tool tf support,\n"
-                               "a low diskspace warning and CLI optimizations!");
+    m_versionLabel = new QLabel("v0.14.0");
+    m_versionLabel->setToolTip("A tool to send TF2 messages, tf2 to yaml and\n"
+                               "a new threading flag for some CLI tools.");
 
     auto* const versionLayout = new QHBoxLayout;
     versionLayout->addStretch();
@@ -235,8 +247,8 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     connect(m_bagToImagesPushButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_ID::BAG_TO_IMAGES);
     });
-    connect(m_tf2ToJsonPushButton, &QPushButton::clicked, this, [this] {
-        emit toolRequested(Utils::UI::TOOL_ID::TF2_TO_JSON);
+    connect(m_tf2ToFilePushButton, &QPushButton::clicked, this, [this] {
+        emit toolRequested(Utils::UI::TOOL_ID::TF2_TO_FILE);
     });
     connect(m_editBagButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_ID::EDIT_BAG);
@@ -261,6 +273,9 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     });
     connect(m_publishImagesButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_ID::PUBLISH_IMAGES);
+    });
+    connect(m_sendTF2Button, &QPushButton::clicked, this, [this] {
+        emit toolRequested(Utils::UI::TOOL_ID::SEND_TF2);
     });
     connect(m_topicServiceInfoButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_ID::TOPICS_SERVICES_INFO);
@@ -364,7 +379,7 @@ StartWidget::setButtonIcons()
     m_bagToPCDsPushButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_to_pcd_white.svg" : ":/icons/bag_to_pcd_black.svg"));
     m_PCDsToBagPushButton->setIcon(QIcon(isDarkMode ? ":/icons/pcd_to_bag_white.svg" : ":/icons/pcd_to_bag_black.svg"));
     m_bagToImagesPushButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_to_images_white.svg" : ":/icons/bag_to_images_black.svg"));
-    m_tf2ToJsonPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tf2_to_json_white.svg" : ":/icons/tf2_to_json_black.svg"));
+    m_tf2ToFilePushButton->setIcon(QIcon(isDarkMode ? ":/icons/tf2_to_file_white.svg" : ":/icons/tf2_to_file_black.svg"));
 
     m_editBagButton->setIcon(QIcon(isDarkMode ? ":/icons/edit_bag_white.svg" : ":/icons/edit_bag_black.svg"));
     m_mergeBagsButton->setIcon(QIcon(isDarkMode ? ":/icons/merge_bags_white.svg" : ":/icons/merge_bags_black.svg"));
@@ -375,6 +390,7 @@ StartWidget::setButtonIcons()
 
     m_publishVideoButton->setIcon(QIcon(isDarkMode ? ":/icons/publish_video_white.svg" : ":/icons/publish_video_black.svg"));
     m_publishImagesButton->setIcon(QIcon(isDarkMode ? ":/icons/publish_images_white.svg" : ":/icons/publish_images_black.svg"));
+    m_sendTF2Button->setIcon(QIcon(isDarkMode ? ":/icons/send_tf2_white.svg" : ":/icons/send_tf2_black.svg"));
 
     m_topicServiceInfoButton->setIcon(QIcon(isDarkMode ? ":/icons/topics_services_info_white.svg"
                                                        : ":/icons/topics_services_info_black.svg"));

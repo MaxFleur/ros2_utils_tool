@@ -4,7 +4,7 @@
 
 template<typename T>
 concept GeneralSettingsParameter = std::same_as<T, int> || std::same_as<T, unsigned int> || std::same_as<T, size_t> ||
-                                   std::same_as<T, bool> || std::same_as<T, QString>;
+                                   std::same_as<T, bool> || std::same_as<T, double> || std::same_as<T, QString>;
 
 // Basic settings, from which all other settings derive
 // Each setting as write and read functions. Read functions are called automatically
@@ -92,6 +92,8 @@ protected:
             value = settings.value(identifier).value<size_t>();
         } else if constexpr (std::is_same_v<T, bool>) {
             value = settings.value(identifier).isValid() ? settings.value(identifier).toBool() : defaultValue;
+        } else if constexpr (std::is_same_v<T, double>) {
+            value = settings.value(identifier).isValid() ? settings.value(identifier).toDouble() : defaultValue;
         } else {
             value = settings.value(identifier).isValid() ? settings.value(identifier).toString() : defaultValue;
         }

@@ -34,8 +34,8 @@ EditBagThread::run()
         std::filesystem::remove_all(targetDirectoryStd);
     }
 
-    rosbag2_cpp::Writer writer;
-    writer.open(targetDirectoryStd);
+    auto writer = std::make_shared<rosbag2_cpp::Writer>();
+    writer->open(targetDirectoryStd);
 
     // Store selected topics in queue
     std::deque<Parameters::EditBagParameters::EditBagTopic> queue;
@@ -52,7 +52,7 @@ EditBagThread::run()
     std::mutex mutex;
 
     // Move to own lambda for multithreading
-    const auto writeTopicToBag = [this, &writer, &queue, &instanceCount, &mutex, node, totalInstances] {
+    const auto writeTopicToBag = [this, &queue, &instanceCount, &mutex, writer, node, totalInstances] {
         while (true) {
             mutex.lock();
 
@@ -74,7 +74,7 @@ EditBagThread::run()
                     if (!topic.renamedTopicName.isEmpty()) {
                         topicToBeModified.name = topic.renamedTopicName.toStdString();
                     }
-                    writer.create_topic(topicToBeModified);
+                    writer->create_topic(topicToBeModified);
                     break;
                 }
             }
@@ -115,7 +115,7 @@ EditBagThread::run()
                     message->recv_timestamp = node->now().nanoseconds();
 #endif
                 }
-                writer.write(message);
+                writer->write(message);
 
                 emit progressChanged("Writing message " + QString::number(instanceCount) + " of " + QString::number(totalInstances) + "...",
                                      ((float) instanceCount / (float) totalInstances) * 100);
@@ -140,6 +140,6 @@ EditBagThread::run()
         std::filesystem::remove_all(m_sourceDirectory);
     }
 
-    writer.close();
+    writer->close();
     emit finished();
 }

@@ -31,8 +31,10 @@ target_sources(rt_settings_input INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/RecordBagSettings.hpp
     ${CMAKE_CURRENT_LIST_DIR}/RGBSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RGBSettings.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/TF2ToJsonSettings.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/TF2ToJsonSettings.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/SendTF2Settings.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/SendTF2Settings.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/TF2ToFileSettings.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/TF2ToFileSettings.hpp
     ${CMAKE_CURRENT_LIST_DIR}/VideoSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/VideoSettings.hpp
     ${CMAKE_CURRENT_LIST_DIR}/VideoToBagSettings.cpp

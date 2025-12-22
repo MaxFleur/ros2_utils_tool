@@ -56,4 +56,14 @@ TEST_CASE("Utils UI Testing", "[utils]") {
         REQUIRE(checkBox->toolTip() == "Another tooltip");
         REQUIRE(checkBox->checkState() == Qt::Unchecked);
     }
+    SECTION("New appendix test") {
+        const auto textSingleAppendix = "text_with_a_format.mp4";
+        const auto& newTextSingleAppendix = Utils::UI::replaceTextAppendix(textSingleAppendix, "mkv");
+
+        REQUIRE(QString::compare(newTextSingleAppendix, "text_with_a_format.mkv") == 0);
+
+        const auto textMultipleAppendices = "text_with_a_format.mp4.mkv";
+        const auto& newTextMultipleAppendices = Utils::UI::replaceTextAppendix(textMultipleAppendices, "avi");
+        REQUIRE(QString::compare(newTextMultipleAppendices, "text_with_a_format.mp4.avi") == 0);
+    }
 }

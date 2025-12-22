@@ -1,5 +1,7 @@
 #pragma once
 
+#include "NodeWrapper.hpp"
+
 #include <QString>
 #include <QVector>
 
@@ -13,25 +15,19 @@
 #include <string>
 
 template<typename T, typename U>
-concept WriteMessageParameter = (std::same_as<T, std_msgs::msg::String> && std::same_as<U, std::string>) ||
+concept WriteMessageParameter = (std::same_as<T, std_msgs::msg::String> && std::same_as<U, std::string&>) ||
                                 (std::same_as<T, std_msgs::msg::Int32> && std::same_as<U, int>);
 
 // ROS related util functions
 namespace Utils::ROS
 {
-template<typename T, typename U>
-requires WriteMessageParameter<T, U>
+// Sends a static transformation using tf broadcaster
+// @NOTE: For whatever reason, just creating and spinning a local node
+//        does not work here, we have to spin a global node
 void
-writeMessageToBag(T                    message,
-                  const U              messageData,
-                  rosbag2_cpp::Writer& writer,
-                  const QString&       topicName,
-                  const rclcpp::Time&  timeStamp)
-{
-    message.data = messageData;
-    writer.write(message, topicName.toStdString(), timeStamp);
-}
-
+sendStaticTransformation(const std::array<double, 3>& translation,
+                         const std::array<double, 4>& rotation,
+                         std::shared_ptr<NodeWrapper> nodeWrapper);
 
 // If a directory contains a valid ROS bag
 [[nodiscard]] bool

@@ -2,7 +2,7 @@
 
    ![License badge](https://img.shields.io/badge/License-EUPLv1.2-blue.svg)
    ![C++ badge](https://img.shields.io/badge/C++-20-blue.svg)
-   ![Tag badge](https://img.shields.io/badge/Release-v0.13.0-blue.svg)
+   ![Tag badge](https://img.shields.io/badge/Release-v0.14.0-blue.svg)
 
 </div>
 <div align="center">
@@ -39,7 +39,7 @@ As of now, the tool provides the following functionalities:
 | Bag to PCDs | Export a ROS bag point cloud topic to a set of pcd files  |  X  |
 | PCDs to Bag | Port a set of PCD files to a ROS bag  |  X  |
 | Bag to Images | Export a ROS bag video topic to an image sequence |  X  |
-| Bag TF2 to JSON | Export a ROS bag tf2 topic to a json file |  X  |
+| Bag TF2 to File | Export a ROS bag tf2 topic to a json or yaml file |  X  |
 | Edit Bag | Rename, remove or crop topics in a ROS bag |    |
 | Merge Bags | Merge selected topics of two bags in a new ROS bag |  X  |
 | UI-based Bag Recording | Record a ROS bag | (X) (`ros2 bag record`)  |
@@ -47,6 +47,7 @@ As of now, the tool provides the following functionalities:
 | Compress Bag | Compress a bag file |  X  |
 | Decompress Bag | Decompress a bag file |  X  |
 | Video as ROS Topic | Publish a video file as a ROS image_msg topic |  X  |
+| Send TF2 | Send a static or non-static ROS transformation (tf2) |  X  |
 | Image Sequence as ROS Topic | Publish a file with images as ROS image_msg Topic |  X  |
 | UI-based topic/service information | UI-supported topic/service info vis | (X) (`ros2 topic list`/`ros2 service list`)  |
 | UI-based Bag Info | UI-supported bag info vis | (X) (`ros2 bag info`) |
@@ -142,11 +143,11 @@ ros2 run ros2_utils_tool tool_bag_to_images /path/to/bag /path/to/images
 ```
 (Note that a topic can be specified optionally. If no topic is specified, the first available video topic is used. `image_format` needs to be either `jpg`, `bmp` or `png`, jpg is default).
 
-**Bag-TF2-to-JSON-Tool**:
+**Bag-TF2-to-File-Tool**:
 ```
-ros2 run ros2_utils_tool tool_tf2_to_json /path/to/bag /path/to/output.json
+ros2 run ros2_utils_tool tool_tf2_to_file /path/to/bag /path/to/output
 ```
-(Note that a topic can be specified optionally. If no topic is specified, the first available tf2 topic is used).
+(Accepted file formats are json or yaml. Note that a topic can be specified optionally. If no topic is specified, the first available tf2 topic is used).
 
 **Merge-Bags-Tool**:
 ```
@@ -181,6 +182,12 @@ ros2 run ros2_utils_tool tool_publish_video path/to/video
 ros2 run ros2_utils_tool tool_publish_images path/to/images
 ```
 (Note that a topic can be specified optionally. If no topic is specified, a predefined topic name will be taken. Images need to be of format `jpg`, `bmp` or `png`).
+
+**Send-TF2-Tool**:
+```
+ros2 run ros2_utils_tool tool_send_tf2
+```
+(Translation and rotation are specified using the flags `-t` and `-ro` respectively. Transformations are static per default, specifying an additional rate will send a nonstatic one instead).
 
 **Unit tests**:
 ```
