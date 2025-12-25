@@ -13,6 +13,6 @@ getAvailableDriveSpace(const QString& path);
 [[nodiscard]] const QString
 getFileExtension(const QString& path);
 
-static constexpr float MINIMUM_RECOMMENDED_DRIVE_SPACE = 10.737f;
-static constexpr long GIGABYTE_IN_BYTES = 1073741824;
+inline constexpr float MINIMUM_RECOMMENDED_DRIVE_SPACE = 10.737f;
+inline constexpr long GIGABYTE_IN_BYTES = 1073741824;
 }

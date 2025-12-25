@@ -78,6 +78,6 @@ enum class TOOL_ID {
     BAG_INFO
 };
 
-static constexpr int FONT_SIZE_HEADER = 16;
-static constexpr int FONT_SIZE_BUTTON = 14;
+inline constexpr int FONT_SIZE_HEADER = 16;
+inline constexpr int FONT_SIZE_BUTTON = 14;
 }
