@@ -98,7 +98,7 @@ void
 runThread(QThread*               thread,
           volatile sig_atomic_t& signalStatus);
 
-static constexpr int CLI_COMPRESS = 0;
-static constexpr int CLI_DECOMPRESS = 1;
-static constexpr int CLI_MERGE = 2;
+inline constexpr int CLI_COMPRESS = 0;
+inline constexpr int CLI_DECOMPRESS = 1;
+inline constexpr int CLI_MERGE = 2;
 }
