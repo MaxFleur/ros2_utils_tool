@@ -86,7 +86,7 @@ BagInfoWidget::displayBagInfo()
     // Fill tree with bag data
     QList<QTreeWidgetItem*> treeWidgetItems;
     treeWidgetItems.append(new QTreeWidgetItem({ "Duration (Nanoseconds):", QString::number(bagMetaData.duration.count()) }));
-    const auto durationInSeconds = QString::number((float) (bagMetaData.duration.count() / 1e9), 'f', 3);
+    const auto durationInSeconds = QString::number(static_cast<float>(bagMetaData.duration.count() / 1e9), 'f', 3);
     treeWidgetItems.append(new QTreeWidgetItem({ "Duration (Seconds):", durationInSeconds == "0.000" ? "0.001" : durationInSeconds }));
 
     const auto timeValue = std::chrono::system_clock::to_time_t(bagMetaData.starting_time);
@@ -96,7 +96,8 @@ BagInfoWidget::displayBagInfo()
     treeWidgetItems.append(new QTreeWidgetItem({ "Starting Time:", QString::fromStdString(stringStream.str()) }));
     // Only show the last three digits
     treeWidgetItems.append(new QTreeWidgetItem({ "Size:",
-                                                 QString::number((float) (bagMetaData.bag_size / (float) Utils::General::GIGABYTE_IN_BYTES), 'f', 3) + " GiB" }));
+                                                 QString::number(static_cast<float>(bagMetaData.bag_size /
+                                                                                    static_cast<float>(Utils::General::GIGABYTE_IN_BYTES)), 'f', 3) + " GiB" }));
     treeWidgetItems.append(new QTreeWidgetItem({ "Size (Message Count):", QString::number(bagMetaData.message_count) }));
     treeWidgetItems.append(new QTreeWidgetItem({ "Storage Identifier:", QString::fromStdString(bagMetaData.storage_identifier) }));
     treeWidgetItems.append(new QTreeWidgetItem({ "Compression Format:",

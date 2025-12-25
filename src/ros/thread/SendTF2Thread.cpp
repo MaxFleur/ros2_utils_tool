@@ -13,7 +13,7 @@ SendTF2Thread::SendTF2Thread(const Parameters::SendTF2Parameters& parameters,
 void
 SendTF2Thread::run()
 {
-    const int rate = ((1000 / (float) m_parameters.rate) * 1000);
+    const int rate = ((1000 / static_cast<float>(m_parameters.rate)) * 1000);
     geometry_msgs::msg::TransformStamped transformStamped;
 
     // Send the transformation using the specified rate

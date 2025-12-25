@@ -44,7 +44,7 @@ PublishImagesThread::run()
     cv_bridge::CvImage cvBridge;
     cvBridge.encoding = sensor_msgs::image_encodings::BGR8;
 
-    const int rate = ((1000 / (float) m_parameters.fps) * 1000);
+    const int rate = ((1000 / static_cast<float>(m_parameters.fps)) * 1000);
     auto iterator = 0;
     auto timer = m_node->create_wall_timer(std::chrono::microseconds(rate),
                                            [this, &iterator, &setIterator, &frame, &cvBridge, &message, sortedImagesSet, frameCount] {

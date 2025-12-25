@@ -41,7 +41,7 @@ VideoToBagThread::run()
     const auto frameCount = videoCapture.get(cv::CAP_PROP_FRAME_COUNT);
     const auto finalFPS = m_parameters.useCustomFPS ? m_parameters.fps : videoCapture.get(cv::CAP_PROP_FPS);
     auto timeStamp = rclcpp::Clock(RCL_ROS_TIME).now();
-    const auto duration = rclcpp::Duration::from_seconds(1.0f / (float) finalFPS);
+    const auto duration = rclcpp::Duration::from_seconds(1.0f / static_cast<float>(finalFPS));
 
     auto writer = std::make_unique<rosbag2_cpp::Writer>();
     writer->open(targetDirectoryStd);
@@ -82,7 +82,7 @@ VideoToBagThread::run()
         writer->write(message, m_topicName, timeStamp);
 
         emit progressChanged("Writing message " + QString::number(iterationCount) + " of " + QString::number(frameCount) + "...",
-                             ((float) iterationCount / (float) frameCount) * 100);
+                             (static_cast<float>(iterationCount) / static_cast<float>(frameCount) * 100));
     }
 
     writer->close();

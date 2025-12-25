@@ -69,7 +69,7 @@ BagToPCDsThread::run()
             // Inform of progress update
             iterationCount++;
             emit progressChanged("Writing pcd file " + QString::number(iterationCount) + " of " + QString::number(*messageCount) + "...",
-                                 ((float) iterationCount / (float) *messageCount) * 100);
+                                 (static_cast<float>(iterationCount) / static_cast<float>(*messageCount) * 100));
 
             // Have to create this as extra string to keep it atomic inside the mutex
             std::stringstream formatedIterationCount;
