@@ -42,8 +42,8 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    const QStringList checkList{ "-t", "-f", "-e", "-c", "-q", "-o", "-b", "-th", "-s",
-                                 "--topic_name", "--format", "--exchange", "--colorless", "--quality", "--optimize", "--binary", "--threads", "--suppress" };
+    const QVector<QString> checkList{ "-t", "-f", "-e", "-c", "-q", "-o", "-b", "-th", "-s",
+                                      "--topic_name", "--format", "--exchange", "--colorless", "--quality", "--optimize", "--binary", "--threads", "--suppress" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
@@ -70,8 +70,8 @@ main(int argc, char* argv[])
         // Format
         if (Utils::CLI::containsArguments(arguments, "-f", "--format")) {
             const auto qualityFormatIndex = Utils::CLI::getArgumentsIndex(arguments, "-f", "--format");
-            if (arguments.at(qualityFormatIndex) == arguments.last() ||
-                (arguments.at(qualityFormatIndex + 1) != "jpg" && arguments.at(qualityFormatIndex + 1) != "png" && arguments.at(qualityFormatIndex + 1) != "bmp")) {
+            const QVector<QString> acceptedFormats { "jpg", "png", "bmp" };
+            if (arguments.at(qualityFormatIndex) == arguments.last() || !acceptedFormats.contains(arguments.at(qualityFormatIndex + 1))) {
                 throw std::runtime_error("Please enter either 'jpg', 'png' or 'bmp' for the format!");
             }
             parameters.format = arguments.at(qualityFormatIndex + 1);

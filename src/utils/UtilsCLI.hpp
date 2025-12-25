@@ -3,6 +3,7 @@
 #include <QString>
 #include <QStringList>
 #include <QThread>
+#include <QVector>
 
 #include <optional>
 #include <string>
@@ -15,8 +16,8 @@ namespace Utils::CLI
 // Determines if an argument list contains invalid arguments
 // by comparing it with a matching checklist, returns the invalid argument if found
 std::optional<std::string>
-containsInvalidParameters(const QStringList& argumentsList,
-                          const QStringList& checkList);
+containsInvalidParameters(const QStringList&      argumentsList,
+                          const QVector<QString>& checkList);
 
 // Checks if the command arguments stringlist contains either a specific
 // short or long argument and returns the index

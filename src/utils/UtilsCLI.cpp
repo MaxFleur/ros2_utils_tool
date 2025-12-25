@@ -8,7 +8,7 @@
 namespace Utils::CLI
 {
 std::optional<std::string>
-containsInvalidParameters(const QStringList& argumentsList, const QStringList& checkList)
+containsInvalidParameters(const QStringList& argumentsList, const QVector<QString>& checkList)
 {
     for (const auto& argument : argumentsList) {
         if ((argument.startsWith("-") || argument.startsWith("--")) && !checkList.contains(argument)) {
