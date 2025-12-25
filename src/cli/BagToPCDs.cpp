@@ -36,7 +36,8 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, { "-t", "-th", "-s", "--topic_name", "--threads", "--suppress" });
+    const QVector<QString> checkList{ "-t", "-th", "-s", "--topic_name", "--threads", "--suppress" };
+    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList);
         argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");

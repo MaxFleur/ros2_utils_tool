@@ -29,18 +29,18 @@ TEST_CASE("Utils CLI Testing", "[utils]") {
 
     SECTION("Contains invalid parameters test") {
         arguments.append("-h");
-        REQUIRE(Utils::CLI::containsInvalidParameters(arguments, { "-h", "--help" }) == std::nullopt);
+        REQUIRE(Utils::CLI::containsInvalidParameters(arguments, QVector<QString> { "-h", "--help" }) == std::nullopt);
 
         arguments.pop_back();
         arguments.append("--help");
-        REQUIRE(Utils::CLI::containsInvalidParameters(arguments, { "-h", "--help" }) == std::nullopt);
+        REQUIRE(Utils::CLI::containsInvalidParameters(arguments, QVector<QString> { "-h", "--help" }) == std::nullopt);
 
         arguments.append("-t");
-        REQUIRE(Utils::CLI::containsInvalidParameters(arguments, { "-h", "--help" }) == "-t");
+        REQUIRE(Utils::CLI::containsInvalidParameters(arguments, QVector<QString> { "-h", "--help" }) == "-t");
 
         arguments.pop_back();
         arguments.append("--test");
-        REQUIRE(Utils::CLI::containsInvalidParameters(arguments, { "-h", "--help" }) == "--test");
+        REQUIRE(Utils::CLI::containsInvalidParameters(arguments, QVector<QString> { "-h", "--help" }) == "--test");
     }
     SECTION("Contains arguments test") {
         REQUIRE(Utils::CLI::containsArguments(arguments, "-t", "--test") == false);

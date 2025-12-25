@@ -40,7 +40,7 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    const QStringList checkList{ "-t1", "-t2", "-d", "-th", "-s", "--delete", "--threads", "--suppress" };
+    const QVector<QString> checkList{ "-t1", "-t2", "-d", "-th", "-s", "--delete", "--threads", "--suppress" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");

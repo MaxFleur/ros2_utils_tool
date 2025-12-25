@@ -39,7 +39,7 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    const QStringList checkList{ "-t", "-r", "-a", "-e", "-s", "--topic_name", "--rate", "--accelerate", "--exchange", "--suppress" };
+    const QVector<QString> checkList{ "-t", "-r", "-a", "-e", "-s", "--topic_name", "--rate", "--accelerate", "--exchange", "--suppress" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
@@ -51,8 +51,7 @@ main(int argc, char* argv[])
     parameters.sourceDirectory = arguments.at(1);
     Utils::CLI::checkParentDirectory(parameters.sourceDirectory, false);
 
-    const auto fileEnding = parameters.sourceDirectory.right(3);
-    if (fileEnding != "mp4" && fileEnding != "mkv") {
+    if (const auto fileEnding = parameters.sourceDirectory.right(3); fileEnding != "mp4" && fileEnding != "mkv") {
         throw std::runtime_error("The entered video name is in invalid format. Please make sure that the video has the ending 'mp4' or 'mkv'!");
     }
 

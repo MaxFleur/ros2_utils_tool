@@ -41,7 +41,7 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    const QStringList checkList{ "-m", "-r", "-th", "-s", "--message-count", "--rate", "--threads", "--suppress" };
+    const QVector<QString> checkList{ "-m", "-r", "-th", "-s", "--message-count", "--rate", "--threads", "--suppress" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
@@ -93,7 +93,7 @@ main(int argc, char* argv[])
             topicNames.push_back(argument);
             topicNameSet.insert(argument);
         } else {
-            if (argument != "String" && argument != "Integer" && argument != "Image" && argument != "PointCloud" && argument != "TF2") {
+            if (const QVector<QString> arguments { "String", "Integer", "Image", "PointCloud", "TF2" }; !arguments.contains(argument)) {
                 throw std::runtime_error("The topic type must be either 'String', 'Integer', 'Image', 'PointCloud' or 'TF2'!");
             }
             topicTypes.push_back(argument);
