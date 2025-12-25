@@ -73,7 +73,7 @@ TF2ToFileThread::run()
 
         iterationCount++;
         emit progressChanged("Writing message " + QString::number(iterationCount) + " of " + QString::number(*messageCount) + "...",
-                             ((float) iterationCount / (float) *messageCount) * 100);
+                             (static_cast<float>(iterationCount) / static_cast<float>(*messageCount) * 100));
     }
 
     if (isFormatJson) {
