@@ -7,7 +7,6 @@
 </div>
 <div align="center">
 
-   ![Humble badge](https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/humble.yml/badge.svg?event=push)
    ![Jazzy badge](https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/jazzy.yml/badge.svg?event=push)
    ![Kilted badge](https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/kilted.yml/badge.svg?event=push)
    ![Rolling badge](https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/rolling.yml/badge.svg?event=push)
@@ -61,7 +60,7 @@ NOTE: The package is still under active development, so more tools might be adde
 ### Dependencies
 
 The following packages are required to be installed manually:
-- [ROS2](https://docs.ros.org/en/jazzy/index.html). As of now, **humble**, **jazzy**, **kilted** and **rolling** are supported.
+- [ROS2](https://docs.ros.org/en/jazzy/index.html). **Jazzy**, **kilted** and **rolling** are the major supported versions. For **humble**, there is still support, but no additional features will be released anymore (see the `humble` branch).
 - [Qt6/Qt5](https://doc.qt.io/) for all UI as well as some convenience functionalities.
 - [catch2_ROS](https://index.ros.org/p/catch_ros2/) for Catch2-based unit tests with ROS2.
 

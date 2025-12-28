@@ -20,12 +20,6 @@ find_package(sensor_msgs REQUIRED)
 find_package(tf2_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 
-if($ENV{ROS_DISTRO} STREQUAL "humble")
-    add_definitions(-DROS_HUMBLE)
-else()
-    add_definitions(-DROS_JAZZY)
-endif()
-
 if(${Qt6_FOUND})
     find_package(QT NAMES Qt6 COMPONENTS Widgets REQUIRED)
     find_package(Qt6 COMPONENTS Widgets REQUIRED)

@@ -2,6 +2,8 @@
 
 #include "UtilsROS.hpp"
 
+#include <cv_bridge/cv_bridge.hpp>
+
 #include <opencv2/imgcodecs.hpp>
 
 #include "rosbag2_cpp/reader.hpp"
@@ -10,12 +12,6 @@
 
 #include <cmath>
 #include <filesystem>
-
-#ifdef ROS_HUMBLE
-#include <cv_bridge/cv_bridge.h>
-#else
-#include <cv_bridge/cv_bridge.hpp>
-#endif
 
 BagToImagesThread::BagToImagesThread(const Parameters::BagToImagesParameters& parameters,
                                      unsigned int numberOfThreads, QObject* parent) :
