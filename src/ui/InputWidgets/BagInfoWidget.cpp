@@ -104,6 +104,10 @@ BagInfoWidget::displayBagInfo()
                                                  bagMetaData.compression_mode == "" ? "None": QString::fromStdString(bagMetaData.compression_mode) }));
     treeWidgetItems.append(new QTreeWidgetItem({ "Compression Mode:",
                                                  bagMetaData.compression_format == "" ? "None": QString::fromStdString(bagMetaData.compression_format) }));
+    if (!bagMetaData.ros_distro.empty()) {
+        treeWidgetItems.append(new QTreeWidgetItem({ "ROS Distro:", QString::fromStdString(bagMetaData.ros_distro) }));
+    }
+    treeWidgetItems.append(new QTreeWidgetItem({ "Version:", QString::number(bagMetaData.version) }));
     // Some empty space before the topic messages
     treeWidgetItems.append(new QTreeWidgetItem({ "", "" }));
 
