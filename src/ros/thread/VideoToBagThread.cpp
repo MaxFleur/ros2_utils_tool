@@ -1,5 +1,7 @@
 #include "VideoToBagThread.hpp"
 
+#include <cv_bridge/cv_bridge.h>
+
 #include <opencv2/videoio.hpp>
 
 #include "rclcpp/rclcpp.hpp"
@@ -7,12 +9,6 @@
 #include "sensor_msgs/msg/image.hpp"
 
 #include <filesystem>
-
-#ifdef ROS_HUMBLE
-#include <cv_bridge/cv_bridge.h>
-#else
-#include <cv_bridge/cv_bridge.hpp>
-#endif
 
 VideoToBagThread::VideoToBagThread(const Parameters::VideoToBagParameters& parameters, bool useHardwareAcceleration,
                                    QObject*                                parent) :

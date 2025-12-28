@@ -2,6 +2,8 @@
 
 #include "UtilsROS.hpp"
 
+#include <cv_bridge/cv_bridge.h>
+
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl_conversions/pcl_conversions.h>
@@ -13,12 +15,6 @@
 
 #include <filesystem>
 #include <random>
-
-#ifdef ROS_HUMBLE
-#include <cv_bridge/cv_bridge.h>
-#else
-#include <cv_bridge/cv_bridge.hpp>
-#endif
 
 DummyBagThread::DummyBagThread(const Parameters::DummyBagParameters& parameters,
                                unsigned int numberOfThreads, QObject* parent) :

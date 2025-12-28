@@ -17,6 +17,8 @@
 #include "UtilsUI.hpp"
 #include "VideoToBagThread.hpp"
 
+#include <cv_bridge/cv_bridge.h>
+
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/videoio.hpp>
 
@@ -39,12 +41,6 @@
 #include "yaml-cpp/yaml.h"
 
 #include <filesystem>
-
-#ifdef ROS_HUMBLE
-#include <cv_bridge/cv_bridge.h>
-#else
-#include <cv_bridge/cv_bridge.hpp>
-#endif
 
 // Because of parallelized bag writing, the topic order in the output bag files might be different with each run
 // But we can instead check the topic's index inside the bagfile and the information associated with it

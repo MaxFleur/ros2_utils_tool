@@ -29,11 +29,8 @@ ChangeCompressionBagThread::run()
     outputStorage.uri = targetDirectoryStd;
 
     rosbag2_transport::RecordOptions outputRecord;
-#ifdef ROS_HUMBLE
     outputRecord.all = true;
-#else
-    outputRecord.all_topics = true;
-#endif
+
     if (m_compress) {
         outputRecord.compression_format = "zstd";
         outputRecord.compression_mode = m_parameters.compressPerMessage ? "message" : "file";

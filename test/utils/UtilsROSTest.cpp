@@ -52,11 +52,7 @@ TEST_CASE("Utils ROS Testing", "[utils]") {
     outputStorage.uri = "compressed_bag_file";
 
     rosbag2_transport::RecordOptions outputRecord;
-#ifdef ROS_HUMBLE
     outputRecord.all = true;
-#else
-    outputRecord.all_topics = true;
-#endif
     outputRecord.compression_format = "zstd";
     outputRecord.compression_mode = "file";
     outputRecord.compression_queue_size = 0;

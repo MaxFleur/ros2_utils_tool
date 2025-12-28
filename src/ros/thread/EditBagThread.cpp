@@ -109,11 +109,7 @@ EditBagThread::run()
                     message->topic_name = topic.renamedTopicName.toStdString();
                 }
                 if (m_parameters.updateTimestamps) {
-#ifdef ROS_HUMBLE
                     message->time_stamp = node->now().nanoseconds();
-#else
-                    message->recv_timestamp = node->now().nanoseconds();
-#endif
                 }
                 writer->write(message);
 

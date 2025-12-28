@@ -3,20 +3,15 @@
    ![License badge](https://img.shields.io/badge/License-EUPLv1.2-blue.svg)
    ![C++ badge](https://img.shields.io/badge/C++-20-blue.svg)
    ![Tag badge](https://img.shields.io/badge/Release-v0.14.0-blue.svg)
-
-</div>
-<div align="center">
-
    ![Humble badge](https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/humble.yml/badge.svg?event=push)
-   ![Jazzy badge](https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/jazzy.yml/badge.svg?event=push)
-   ![Kilted badge](https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/kilted.yml/badge.svg?event=push)
-   ![Rolling badge](https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/rolling.yml/badge.svg?event=push)
 
 </div>
 
 <p align="center">
   <img width="424" height="236" src="https://github.com/user-attachments/assets/9ee5cb03-35d4-4d94-a8aa-30438abe8c1f">
 </p>
+
+**NOTE: This branch is for ROS2 Humble and won't receive any more features. Future releases will only contain bugfixes.**
 
 # Overview
 
@@ -52,16 +47,12 @@ As of now, the tool provides the following functionalities:
 | UI-based topic/service information | UI-supported topic/service info vis | (X) (`ros2 topic list`/`ros2 service list`)  |
 | UI-based Bag Info | UI-supported bag info vis | (X) (`ros2 bag info`) |
 
-NOTE: The package is still under active development, so more tools might be added later in the future. Additionally, already existing features might expand and change constantly.
-
-
-
 ## Installation
 
 ### Dependencies
 
 The following packages are required to be installed manually:
-- [ROS2](https://docs.ros.org/en/jazzy/index.html). As of now, **humble**, **jazzy**, **kilted** and **rolling** are supported.
+- [ROS2 Humble](https://docs.ros.org/en/humble/index.html).
 - [Qt6/Qt5](https://doc.qt.io/) for all UI as well as some convenience functionalities.
 - [catch2_ROS](https://index.ros.org/p/catch_ros2/) for Catch2-based unit tests with ROS2.
 
