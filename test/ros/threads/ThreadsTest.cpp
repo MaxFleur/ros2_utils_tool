@@ -460,8 +460,7 @@ TEST_CASE("Threads Testing", "[threads]") {
 
             thread->start();
             thread->wait();
-            // Codec number represents x264
-            performVideoCheck(".mkv", 1734701165, 30, 30, 30, 30);
+            performVideoCheck(".mkv", 875967080, 30, 30, 30, 30);
         }
         SECTION("AVI Lossless Values") {
             parameters.targetDirectory = "./video.avi";

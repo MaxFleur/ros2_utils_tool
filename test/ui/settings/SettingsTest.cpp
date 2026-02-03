@@ -390,13 +390,11 @@ TEST_CASE("Settings Testing", "[ui]") {
             Parameters::BagToVideoParameters parameters;
             BagToVideoSettings settings(parameters, "video");
 
-            parameters.format = "mkv";
             parameters.useBWImages = true;
             parameters.lossless = true;
             settings.write();
 
             qSettings.beginGroup("video");
-            verifiySettingQString(qSettings, "format", "mkv");
             verifiySettingPrimitive(qSettings, "bw_images", true);
             verifiySettingPrimitive(qSettings, "lossless_images", true);
             qSettings.endGroup();

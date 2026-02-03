@@ -100,9 +100,8 @@ struct VideoParameters : RGBParameters {
     int fps = 30;
 };
 struct BagToVideoParameters : VideoParameters {
-    QString format = "mp4";
-    bool    useBWImages = false;
-    bool    lossless = false;
+    bool useBWImages = false;
+    bool lossless = false;
 };
 struct VideoToBagParameters : VideoParameters {
     bool useCustomFPS = false;

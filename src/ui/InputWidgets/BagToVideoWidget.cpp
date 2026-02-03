@@ -22,7 +22,7 @@ BagToVideoWidget::BagToVideoWidget(Parameters::BagToVideoParameters& parameters,
     m_formatComboBox->addItem("mkv", 1);
     m_formatComboBox->addItem("avi", 2);
     m_formatComboBox->setToolTip("The video format file.");
-    m_formatComboBox->setCurrentText(m_parameters.format);
+    m_formatComboBox->setCurrentText(m_parameters.targetDirectory.right(3));
 
     m_basicOptionsFormLayout->insertRow(1, "Topic Name:", m_topicNameComboBox);
     m_basicOptionsFormLayout->addRow("Format:", m_formatComboBox);
@@ -83,8 +83,6 @@ BagToVideoWidget::BagToVideoWidget(Parameters::BagToVideoParameters& parameters,
 void
 BagToVideoWidget::formatComboBoxTextChanged(const QString& text)
 {
-    writeParameterToSettings(m_parameters.format, text, m_settings);
-
     if (m_useLosslessCheckBox) {
         m_advancedOptionsFormLayout->removeRow(m_useLosslessCheckBox);
     }

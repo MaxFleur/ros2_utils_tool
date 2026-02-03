@@ -35,9 +35,9 @@ BagToVideoThread::run()
 
     int codec;
     // https://abcavi.kibi.ru/fourcc.php
-    if (m_parameters.format == "mp4") {
+    if (m_parameters.targetDirectory.right(3) == "mp4") {
         codec = cv::VideoWriter::fourcc('m', 'p', '4', 'v');
-    } else if (m_parameters.format == "avi") {
+    } else if (m_parameters.targetDirectory.right(3) == "avi") {
         codec = m_parameters.lossless ? cv::VideoWriter::fourcc('R', 'G', 'B', 'A') : cv::VideoWriter::fourcc('F', 'M', 'P', '4');
     } else {
         codec = m_parameters.lossless ? cv::VideoWriter::fourcc('F', 'F', 'V', '1') : cv::VideoWriter::fourcc('X', '2', '6', '4');
