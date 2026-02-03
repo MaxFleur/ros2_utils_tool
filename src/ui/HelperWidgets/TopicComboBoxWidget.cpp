@@ -70,4 +70,5 @@ TopicComboBoxWidget::findSourceButtonPressed()
         Utils::UI::createCriticalMessageBox("Topic not found!", "The bag file does not contain any corresponding topics!");
         return;
     }
+    enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.topicName.isEmpty() && !m_parameters.targetDirectory.isEmpty());
 }
