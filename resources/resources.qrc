@@ -37,6 +37,8 @@
         <file>icons/gear_white.svg</file>
         <file>icons/info_tools_black.svg</file>
         <file>icons/info_tools_white.svg</file>
+        <file>icons/load_from_file_black.svg</file>
+        <file>icons/load_from_file_white.svg</file>
         <file>icons/main.svg</file>
         <file>icons/merge_bags_black.svg</file>
         <file>icons/merge_bags_white.svg</file>
@@ -54,6 +56,8 @@
         <file>icons/publish_video_white.svg</file>
         <file>icons/record_bag_black.svg</file>
         <file>icons/record_bag_white.svg</file>
+        <file>icons/save_to_file_black.svg</file>
+        <file>icons/save_to_file_white.svg</file>
         <file>icons/send_tf2_black.svg</file>
         <file>icons/send_tf2_white.svg</file>
         <file>icons/topics_services_info_black.svg</file>

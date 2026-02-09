@@ -10,9 +10,12 @@
 class NodeWrapper;
 
 class QCheckBox;
+class QDoubleSpinBox;
 class QFormLayout;
 class QLabel;
+class QLineEdit;
 class QSpinBox;
+class QToolButton;
 class QTimer;
 
 // Widget used to configure sending a TF2 message
@@ -29,11 +32,41 @@ private slots:
     staticCheckBoxPressed(int state);
 
     void
-    okButtonPressed() const;
+    saveToFileButtonPressed();
+
+    void
+    loadFromFileButtonPressed();
+
+    void
+    okButtonPressed();
 
 private:
+    void
+    animateInfoLabel(const QString& labelText);
+
+    // Have to overwrite this one because we are using more additional icons then just the top one
+    void
+    setPixmapLabelIcon() const;
+
+    bool
+    event(QEvent *event);
+
+private:
+    QPointer<QDoubleSpinBox> m_translationXSpinBox;
+    QPointer<QDoubleSpinBox> m_translationYSpinBox;
+    QPointer<QDoubleSpinBox> m_translationZSpinBox;
+    QPointer<QDoubleSpinBox> m_rotationXSpinBox;
+    QPointer<QDoubleSpinBox> m_rotationYSpinBox;
+    QPointer<QDoubleSpinBox> m_rotationZSpinBox;
+    QPointer<QDoubleSpinBox> m_rotationWSpinBox;
+
+    QPointer<QLineEdit> m_childFrameNameLineEdit;
     QPointer<QCheckBox> m_isStaticCheckBox;
     QPointer<QSpinBox> m_rateSpinBox;
+
+    QPointer<QToolButton> m_saveToFileButton;
+    QPointer<QToolButton> m_loadFromFileButton;
+
     QPointer<QFormLayout> m_formLayout;
 
     QPointer<QLabel> m_transformSentLabel;

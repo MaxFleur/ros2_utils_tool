@@ -34,6 +34,9 @@ add_subdirectory(test)
 add_executable(tool_ui
     ${CMAKE_CURRENT_LIST_DIR}/src/main.cpp resources/resources.qrc
 )
+add_executable(tool_bag_tf2_to_file
+    ${CMAKE_CURRENT_LIST_DIR}/src/cli/BagTF2ToFile.cpp
+)
 add_executable(tool_bag_to_images
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/BagToImages.cpp
 )
@@ -67,9 +70,6 @@ add_executable(tool_publish_video
 add_executable(tool_send_tf2
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/SendTF2.cpp
 )
-add_executable(tool_tf2_to_file
-    ${CMAKE_CURRENT_LIST_DIR}/src/cli/TF2ToFile.cpp
-)
 add_executable(tool_video_to_bag
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/VideoToBag.cpp
 )
@@ -78,6 +78,10 @@ target_link_libraries(tool_ui
     rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp rosbag2_transport::rosbag2_transport cv_bridge::cv_bridge
     ${geometry_msgs_TARGETS} ${sensor_msgs_TARGETS} ${tf2_msgs_TARGETS}
     Qt::Widgets rt_ui
+)
+target_link_libraries(tool_bag_tf2_to_file
+    rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp ${geometry_msgs_TARGETS} ${std_msgs_TARGETS} ${tf2_msgs_TARGETS}
+    Qt::Widgets rt_tf2_to_file_thread rt_utils
 )
 target_link_libraries(tool_bag_to_images
     rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp cv_bridge::cv_bridge ${sensor_msgs_TARGETS} ${std_msgs_TARGETS}
@@ -123,10 +127,6 @@ target_link_libraries(tool_send_tf2
     rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp ${tf2_msgs_TARGETS}
     Qt::Widgets rt_send_tf2_thread rt_utils
 )
-target_link_libraries(tool_tf2_to_file
-    rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp ${geometry_msgs_TARGETS} ${std_msgs_TARGETS} ${tf2_msgs_TARGETS}
-    Qt::Widgets rt_tf2_to_file_thread rt_utils
-)
 target_link_libraries(tool_video_to_bag
     rosbag2_cpp::rosbag2_cpp cv_bridge::cv_bridge ${sensor_msgs_TARGETS}
     Qt::Widgets rt_video_to_bag_thread rt_utils
@@ -154,6 +154,7 @@ endif()
 
 install(TARGETS
     tool_ui
+    tool_bag_tf2_to_file
     tool_bag_to_images
     tool_bag_to_pcds
     tool_bag_to_video
@@ -165,7 +166,6 @@ install(TARGETS
     tool_publish_images
     tool_publish_video
     tool_send_tf2
-    tool_tf2_to_file
     tool_video_to_bag
     tool_tests
     DESTINATION lib/${PROJECT_NAME}/

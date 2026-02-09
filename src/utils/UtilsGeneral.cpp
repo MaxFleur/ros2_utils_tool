@@ -6,7 +6,7 @@
 
 namespace Utils::General
 {
-[[nodiscard]] float
+float
 getAvailableDriveSpace(const QString& path)
 {
     std::error_code errorCode;
