@@ -101,6 +101,7 @@ RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QW
 
     setPixmapLabelIcon();
     setLowDiskSpaceWidgetVisibility(m_sourceLineEdit->text());
+    m_okButton->setEnabled(!m_sourceLineEdit->text().isEmpty());
 }
 
 

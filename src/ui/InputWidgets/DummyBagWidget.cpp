@@ -71,6 +71,7 @@ DummyBagWidget::DummyBagWidget(Parameters::DummyBagParameters& parameters, bool 
     setPixmapLabelIcon();
     setLowDiskSpaceWidgetVisibility(m_sourceLineEdit->text());
     useCustomRateCheckBoxPressed(m_parameters.useCustomRate);
+    m_okButton->setEnabled(!m_sourceLineEdit->text().isEmpty());
 }
 
 

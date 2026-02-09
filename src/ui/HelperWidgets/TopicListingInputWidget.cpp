@@ -42,8 +42,6 @@ TopicListingInputWidget::TopicListingInputWidget(Parameters::BasicParameters& pa
     controlsSqueezedLayout->addLayout(m_controlsLayout);
     controlsSqueezedLayout->addStretch();
 
-    m_okButton->setEnabled(true);
-
     auto* const mainLayout = new QVBoxLayout;
     mainLayout->addLayout(controlsSqueezedLayout);
     mainLayout->addLayout(m_buttonLayout);
@@ -68,6 +66,7 @@ TopicListingInputWidget::sourceButtonPressed()
     writeParameterToSettings(m_parameters.sourceDirectory, fileName, m_settings);
     m_sourceLineEdit->setText(fileName);
 
+    m_okButton->setEnabled(!m_sourceLineEdit->text().isEmpty());
     setLowDiskSpaceWidgetVisibility(m_sourceLineEdit->text());
 }
 
