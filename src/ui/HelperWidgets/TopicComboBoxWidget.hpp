@@ -21,7 +21,7 @@ public:
 
 protected slots:
     void
-    findSourceButtonPressed() override;
+    fillTopicComboBox() override;
 
 protected:
     QPointer<QComboBox> m_topicNameComboBox;
