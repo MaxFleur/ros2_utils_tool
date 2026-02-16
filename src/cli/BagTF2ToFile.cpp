@@ -12,6 +12,8 @@
 #include <filesystem>
 #include <iostream>
 
+volatile sig_atomic_t signalStatus = 0;
+
 void
 showHelp()
 {
@@ -22,11 +24,11 @@ showHelp()
     std::cout << "-k or --keep_timestamps: Keep the message's timestamp in the output file.\n";
     std::cout << "-i or --indent: Indent the output file (json only).\n\n";
     std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "Example usage:\n";
+    std::cout << "ros2 run mediassist4_ros_tools tool_tf2_to_file /home/usr/input_bag /home/usr/output_file.json -k -i\n\n";
     std::cout << "-h or --help: Show this help.\n";
 }
 
-
-volatile sig_atomic_t signalStatus = 0;
 
 int
 main(int argc, char* argv[])
@@ -95,7 +97,10 @@ main(int argc, char* argv[])
         signalStatus = signal;
     });
 
-    std::cout << "Writing file. Please wait...\n";
+    std::cout << "Source bag file: " << std::filesystem::absolute(parameters.sourceDirectory.toStdString()) << "\n";
+    std::cout << "Target file: " << std::filesystem::absolute(parameters.targetDirectory.toStdString()) << "\n";
+    std::cout << "Topic name: " << parameters.topicName.toStdString() << "\n\n";
+    std::cout << "Please wait...\n";
     Utils::CLI::runThread(tf2ToFileThread, signalStatus);
 
     return EXIT_SUCCESS;

@@ -12,6 +12,8 @@
 #include <filesystem>
 #include <iostream>
 
+volatile sig_atomic_t signalStatus = 0;
+
 void
 showHelp()
 {
@@ -19,16 +21,16 @@ showHelp()
     std::cout << "The images must have format jpg, png or bmp.\n\n";
     std::cout << "Additional parameters:\n";
     std::cout << "-t or --topic_name: Topic name. If this is empty, the name '/topic_video' will be taken.\n";
-    std::cout << "-r or --rate: Framerate for the published video. Must be from 1 to 60.\n";
+    std::cout << "-r or --rate: Framerate for the published video. Must be from 1 to 60, default is 30.\n";
     std::cout << "-sc width height or --scale width height: Scale. width must be between 1 and 3840, height between 1 and 2160.\n\n";
     std::cout << "-e or --exchange: Exchange red and blue values.\n";
     std::cout << "-l or --loop: Loop the video.\n\n";
     std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "Example usage:\n";
+    std::cout << "ros2 run mediassist4_ros_tools tool_publish_images /home/usr/images_dir -sc 1280 720 -t /images_scaled -r 25 -l\n\n";
     std::cout << "-h or --help: Show this help.\n";
 }
 
-
-volatile sig_atomic_t signalStatus = 0;
 
 int
 main(int argc, char* argv[])
@@ -111,7 +113,14 @@ main(int argc, char* argv[])
         signalStatus = signal;
     });
 
-    std::cout << "Publishing images...\n";
+    std::cout << "Source images directory " << std::filesystem::absolute(parameters.sourceDirectory.toStdString()) << "\n";
+    std::cout << "Topic name: " << parameters.topicName.toStdString() << "\n";
+    std::cout << "Images resolution: " << parameters.width << " x " << parameters.height << "\n";
+    std::cout << "Rate: " << parameters.fps << " fps\n";
+    if (parameters.loop) {
+        std::cout << "Looping enabled.\n";
+    }
+    std::cout << "\n";
     Utils::CLI::runThread(publishImagesThread, signalStatus);
 
     rclcpp::shutdown();

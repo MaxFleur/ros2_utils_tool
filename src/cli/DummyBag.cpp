@@ -11,6 +11,8 @@
 #include <filesystem>
 #include <iostream>
 
+volatile sig_atomic_t signalStatus = 0;
+
 void
 showHelp()
 {
@@ -22,11 +24,11 @@ showHelp()
     std::cout << "-r or --rate: Number of messages per second. Must be between 1 and 100, default is 10.\n\n";
     std::cout << "-th or --threads: Number of threads, must be at least 1 (maximum is " << std::thread::hardware_concurrency() << ").\n\n";
     std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "Example usage:\n";
+    std::cout << "ros2 run mediassist4_ros_tools tool_dummy_bag /home/usr/target_bag /images Image /tf2 TF2 /int Integer\n\n";
     std::cout << "-h or --help: Show this help.\n";
 }
 
-
-volatile sig_atomic_t signalStatus = 0;
 
 int
 main(int argc, char* argv[])
@@ -151,7 +153,15 @@ main(int argc, char* argv[])
         signalStatus = signal;
     });
 
-    std::cout << "Creating dummy bag. Please wait...\n";
+    std::cout << "Target bag file: " << std::filesystem::absolute(parameters.sourceDirectory.toStdString()) << "\n";
+    std::cout << "Topics to create:\n";
+    for (const auto& topic : parameters.topics) {
+        std::cout << "    " << topic.name.toStdString() << " (Type: " << topic.type.toStdString() << ")\n";
+    }
+    std::cout << "Message count: " << parameters.messageCount << "\n";
+    std::cout << "Rate: " << parameters.rate << "\n";
+    std::cout << "Number of used threads: " << numberOfThreads << "\n\n";
+    std::cout << "Please wait...\n";
     Utils::CLI::runThread(dummyBagThread, signalStatus);
 
     return EXIT_SUCCESS;

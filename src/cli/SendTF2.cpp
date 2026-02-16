@@ -12,6 +12,8 @@
 #include <filesystem>
 #include <iostream>
 
+volatile sig_atomic_t signalStatus = 0;
+
 void
 showHelp()
 {
@@ -30,7 +32,27 @@ showHelp()
 }
 
 
-volatile sig_atomic_t signalStatus = 0;
+void
+showInfo(const Parameters::SendTF2Parameters& parameters, bool isStatic)
+{
+    const auto staticInfoString = isStatic ? "static " : "nonstatic ";
+
+    std::cout << "Sending " << staticInfoString << "transformation with following parameters:\n"
+              << "translation:\n"
+              << "    x: " << parameters.translation[0] << "\n" << "    y: " << parameters.translation[1] << "\n"
+              << "    z: " << parameters.translation[2] << "\n"
+              << "rotation:\n"
+              << "    x: " << parameters.rotation[0] << "\n" << "    y: " << parameters.rotation[1] << "\n"
+              << "    z: " << parameters.rotation[2] << "\n" << "    w: " << parameters.rotation[3] << "\n"
+              << "child frame name: " << parameters.childFrameName.toStdString() << "\n";
+    if (isStatic) {
+        return;
+    }
+
+    std::cout << "Rate: " << parameters.rate << " transformations per second\n\n";
+    std::cout << "Sending...\n";
+}
+
 
 int
 main(int argc, char* argv[])
@@ -130,8 +152,9 @@ main(int argc, char* argv[])
 
     auto nodeWrapper = std::make_shared<NodeWrapper>("ros2_utils_tool_tf_node");
     if (!Utils::CLI::containsArguments(arguments, "-r", "--rate")) {
+        showInfo(parameters, true);
         Utils::ROS::sendStaticTransformation(parameters.translation, parameters.rotation, nodeWrapper);
-        std::cout << "TF sent!\n";
+        std::cout << "\nTF sent!\n";
         return EXIT_SUCCESS;
     }
 
@@ -150,7 +173,7 @@ main(int argc, char* argv[])
         signalStatus = signal;
     });
 
-    std::cout << "Sending transformation...\n";
+    showInfo(parameters, false);
     Utils::CLI::runThread(sendTF2Thread, signalStatus);
 
     rclcpp::shutdown();

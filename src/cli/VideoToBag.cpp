@@ -10,6 +10,8 @@
 #include <filesystem>
 #include <iostream>
 
+volatile sig_atomic_t signalStatus = 0;
+
 void
 showHelp()
 {
@@ -21,11 +23,11 @@ showHelp()
     std::cout << "-a or --accelerate: Use hardware acceleration.\n";
     std::cout << "-e or --exchange: Exchange red and blue values.\n\n";
     std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "Example usage:\n";
+    std::cout << "ros2 run mediassist4_ros_tools tool_video_to_bag /home/usr/video.mkv /home/usr/output_bag -t /example_topic -r 20 -a -s\n\n";
     std::cout << "-h or --help: Show this help.\n";
 }
 
-
-volatile sig_atomic_t signalStatus = 0;
 
 int
 main(int argc, char* argv[])
@@ -109,7 +111,11 @@ main(int argc, char* argv[])
         signalStatus = signal;
     });
 
-    std::cout << "Writing video to bag. Please wait...\n";
+    std::cout << "Source video file: " << std::filesystem::absolute(parameters.sourceDirectory.toStdString()) << "\n";
+    std::cout << "Target bag file: " << std::filesystem::absolute(parameters.targetDirectory.toStdString()) << "\n";
+    std::cout << "Topic name: " << parameters.topicName.toStdString() << "\n";
+    std::cout << "Rate: " << parameters.fps << " fps\n\n";
+    std::cout << "Please wait...\n";
     Utils::CLI::runThread(videoToBagThread, signalStatus);
 
     return EXIT_SUCCESS;

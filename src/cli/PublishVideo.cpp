@@ -12,6 +12,8 @@
 #include <filesystem>
 #include <iostream>
 
+volatile sig_atomic_t signalStatus = 0;
+
 void
 showHelp()
 {
@@ -24,11 +26,11 @@ showHelp()
     std::cout << "-e or --exchange: Exchange red and blue values.\n";
     std::cout << "-l or --loop: Loop the video.\n\n";
     std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "Example usage:\n";
+    std::cout << "ros2 run mediassist4_ros_tools tool_publish_video /home/usr/video.mkv -sc 1280 720 -t /video_scaled -l\n\n";
     std::cout << "-h or --help: Show this help.\n";
 }
 
-
-volatile sig_atomic_t signalStatus = 0;
 
 int
 main(int argc, char* argv[])
@@ -105,7 +107,13 @@ main(int argc, char* argv[])
         signalStatus = signal;
     });
 
-    std::cout << "Publishing video...\n";
+    std::cout << "Video file " << std::filesystem::absolute(parameters.sourceDirectory.toStdString()) << "\n";
+    std::cout << "Topic name: " << parameters.topicName.toStdString() << "\n";
+    std::cout << "Resolution: " << parameters.width << " x " << parameters.height << "\n";
+    if (parameters.loop) {
+        std::cout << "Looping enabled.\n";
+    }
+    std::cout << "\n";
     Utils::CLI::runThread(publishVideoThread, signalStatus);
 
     rclcpp::shutdown();

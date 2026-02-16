@@ -12,6 +12,8 @@
 #include <filesystem>
 #include <iostream>
 
+volatile sig_atomic_t signalStatus = 0;
+
 void
 showHelp()
 {
@@ -22,11 +24,11 @@ showHelp()
     std::cout << "-d or --delete: Delete the source bag files.\n\n";
     std::cout << "-th or --threads: Number of threads, must be at least 1 (maximum is " << std::thread::hardware_concurrency() << ").\n\n";
     std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "Example usage:\n";
+    std::cout << "ros2 run mediassist4_ros_tools tool_merge_bags /home/usr/first_bag /home/usr/second_bag -t1 /lidar -t2 /video /sensor /home/usr/target_bag -th 4\n\n";
     std::cout << "-h or --help: Show this help.\n";
 }
 
-
-volatile sig_atomic_t signalStatus = 0;
 
 int
 main(int argc, char* argv[])
@@ -141,7 +143,7 @@ main(int argc, char* argv[])
     std::thread processingThread;
 
     QObject::connect(mergeBagsThread, &MergeBagsThread::processing, [&processingThread, &isMerging] {
-        processingThread = std::thread(&Utils::CLI::showProcessingString, std::ref(isMerging), Utils::CLI::CLI_MERGE);
+        processingThread = std::thread(&Utils::CLI::showProcessingString, std::ref(isMerging));
 
         return EXIT_SUCCESS;
     });
@@ -159,6 +161,14 @@ main(int argc, char* argv[])
         signalStatus = signal;
     });
 
+    std::cout << "Source bag file 1: " << std::filesystem::absolute(parameters.sourceDirectory.toStdString()) << "\n";
+    std::cout << "Source bag file 2: " << std::filesystem::absolute(parameters.secondSourceDirectory.toStdString()) << "\n";
+    std::cout << "Target bag file: " << std::filesystem::absolute(parameters.targetDirectory.toStdString()) << "\n";
+    std::cout << "Topics to merge:\n";
+    for (const auto& topic : parameters.topics) {
+        std::cout << "    " << topic.name.toStdString() << "\n";
+    }
+    std::cout << "Number of used threads: " << numberOfThreads << "\n\n";
     Utils::CLI::runThread(mergeBagsThread, signalStatus);
 
     return EXIT_SUCCESS;

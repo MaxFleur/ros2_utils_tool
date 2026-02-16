@@ -91,15 +91,10 @@ drawProgressString(int progress);
 
 // Shows a processing string while something is processed in the background
 void
-showProcessingString(bool& isProcessing,
-                     int   toolOperation);
+showProcessingString(bool& isProcessing);
 
 // Run the thread handling the main operation
 void
 runThread(QThread*               thread,
           volatile sig_atomic_t& signalStatus);
-
-inline constexpr int CLI_COMPRESS = 0;
-inline constexpr int CLI_DECOMPRESS = 1;
-inline constexpr int CLI_MERGE = 2;
 }

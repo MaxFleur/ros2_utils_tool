@@ -10,6 +10,8 @@
 #include <filesystem>
 #include <iostream>
 
+volatile sig_atomic_t signalStatus = 0;
+
 void
 showHelp()
 {
@@ -17,17 +19,17 @@ showHelp()
     std::cout << "Accepted video formats are mp4, mkv or avi.\n\n";
     std::cout << "Additional parameters:\n";
     std::cout << "-t or --topic_name: Video topic inside the bag. If no topic name is specified, the first found video topic in the bag is taken.\n";
-    std::cout << "-r or --rate: Framerate for the encoded video. Must be from 10 to 60.\n\n";
+    std::cout << "-r or --rate: Framerate for the encoded video. Must be from 10 to 60, default is 30.\n\n";
     std::cout << "-a or --accelerate: Use hardware acceleration.\n";
     std::cout << "-e or --exchange: Exchange red and blue values.\n";
     std::cout << "-c or --colorless: Use colorless images.\n";
     std::cout << "-l or --lossless (mkv only): Use lossless images.\n\n";
     std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "Example usage:\n";
+    std::cout << "ros2 run mediassist4_ros_tools tool_bag_to_video /home/usr/input_bag /home/usr/target_video -t /endoscope_video -r 20 -a -c -l\n\n";
     std::cout << "-h or --help: Show this help.\n";
 }
 
-
-volatile sig_atomic_t signalStatus = 0;
 
 int
 main(int argc, char* argv[])
@@ -113,6 +115,10 @@ main(int argc, char* argv[])
         signalStatus = signal;
     });
 
+    std::cout << "Source bag file: " << std::filesystem::absolute(parameters.sourceDirectory.toStdString()) << "\n";
+    std::cout << "Target video file: " << std::filesystem::absolute(parameters.targetDirectory.toStdString()) << "\n";
+    std::cout << "Rate: " << parameters.fps << "\n";
+    std::cout << "Hardware acceleration " << (useHardwareAcceleration ? "enabled" : "disabled") << "\n\n";
     std::cout << "Encoding video. Please wait...\n";
     Utils::CLI::runThread(encodingThread, signalStatus);
 
