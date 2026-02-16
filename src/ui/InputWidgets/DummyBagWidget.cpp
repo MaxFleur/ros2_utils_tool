@@ -47,10 +47,10 @@ DummyBagWidget::DummyBagWidget(Parameters::DummyBagParameters& parameters, bool 
     m_controlsLayout->addStretch();
     m_controlsLayout->setAlignment(m_lowDiskSpaceWidget, Qt::AlignCenter);
 
-    const auto addNewTopic = [this] (bool isCtor = true)  {
+    const auto addNewTopic = [this] {
         m_parameters.topics.push_back({ "String", "" });
         m_settings.write();
-        createNewDummyTopicWidget({ "", "" }, m_parameters.topics.size() - 1, isCtor);
+        createNewDummyTopicWidget({ "", "" }, m_parameters.topics.size() - 1);
     };
     // Create widgets for already existing topics
     for (auto i = 0; i < m_parameters.topics.size(); i++) {
@@ -65,7 +65,7 @@ DummyBagWidget::DummyBagWidget(Parameters::DummyBagParameters& parameters, bool 
     });
     connect(useCustomRateCheckBox, &QCheckBox::stateChanged, this, &DummyBagWidget::useCustomRateCheckBoxPressed);
     connect(m_addTopicButton, &QPushButton::clicked, this, [addNewTopic] {
-        addNewTopic(false);
+        addNewTopic();
     });
 
     setPixmapLabelIcon();
@@ -88,7 +88,7 @@ DummyBagWidget::removeDummyTopicWidget(int row)
         m_topicWidgets[i]->setProperty("id", i + 1);
     }
     for (auto i = 0; i < m_topicLabels.size(); ++i) {
-        m_topicLabels[i]->setText("Topic " + QString::number(i + 1));
+        m_topicLabels[i]->setText("Topic " + QString::number(i + 1) + ":");
     }
 
     m_addTopicButton->setEnabled(m_numberOfTopics != MAXIMUM_NUMBER_OF_TOPICS);
@@ -96,8 +96,7 @@ DummyBagWidget::removeDummyTopicWidget(int row)
 
 
 void
-DummyBagWidget::createNewDummyTopicWidget(const Parameters::DummyBagParameters::DummyBagTopic& topic,
-                                          int index, bool isCtor)
+DummyBagWidget::createNewDummyTopicWidget(const Parameters::DummyBagParameters::DummyBagTopic& topic, int index)
 {
     m_topicLabels.push_back(new QLabel("Topic " + QString::number(m_numberOfTopics + 1) + ":"));
 
@@ -105,9 +104,7 @@ DummyBagWidget::createNewDummyTopicWidget(const Parameters::DummyBagParameters::
     m_topicWidgets.push_back(topicWidget);
     // Keep it all inside the main form layout
     // Ensure that the plus button stays below the newly formed widget
-    m_formLayout->insertRow(isCtor ? m_formLayout->rowCount() - TOPIC_WIDGET_OFFSET_CTOR
-                                   : m_formLayout->rowCount() - TOPIC_WIDGET_OFFSET,
-                            m_topicLabels.back(), topicWidget);
+    m_formLayout->insertRow(m_formLayout->rowCount() - TOPIC_WIDGET_OFFSET, m_topicLabels.back(), topicWidget);
 
     connect(topicWidget, &TopicWidget::topicTypeChanged, this, [this, index] (const QString& text) {
         writeParameterToSettings(m_parameters.topics[index].type, text, m_settings);
