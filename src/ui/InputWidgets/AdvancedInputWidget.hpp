@@ -39,6 +39,12 @@ protected slots:
         m_fileFormat = fileFormat;
     }
 
+    // Only for topic combo box widgets
+    virtual void
+    fillTopicComboBox()
+    {
+    }
+
 protected:
     void
     fillTargetLineEdit();

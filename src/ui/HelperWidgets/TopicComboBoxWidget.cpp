@@ -44,10 +44,8 @@ TopicComboBoxWidget::TopicComboBoxWidget(Parameters::AdvancedParameters& paramet
 
 
 void
-TopicComboBoxWidget::findSourceButtonPressed()
+TopicComboBoxWidget::fillTopicComboBox()
 {
-    AdvancedInputWidget::findSourceButtonPressed();
-
     QString topicType;
     switch (m_outputFormat) {
     case OUTPUT_VIDEO:

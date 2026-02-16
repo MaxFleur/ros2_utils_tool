@@ -79,6 +79,8 @@ AdvancedInputWidget::findSourceButtonPressed()
 
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() &&
                    !m_parameters.topicName.isEmpty() && !m_parameters.targetDirectory.isEmpty());
+
+    fillTopicComboBox();
 }
 
 
