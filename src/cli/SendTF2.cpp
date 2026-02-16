@@ -17,17 +17,17 @@ volatile sig_atomic_t signalStatus = 0;
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_send_tf2\n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_send_tf2\n\n";
     std::cout << "Additional parameters:\n";
-    std::cout << "-t or --translation: Translation. Must be in format \"value,value,value\", default is \"0.0,0.0,0.0\".\n";
+    std::cout << "-c or --child_frame_name: Child frame name.\n";
     std::cout << "-ro or --rotation: Rotation. Must be in format \"value,value,value,value\", default is \"0.0,0.0,0.0,1.0\".\n";
-    std::cout << "-c or --child_frame_name: Child frame name.\n\n";
-    std::cout << "-r or --rate: Rate (only for nonstatic transformations). Must be between 1 and 100. If this is not specified, the transformation is static.\n\n";
+    std::cout << "-t or --translation: Translation. Must be in format \"value,value,value\", default is \"0.0,0.0,0.0\".\n\n";
     std::cout << "-f or --file: Provide an input file containing data for translation, rotation and the child frame name. Supported formats are json and yaml.\n";
     std::cout << "-s or --save: Save the input translation to a json or yaml file. Cannot be used together with -f.\n\n";
+    std::cout << "-r or --rate (nonstatic only): Minimum is 1, maximum is 100. If this is not specified, the transformation is static.\n\n";
     std::cout << "Example usages:\n";
-    std::cout << "ros2 run mediassist4_ros_tools tool_send_tf2 -t \"0.1,0.2,0.3\" -ro \"1.0,2.0,3.0,1.5\" -c base_link -s save_for_later.json\n";
-    std::cout << "ros2 run mediassist4_ros_tools tool_send_tf2 -f save_for_later.json\n\n";
+    std::cout << "ros2 run ros2_utils_tool tool_send_tf2 -t \"0.1,0.2,0.3\" -ro \"1.0,2.0,3.0,1.5\" -c base_link -s save_for_later.json\n";
+    std::cout << "ros2 run ros2_utils_tool tool_send_tf2 -f save_for_later.json\n\n";
     std::cout << "-h or --help: Show this help.\n";
 }
 
@@ -67,8 +67,8 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    const QVector<QString> checkList{ "-t", "-ro", "-c", "-r", "-f", "-s",
-                                      "--translation", "--rotation", "--child_frame_name", "--rate", "--file", "--save" };
+    const QVector<QString> checkList{ "-c", "-ro", "-t", "-f", "-s", "-r",
+                                      "--child_frame_name", "--rotation", "--translation", "--file", "--save", "--rate" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");

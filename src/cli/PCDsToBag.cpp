@@ -14,13 +14,13 @@ volatile sig_atomic_t signalStatus = 0;
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_pcds_to_bag path/to/pcds/dir path/to/bag\n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_pcds_to_bag path/to/pcds/dir path/to/bag\n\n";
     std::cout << "Additional parameters:\n";
-    std::cout << "-t or --topic_name: Topic name in the bag file. If this is empty, the name '/topic_point_cloud' will be used.\n";
-    std::cout << "-r or --rate: Number of messages per second. Must be between 1 and 30, default is 5.\n\n";
+    std::cout << "-t or --topic_name: Topic name in the bag file. If no topic name is specified, the name '/topic_point_cloud' will be used.\n";
+    std::cout << "-r or --rate: Number of messages per second. Minimum is 1, maximum is 30, default is 5.\n\n";
     std::cout << "-s or --suppress: Suppress any warnings.\n\n";
     std::cout << "Example usage:\n";
-    std::cout << "ros2 run mediassist4_ros_tools tool_pcds_to_bag /home/usr/pcd_dir /home/usr/output_bag -t /scanner_pcd -r 2\n\n";
+    std::cout << "ros2 run ros2_utils_tool tool_pcds_to_bag /home/usr/pcd_dir /home/usr/output_bag -t /scanner_pcd -r 2\n\n";
     std::cout << "-h or --help: Show this help.\n";
 }
 

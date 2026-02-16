@@ -17,15 +17,15 @@ volatile sig_atomic_t signalStatus = 0;
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_tf2_to_file path/to/bag path/to/output/file\n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_tf2_to_file path/to/bag path/to/output/file\n\n";
     std::cout << "Accepted file formats are json or yaml.\n\n";
     std::cout << "Additional parameters:\n";
     std::cout << "-t or --topic_name: tf2 topic inside the bag. If no topic name is specified, the first found tf2 topic in the bag is taken.\n\n";
     std::cout << "-k or --keep_timestamps: Keep the message's timestamp in the output file.\n";
-    std::cout << "-i or --indent: Indent the output file (json only).\n\n";
+    std::cout << "-i or --indent (json only): Indent the output file.\n\n";
     std::cout << "-s or --suppress: Suppress any warnings.\n\n";
     std::cout << "Example usage:\n";
-    std::cout << "ros2 run mediassist4_ros_tools tool_tf2_to_file /home/usr/input_bag /home/usr/output_file.json -k -i\n\n";
+    std::cout << "ros2 run ros2_utils_tool tool_tf2_to_file /home/usr/input_bag /home/usr/output_file.json -k -i\n\n";
     std::cout << "-h or --help: Show this help.\n";
 }
 

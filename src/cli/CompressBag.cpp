@@ -17,14 +17,14 @@ volatile sig_atomic_t signalStatus = 0;
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_compress_bag path/to/uncompressed/source/bag /path/to/compressed/target/bag \n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_compress_bag path/to/uncompressed/source/bag /path/to/compressed/target/bag \n\n";
     std::cout << "Additional parameters:\n";
-    std::cout << "-m or --mode (file/message): Compress per file (file) or per message (message). File is default.\n\n";
+    std::cout << "-m or --mode (file/message): Compress per file (file) or per message (message), file is default.\n";
+    std::cout << "-th or --threads: Number of threads. Minimum is 1, maximum is " << std::thread::hardware_concurrency() << ", default is 1.\n\n";
     std::cout << "-d or --delete: Delete the source file after completion.\n\n";
-    std::cout << "-th or --threads: Number of threads, must be at least 1 (maximum is " << std::thread::hardware_concurrency() << ").\n\n";
     std::cout << "-s or --suppress: Suppress any warnings.\n\n";
     std::cout << "Example usage:\n";
-    std::cout << "ros2 run mediassist4_ros_tools tool_decompress_bag /home/usr/uncompressed /home/usr/compressed -th 4\n\n";
+    std::cout << "ros2 run ros2_utils_tool tool_decompress_bag /home/usr/uncompressed /home/usr/compressed -th 4\n\n";
     std::cout << "-h or --help: Show this help.\n";
 }
 
@@ -41,7 +41,7 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    const QVector<QString> checkList { "-m", "-d", "-th", "-s", "--mode", "--delete", "--threads", "--suppress" };
+    const QVector<QString> checkList { "-m", "-th", "-d", "-s", "--mode", "--threads", "--delete", "--suppress" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList);
         argument != std::nullopt) {
         showHelp();

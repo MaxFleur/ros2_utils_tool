@@ -15,19 +15,19 @@ volatile sig_atomic_t signalStatus = 0;
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_bag_to_images path/to/bag path/to/images\n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_bag_to_images path/to/bag path/to/images\n\n";
     std::cout << "Additional parameters:\n";
+    std::cout << "-f or --format: Must be jpg, png or bmp, default is jpg.\n";
     std::cout << "-t or --topic_name: Video topic inside the bag. If no topic name is specified, the first found video topic in the bag is taken.\n";
-    std::cout << "-f or --format: Must be jpg, png or bmp (jpg is default).\n";
-    std::cout << "-q or --quality (jpg and png only): Image quality, must be between 0 and 9 (0 is lowest, 9 is highest, 8 is default).\n\n";
-    std::cout << "-e or --exchange: Exchange red and blue values.\n";
-    std::cout << "-o or --optimize (jpg only): Optimize jpg file size.\n";
+    std::cout << "-th or --threads: Number of threads. Minimum is 1, maximum is " << std::thread::hardware_concurrency() << ", default is 1.\n\n";
     std::cout << "-c or --colorless: Encode images without color.\n";
-    std::cout << "-b or --binary (png only): Write images with only black and white pixels.\n\n";
-    std::cout << "-th or --threads: Number of threads, must be at least 1 (maximum is " << std::thread::hardware_concurrency() << ").\n\n";
+    std::cout << "-e or --exchange: Exchange red and blue values.\n";
+    std::cout << "-b or --binary (png only): Write images with only black and white pixels.\n";
+    std::cout << "-o or --optimize (jpg only): Optimize jpg file size.\n";
+    std::cout << "-q or --quality (jpg and png only): Image quality. Minimum is 0, maximum is 9, default is 8.\n\n";
     std::cout << "-s or --suppress: Suppress any warnings.\n\n";
     std::cout << "Example usage:\n";
-    std::cout << "ros2 run mediassist4_ros_tools tool_bag_to_images /home/usr/input_bag /home/usr/images_dir -t /endoscope_video -f png -q 8 -th 4 -e\n\n";
+    std::cout << "ros2 run ros2_utils_tool tool_bag_to_images /home/usr/input_bag /home/usr/images_dir -t /endoscope_video -f png -q 8 -th 4 -e\n\n";
     std::cout << "-h or --help: Show this help.\n";
 }
 
@@ -44,8 +44,8 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    const QVector<QString> checkList{ "-t", "-f", "-e", "-c", "-q", "-o", "-b", "-th", "-s",
-                                      "--topic_name", "--format", "--exchange", "--colorless", "--quality", "--optimize", "--binary", "--threads", "--suppress" };
+    const QVector<QString> checkList{ "-f", "-t", "-th", "-c", "-e", "-b", "-o", "-q", "-s",
+                                      "--format", "--topic_name", "--threads", "--colorless", "--exchange", "--binary", "--optimize", "--quality", "--suppress" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");

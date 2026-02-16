@@ -16,16 +16,16 @@ volatile sig_atomic_t signalStatus = 0;
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_dummy_bag path/to/bag topic_name_1 topic_type_1 (...)\n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_dummy_bag path/to/bag topic_name_1 topic_type_1 (...)\n\n";
     std::cout << "Topic type is either 'String', 'Integer', 'Image', 'PointCloud' or 'TF2'.\n";
     std::cout << "You can write up to five topics.\n\n";
     std::cout << "Additional parameters:\n";
-    std::cout << "-m or --message-count: Number of messages in the bag file. Must be between 1 and 1000, default is 100.\n";
-    std::cout << "-r or --rate: Number of messages per second. Must be between 1 and 100, default is 10.\n\n";
-    std::cout << "-th or --threads: Number of threads, must be at least 1 (maximum is " << std::thread::hardware_concurrency() << ").\n\n";
+    std::cout << "-m or --message-count: Number of messages in the bag file. Minimum is 1, maximum is 1000, default is 100.\n";
+    std::cout << "-r or --rate: Number of messages per second. Minimum is 1, maximum is 100, default is 10.\n";
+    std::cout << "-th or --threads: Number of threads. Minimum is 1, maximum is " << std::thread::hardware_concurrency() << ", default is 1.\n\n";
     std::cout << "-s or --suppress: Suppress any warnings.\n\n";
     std::cout << "Example usage:\n";
-    std::cout << "ros2 run mediassist4_ros_tools tool_dummy_bag /home/usr/target_bag /images Image /tf2 TF2 /int Integer\n\n";
+    std::cout << "ros2 run ros2_utils_tool tool_dummy_bag /home/usr/target_bag /images Image /tf2 TF2 /int Integer\n\n";
     std::cout << "-h or --help: Show this help.\n";
 }
 
