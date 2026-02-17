@@ -12,6 +12,7 @@
 #include "MergeBagsSettings.hpp"
 #include "Parameters.hpp"
 #include "PCDsToBagSettings.hpp"
+#include "PlayBagSettings.hpp"
 #include "PublishSettings.hpp"
 #include "RecordBagSettings.hpp"
 #include "RGBSettings.hpp"
@@ -313,6 +314,39 @@ TEST_CASE("Settings Testing", "[ui]") {
             qSettings.beginGroup("compress_bag");
             verifiySettingPrimitive(qSettings, "compress_per_message", true);
             verifiySettingPrimitive(qSettings, "delete_source", true);
+            qSettings.endGroup();
+        }
+    }
+    SECTION("Play Bag Params Test") {
+        SECTION("Read") {
+            qSettings.beginGroup("play_bag");
+            checkSettingsInvalidacy(qSettings, { "topics", "rate", "loop" });
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Parameters::PlayBagParameters parameters;
+            PlayBagSettings settings(parameters, "play_bag");
+
+            parameters.topics.push_back({ "topic", "std::msgs::msg::String", true });
+            parameters.rate = 4.2;
+            parameters.loop = true;
+            settings.write();
+
+            qSettings.beginGroup("play_bag");
+            verifiySettingPrimitive(qSettings, "rate", 4.2);
+            verifiySettingPrimitive(qSettings, "loop", true);
+
+            const auto size = qSettings.beginReadArray("topics");
+            REQUIRE(size == 1);
+
+            for (auto i = 0; i < size; ++i) {
+                qSettings.setArrayIndex(i);
+                verifiySettingQString(qSettings, "name", "topic");
+                verifiySettingQString(qSettings, "type", "std::msgs::msg::String");
+                verifiySettingPrimitive(qSettings, "is_selected", true);
+            }
+            qSettings.endArray();
+
             qSettings.endGroup();
         }
     }

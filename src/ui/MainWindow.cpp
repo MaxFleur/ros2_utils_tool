@@ -5,6 +5,8 @@
 #include "BagToImagesWidget.hpp"
 #include "BagToVideoWidget.hpp"
 #include "ChangeCompressionWidget.hpp"
+#include "ConfigurePlayBagWidget.hpp"
+#include "ControlPlayBagWidget.hpp"
 #include "DummyBagWidget.hpp"
 #include "EditBagWidget.hpp"
 #include "MergeBagsWidget.hpp"
@@ -21,6 +23,7 @@
 #include "DialogSettings.hpp"
 
 #include <QCloseEvent>
+#include <QScrollArea>
 #include <QTimer>
 
 #include <csignal>
@@ -39,11 +42,22 @@ void
 MainWindow::setStartWidget()
 {
     auto* const startWidget = new StartWidget(m_dialogParameters);
+
+    // With more buttons, additonal scrolling looks better
+    auto* const scrollArea = new QScrollArea;
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setFrameShape(QFrame::NoFrame);
+    scrollArea->setWidget(startWidget);
+    // Make it so that only the scrollbar is visible
+    auto palette = scrollArea->palette();
+    palette.setColor(QPalette::Base, Qt::transparent);
+    scrollArea->setPalette(palette);
+
     // Resize event is not called inside the function, so use a delay
     QTimer::singleShot(1, [this] {
         resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     });
-    setCentralWidget(startWidget);
+    setCentralWidget(scrollArea);
     connect(startWidget, &StartWidget::toolRequested, this, &MainWindow::setInputWidget);
 }
 
@@ -91,6 +105,9 @@ MainWindow::setInputWidget(Utils::UI::TOOL_ID mode)
     case Utils::UI::TOOL_ID::DECOMPRESS_BAG:
         basicInputWidget = new ChangeCompressionWidget(m_parametersDecompressBag, false);
         break;
+    case Utils::UI::TOOL_ID::PLAY_BAG:
+        basicInputWidget = new ConfigurePlayBagWidget(m_parametersPlayBag);
+        break;
     case Utils::UI::TOOL_ID::PUBLISH_VIDEO:
         basicInputWidget = new PublishWidget(m_parametersPublishVideo, m_dialogParameters.usePredefinedTopicNames,
                                              m_dialogParameters.warnROS2NameConvention, true);
@@ -118,14 +135,25 @@ MainWindow::setInputWidget(Utils::UI::TOOL_ID mode)
 
     connect(basicInputWidget, &BasicInputWidget::back, this, &MainWindow::setStartWidget);
     connect(basicInputWidget, &BasicInputWidget::okPressed, this, [this, mode] {
-        setProgressWidget(mode);
+        setProcessingWidget(mode);
     });
 }
 
 
 void
-MainWindow::setProgressWidget(Utils::UI::TOOL_ID mode)
+MainWindow::setProcessingWidget(Utils::UI::TOOL_ID mode)
 {
+    if (mode == Utils::UI::TOOL_ID::PLAY_BAG) {
+        auto* const controlPlayBagWidget = new ControlPlayBagWidget(m_parametersPlayBag);
+        setCentralWidget(controlPlayBagWidget);
+
+        connect(controlPlayBagWidget, &ControlPlayBagWidget::stopped, this, [this, mode] {
+            setInputWidget(mode);
+        });
+
+        return;
+    }
+
     QPointer<ProgressWidget> progressWidget;
     switch (mode) {
     case Utils::UI::TOOL_ID::BAG_TO_VIDEO:
@@ -176,6 +204,7 @@ MainWindow::setProgressWidget(Utils::UI::TOOL_ID mode)
         delete centralWidget();
         progressWidget = new ProgressWidget("Sending TF2...", m_parametersSendTF2, mode);
         break;
+    case Utils::UI::TOOL_ID::PLAY_BAG:
     default:
         break;
     }

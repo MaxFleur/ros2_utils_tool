@@ -15,13 +15,6 @@ struct BasicParameters {
 
     QString sourceDirectory = "";
 };
-struct RecordBagParameters : BasicParameters {
-    QVector<QString> topics = {};
-    bool             allTopics = true;
-    bool             showAdvancedOptions = false;
-    bool             includeHiddenTopics = false;
-    bool             includeUnpublishedTopics = false;
-};
 struct DummyBagParameters : BasicParameters {
     struct DummyBagTopic {
         QString type;
@@ -32,6 +25,24 @@ struct DummyBagParameters : BasicParameters {
     int                    messageCount = 100;
     int                    rate = 10;
     bool                   useCustomRate = false;
+};
+struct PlayBagParameters : BasicParameters {
+    struct PlayBagTopic {
+        QString name = "";
+        QString type = "";
+        bool    isSelected = true;
+    };
+
+    QVector<PlayBagTopic> topics = {};
+    double                rate = 1.0;
+    bool                  loop = false;
+};
+struct RecordBagParameters : BasicParameters {
+    QVector<QString> topics = {};
+    bool             allTopics = true;
+    bool             showAdvancedOptions = false;
+    bool             includeHiddenTopics = false;
+    bool             includeUnpublishedTopics = false;
 };
 struct SendTF2Parameters : BasicParameters {
     std::array<double, 3> translation = { 0.0, 0.0, 0.0 };

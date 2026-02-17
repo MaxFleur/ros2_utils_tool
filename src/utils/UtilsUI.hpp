@@ -71,6 +71,7 @@ enum class TOOL_ID {
     DUMMY_BAG,
     COMPRESS_BAG,
     DECOMPRESS_BAG,
+    PLAY_BAG,
     PUBLISH_VIDEO,
     PUBLISH_IMAGES,
     SEND_TF2,

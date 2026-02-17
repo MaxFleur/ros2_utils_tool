@@ -13,6 +13,17 @@
         <file>gifs/sending_tf2_black.gif</file>
         <file>gifs/sending_tf2_white.gif</file>
 
+        <file>icons/player/decrease_rate_black.svg</file>
+        <file>icons/player/decrease_rate_white.svg</file>
+        <file>icons/player/increase_rate_black.svg</file>
+        <file>icons/player/increase_rate_white.svg</file>
+        <file>icons/player/play_black.svg</file>
+        <file>icons/player/play_white.svg</file>
+        <file>icons/player/play_next_message_black.svg</file>
+        <file>icons/player/play_next_message_white.svg</file>
+        <file>icons/player/stop_black.svg</file>
+        <file>icons/player/stop_white.svg</file>
+
         <file>icons/bag_info_black.svg</file>
         <file>icons/bag_info_white.svg</file>
         <file>icons/bag_to_pcd_black.svg</file>
@@ -46,6 +57,8 @@
         <file>icons/minus_white.svg</file>
         <file>icons/pcd_to_bag_black.svg</file>
         <file>icons/pcd_to_bag_white.svg</file>
+        <file>icons/play_bag_black.svg</file>
+        <file>icons/play_bag_white.svg</file>
         <file>icons/plus_black.svg</file>
         <file>icons/plus_white.svg</file>
         <file>icons/publishing_tools_black.svg</file>

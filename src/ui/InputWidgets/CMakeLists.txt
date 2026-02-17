@@ -19,6 +19,8 @@ target_sources(rt_input_widgets INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/BasicInputWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/ChangeCompressionWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/ChangeCompressionWidget.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/ConfigurePlayBagWidget.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/ConfigurePlayBagWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/DummyBagWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/DummyBagWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/EditBagWidget.cpp

@@ -1,5 +1,6 @@
-add_subdirectory(InputWidgets)
 add_subdirectory(HelperWidgets)
+add_subdirectory(InputWidgets)
+add_subdirectory(interactive)
 add_subdirectory(settings)
 
 add_library (rt_ui INTERFACE)
@@ -20,5 +21,5 @@ target_sources(rt_ui INTERFACE
 )
 
 target_link_libraries(rt_ui
-    INTERFACE Qt::Widgets rt_all_threads rt_input_widgets rt_settings rt_utils
+    INTERFACE Qt::Widgets rt_all_threads rt_input_widgets rt_interactive rt_settings rt_utils
 ) 

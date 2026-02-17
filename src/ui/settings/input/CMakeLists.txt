@@ -25,6 +25,8 @@ target_sources(rt_settings_input INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/MergeBagsSettings.hpp
     ${CMAKE_CURRENT_LIST_DIR}/PCDsToBagSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/PCDsToBagSettings.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/PlayBagSettings.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/PlayBagSettings.hpp
     ${CMAKE_CURRENT_LIST_DIR}/PublishSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/PublishSettings.hpp
     ${CMAKE_CURRENT_LIST_DIR}/RecordBagSettings.cpp

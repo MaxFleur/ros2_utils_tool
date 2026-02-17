@@ -97,30 +97,37 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     m_dummyBagButton = createToolButton("Create\nDummy Bag", "Create a ROS bag file with dummy data.");
     m_compressBagButton = createToolButton("Compress\nBag", "Decrease a ROS bag by creating a compressed variant.");
     m_decompressBagButton = createToolButton("Decompress\nBag", "Decompress a compressed ROS bag.");
+    m_playBagButton = createToolButton("Play Bag", "Play a ROS bag.");
 
-    auto* const bagToolsUpperLayout = new QHBoxLayout;
-    bagToolsUpperLayout->addStretch();
-    bagToolsUpperLayout->addWidget(m_editBagButton);
-    bagToolsUpperLayout->addWidget(m_mergeBagsButton);
-    bagToolsUpperLayout->addStretch();
+    auto* const bagToolsLayout_1 = new QHBoxLayout;
+    bagToolsLayout_1->addStretch();
+    bagToolsLayout_1->addWidget(m_editBagButton);
+    bagToolsLayout_1->addWidget(m_mergeBagsButton);
+    bagToolsLayout_1->addStretch();
 
-    auto* const bagToolsCenterLayout = new QHBoxLayout;
-    bagToolsCenterLayout->addStretch();
-    bagToolsCenterLayout->addWidget(m_recordBagButton);
-    bagToolsCenterLayout->addWidget(m_dummyBagButton);
-    bagToolsCenterLayout->addStretch();
+    auto* const bagToolsLayout_2 = new QHBoxLayout;
+    bagToolsLayout_2->addStretch();
+    bagToolsLayout_2->addWidget(m_recordBagButton);
+    bagToolsLayout_2->addWidget(m_dummyBagButton);
+    bagToolsLayout_2->addStretch();
 
-    auto* const bagToolsLowerLayout = new QHBoxLayout;
-    bagToolsLowerLayout->addStretch();
-    bagToolsLowerLayout->addWidget(m_compressBagButton);
-    bagToolsLowerLayout->addWidget(m_decompressBagButton);
-    bagToolsLowerLayout->addStretch();
+    auto* const bagToolsLayout_3 = new QHBoxLayout;
+    bagToolsLayout_3->addStretch();
+    bagToolsLayout_3->addWidget(m_compressBagButton);
+    bagToolsLayout_3->addWidget(m_decompressBagButton);
+    bagToolsLayout_3->addStretch();
+
+    auto* const bagToolsLayout_4 = new QHBoxLayout;
+    bagToolsLayout_4->addStretch();
+    bagToolsLayout_4->addWidget(m_playBagButton);
+    bagToolsLayout_4->addStretch();
 
     auto* const bagToolsMainLayout = new QVBoxLayout;
     bagToolsMainLayout->addStretch();
-    bagToolsMainLayout->addLayout(bagToolsUpperLayout);
-    bagToolsMainLayout->addLayout(bagToolsCenterLayout);
-    bagToolsMainLayout->addLayout(bagToolsLowerLayout);
+    bagToolsMainLayout->addLayout(bagToolsLayout_1);
+    bagToolsMainLayout->addLayout(bagToolsLayout_2);
+    bagToolsMainLayout->addLayout(bagToolsLayout_3);
+    bagToolsMainLayout->addLayout(bagToolsLayout_4);
     bagToolsMainLayout->addStretch();
 
     auto* const bagToolsWidget = new QWidget;
@@ -268,6 +275,9 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     connect(m_decompressBagButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_ID::DECOMPRESS_BAG);
     });
+    connect(m_playBagButton, &QPushButton::clicked, this, [this] {
+        emit toolRequested(Utils::UI::TOOL_ID::PLAY_BAG);
+    });
     connect(m_publishVideoButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_ID::PUBLISH_VIDEO);
     });
@@ -387,6 +397,7 @@ StartWidget::setButtonIcons()
     m_dummyBagButton->setIcon(QIcon(isDarkMode ? ":/icons/dummy_bag_white.svg" : ":/icons/dummy_bag_black.svg"));
     m_compressBagButton->setIcon(QIcon(isDarkMode ? ":/icons/compress_bag_white.svg" : ":/icons/compress_bag_black.svg"));
     m_decompressBagButton->setIcon(QIcon(isDarkMode ? ":/icons/decompress_bag_white.svg" : ":/icons/decompress_bag_black.svg"));
+    m_playBagButton->setIcon(QIcon(isDarkMode ? ":/icons/play_bag_white.svg" : ":/icons/play_bag_black.svg"));
 
     m_publishVideoButton->setIcon(QIcon(isDarkMode ? ":/icons/publish_video_white.svg" : ":/icons/publish_video_black.svg"));
     m_publishImagesButton->setIcon(QIcon(isDarkMode ? ":/icons/publish_images_white.svg" : ":/icons/publish_images_black.svg"));
