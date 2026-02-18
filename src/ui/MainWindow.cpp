@@ -16,7 +16,7 @@
 #include "RecordBagWidget.hpp"
 #include "SendTF2Widget.hpp"
 #include "StartWidget.hpp"
-#include "TF2ToFileWidget.hpp"
+#include "BagTF2ToFileWidget.hpp"
 #include "TopicsServicesInfoWidget.hpp"
 #include "VideoToBagWidget.hpp"
 
@@ -85,7 +85,7 @@ MainWindow::setInputWidget(Utils::UI::TOOL_ID mode)
         basicInputWidget = new BagToImagesWidget(m_parametersBagToImages);
         break;
     case Utils::UI::TOOL_ID::TF2_TO_FILE:
-        basicInputWidget = new TF2ToFileWidget(m_parametersTF2ToFile);
+        basicInputWidget = new BagTF2ToFileWidget(m_parametersTF2ToFile);
         break;
     case Utils::UI::TOOL_ID::EDIT_BAG:
         basicInputWidget = new EditBagWidget(m_parametersEditBag, m_dialogParameters.warnROS2NameConvention);

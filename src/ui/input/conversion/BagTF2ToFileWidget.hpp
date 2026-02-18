@@ -12,13 +12,13 @@ class QFormLayout;
 class QRadioButton;
 
 // Widget used to configure sending tf2 messages
-class TF2ToFileWidget : public TopicComboBoxWidget
+class BagTF2ToFileWidget : public TopicComboBoxWidget
 {
     Q_OBJECT
 
 public:
-    TF2ToFileWidget(Parameters::TF2ToFileParameters& parameters,
-                    QWidget*                         parent = 0);
+    BagTF2ToFileWidget(Parameters::TF2ToFileParameters& parameters,
+                       QWidget*                         parent = 0);
 
     void
     formatComboBoxTextChanged(bool switched);

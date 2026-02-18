@@ -1,4 +1,4 @@
-#include "TF2ToFileWidget.hpp"
+#include "BagTF2ToFileWidget.hpp"
 
 #include "UtilsGeneral.hpp"
 #include "UtilsUI.hpp"
@@ -9,7 +9,7 @@
 #include <QLabel>
 #include <QRadioButton>
 
-TF2ToFileWidget::TF2ToFileWidget(Parameters::TF2ToFileParameters& parameters, QWidget *parent) :
+BagTF2ToFileWidget::BagTF2ToFileWidget(Parameters::TF2ToFileParameters& parameters, QWidget *parent) :
     TopicComboBoxWidget(parameters, "TF2 to File", ":/icons/tools/tf2_to_file", "Bag File:", "File Location:", "tf2_to_file", OUTPUT_TF_TO_FILE, parent),
     m_parameters(parameters), m_settings(parameters, "tf2_to_file")
 {
@@ -68,7 +68,7 @@ TF2ToFileWidget::TF2ToFileWidget(Parameters::TF2ToFileParameters& parameters, QW
 
 
 void
-TF2ToFileWidget::formatComboBoxTextChanged(bool switched)
+BagTF2ToFileWidget::formatComboBoxTextChanged(bool switched)
 {
     if (switched) {
         m_compactRadioButton = new QRadioButton("Compact");
