@@ -14,7 +14,7 @@
 #include <filesystem>
 
 MergeBagsWidget::MergeBagsWidget(Parameters::MergeBagsParameters& parameters, QWidget *parent) :
-    BasicBagWidget(parameters, "Merge Bags", ":/icons/merge_bags", "merge_bags", OUTPUT_BAG_MERGED, parent),
+    BasicBagWidget(parameters, "Merge Bags", ":/icons/tools/merge_bags", "merge_bags", OUTPUT_BAG_MERGED, parent),
     m_parameters(parameters), m_settings(parameters, "merge_bags")
 {
     m_secondSourceLineEdit = new QLineEdit;

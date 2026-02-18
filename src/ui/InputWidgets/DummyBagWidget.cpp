@@ -13,7 +13,7 @@
 #include <QSpinBox>
 
 DummyBagWidget::DummyBagWidget(Parameters::DummyBagParameters& parameters, bool warnROS2NameConvention, QWidget *parent) :
-    TopicListingInputWidget(parameters, "Create Dummy Bag", ":/icons/dummy_bag", "dummy_bag", parent),
+    TopicListingInputWidget(parameters, "Create Dummy Bag", ":/icons/tools/dummy_bag", "dummy_bag", parent),
     m_parameters(parameters), m_settings(parameters, "dummy_bag"),
     m_warnROS2NameConvention(warnROS2NameConvention)
 {

@@ -377,35 +377,35 @@ void
 StartWidget::setButtonIcons()
 {
     const auto isDarkMode = Utils::UI::isDarkMode();
-    m_settingsButton->setIcon(QIcon(isDarkMode ? ":/icons/gear_white.svg" : ":/icons/gear_black.svg"));
+    m_settingsButton->setIcon(QIcon(isDarkMode ? ":/icons/widgets/gear_white.svg" : ":/icons/widgets/gear_black.svg"));
 
-    m_conversionToolsButton->setIcon(QIcon(isDarkMode ? ":/icons/conversion_tools_white.svg" : ":/icons/conversion_tools_black.svg"));
-    m_bagToolsButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_tools_white.svg" : ":/icons/bag_tools_black.svg"));
-    m_publishingToolsButton->setIcon(QIcon(isDarkMode ? ":/icons/publishing_tools_white.svg" : ":/icons/publishing_tools_black.svg"));
-    m_infoToolsButton->setIcon(QIcon(isDarkMode ? ":/icons/info_tools_white.svg" : ":/icons/info_tools_black.svg"));
+    m_conversionToolsButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/conversion_tools_white.svg" : ":/icons/tools/conversion_tools_black.svg"));
+    m_bagToolsButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_tools_white.svg" : ":/icons/tools/bag_tools_black.svg"));
+    m_publishingToolsButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/publishing_tools_white.svg" : ":/icons/tools/publishing_tools_black.svg"));
+    m_infoToolsButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/info_tools_white.svg" : ":/icons/tools/info_tools_black.svg"));
 
-    m_bagToVideoPushButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_to_video_white.svg" : ":/icons/bag_to_video_black.svg"));
-    m_videoToBagPushButton->setIcon(QIcon(isDarkMode ? ":/icons/video_to_bag_white.svg" : ":/icons/video_to_bag_black.svg"));
-    m_bagToPCDsPushButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_to_pcd_white.svg" : ":/icons/bag_to_pcd_black.svg"));
-    m_PCDsToBagPushButton->setIcon(QIcon(isDarkMode ? ":/icons/pcd_to_bag_white.svg" : ":/icons/pcd_to_bag_black.svg"));
-    m_bagToImagesPushButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_to_images_white.svg" : ":/icons/bag_to_images_black.svg"));
-    m_tf2ToFilePushButton->setIcon(QIcon(isDarkMode ? ":/icons/tf2_to_file_white.svg" : ":/icons/tf2_to_file_black.svg"));
+    m_bagToVideoPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_to_video_white.svg" : ":/icons/tools/bag_to_video_black.svg"));
+    m_videoToBagPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/video_to_bag_white.svg" : ":/icons/tools/video_to_bag_black.svg"));
+    m_bagToPCDsPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_to_pcd_white.svg" : ":/icons/tools/bag_to_pcd_black.svg"));
+    m_PCDsToBagPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/pcd_to_bag_white.svg" : ":/icons/tools/pcd_to_bag_black.svg"));
+    m_bagToImagesPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_to_images_white.svg" : ":/icons/tools/bag_to_images_black.svg"));
+    m_tf2ToFilePushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/tf2_to_file_white.svg" : ":/icons/tools/tf2_to_file_black.svg"));
 
-    m_editBagButton->setIcon(QIcon(isDarkMode ? ":/icons/edit_bag_white.svg" : ":/icons/edit_bag_black.svg"));
-    m_mergeBagsButton->setIcon(QIcon(isDarkMode ? ":/icons/merge_bags_white.svg" : ":/icons/merge_bags_black.svg"));
-    m_recordBagButton->setIcon(QIcon(isDarkMode ? ":/icons/record_bag_white.svg" : ":/icons/record_bag_black.svg"));
-    m_dummyBagButton->setIcon(QIcon(isDarkMode ? ":/icons/dummy_bag_white.svg" : ":/icons/dummy_bag_black.svg"));
-    m_compressBagButton->setIcon(QIcon(isDarkMode ? ":/icons/compress_bag_white.svg" : ":/icons/compress_bag_black.svg"));
-    m_decompressBagButton->setIcon(QIcon(isDarkMode ? ":/icons/decompress_bag_white.svg" : ":/icons/decompress_bag_black.svg"));
-    m_playBagButton->setIcon(QIcon(isDarkMode ? ":/icons/play_bag_white.svg" : ":/icons/play_bag_black.svg"));
+    m_editBagButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/edit_bag_white.svg" : ":/icons/tools/edit_bag_black.svg"));
+    m_mergeBagsButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/merge_bags_white.svg" : ":/icons/tools/merge_bags_black.svg"));
+    m_recordBagButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/record_bag_white.svg" : ":/icons/tools/record_bag_black.svg"));
+    m_dummyBagButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/dummy_bag_white.svg" : ":/icons/tools/dummy_bag_black.svg"));
+    m_compressBagButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/compress_bag_white.svg" : ":/icons/tools/compress_bag_black.svg"));
+    m_decompressBagButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/decompress_bag_white.svg" : ":/icons/tools/decompress_bag_black.svg"));
+    m_playBagButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/play_bag_white.svg" : ":/icons/tools/play_bag_black.svg"));
 
-    m_publishVideoButton->setIcon(QIcon(isDarkMode ? ":/icons/publish_video_white.svg" : ":/icons/publish_video_black.svg"));
-    m_publishImagesButton->setIcon(QIcon(isDarkMode ? ":/icons/publish_images_white.svg" : ":/icons/publish_images_black.svg"));
-    m_sendTF2Button->setIcon(QIcon(isDarkMode ? ":/icons/send_tf2_white.svg" : ":/icons/send_tf2_black.svg"));
+    m_publishVideoButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/publish_video_white.svg" : ":/icons/tools/publish_video_black.svg"));
+    m_publishImagesButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/publish_images_white.svg" : ":/icons/tools/publish_images_black.svg"));
+    m_sendTF2Button->setIcon(QIcon(isDarkMode ? ":/icons/tools/send_tf2_white.svg" : ":/icons/tools/send_tf2_black.svg"));
 
-    m_topicServiceInfoButton->setIcon(QIcon(isDarkMode ? ":/icons/topics_services_info_white.svg"
-                                                       : ":/icons/topics_services_info_black.svg"));
-    m_bagInfoButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_info_white.svg" : ":/icons/bag_info_black.svg"));
+    m_topicServiceInfoButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/topics_services_info_white.svg"
+                                                       : ":/icons/tools/topics_services_info_black.svg"));
+    m_bagInfoButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_info_white.svg" : ":/icons/tools/bag_info_black.svg"));
 }
 
 

@@ -24,7 +24,7 @@
 #include <QVBoxLayout>
 
 SendTF2Widget::SendTF2Widget(Parameters::SendTF2Parameters& parameters, QWidget *parent) :
-    BasicInputWidget("Send TF2 Message", ":/icons/send_tf2", parent),
+    BasicInputWidget("Send TF2 Message", ":/icons/tools/send_tf2", parent),
     m_parameters(parameters), m_settings(parameters, "send_tf2")
 {
     m_nodeWrapper = std::make_shared<NodeWrapper>("tf_node");
@@ -247,8 +247,8 @@ SendTF2Widget::setPixmapLabelIcon() const
     const auto isDarkMode = Utils::UI::isDarkMode();
     m_headerPixmapLabel->setPixmap(QIcon(isDarkMode ? m_iconPath + "_white.svg" : m_iconPath + "_black.svg").pixmap(QSize(100, 45)));
 
-    m_loadFromFileButton->setIcon(QIcon(isDarkMode ? ":/icons/load_from_file_white.svg" : ":/icons/load_from_file_black.svg"));
-    m_saveToFileButton->setIcon(QIcon(isDarkMode ? ":/icons/save_to_file_white.svg" : ":/icons/save_to_file_black.svg"));
+    m_loadFromFileButton->setIcon(QIcon(isDarkMode ? ":/icons/widgets/load_from_file_white.svg" : ":/icons/widgets/load_from_file_black.svg"));
+    m_saveToFileButton->setIcon(QIcon(isDarkMode ? ":/icons/widgets/save_to_file_white.svg" : ":/icons/widgets/save_to_file_black.svg"));
 }
 
 

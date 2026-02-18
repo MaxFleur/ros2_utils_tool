@@ -11,7 +11,7 @@
 #include <QSet>
 
 RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QWidget *parent) :
-    TopicListingInputWidget(parameters, "Record Bag", ":/icons/record_bag", "record_bag", parent),
+    TopicListingInputWidget(parameters, "Record Bag", ":/icons/tools/record_bag", "record_bag", parent),
     m_parameters(parameters), m_settings(parameters, "record_bag")
 {
     m_sourceLineEdit->setText(m_parameters.sourceDirectory);

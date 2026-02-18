@@ -23,7 +23,7 @@ ControlPlayBagWidget::ControlPlayBagWidget(Parameters::PlayBagParameters& parame
     headerPixmapLabel->setAlignment(Qt::AlignHCenter);
 
     const auto isDarkMode = Utils::UI::isDarkMode();
-    headerPixmapLabel->setPixmap(QIcon(isDarkMode ? ":/icons/play_bag_white.svg" : ":/icons/play_bag_black.svg").pixmap(QSize(100, 45)));
+    headerPixmapLabel->setPixmap(QIcon(isDarkMode ? ":/icons/tools/play_bag_white.svg" : ":/icons/tools/play_bag_black.svg").pixmap(QSize(100, 45)));
 
     auto* const emptyWidget = new QWidget;
     emptyWidget->setFixedSize(QSize(TOOLBUTTON_SIZE, TOOLBUTTON_SIZE));

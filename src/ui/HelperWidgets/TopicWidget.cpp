@@ -81,7 +81,7 @@ TopicWidget::setPixmapLabelIcon() const
     }
 
     const auto isDarkMode = Utils::UI::isDarkMode();
-    m_removeTopicButton->setIcon(QIcon(isDarkMode ? ":/icons/minus_white.svg" : ":/icons/minus_black.svg"));
+    m_removeTopicButton->setIcon(QIcon(isDarkMode ? ":/icons/widgets/minus_white.svg" : ":/icons/widgets/minus_black.svg"));
 }
 
 

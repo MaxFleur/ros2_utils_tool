@@ -22,7 +22,7 @@
 PublishWidget::PublishWidget(Parameters::PublishParameters& parameters, bool usePredefinedTopicName,
                              bool warnROS2NameConvention, bool publishVideo, QWidget *parent) :
     BasicInputWidget(publishVideo ? "Publish Video as ROS Topic" : "Publish Images as ROS Topic",
-                     publishVideo ? ":/icons/publish_video" : ":/icons/publish_images", parent),
+                     publishVideo ? ":/icons/tools/publish_video" : ":/icons/tools/publish_images", parent),
     m_parameters(parameters), m_settings(parameters, publishVideo ? "publish_video" : "publish_images"),
     m_warnROS2NameConvention(warnROS2NameConvention), m_publishVideo(publishVideo)
 {

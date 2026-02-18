@@ -15,7 +15,7 @@
 #include <filesystem>
 
 EditBagWidget::EditBagWidget(Parameters::EditBagParameters& parameters, bool warnROS2NameConvention, QWidget *parent) :
-    BasicBagWidget(parameters, "Edit Bag", ":/icons/edit_bag", "edit_bag", OUTPUT_BAG_EDITED, parent),
+    BasicBagWidget(parameters, "Edit Bag", ":/icons/tools/edit_bag", "edit_bag", OUTPUT_BAG_EDITED, parent),
     m_parameters(parameters), m_settings(parameters, "edit_bag"),
     m_warnROS2NameConvention(warnROS2NameConvention)
 {

@@ -17,7 +17,7 @@
 
 PCDsToBagWidget::PCDsToBagWidget(Parameters::PCDsToBagParameters& parameters,
                                  bool usePredefinedTopicName, bool warnROS2NameConvention, QWidget *parent) :
-    TopicComboBoxWidget(parameters, "PCD Files to Bag", ":/icons/pcd_to_bag", "Files Dir:", "Bag Location:", "pcd_to_bag", OUTPUT_BAG, parent),
+    TopicComboBoxWidget(parameters, "PCD Files to Bag", ":/icons/tools/pcd_to_bag", "Files Dir:", "Bag Location:", "pcd_to_bag", OUTPUT_BAG, parent),
     m_parameters(parameters), m_settings(parameters, "pcd_to_bag"),
     m_warnROS2NameConvention(warnROS2NameConvention)
 {

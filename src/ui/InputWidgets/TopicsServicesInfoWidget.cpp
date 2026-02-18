@@ -11,7 +11,7 @@
 #include "UtilsROS.hpp"
 
 TopicsServicesInfoWidget::TopicsServicesInfoWidget(QWidget *parent) :
-    BasicInputWidget("Topics and\nServices Info", ":/icons/topics_services_info", parent)
+    BasicInputWidget("Topics and\nServices Info", ":/icons/tools/topics_services_info", parent)
 {
     m_treeWidget = new QTreeWidget;
     m_treeWidget->setColumnCount(2);

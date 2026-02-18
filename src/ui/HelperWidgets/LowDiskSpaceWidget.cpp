@@ -53,7 +53,7 @@ LowDiskSpaceWidget::setPixmapLabelIcon() const
 {
     const auto visibility = m_warningIconLabel->isVisible();
 
-    m_warningIconLabel->setPixmap(QIcon(":/icons/warning.svg").pixmap(QSize(ICON_SIZE, ICON_SIZE)));
+    m_warningIconLabel->setPixmap(QIcon(":/icons/widgets/warning.svg").pixmap(QSize(ICON_SIZE, ICON_SIZE)));
     m_warningIconLabel->setVisible(visibility);
 }
 

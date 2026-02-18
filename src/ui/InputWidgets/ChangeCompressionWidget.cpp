@@ -16,7 +16,7 @@
 ChangeCompressionWidget::ChangeCompressionWidget(Parameters::CompressBagParameters& parameters, bool compress,
                                                  QWidget *parent) :
     AdvancedInputWidget(parameters, compress ? "Compress Bag" : "Decompress Bag",
-                        compress ? ":/icons/compress_bag" : ":/icons/decompress_bag", "Source Bag:", "Target Bag:",
+                        compress ? ":/icons/tools/compress_bag" : ":/icons/tools/decompress_bag", "Source Bag:", "Target Bag:",
                         compress ? "compress_bag" : "decompress_bag", compress ? OUTPUT_BAG_COMPRESSED : OUTPUT_BAG_DECOMPRESSED, parent),
     m_parameters(parameters), m_settings(parameters, compress ? "compress_bag" : "decompress_bag"), m_compress(compress)
 {

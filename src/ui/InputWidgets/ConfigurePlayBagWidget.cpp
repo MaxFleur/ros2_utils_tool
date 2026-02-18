@@ -18,7 +18,7 @@
 #include <filesystem>
 
 ConfigurePlayBagWidget::ConfigurePlayBagWidget(Parameters::PlayBagParameters& parameters, QWidget *parent) :
-    BasicInputWidget("Play Bag", ":/icons/play_bag", parent),
+    BasicInputWidget("Play Bag", ":/icons/tools/play_bag", parent),
     m_parameters(parameters), m_settings(parameters, "play_bag")
 {
     m_sourceLineEdit->setText(m_parameters.sourceDirectory);

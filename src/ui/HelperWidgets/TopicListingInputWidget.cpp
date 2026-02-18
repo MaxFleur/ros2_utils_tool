@@ -104,7 +104,7 @@ TopicListingInputWidget::setPixmapLabelIcon() const
 {
     const auto isDarkMode = Utils::UI::isDarkMode();
     m_headerPixmapLabel->setPixmap(QIcon(isDarkMode ? m_iconPath + "_white.svg" : m_iconPath + "_black.svg").pixmap(QSize(100, 45)));
-    m_addTopicButton->setIcon(QIcon(isDarkMode ? ":/icons/plus_white.svg" : ":/icons/plus_black.svg"));
+    m_addTopicButton->setIcon(QIcon(isDarkMode ? ":/icons/widgets/plus_white.svg" : ":/icons/widgets/plus_black.svg"));
 }
 
 
