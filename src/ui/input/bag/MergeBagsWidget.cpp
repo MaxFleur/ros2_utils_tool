@@ -1,15 +1,14 @@
 #include "MergeBagsWidget.hpp"
 
+#include "BagTreeWidget.hpp"
 #include "LowDiskSpaceWidget.hpp"
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
-#include <QFileDialog>
 #include <QFormLayout>
 #include <QLabel>
 #include <QPushButton>
 #include <QToolButton>
-#include <QTreeWidget>
 
 #include <filesystem>
 
@@ -66,13 +65,8 @@ void
 MergeBagsWidget::findSourceButtonPressed()
 {
     QPointer<QLineEdit> lineEdit = m_secondSourceButtonClicked ? m_secondSourceLineEdit : m_sourceLineEdit;
-    const auto bagDirectory = QFileDialog::getExistingDirectory(this, "Open Source Bag File", "",
-                                                                QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-    if (bagDirectory.isEmpty()) {
-        return;
-    }
-    if (!Utils::ROS::doesDirectoryContainBagFile(bagDirectory)) {
-        Utils::UI::createCriticalMessageBox("Invalid bag file!", "The source bag file seems to be invalid or broken!");
+    const auto bagDirectory = Utils::UI::isBagDirectoryValid(this);
+    if (bagDirectory == std::nullopt) {
         return;
     }
     const auto& otherSourcePath = m_secondSourceButtonClicked ? m_parameters.sourceDirectory : m_parameters.secondSourceDirectory;
@@ -81,8 +75,8 @@ MergeBagsWidget::findSourceButtonPressed()
         return;
     }
 
-    lineEdit->setText(bagDirectory);
-    writeParameterToSettings(m_secondSourceButtonClicked ? m_parameters.secondSourceDirectory : m_parameters.sourceDirectory, bagDirectory, m_settings);
+    lineEdit->setText(*bagDirectory);
+    writeParameterToSettings(m_secondSourceButtonClicked ? m_parameters.secondSourceDirectory : m_parameters.sourceDirectory, *bagDirectory, m_settings);
     m_settings.write();
 
     if (!m_parameters.sourceDirectory.isEmpty() && !m_parameters.secondSourceDirectory.isEmpty()) {
@@ -132,27 +126,11 @@ MergeBagsWidget::createTopicTree(bool resetTopicsParameter)
                 mergeBagTopic.bagDir = bagFilePath;
                 m_parameters.topics.push_back(mergeBagTopic);
             }
+
             auto& mergeBagTopic = itemAlreadyExists ? *it : m_parameters.topics.back();
-
-            auto* const item = new QTreeWidgetItem;
-            topLevelItem->addChild(item);
-
-            item->setFlags(item->flags() & ~Qt::ItemIsSelectable);
-            item->setCheckState(COL_CHECKBOXES, mergeBagTopic.isSelected ? Qt::Checked : Qt::Unchecked);
-            // Create item widgets
-            auto* const topicNameLabel = new QLabel(QString::fromStdString(topicMetaData.name));
-            topicNameLabel->setEnabled(mergeBagTopic.isSelected);
-
-            auto* const topicTypeLabel = new QLabel(QString::fromStdString(topicMetaData.type));
-            topicTypeLabel->setEnabled(mergeBagTopic.isSelected);
-            auto font = topicTypeLabel->font();
-            font.setItalic(true);
-            topicTypeLabel->setFont(font);
-
-            item->setData(COL_TOPIC_NAME, Qt::UserRole, QVariant::fromValue(i + topicIndex));
-
-            m_treeWidget->setItemWidget(item, COL_TOPIC_NAME, topicNameLabel);
-            m_treeWidget->setItemWidget(item, COL_TOPIC_TYPE, topicTypeLabel);
+            m_treeWidget->createItemWithTopicNameAndType(QString::fromStdString(topicMetaData.name), QString::fromStdString(topicMetaData.type),
+                                                         mergeBagTopic.isSelected, topLevelItem);
+            m_treeWidget->topLevelItem(m_treeWidget->topLevelItemCount() - 1)->setData(COL_TOPIC_NAME, Qt::UserRole, QVariant::fromValue(i + topicIndex));
         }
 
         topicIndex += bagMetaData.topics_with_message_count.size();
@@ -163,9 +141,7 @@ MergeBagsWidget::createTopicTree(bool resetTopicsParameter)
     fillTreeWithBagTopics(m_parameters.secondSourceDirectory, "Second:");
     m_treeWidget->expandAll();
 
-    m_treeWidget->resizeColumnToContents(COL_CHECKBOXES);
-    m_treeWidget->resizeColumnToContents(COL_TOPIC_NAME);
-    m_treeWidget->resizeColumnToContents(COL_TOPIC_TYPE);
+    m_treeWidget->resizeColumns();
     m_treeWidget->setColumnWidth(COL_TOPIC_NAME, m_treeWidget->columnWidth(COL_TOPIC_NAME) + 10);
 
     m_treeWidget->blockSignals(false);
@@ -185,11 +161,10 @@ MergeBagsWidget::itemCheckStateChanged(QTreeWidgetItem* item, int column)
         return;
     }
 
-    BasicBagWidget::itemCheckStateChanged(item, column);
-
     // Find corresponding row index in parameters
     auto rowIndex = 0;
     const auto bagDir = item->parent()->text(COL_CHECKBOXES) == "First:" ? m_parameters.sourceDirectory : m_parameters.secondSourceDirectory;
+
     for (auto i = 0; i < m_parameters.topics.size(); i++) {
         auto* const nameLabel = static_cast<QLabel*>(m_treeWidget->itemWidget(item, COL_TOPIC_NAME));
         // Equal name and bag dir required to find the correct topic

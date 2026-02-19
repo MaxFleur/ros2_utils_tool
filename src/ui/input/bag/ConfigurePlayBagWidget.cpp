@@ -1,25 +1,23 @@
 #include "ConfigurePlayBagWidget.hpp"
 
+#include "BagTreeWidget.hpp"
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
 #include <QCheckBox>
 #include <QDoubleSpinBox>
-#include <QFileDialog>
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QShortcut>
-#include <QTreeWidget>
 #include <QVBoxLayout>
 
 #include <filesystem>
 
 ConfigurePlayBagWidget::ConfigurePlayBagWidget(Parameters::PlayBagParameters& parameters, QWidget *parent) :
-    BasicInputWidget("Play Bag", ":/icons/tools/play_bag", parent),
-    m_parameters(parameters), m_settings(parameters, "play_bag")
+    BasicInputWidget("Play Bag", ":/icons/tools/play_bag", parent), m_parameters(parameters), m_settings(parameters, "play_bag")
 {
     m_sourceLineEdit->setText(m_parameters.sourceDirectory);
     m_okButton->setVisible(false);
@@ -33,14 +31,8 @@ ConfigurePlayBagWidget::ConfigurePlayBagWidget(Parameters::PlayBagParameters& pa
     labelFont.setBold(true);
     m_unselectLabel->setFont(labelFont);
 
-    m_treeWidget = new QTreeWidget;
+    m_treeWidget = new BagTreeWidget;
     m_treeWidget->setMinimumWidth(350);
-    m_treeWidget->setVisible(false);
-    m_treeWidget->setColumnCount(3);
-    m_treeWidget->headerItem()->setText(COL_CHECKBOXES, "");
-    m_treeWidget->headerItem()->setText(COL_TOPIC_NAME, "Topic Name:");
-    m_treeWidget->headerItem()->setText(COL_TOPIC_TYPE, "Topic Type:");
-    m_treeWidget->setRootIsDecorated(false);
 
     m_lowerOptionsLayout = new QFormLayout;
     m_lowerOptionsLayout->setLabelAlignment(Qt::AlignLeft);
@@ -103,21 +95,16 @@ ConfigurePlayBagWidget::ConfigurePlayBagWidget(Parameters::PlayBagParameters& pa
 void
 ConfigurePlayBagWidget::findSourceButtonPressed()
 {
-    const auto bagDirectory = QFileDialog::getExistingDirectory(this, "Open Source Bag File", "",
-                                                                QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-    if (bagDirectory.isEmpty()) {
-        return;
-    }
-    if (!Utils::ROS::doesDirectoryContainBagFile(bagDirectory)) {
-        Utils::UI::createCriticalMessageBox("Invalid bag file!", "The source bag file seems to be invalid or broken!");
+    const auto bagDirectory = Utils::UI::isBagDirectoryValid(this);
+    if (bagDirectory == std::nullopt) {
         return;
     }
 
-    writeParameterToSettings(m_parameters.sourceDirectory, bagDirectory, m_settings);
+    writeParameterToSettings(m_parameters.sourceDirectory, *bagDirectory, m_settings);
     m_parameters.topics.clear();
     m_settings.write();
 
-    m_sourceLineEdit->setText(bagDirectory);
+    m_sourceLineEdit->setText(*bagDirectory);
     populateWidget();
 }
 
@@ -144,29 +131,12 @@ ConfigurePlayBagWidget::populateWidget()
             m_parameters.topics.push_back({ QString::fromStdString(topicMetaData.name), QString::fromStdString(topicMetaData.type), true });
         }
 
-        auto* const item = new QTreeWidgetItem;
-        m_treeWidget->addTopLevelItem(item);
-        auto& editBagItem = itemAlreadyExists ? *it : m_parameters.topics.back();
-
-        item->setFlags(item->flags() & ~Qt::ItemIsSelectable);
-        item->setCheckState(COL_CHECKBOXES, editBagItem.isSelected ? Qt::Checked : Qt::Unchecked);
-        // Create item widgets
-        auto* const topicNameLabel = new QLabel(QString::fromStdString(topicMetaData.name));
-        topicNameLabel->setEnabled(editBagItem.isSelected);
-
-        auto* const topicTypeLabel = new QLabel(QString::fromStdString(topicMetaData.type));
-        topicTypeLabel->setEnabled(editBagItem.isSelected);
-        auto font = topicTypeLabel->font();
-        font.setItalic(true);
-        topicTypeLabel->setFont(font);
-
-        m_treeWidget->setItemWidget(item, COL_TOPIC_NAME, topicNameLabel);
-        m_treeWidget->setItemWidget(item, COL_TOPIC_TYPE, topicTypeLabel);
+        auto& playBagTopic = itemAlreadyExists ? *it : m_parameters.topics.back();
+        m_treeWidget->createItemWithTopicNameAndType(QString::fromStdString(topicMetaData.name), QString::fromStdString(topicMetaData.type),
+                                                     playBagTopic.isSelected);
     }
 
-    m_treeWidget->resizeColumnToContents(COL_CHECKBOXES);
-    m_treeWidget->resizeColumnToContents(COL_TOPIC_NAME);
-    m_treeWidget->resizeColumnToContents(COL_TOPIC_TYPE);
+    m_treeWidget->resizeColumns();
     m_treeWidget->blockSignals(false);
 
     m_lowerOptionsLayout->addRow("Rate:", m_rateSpinBox);
@@ -188,9 +158,6 @@ ConfigurePlayBagWidget::itemCheckStateChanged(QTreeWidgetItem* item, int column)
     if (column != COL_CHECKBOXES) {
         return;
     }
-
-    m_treeWidget->itemWidget(item, COL_TOPIC_NAME)->setEnabled(item->checkState(COL_CHECKBOXES) == Qt::Checked ? true : false);
-    m_treeWidget->itemWidget(item, COL_TOPIC_TYPE)->setEnabled(item->checkState(COL_CHECKBOXES) == Qt::Checked ? true : false);
 
     const auto rowIndex = m_treeWidget->indexOfTopLevelItem(item);
     writeParameterToSettings(m_parameters.topics[rowIndex].isSelected, item->checkState(COL_CHECKBOXES) == Qt::Checked, m_settings);

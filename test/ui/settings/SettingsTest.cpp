@@ -62,7 +62,7 @@ verifiySettingQString(const QSettings& settings, const QString& settingName, con
 }
 
 
-TEST_CASE("Settings Testing", "[ui]") {
+TEST_CASE("Settings Testing", "[settings]") {
     QSettings qSettings;
     qSettings.beginGroup("dialog");
     qSettings.setValue("save_parameters", true);

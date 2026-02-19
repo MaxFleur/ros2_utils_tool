@@ -8,11 +8,12 @@
 #include <QTreeWidgetItem>
 #include <QWidget>
 
+class BagTreeWidget;
+
 class QCheckBox;
 class QDoubleSpinBox;
 class QFormLayout;
 class QLabel;
-class QTreeWidget;
 
 // Widget for setting parameters to playing a bag file
 class ConfigurePlayBagWidget : public BasicInputWidget
@@ -35,7 +36,7 @@ private slots:
                           int              column);
 
 private:
-    QPointer<QTreeWidget> m_treeWidget;
+    QPointer<BagTreeWidget> m_treeWidget;
 
     QPointer<QLabel> m_unselectLabel;
 

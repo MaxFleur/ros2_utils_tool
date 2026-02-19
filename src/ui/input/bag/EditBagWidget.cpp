@@ -1,16 +1,15 @@
 #include "EditBagWidget.hpp"
 
+#include "BagTreeWidget.hpp"
 #include "LowDiskSpaceWidget.hpp"
 #include "MessageCountWidget.hpp"
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
 #include <QCheckBox>
-#include <QFileDialog>
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QTreeWidget>
 
 #include <filesystem>
 
@@ -25,7 +24,6 @@ EditBagWidget::EditBagWidget(Parameters::EditBagParameters& parameters, bool war
     m_treeWidget->setColumnCount(4);
     m_treeWidget->headerItem()->setText(COL_MESSAGE_COUNT, "Message Count:");
     m_treeWidget->headerItem()->setText(COL_RENAMING, "Rename Topic (Optional):");
-    m_treeWidget->setRootIsDecorated(false);
 
     m_differentDirsLabel = new QLabel("A new bag file will be created, so make sure that enough space is available!");
     m_differentDirsLabel->setVisible(false);
@@ -68,21 +66,16 @@ EditBagWidget::EditBagWidget(Parameters::EditBagParameters& parameters, bool war
 void
 EditBagWidget::findSourceButtonPressed()
 {
-    const auto bagDirectory = QFileDialog::getExistingDirectory(this, "Open Source Bag File", "",
-                                                                QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-    if (bagDirectory.isEmpty()) {
-        return;
-    }
-    if (!Utils::ROS::doesDirectoryContainBagFile(bagDirectory)) {
-        Utils::UI::createCriticalMessageBox("Invalid bag file!", "The source bag file seems to be invalid or broken!");
+    const auto bagDirectory = Utils::UI::isBagDirectoryValid(this);
+    if (bagDirectory == std::nullopt) {
         return;
     }
 
-    writeParameterToSettings(m_parameters.sourceDirectory, bagDirectory, m_settings);
+    writeParameterToSettings(m_parameters.sourceDirectory, *bagDirectory, m_settings);
     m_parameters.topics.clear();
     m_settings.write();
 
-    m_sourceLineEdit->setText(bagDirectory);
+    m_sourceLineEdit->setText(*bagDirectory);
     fillTargetLineEdit();
     createTopicTree();
 }
@@ -112,33 +105,19 @@ EditBagWidget::createTopicTree()
             m_parameters.topics.push_back(editBagTopic);
         }
 
-        auto& editBagItem = itemAlreadyExists ? *it : m_parameters.topics.back();
+        auto& editBagTopic = itemAlreadyExists ? *it : m_parameters.topics.back();
+        m_treeWidget->createItemWithTopicNameAndType(QString::fromStdString(topicMetaData.name), QString::fromStdString(topicMetaData.type),
+                                                     editBagTopic.isSelected);
 
-        auto* const item = new QTreeWidgetItem;
-        m_treeWidget->addTopLevelItem(item);
+        auto* const messageCountWidget = new MessageCountWidget(editBagTopic.lowerBoundary, topicWithMessageCount.message_count - 1, editBagTopic.upperBoundary);
+        messageCountWidget->setEnabled(editBagTopic.isSelected);
 
-        item->setFlags(item->flags() & ~Qt::ItemIsSelectable);
-        item->setCheckState(COL_CHECKBOXES, editBagItem.isSelected ? Qt::Checked : Qt::Unchecked);
-        // Create item widgets
-        auto* const topicNameLabel = new QLabel(QString::fromStdString(topicMetaData.name));
-        topicNameLabel->setEnabled(editBagItem.isSelected);
+        auto* const renamingLineEdit = new QLineEdit(editBagTopic.renamedTopicName);
+        renamingLineEdit->setEnabled(editBagTopic.isSelected);
 
-        auto* const topicTypeLabel = new QLabel(QString::fromStdString(topicMetaData.type));
-        topicTypeLabel->setEnabled(editBagItem.isSelected);
-        auto font = topicTypeLabel->font();
-        font.setItalic(true);
-        topicTypeLabel->setFont(font);
-
-        auto* const messageCountWidget = new MessageCountWidget(editBagItem.lowerBoundary, topicWithMessageCount.message_count - 1, editBagItem.upperBoundary);
-        messageCountWidget->setEnabled(editBagItem.isSelected);
-
-        auto* const renamingLineEdit = new QLineEdit(editBagItem.renamedTopicName);
-        renamingLineEdit->setEnabled(editBagItem.isSelected);
-
-        m_treeWidget->setItemWidget(item, COL_TOPIC_NAME, topicNameLabel);
-        m_treeWidget->setItemWidget(item, COL_TOPIC_TYPE, topicTypeLabel);
-        m_treeWidget->setItemWidget(item, COL_MESSAGE_COUNT, messageCountWidget);
-        m_treeWidget->setItemWidget(item, COL_RENAMING, renamingLineEdit);
+        auto* lastItem = m_treeWidget->topLevelItem(m_treeWidget->topLevelItemCount() - 1);
+        m_treeWidget->setItemWidget(lastItem, COL_MESSAGE_COUNT, messageCountWidget);
+        m_treeWidget->setItemWidget(lastItem, COL_RENAMING, renamingLineEdit);
 
         connect(messageCountWidget, &MessageCountWidget::lowerValueChanged, this, [i, this](int value) {
             writeParameterToSettings(m_parameters.topics[i].lowerBoundary, static_cast<size_t>(value), m_settings);
@@ -151,11 +130,7 @@ EditBagWidget::createTopicTree()
         });
     }
 
-    m_treeWidget->resizeColumnToContents(COL_CHECKBOXES);
-    m_treeWidget->resizeColumnToContents(COL_TOPIC_NAME);
-    m_treeWidget->resizeColumnToContents(COL_TOPIC_TYPE);
-    m_treeWidget->resizeColumnToContents(COL_MESSAGE_COUNT);
-    m_treeWidget->resizeColumnToContents(COL_RENAMING);
+    m_treeWidget->resizeColumns();
     m_treeWidget->blockSignals(false);
 
     m_editLabel->setVisible(true);
@@ -175,7 +150,6 @@ EditBagWidget::itemCheckStateChanged(QTreeWidgetItem* item, int column)
         return;
     }
 
-    BasicBagWidget::itemCheckStateChanged(item, column);
     m_treeWidget->itemWidget(item, COL_MESSAGE_COUNT)->setEnabled(item->checkState(COL_CHECKBOXES) == Qt::Checked ? true : false);
     m_treeWidget->itemWidget(item, COL_RENAMING)->setEnabled(item->checkState(COL_CHECKBOXES) == Qt::Checked ? true : false);
 

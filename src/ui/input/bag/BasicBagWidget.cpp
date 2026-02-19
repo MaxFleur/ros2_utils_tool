@@ -1,5 +1,6 @@
 #include "BasicBagWidget.hpp"
 
+#include "BagTreeWidget.hpp"
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
@@ -39,13 +40,7 @@ BasicBagWidget::BasicBagWidget(Parameters::DeleteSourceParameters& parameters,
     m_deleteSourceCheckBox->setTristate(false);
     m_deleteSourceCheckBox->setChecked(m_parameters.deleteSource);
 
-    m_treeWidget = new QTreeWidget;
-    m_treeWidget->setVisible(false);
-    m_treeWidget->setColumnCount(3);
-    m_treeWidget->headerItem()->setText(COL_CHECKBOXES, "");
-    m_treeWidget->headerItem()->setText(COL_TOPIC_NAME, "Topic Name:");
-    m_treeWidget->headerItem()->setText(COL_TOPIC_TYPE, "Topic Type:");
-    m_treeWidget->setRootIsDecorated(false);
+    m_treeWidget = new BagTreeWidget;
 
     m_controlsLayout->addLayout(m_basicOptionsFormLayout);
     m_controlsLayout->addSpacing(10);
@@ -57,15 +52,6 @@ BasicBagWidget::BasicBagWidget(Parameters::DeleteSourceParameters& parameters,
     connect(m_deleteSourceCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.deleteSource, state == Qt::Checked, m_settings);
     });
-}
-
-
-void
-BasicBagWidget::itemCheckStateChanged(QTreeWidgetItem* item, int /* column */)
-{
-    // Disable item widgets, this improves distinction between enabed and disabled topics
-    m_treeWidget->itemWidget(item, COL_TOPIC_NAME)->setEnabled(item->checkState(COL_CHECKBOXES) == Qt::Checked ? true : false);
-    m_treeWidget->itemWidget(item, COL_TOPIC_TYPE)->setEnabled(item->checkState(COL_CHECKBOXES) == Qt::Checked ? true : false);
 }
 
 

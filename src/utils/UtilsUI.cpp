@@ -3,6 +3,7 @@
 #include "DialogSettings.hpp"
 #include "UtilsROS.hpp"
 
+#include <QFileDialog>
 #include <QMessageBox>
 
 #include <filesystem>
@@ -137,6 +138,23 @@ replaceTextAppendix(const QString& inputText, const QString& newAppendix)
     newText += "." + newAppendix;
 
     return newText;
+}
+
+
+std::optional<QString>
+isBagDirectoryValid(QWidget* parent)
+{
+    const auto bagDirectory = QFileDialog::getExistingDirectory(parent, "Open Source Bag File", "",
+                                                                QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    if (bagDirectory.isEmpty()) {
+        return {};
+    }
+    if (!Utils::ROS::doesDirectoryContainBagFile(bagDirectory)) {
+        createCriticalMessageBox("Invalid bag file!", "The source bag file seems to be invalid or broken!");
+        return {};
+    }
+
+    return bagDirectory;
 }
 
 

@@ -54,6 +54,10 @@ const QString
 replaceTextAppendix(const QString& inputText,
                     const QString& newAppendix);
 
+// Finds a bag file and checks if it is valid
+std::optional<QString>
+isBagDirectoryValid(QWidget* parent);
+
 // Checks if the application is in dark mode
 [[nodiscard]] bool
 isDarkMode();

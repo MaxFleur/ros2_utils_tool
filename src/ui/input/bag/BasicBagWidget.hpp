@@ -7,9 +7,10 @@
 #include <QPointer>
 #include <QWidget>
 
+class BagTreeWidget;
+
 class QCheckBox;
 class QHBoxLayout;
-class QTreeWidget;
 class QTreeWidgetItem;
 
 // Widget for displaying bag contents for manipulation
@@ -37,7 +38,7 @@ protected:
                          const QString& secondSourceParameter = QString()) const;
 
 protected:
-    QPointer<QTreeWidget> m_treeWidget;
+    QPointer<BagTreeWidget> m_treeWidget;
 
     QPointer<QCheckBox> m_deleteSourceCheckBox;
 
