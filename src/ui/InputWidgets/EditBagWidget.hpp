@@ -49,5 +49,5 @@ private:
     static constexpr int COL_MESSAGE_COUNT = 3;
     static constexpr int COL_RENAMING = 4;
 
-    static constexpr int BUFFER_SPACE = 200;
+    static constexpr int HEIGHT_OFFSET = 80;
 };

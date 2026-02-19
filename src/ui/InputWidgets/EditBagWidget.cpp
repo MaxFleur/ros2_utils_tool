@@ -157,6 +157,10 @@ EditBagWidget::createTopicTree()
     m_treeWidget->resizeColumnToContents(COL_MESSAGE_COUNT);
     m_treeWidget->resizeColumnToContents(COL_RENAMING);
     m_treeWidget->blockSignals(false);
+    // Just take a random item to get its height
+    auto* item = m_treeWidget->topLevelItem(m_treeWidget->topLevelItemCount() - 1);
+    const auto height = m_treeWidget->visualItemRect(item).height();
+    m_treeWidget->setFixedHeight((height * m_treeWidget->topLevelItemCount()) + HEIGHT_OFFSET);
 
     m_editLabel->setVisible(true);
     m_treeWidget->setVisible(true);
