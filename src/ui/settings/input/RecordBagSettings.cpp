@@ -49,8 +49,8 @@ RecordBagSettings::read()
     const auto size = settings.beginReadArray("topics");
     for (auto i = 0; i < size; ++i) {
         settings.setArrayIndex(i);
-        m_parameters.topics.append({ readParameter(settings, "name", QString("")),
-                                     readParameter(settings, "is_selected", true) });
+        m_parameters.topics.append({ { readParameter(settings, "name", QString("")) },
+                                       readParameter(settings, "is_selected", true) });
     }
     settings.endArray();
     settings.endGroup();

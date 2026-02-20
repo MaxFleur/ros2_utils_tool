@@ -48,9 +48,9 @@ DummyBagWidget::DummyBagWidget(Parameters::DummyBagParameters& parameters, bool 
     m_controlsLayout->setAlignment(m_lowDiskSpaceWidget, Qt::AlignCenter);
 
     const auto addNewTopic = [this] {
-        m_parameters.topics.push_back({ "String", "" });
+        m_parameters.topics.push_back({ { "" }, "String" });
         m_settings.write();
-        createNewDummyTopicWidget({ "", "" }, m_parameters.topics.size() - 1);
+        createNewDummyTopicWidget({ { "" }, "" }, m_parameters.topics.size() - 1);
     };
     // Create widgets for already existing topics
     for (auto i = 0; i < m_parameters.topics.size(); i++) {

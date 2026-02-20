@@ -97,7 +97,7 @@ TEST_CASE("Settings Testing", "[settings]") {
             Parameters::RecordBagParameters parameters;
             RecordBagSettings settings(parameters, "record");
 
-            parameters.topics.push_back({ "/topic", true });
+            parameters.topics.push_back({ { "/topic" }, true });
             parameters.showAdvancedOptions = true;
             parameters.includeHiddenTopics = true;
             parameters.includeUnpublishedTopics = true;
@@ -133,7 +133,7 @@ TEST_CASE("Settings Testing", "[settings]") {
             parameters.messageCount = 250;
             parameters.rate = 25;
             parameters.useCustomRate = true;
-            parameters.topics.push_back({ "string", "example_name" });
+            parameters.topics.push_back({ { "example_name" }, "string" });
             settings.write();
 
             qSettings.beginGroup("dummy");
@@ -245,7 +245,7 @@ TEST_CASE("Settings Testing", "[settings]") {
 
             parameters.deleteSource = true;
             parameters.updateTimestamps = true;
-            parameters.topics.push_back({ "renamed_topic", "original_topic", 42, 1337, true });
+            parameters.topics.push_back({ { { "original_topic" }, true }, "renamed_topic", 42, 1337 });
             settings.write();
 
             qSettings.beginGroup("edit");
@@ -254,11 +254,11 @@ TEST_CASE("Settings Testing", "[settings]") {
             const auto size = qSettings.beginReadArray("topics");
             for (auto i = 0; i < size; ++i) {
                 qSettings.setArrayIndex(i);
+                verifiySettingQString(qSettings, "name", "original_topic");
+                verifiySettingPrimitive(qSettings, "is_selected", true);
                 verifiySettingQString(qSettings, "renamed_name", "renamed_topic");
-                verifiySettingQString(qSettings, "original_name", "original_topic");
                 verifiySettingPrimitive(qSettings, "lower_boundary", 42);
                 verifiySettingPrimitive(qSettings, "upper_boundary", 1337);
-                verifiySettingPrimitive(qSettings, "is_selected", true);
             }
             REQUIRE(size == 1);
             qSettings.endArray();
@@ -277,7 +277,7 @@ TEST_CASE("Settings Testing", "[settings]") {
             MergeBagsSettings settings(parameters, "merge");
 
             parameters.secondSourceDirectory = "/path/to/other/bag";
-            parameters.topics.push_back({ "topic", "/path/to/other/bag", true });
+            parameters.topics.push_back({ { { "topic" }, true }, "/path/to/other/bag" });
             settings.write();
 
             qSettings.beginGroup("merge");
@@ -326,7 +326,7 @@ TEST_CASE("Settings Testing", "[settings]") {
             Parameters::PlayBagParameters parameters;
             PlayBagSettings settings(parameters, "play_bag");
 
-            parameters.topics.push_back({ "topic", "std::msgs::msg::String", true });
+            parameters.topics.push_back({ { "topic" }, true });
             parameters.rate = 4.2;
             parameters.loop = true;
             settings.write();
@@ -341,7 +341,6 @@ TEST_CASE("Settings Testing", "[settings]") {
             for (auto i = 0; i < size; ++i) {
                 qSettings.setArrayIndex(i);
                 verifiySettingQString(qSettings, "name", "topic");
-                verifiySettingQString(qSettings, "type", "std::msgs::msg::String");
                 verifiySettingPrimitive(qSettings, "is_selected", true);
             }
             qSettings.endArray();

@@ -22,7 +22,6 @@ PlayBagSettings::write()
     for (auto i = 0; i < m_parameters.topics.size(); ++i) {
         settings.setArrayIndex(i);
         writeParameter(settings, "name", m_parameters.topics.at(i).name);
-        writeParameter(settings, "type", m_parameters.topics.at(i).type);
         writeParameter(settings, "is_selected", m_parameters.topics.at(i).isSelected);
     }
     settings.endArray();
@@ -49,9 +48,8 @@ PlayBagSettings::read()
     const auto size = settings.beginReadArray("topics");
     for (auto i = 0; i < size; ++i) {
         settings.setArrayIndex(i);
-        m_parameters.topics.append({ readParameter(settings, "name", QString("")),
-                                     readParameter(settings, "type", QString("")),
-                                     readParameter(settings, "is_selected", false) });
+        m_parameters.topics.append({ { readParameter(settings, "name", QString("")) },
+                                       readParameter(settings, "is_selected", false) });
     }
     settings.endArray();
     settings.endGroup();

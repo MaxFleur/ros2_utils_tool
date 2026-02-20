@@ -69,8 +69,8 @@ main(int argc, char* argv[])
     }
 
     // Topics
-    QVector<QString> topicTypes;
     QVector<QString> topicNames;
+    QVector<QString> topicTypes;
     QSet<QString> topicNameSet;
     auto areROS2NamesValid = true;
 
@@ -121,7 +121,7 @@ main(int argc, char* argv[])
     // Create thread parameters
     QVector<Parameters::DummyBagParameters::DummyBagTopic> topics;
     for (auto i = 0; i < topicTypes.size(); i++) {
-        parameters.topics.push_back({ topicTypes.at(i), topicNames.at(i) });
+        parameters.topics.push_back({ { topicNames.at(i) }, topicTypes.at(i) });
     }
 
     if (!Utils::CLI::continueExistingTargetLowDiskSpace(arguments, parameters.sourceDirectory)) {

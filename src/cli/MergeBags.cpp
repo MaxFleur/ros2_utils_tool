@@ -73,7 +73,7 @@ main(int argc, char* argv[])
             throw std::runtime_error("The specified topic '" + arguments.at(bagIndex).toStdString() + "' does not exist!");
         }
 
-        parameters.topics.push_back({ arguments.at(bagIndex), bagDirectory, true });
+        parameters.topics.push_back({ { { arguments.at(bagIndex) }, true }, bagDirectory });
         topicNameSet.insert(arguments.at(bagIndex));
         bagIndex++;
         return true;

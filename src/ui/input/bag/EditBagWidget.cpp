@@ -94,13 +94,13 @@ EditBagWidget::createTopicTree()
         const auto& topicMetaData = topicWithMessageCount.topic_metadata;
 
         const auto it = std::find_if(m_parameters.topics.begin(), m_parameters.topics.end(), [topicMetaData] (const auto& editBagTopic) {
-            return editBagTopic.originalTopicName.toStdString() == topicMetaData.name;
+            return editBagTopic.name.toStdString() == topicMetaData.name;
         });
         // If the settings do not contain any topic items, create them
         const auto itemAlreadyExists = it != m_parameters.topics.end();
         if (!itemAlreadyExists) {
             Parameters::EditBagParameters::EditBagTopic editBagTopic;
-            editBagTopic.originalTopicName = QString::fromStdString(topicMetaData.name);
+            editBagTopic.name = QString::fromStdString(topicMetaData.name);
             editBagTopic.upperBoundary = topicWithMessageCount.message_count - 1;
             m_parameters.topics.push_back(editBagTopic);
         }
@@ -112,7 +112,7 @@ EditBagWidget::createTopicTree()
         auto* const messageCountWidget = new MessageCountWidget(editBagTopic.lowerBoundary, topicWithMessageCount.message_count - 1, editBagTopic.upperBoundary);
         messageCountWidget->setEnabled(editBagTopic.isSelected);
 
-        auto* const renamingLineEdit = new QLineEdit(editBagTopic.renamedTopicName);
+        auto* const renamingLineEdit = new QLineEdit(editBagTopic.renamedName);
         renamingLineEdit->setEnabled(editBagTopic.isSelected);
 
         auto* lastItem = m_treeWidget->topLevelItem(m_treeWidget->topLevelItemCount() - 1);
@@ -126,7 +126,7 @@ EditBagWidget::createTopicTree()
             writeParameterToSettings(m_parameters.topics[i].upperBoundary, static_cast<size_t>(value), m_settings);
         });
         connect(renamingLineEdit, &QLineEdit::textChanged, this, [i, this](const QString& text) {
-            writeParameterToSettings(m_parameters.topics[i].renamedTopicName, text, m_settings);
+            writeParameterToSettings(m_parameters.topics[i].renamedName, text, m_settings);
         });
     }
 
@@ -174,8 +174,8 @@ EditBagWidget::okButtonPressed() const
             msgBox->exec();
             return;
         }
-        if (!topic.renamedTopicName.isEmpty() && m_warnROS2NameConvention &&
-            !Utils::ROS::isNameROS2Conform(topic.renamedTopicName) && areROS2NamesValid) {
+        if (!topic.renamedName.isEmpty() && m_warnROS2NameConvention &&
+            !Utils::ROS::isNameROS2Conform(topic.renamedName) && areROS2NamesValid) {
             // Ask only once for invalid names
             areROS2NamesValid = false;
         }
@@ -189,7 +189,7 @@ EditBagWidget::okButtonPressed() const
             continue;
         }
 
-        topicNameSet.insert(topic.renamedTopicName.isEmpty() ? topic.originalTopicName : topic.renamedTopicName);
+        topicNameSet.insert(topic.renamedName.isEmpty() ? topic.name : topic.renamedName);
         sizeOfSelectedTopics++;
     }
 

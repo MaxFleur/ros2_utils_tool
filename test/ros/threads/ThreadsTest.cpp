@@ -157,7 +157,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         }
         SECTION("Specified topic run") {
             parameters.includeUnpublishedTopics = false;
-            parameters.topics.push_back({ "/example", true });
+            parameters.topics.push_back({ { "/example" }, true });
 
             auto node = std::make_shared<rclcpp::Node>("tests_publisher");
             auto publisher = node->create_publisher<std_msgs::msg::Int32>("/example", 10);
@@ -188,11 +188,11 @@ TEST_CASE("Threads Testing", "[threads]") {
         Parameters::DummyBagParameters parameters;
         parameters.sourceDirectory = "./dummy_bag";
         parameters.messageCount = 100;
-        parameters.topics.push_back({ "Image", "/dummy_image" });
-        parameters.topics.push_back({ "Integer", "/dummy_integer" });
-        parameters.topics.push_back({ "String", "/dummy_string" });
-        parameters.topics.push_back({ "Point Cloud", "/dummy_points" });
-        parameters.topics.push_back({ "TF2", "/dummy_tf2" });
+        parameters.topics.push_back({ { "/dummy_image" }, "Image" });
+        parameters.topics.push_back({ { "/dummy_integer" }, "Integer" });
+        parameters.topics.push_back({ { "/dummy_string" }, "String" });
+        parameters.topics.push_back({ { "/dummy_points" }, "Point Cloud" });
+        parameters.topics.push_back({ { "/dummy_tf2" }, "TF2" });
 
         auto* const thread = new DummyBagThread(parameters, std::thread::hardware_concurrency());
         QObject::connect(thread, &DummyBagThread::finished, thread, &QObject::deleteLater);
@@ -241,9 +241,9 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.sourceDirectory = "./dummy_bag";
         parameters.targetDirectory = "./edited_bag";
         parameters.updateTimestamps = true;
-        parameters.topics.push_back({ "", "/dummy_image", 0, 49, true });
-        parameters.topics.push_back({ "", "/dummy_integer", 0, 99, false });
-        parameters.topics.push_back({ "/renamed_string", "/dummy_string", 25, 74, true });
+        parameters.topics.push_back({ { { "/dummy_image" }, true }, "", 0, 49 });
+        parameters.topics.push_back({ { { "/dummy_integer" }, false }, "", 0, 99 });
+        parameters.topics.push_back({ { { "/dummy_string" }, true }, "/renamed_string", 25, 74 });
 
         auto* const thread = new EditBagThread(parameters, std::thread::hardware_concurrency());
         QObject::connect(thread, &EditBagThread::finished, thread, &QObject::deleteLater);
@@ -278,8 +278,8 @@ TEST_CASE("Threads Testing", "[threads]") {
         QObject::connect(thread, &MergeBagsThread::finished, thread, &QObject::deleteLater);
 
         SECTION("Unique Topics") {
-            parameters.topics.push_back({ "/dummy_integer", "./dummy_bag", true });
-            parameters.topics.push_back({ "/renamed_string", "./edited_bag", true });
+            parameters.topics.push_back({ { { "/dummy_integer" }, true }, "./dummy_bag" });
+            parameters.topics.push_back({ { { "/renamed_string" }, true }, "./edited_bag" });
 
             thread->start();
             thread->wait();
@@ -306,9 +306,9 @@ TEST_CASE("Threads Testing", "[threads]") {
         // Assure that two topics of the same name, but from different bags will be merged into one topic
         SECTION("Merged Topics") {
             parameters.topics.clear();
-            parameters.topics.push_back({ "/dummy_image", "./dummy_bag", true });
-            parameters.topics.push_back({ "/dummy_image", "./edited_bag", true });
-            parameters.topics.push_back({ "/renamed_string", "./edited_bag", true });
+            parameters.topics.push_back({ { { "/dummy_image" }, true }, "./dummy_bag" });
+            parameters.topics.push_back({ { { "/dummy_image" }, true }, "./edited_bag" });
+            parameters.topics.push_back({ { { "/renamed_string" }, true }, "./edited_bag" });
 
             thread->start();
             thread->wait();

@@ -149,7 +149,7 @@ RecordBagWidget::populateTreeWidget()
         }
 
         m_treeWidget->createItemWithTopicNameAndType(QString::fromStdString(topic.first), QString::fromStdString(topic.second.at(0)), true);
-        m_parameters.topics.push_back({ QString::fromStdString(topic.first), true });
+        m_parameters.topics.push_back({ { QString::fromStdString(topic.first) }, true });
     }
     m_settings.write();
 

@@ -128,7 +128,7 @@ ConfigurePlayBagWidget::populateWidget()
         // If the settings do not contain any topic items, create them
         const auto itemAlreadyExists = it != m_parameters.topics.end();
         if (!itemAlreadyExists) {
-            m_parameters.topics.push_back({ QString::fromStdString(topicMetaData.name), QString::fromStdString(topicMetaData.type), true });
+            m_parameters.topics.push_back({ { QString::fromStdString(topicMetaData.name) }, true });
         }
 
         auto& playBagTopic = itemAlreadyExists ? *it : m_parameters.topics.back();
