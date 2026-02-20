@@ -211,24 +211,37 @@ TEST_CASE("Settings Testing", "[settings]") {
     SECTION("Record Bag Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("record");
-            checkSettingsInvalidacy(qSettings, { "topics", "all_topics", "show_advanced",
-                                                 "include_hidden_topics", "include_unpublished_topics" });
+            checkSettingsInvalidacy(qSettings, { "size", "duration", "show_advanced",
+                                                 "include_hidden_topics", "include_unpublished_topics",
+                                                 "use_custom_size", "use_custom_duration",
+                                                 "use_compression", "is_compression_file" });
             qSettings.endGroup();
         }
         SECTION("Write") {
             Parameters::RecordBagParameters parameters;
             RecordBagSettings settings(parameters, "record");
 
-            parameters.topics.push_back({ { "/topic" }, true });
+            parameters.maxSizeInMB = 2048;
+            parameters.maxDurationInSeconds = 120;
             parameters.showAdvancedOptions = true;
             parameters.includeHiddenTopics = true;
             parameters.includeUnpublishedTopics = true;
+            parameters.useCustomSize = true;
+            parameters.useCustomDuration = true;
+            parameters.useCompression = true;
+            parameters.isCompressionFile = true;
             settings.write();
 
             qSettings.beginGroup("record");
+            verifiySettingPrimitive(qSettings, "size", 2048);
+            verifiySettingPrimitive(qSettings, "duration", 120);
             verifiySettingPrimitive(qSettings, "show_advanced", true);
             verifiySettingPrimitive(qSettings, "include_hidden_topics", true);
             verifiySettingPrimitive(qSettings, "include_unpublished_topics", true);
+            verifiySettingPrimitive(qSettings, "use_custom_size", true);
+            verifiySettingPrimitive(qSettings, "use_custom_duration", true);
+            verifiySettingPrimitive(qSettings, "use_compression", true);
+            verifiySettingPrimitive(qSettings, "is_compression_file", true);
 
             qSettings.endGroup();
         }

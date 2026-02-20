@@ -1,6 +1,8 @@
 #include "RecordBagThread.hpp"
 
 #include "rclcpp/rclcpp.hpp"
+
+#include "rosbag2_transport/reader_writer_factory.hpp"
 #include "rosbag2_transport/recorder.hpp"
 
 #include <filesystem>
@@ -21,6 +23,8 @@ RecordBagThread::run()
 
     rosbag2_storage::StorageOptions storageOptions;
     storageOptions.uri = targetDirectoryStd;
+    storageOptions.max_bagfile_size = m_parameters.useCustomSize ? m_parameters.maxSizeInMB * 1048576 : 0;
+    storageOptions.max_bagfile_duration = m_parameters.useCustomDuration ? m_parameters.maxDurationInSeconds : 0;
 
     rosbag2_transport::RecordOptions recordOptions;
     for (const auto& topic : m_parameters.topics) {
@@ -32,8 +36,17 @@ RecordBagThread::run()
     recordOptions.rmw_serialization_format = "cdr";
     recordOptions.include_hidden_topics = m_parameters.includeHiddenTopics;
     recordOptions.include_unpublished_topics = m_parameters.includeUnpublishedTopics;
+    if (m_parameters.useCompression) {
+        recordOptions.compression_format = "zstd";
+        recordOptions.compression_mode = m_parameters.isCompressionFile ? "file" : "message";
+        // Need to set this so no messages are dropped
+        recordOptions.compression_queue_size = 0;
+    }
 
-    auto writer = std::make_unique<rosbag2_cpp::Writer>();
+    // Disable terminal logging
+    auto result = rcutils_logging_set_logger_level("rosbag2_recorder", RCUTILS_LOG_SEVERITY_FATAL);
+    Q_UNUSED(result);
+    auto writer = rosbag2_transport::ReaderWriterFactory::make_writer(recordOptions);
     auto recorder = std::make_shared<rosbag2_transport::Recorder>(std::move(writer), storageOptions, recordOptions);
 
     // Initialize recorder

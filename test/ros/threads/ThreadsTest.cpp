@@ -149,38 +149,52 @@ TEST_CASE("Threads Testing", "[threads]") {
             // No idea how and why, but sometimes the thread does not exit correctly
             // even if everything has been cleaned successfully. Need to call quit extra.
             thread->quit();
-
             thread->wait();
 
             const auto& metaData = Utils::ROS::getBagMetadata("./recorded_bag");
             REQUIRE(metaData.topics_with_message_count.size() == 0);
         }
         SECTION("Specified topic run") {
-            parameters.includeUnpublishedTopics = false;
-            parameters.topics.push_back({ { "/example" }, true });
+            const auto sendFiveMessages = [thread, parameters, &rate] {
+                auto node = std::make_shared<rclcpp::Node>("tests_publisher");
+                auto publisher = node->create_publisher<std_msgs::msg::Int32>("/example", 10);
+                thread->start();
 
-            auto node = std::make_shared<rclcpp::Node>("tests_publisher");
-            auto publisher = node->create_publisher<std_msgs::msg::Int32>("/example", 10);
-            thread->start();
-
-            rate.sleep();
-            // Send some messages with smaller intervals between
-            for (auto i = 0; i < 5; i++) {
-                auto message = std_msgs::msg::Int32();
-                message.data = i;
-                publisher->publish(message);
                 rate.sleep();
+                // Send some messages with smaller intervals between
+                for (auto i = 0; i < 5; i++) {
+                    auto message = std_msgs::msg::Int32();
+                    message.data = i;
+                    publisher->publish(message);
+                    rate.sleep();
+                }
+
+                thread->requestInterruption();
+                thread->quit();
+                thread->wait();
+            };
+
+            SECTION("Uncompressed") {
+                parameters.includeUnpublishedTopics = false;
+                parameters.topics.push_back({ { "/example" }, true });
+
+                sendFiveMessages();
+
+                const auto& metaData = Utils::ROS::getBagMetadata("./recorded_bag");
+                const auto& topics = metaData.topics_with_message_count;
+                REQUIRE(topics.size() == 1);
+                REQUIRE(topics.at(0).topic_metadata.name == "/example");
+                REQUIRE(topics.at(0).message_count == 5);
             }
+            SECTION("Compressed") {
+                parameters.topics.push_back({ { "/example" }, true });
+                parameters.useCompression = true;
+                parameters.isCompressionFile = true;
 
-            thread->requestInterruption();
-            thread->quit();
-            thread->wait();
+                sendFiveMessages();
 
-            const auto& metaData = Utils::ROS::getBagMetadata("./recorded_bag");
-            const auto& topics = metaData.topics_with_message_count;
-            REQUIRE(topics.size() == 1);
-            REQUIRE(topics.at(0).topic_metadata.name == "/example");
-            REQUIRE(topics.at(0).message_count == 5);
+                REQUIRE(Utils::ROS::doesDirectoryContainCompressedBagFile("./recorded_bag") == true);
+            }
         }
         std::filesystem::remove_all("./recorded_bag");
     }

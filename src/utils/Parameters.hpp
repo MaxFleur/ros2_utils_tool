@@ -48,9 +48,16 @@ struct PlayBagParameters : SelectableBagTopicParameters {
     bool   loop = false;
 };
 struct RecordBagParameters : SelectableBagTopicParameters {
+    int  maxSizeInMB = 1024;
+    int  maxDurationInSeconds = 60;
+
     bool showAdvancedOptions = false;
     bool includeHiddenTopics = false;
     bool includeUnpublishedTopics = false;
+    bool useCustomSize = false;
+    bool useCustomDuration = false;
+    bool useCompression = false;
+    bool isCompressionFile = false;
 };
 
 struct AdvancedParameters : BasicParameters {

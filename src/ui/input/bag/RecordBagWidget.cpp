@@ -10,6 +10,8 @@
 #include <QLineEdit>
 #include <QHBoxLayout>
 #include <QPushButton>
+#include <QRadioButton>
+#include <QSpinBox>
 #include <QVBoxLayout>
 
 RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QWidget *parent) :
@@ -32,17 +34,73 @@ RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QW
     advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions);
     advancedOptionsCheckBox->setText("Show Advanced Options");
 
-    auto* const includeHiddenTopicsCheckBox = new QCheckBox;
-    includeHiddenTopicsCheckBox->setCheckState(m_parameters.includeHiddenTopics ? Qt::Checked : Qt::Unchecked);
-    includeHiddenTopicsCheckBox->setToolTip("Whether to include topics not publically shown.");
+    const auto createCheckbox = [this] (const QString& toolTip, bool& enableValue) {
+        auto* const checkbox = new QCheckBox;
+        checkbox->setCheckState(enableValue ? Qt::Checked : Qt::Unchecked);
+        checkbox->setToolTip(toolTip);
 
-    auto* const includeUnpublishedTopicsCheckBox = new QCheckBox;
-    includeUnpublishedTopicsCheckBox->setCheckState(m_parameters.includeUnpublishedTopics ? Qt::Checked : Qt::Unchecked);
-    includeUnpublishedTopicsCheckBox->setToolTip("Whether to include topics where nothing has been published so far.");
+        connect(checkbox, &QCheckBox::stateChanged, this, [this, &enableValue] (int state) {
+            writeParameterToSettings(enableValue, state == Qt::Checked, m_settings);
+        });
+
+        return checkbox;
+    };
+    const auto createLayout = [this, createCheckbox] (const QString& toolTip, int maximumSpinBoxRange, int& spinBoxValueToSave, bool& enableValue) {
+        auto* const spinBox = new QSpinBox;
+        spinBox->setRange(0, maximumSpinBoxRange);
+        spinBox->setValue(spinBoxValueToSave);
+        spinBox->setEnabled(enableValue);
+        spinBox->setToolTip(toolTip);
+
+        auto* const checkbox = createCheckbox(toolTip, enableValue);
+
+        auto* const layout = new QHBoxLayout;
+        layout->addWidget(checkbox);
+        layout->addWidget(spinBox);
+        layout->addStretch();
+
+        connect(spinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [this, &spinBoxValueToSave] (int value) {
+            writeParameterToSettings(spinBoxValueToSave, value, m_settings);
+        });
+        connect(checkbox, &QCheckBox::stateChanged, this, [spinBox] (int state) {
+            spinBox->setEnabled(state == Qt::Checked);
+        });
+
+        return layout;
+    };
+
+
+    auto* const sizeLayout = createLayout("Split the bag file if a certain size is reached.", 102400, m_parameters.maxSizeInMB, m_parameters.useCustomSize);
+    auto* const durationLayout = createLayout("Split the bag file if a certain time is reached.", 7200, m_parameters.maxDurationInSeconds, m_parameters.useCustomDuration);
+
+    auto* const spacerWidget = new QWidget;
+    spacerWidget->setFixedHeight(5);
+
+    auto* const includeHiddenTopicsCheckBox = createCheckbox("Whether to include topics not publically shown.", m_parameters.includeHiddenTopics);
+    auto* const includeUnpublishedTopicsCheckBox = createCheckbox("Whether to include topics where nothing has been published so far.", m_parameters.includeUnpublishedTopics);
+
+    auto* const secondSpacerWidget = new QWidget;
+    secondSpacerWidget->setFixedHeight(5);
+
+    auto* const noCompressionRadioButton = new QRadioButton("None");
+    auto* const compressPerFileRadioButton = new QRadioButton("Per File");
+    auto* const compressPerMessageRadioButton = new QRadioButton("Per Message");
+    if (m_parameters.useCompression) {
+        m_parameters.isCompressionFile ? compressPerFileRadioButton->setChecked(true) : compressPerMessageRadioButton->setChecked(true);
+    } else {
+        noCompressionRadioButton->setChecked(true);
+    }
 
     auto* const advancedOptionsFormLayout = new QFormLayout;
+    advancedOptionsFormLayout->addRow("Use Maximum Size (in MB):", sizeLayout);
+    advancedOptionsFormLayout->addRow("Use Maximum Time (in Seconds):", durationLayout);
+    advancedOptionsFormLayout->addRow("", spacerWidget);
     advancedOptionsFormLayout->addRow("Include Hidden Topics:", includeHiddenTopicsCheckBox);
     advancedOptionsFormLayout->addRow("Include Unpublished Topics:", includeUnpublishedTopicsCheckBox);
+    advancedOptionsFormLayout->addRow("", secondSpacerWidget);
+    advancedOptionsFormLayout->addRow("Compression:", noCompressionRadioButton);
+    advancedOptionsFormLayout->addRow("", compressPerFileRadioButton);
+    advancedOptionsFormLayout->addRow("", compressPerMessageRadioButton);
 
     auto* const advancedOptionsWidget = new QWidget;
     advancedOptionsWidget->setLayout(advancedOptionsFormLayout);
@@ -66,11 +124,16 @@ RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QW
         writeParameterToSettings(m_parameters.showAdvancedOptions, state == Qt::Checked, m_settings);
         advancedOptionsWidget->setVisible(state == Qt::Checked);
     });
-    connect(includeHiddenTopicsCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
-        writeParameterToSettings(m_parameters.includeHiddenTopics, state == Qt::Checked, m_settings);
+    connect(noCompressionRadioButton, &QRadioButton::clicked, this, [this] {
+        writeParameterToSettings(m_parameters.useCompression, false, m_settings);
     });
-    connect(includeUnpublishedTopicsCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
-        writeParameterToSettings(m_parameters.includeUnpublishedTopics, state == Qt::Checked, m_settings);
+    connect(compressPerFileRadioButton, &QRadioButton::clicked, this, [this] {
+        writeParameterToSettings(m_parameters.useCompression, true, m_settings);
+        writeParameterToSettings(m_parameters.isCompressionFile, true, m_settings);
+    });
+    connect(compressPerMessageRadioButton, &QRadioButton::clicked, this, [this] {
+        writeParameterToSettings(m_parameters.useCompression, true, m_settings);
+        writeParameterToSettings(m_parameters.isCompressionFile, false, m_settings);
     });
 
     setPixmapLabelIcon();
