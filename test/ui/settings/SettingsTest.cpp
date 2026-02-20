@@ -97,15 +97,13 @@ TEST_CASE("Settings Testing", "[settings]") {
             Parameters::RecordBagParameters parameters;
             RecordBagSettings settings(parameters, "record");
 
-            parameters.topics.push_back({ "/topic" });
-            parameters.allTopics = true;
+            parameters.topics.push_back({ "/topic", true });
             parameters.showAdvancedOptions = true;
             parameters.includeHiddenTopics = true;
             parameters.includeUnpublishedTopics = true;
             settings.write();
 
             qSettings.beginGroup("record");
-            verifiySettingPrimitive(qSettings, "all_topics", true);
             verifiySettingPrimitive(qSettings, "show_advanced", true);
             verifiySettingPrimitive(qSettings, "include_hidden_topics", true);
             verifiySettingPrimitive(qSettings, "include_unpublished_topics", true);
@@ -114,6 +112,7 @@ TEST_CASE("Settings Testing", "[settings]") {
             for (auto i = 0; i < size; ++i) {
                 qSettings.setArrayIndex(i);
                 verifiySettingQString(qSettings, "name", "/topic");
+                verifiySettingPrimitive(qSettings, "is_selected", true);
             }
             REQUIRE(size == 1);
             qSettings.endArray();

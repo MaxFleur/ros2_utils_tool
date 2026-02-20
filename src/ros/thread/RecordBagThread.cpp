@@ -23,12 +23,11 @@ RecordBagThread::run()
     storageOptions.uri = targetDirectoryStd;
 
     rosbag2_transport::RecordOptions recordOptions;
-    if (m_parameters.allTopics) {
-        recordOptions.all_topics = true;
-    } else {
-        for (const auto& topic : m_parameters.topics) {
-            recordOptions.topics.push_back(topic.toStdString());
+    for (const auto& topic : m_parameters.topics) {
+        if (!topic.isSelected) {
+            continue;
         }
+        recordOptions.topics.push_back(topic.name.toStdString());
     }
     recordOptions.rmw_serialization_format = "cdr";
     recordOptions.include_hidden_topics = m_parameters.includeHiddenTopics;

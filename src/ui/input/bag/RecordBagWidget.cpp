@@ -1,39 +1,44 @@
 #include "RecordBagWidget.hpp"
 
+#include "BagTreeWidget.hpp"
 #include "LowDiskSpaceWidget.hpp"
-#include "TopicWidget.hpp"
+#include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
 #include <QCheckBox>
+#include <QFileDialog>
 #include <QFormLayout>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
-#include <QSet>
+#include <QShortcut>
+#include <QVBoxLayout>
 
 RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QWidget *parent) :
-    TopicListingInputWidget(parameters, "Record Bag", ":/icons/tools/record_bag", "record_bag", parent),
+    BasicInputWidget("Record Bag", ":/icons/tools/record_bag", parent),
     m_parameters(parameters), m_settings(parameters, "record_bag")
 {
     m_sourceLineEdit->setText(m_parameters.sourceDirectory);
     m_sourceLineEdit->setToolTip("The target recorded bag file directory.");
 
-    auto* const allTopicsCheckBox = new QCheckBox;
-    allTopicsCheckBox->setCheckState(m_parameters.allTopics ? Qt::Checked : Qt::Unchecked);
-    allTopicsCheckBox->setToolTip("Record all currently available topics.\nIf unchecked, you can specify topics manually.");
+    m_unselectTopicsLabel = new QLabel("Unselect all Topics you don't want to record.");
+    m_unselectTopicsLabel->setVisible(false);
+    auto font = m_unselectTopicsLabel->font();
+    font.setBold(true);
+    m_unselectTopicsLabel->setFont(font);
 
-    auto* const basicOptionsFormLayout = new QFormLayout;
-    basicOptionsFormLayout->addRow("Bag Location:", m_findSourceLayout);
-    basicOptionsFormLayout->addRow("Record all Topics:", allTopicsCheckBox);
+    m_treeWidget = new BagTreeWidget;
+    m_treeWidget->setMinimumWidth(380);
 
-    auto* const manageTopicsButtonWidget = new QWidget;
-    manageTopicsButtonWidget->setLayout(m_topicButtonLayout);
+    m_refreshButton = new QPushButton("Refresh List");
+    m_refreshButton->setVisible(false);
 
-    m_formLayout = new QFormLayout;
-    m_formLayout->addRow("", manageTopicsButtonWidget);
+    auto* const sourceFormLayout = new QFormLayout;
+    sourceFormLayout->addRow("Bag Location:", m_findSourceLayout);
 
-    auto* const topicsWidget = new QWidget;
-    topicsWidget->setLayout(m_formLayout);
-    topicsWidget->setVisible(!m_parameters.allTopics);
+    auto* const refreshButtonLayout = new QHBoxLayout;
+    refreshButtonLayout->addWidget(m_refreshButton);
+    refreshButtonLayout->setAlignment(m_refreshButton, Qt::AlignRight);
 
     m_lowDiskSpaceWidget = new LowDiskSpaceWidget;
 
@@ -57,37 +62,40 @@ RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QW
     advancedOptionsWidget->setLayout(advancedOptionsFormLayout);
     advancedOptionsWidget->setVisible(m_parameters.showAdvancedOptions);
 
-    m_controlsLayout->addLayout(basicOptionsFormLayout);
-    m_controlsLayout->addSpacing(10);
-    m_controlsLayout->addWidget(topicsWidget);
-    m_controlsLayout->addSpacing(5);
-    m_controlsLayout->addWidget(m_lowDiskSpaceWidget);
-    m_controlsLayout->addSpacing(10);
-    m_controlsLayout->addWidget(advancedOptionsCheckBox);
-    m_controlsLayout->addSpacing(10);
-    m_controlsLayout->addWidget(advancedOptionsWidget);
-    m_controlsLayout->addStretch();
+    auto* const controlsLayout = new QVBoxLayout;
+    controlsLayout->addStretch();
+    controlsLayout->addSpacing(10);
+    controlsLayout->addWidget(m_headerPixmapLabel);
+    controlsLayout->addWidget(m_headerLabel);
+    controlsLayout->addSpacing(40);
+    controlsLayout->addWidget(m_unselectTopicsLabel);
+    controlsLayout->addWidget(m_treeWidget);
+    controlsLayout->addLayout(refreshButtonLayout);
+    controlsLayout->addSpacing(5);
+    controlsLayout->addLayout(sourceFormLayout);
+    controlsLayout->addSpacing(5);
+    controlsLayout->addWidget(m_lowDiskSpaceWidget);
+    controlsLayout->addSpacing(10);
+    controlsLayout->addWidget(advancedOptionsCheckBox);
+    controlsLayout->addSpacing(10);
+    controlsLayout->addWidget(advancedOptionsWidget);
+    controlsLayout->addStretch();
 
-    const auto addNewTopic = [this] {
-        m_parameters.topics.push_back("");
-        m_settings.write();
-        createNewTopicLineEdit("", m_parameters.topics.size() - 1);
-    };
-    // Create widgets for already existing topics
-    for (auto i = 0; i < m_parameters.topics.size(); i++) {
-        createNewTopicLineEdit(m_parameters.topics.at(i), i);
-    }
-    if (m_parameters.topics.empty()) {
-        addNewTopic();
-    }
+    auto* const controlsSqueezedLayout = new QHBoxLayout;
+    controlsSqueezedLayout->addStretch();
+    controlsSqueezedLayout->addLayout(controlsLayout);
+    controlsSqueezedLayout->addStretch();
 
-    connect(m_addTopicButton, &QPushButton::clicked, this, [addNewTopic] {
-        addNewTopic();
-    });
-    connect(allTopicsCheckBox, &QCheckBox::stateChanged, this, [this, topicsWidget] (int state) {
-        writeParameterToSettings(m_parameters.allTopics, state == Qt::Checked, m_settings);
-        topicsWidget->setVisible(state == Qt::Unchecked);
-    });
+    auto* const mainLayout = new QVBoxLayout;
+    mainLayout->addLayout(controlsSqueezedLayout);
+    mainLayout->addLayout(m_buttonLayout);
+    setLayout(mainLayout);
+
+    auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
+
+    connect(m_treeWidget, &QTreeWidget::itemChanged, this, &RecordBagWidget::itemCheckStateChanged);
+    connect(m_refreshButton, &QPushButton::clicked, this, &RecordBagWidget::populateTreeWidget);
+    connect(m_findSourceButton, &QPushButton::clicked, this, &RecordBagWidget::findSourceButtonPressed);
     connect(advancedOptionsCheckBox, &QCheckBox::stateChanged, this, [this, advancedOptionsWidget] (int state) {
         writeParameterToSettings(m_parameters.showAdvancedOptions, state == Qt::Checked, m_settings);
         advancedOptionsWidget->setVisible(state == Qt::Checked);
@@ -98,65 +106,80 @@ RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QW
     connect(includeUnpublishedTopicsCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.includeUnpublishedTopics, state == Qt::Checked, m_settings);
     });
+    connect(m_okButton, &QPushButton::clicked, this, [this] {
+        emit okPressed();
+    });
+    connect(okShortCut, &QShortcut::activated, this, [this] {
+        emit okPressed();
+    });
 
     setPixmapLabelIcon();
     setLowDiskSpaceWidgetVisibility(m_sourceLineEdit->text());
-    m_okButton->setEnabled(!m_sourceLineEdit->text().isEmpty());
+    populateTreeWidget();
 }
 
 
 void
-RecordBagWidget::removeLineEdit(int row)
+RecordBagWidget::findSourceButtonPressed()
 {
-    m_formLayout->removeRow(row);
-    m_topicLabels.remove(row);
-    m_topicWidgets.remove(row);
-    m_parameters.topics.remove(row);
+    const auto fileName = QFileDialog::getSaveFileName(this, "Save Bag File");
+    if (fileName.isEmpty()) {
+        return;
+    }
+
+    writeParameterToSettings(m_parameters.sourceDirectory, fileName, m_settings);
     m_settings.write();
-    m_numberOfTopics--;
-
-    for (auto i = 0; i < m_topicLabels.size(); ++i) {
-        m_topicLabels[i]->setText("Topic " + QString::number(i + 1) + ":");
-    }
+    m_sourceLineEdit->setText(fileName);
 }
 
 
 void
-RecordBagWidget::createNewTopicLineEdit(const QString& topicName, int index)
+RecordBagWidget::populateTreeWidget()
 {
-    m_topicLabels.push_back(new QLabel("Topic " + QString::number(m_numberOfTopics + 1) + ":"));
+    m_parameters.topics.clear();
+    m_treeWidget->clear();
+    m_treeWidget->blockSignals(true);
 
-    auto* const topicWidget = new TopicWidget(false, m_numberOfTopics != 0, "", topicName);
-    m_topicWidgets.push_back(topicWidget);
-    // Keep it all inside the main form layout
-    // Ensure that the plus button stays below the newly formed widget
-    m_formLayout->insertRow(m_formLayout->rowCount() - 1, m_topicLabels.back(), topicWidget);
-
-    connect(topicWidget, &TopicWidget::topicNameChanged, this, [this, index] (const QString& text) {
-        writeParameterToSettings(m_parameters.topics[index], text, m_settings);
-    });
-    connect(topicWidget, &TopicWidget::topicRemoveButtonClicked, this, [this, topicWidget] {
-        removeLineEdit(topicWidget->property("id").toInt());
-    });
-
-    m_numberOfTopics++;
-    for (auto i = 0; i < m_numberOfTopics; i++) {
-        m_topicWidgets[i]->setProperty("id", i);
-    }
-}
-
-
-std::optional<bool>
-RecordBagWidget::areTopicsValid() const
-{
-    QSet<QString> topicNameSet;
-    for (QPointer<QLineEdit> lineEdit : m_topicLineEdits) {
-        if (lineEdit->text().isEmpty()) {
-            Utils::UI::createCriticalMessageBox("Empty Topic Name!", "Please enter a topic name for every topic!");
-            return std::nullopt;
+    const auto& currentTopicsAndTypes = Utils::ROS::getTopicInformation();
+    for (const auto& topic : currentTopicsAndTypes) {
+        // Ignore ROS's own topics
+        if (QString::fromStdString(topic.first) == "/parameter_events" || QString::fromStdString(topic.first) == "/rosout" ||
+            QString::fromStdString(topic.first) == "/events/read_split") {
+            continue;
         }
 
-        topicNameSet.insert(lineEdit->text());
+        m_treeWidget->createItemWithTopicNameAndType(QString::fromStdString(topic.first), QString::fromStdString(topic.second.at(0)), true);
+        m_parameters.topics.push_back({ QString::fromStdString(topic.first), true });
     }
-    return topicNameSet.size() == m_topicLineEdits.size();
+    m_settings.write();
+
+    m_treeWidget->resizeColumns();
+    // Just take a random item to get its height
+    auto* item = m_treeWidget->topLevelItem(m_treeWidget->topLevelItemCount() - 1);
+    const auto height = m_treeWidget->visualItemRect(item).height();
+    m_treeWidget->setMinimumHeight((height * m_treeWidget->topLevelItemCount()) + HEIGHT_OFFSET);
+    m_treeWidget->blockSignals(false);
+
+    m_unselectTopicsLabel->setVisible(true);
+    m_treeWidget->setVisible(true);
+    m_refreshButton->setVisible(true);
+
+    enableOkButton(!m_sourceLineEdit->text().isEmpty());
+}
+
+
+void
+RecordBagWidget::itemCheckStateChanged(QTreeWidgetItem* item, int column)
+{
+    if (column != COL_CHECKBOXES) {
+        return;
+    }
+
+    const auto rowIndex = m_treeWidget->indexOfTopLevelItem(item);
+    writeParameterToSettings(m_parameters.topics[rowIndex].isSelected, item->checkState(COL_CHECKBOXES) == Qt::Checked, m_settings);
+
+    const auto isAnyTopicEnabled = std::any_of(m_parameters.topics.begin(), m_parameters.topics.end(), [] (const auto& topic) {
+        return topic.isSelected == true;
+    });
+    enableOkButton(isAnyTopicEnabled && !m_sourceLineEdit->text().isEmpty());
 }

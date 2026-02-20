@@ -1,16 +1,20 @@
 #pragma once
 
+#include "BasicInputWidget.hpp"
 #include "Parameters.hpp"
 #include "RecordBagSettings.hpp"
-#include "TopicListingInputWidget.hpp"
 
 #include <QPointer>
+#include <QTreeWidgetItem>
+#include <QWidget>
 
-class QLineEdit;
-class QWidget;
+class BagTreeWidget;
+
+class QLabel;
+class QPushButton;
 
 // Widget used to manage recording a bag file
-class RecordBagWidget : public TopicListingInputWidget
+class RecordBagWidget : public BasicInputWidget
 {
     Q_OBJECT
 
@@ -20,20 +24,27 @@ public:
 
 private slots:
     void
-    removeLineEdit(int row);
+    findSourceButtonPressed();
 
     void
-    createNewTopicLineEdit(const QString& topicName,
-                           int            index);
+    populateTreeWidget();
+
+    void
+    itemCheckStateChanged(QTreeWidgetItem* item,
+                          int              column);
 
 private:
-    std::optional<bool>
-    areTopicsValid() const override;
-
-private:
-    QVector<QPointer<QLineEdit> > m_topicLineEdits;
+    QPointer<BagTreeWidget> m_treeWidget;
+    QPointer<QPushButton> m_refreshButton;
+    QPointer<QLabel> m_unselectTopicsLabel;
 
     Parameters::RecordBagParameters& m_parameters;
 
     RecordBagSettings m_settings;
+
+    static constexpr int COL_CHECKBOXES = 0;
+    static constexpr int COL_TOPIC_NAME = 1;
+    static constexpr int COL_TOPIC_TYPE = 2;
+
+    static constexpr int HEIGHT_OFFSET = 80;
 };

@@ -38,11 +38,15 @@ struct PlayBagParameters : BasicParameters {
     bool                  loop = false;
 };
 struct RecordBagParameters : BasicParameters {
-    QVector<QString> topics = {};
-    bool             allTopics = true;
-    bool             showAdvancedOptions = false;
-    bool             includeHiddenTopics = false;
-    bool             includeUnpublishedTopics = false;
+    struct RecordBagTopic {
+        QString name = "";
+        bool    isSelected = true;
+    };
+
+    QVector<RecordBagTopic> topics = {};
+    bool                    showAdvancedOptions = false;
+    bool                    includeHiddenTopics = false;
+    bool                    includeUnpublishedTopics = false;
 };
 struct SendTF2Parameters : BasicParameters {
     std::array<double, 3> translation = { 0.0, 0.0, 0.0 };

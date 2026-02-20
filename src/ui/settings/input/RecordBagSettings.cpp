@@ -20,12 +20,12 @@ RecordBagSettings::write()
     settings.beginWriteArray("topics");
     for (auto i = 0; i < m_parameters.topics.size(); ++i) {
         settings.setArrayIndex(i);
-        writeParameter(settings, "name", m_parameters.topics.at(i));
+        writeParameter(settings, "name", m_parameters.topics.at(i).name);
+        writeParameter(settings, "is_selected", m_parameters.topics.at(i).isSelected);
     }
     settings.endArray();
     settings.endGroup();
 
-    writeParameter(m_groupName, "all_topics", m_parameters.allTopics);
     writeParameter(m_groupName, "show_advanced", m_parameters.showAdvancedOptions);
     writeParameter(m_groupName, "include_hidden_topics", m_parameters.includeHiddenTopics);
     writeParameter(m_groupName, "include_unpublished_topics", m_parameters.includeUnpublishedTopics);
@@ -49,12 +49,12 @@ RecordBagSettings::read()
     const auto size = settings.beginReadArray("topics");
     for (auto i = 0; i < size; ++i) {
         settings.setArrayIndex(i);
-        m_parameters.topics.append({ readParameter(settings, "name", QString("")) });
+        m_parameters.topics.append({ readParameter(settings, "name", QString("")),
+                                     readParameter(settings, "is_selected", true) });
     }
     settings.endArray();
     settings.endGroup();
 
-    m_parameters.allTopics = readParameter(m_groupName, "all_topics", true);
     m_parameters.showAdvancedOptions = readParameter(m_groupName, "show_advanced", false);
     m_parameters.includeHiddenTopics = readParameter(m_groupName, "include_hidden_topics", false);
     m_parameters.includeUnpublishedTopics = readParameter(m_groupName, "include_unpublished_topics", false);

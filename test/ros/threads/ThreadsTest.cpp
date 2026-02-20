@@ -153,27 +153,11 @@ TEST_CASE("Threads Testing", "[threads]") {
             thread->wait();
 
             const auto& metaData = Utils::ROS::getBagMetadata("./recorded_bag");
-            const auto& topics = metaData.topics_with_message_count;
-            REQUIRE(topics.size() >= 2);
-
-            std::size_t topicIndex = getTopicIndex(topics, "/events/write_split");
-            REQUIRE(topicIndex < topics.size());
-            REQUIRE(topics.at(topicIndex).message_count == 0);
-            topicIndex = getTopicIndex(topics, "/rosout");
-            REQUIRE(topicIndex < topics.size());
-            // This one might have be different each time
-            REQUIRE(topics.at(topicIndex).message_count > 0);
-            // This one is there only sometimes
-            if (topics.size() > 2) {
-                topicIndex = getTopicIndex(topics, "/parameter_events");
-                REQUIRE(topicIndex < topics.size());
-                REQUIRE(topics.at(topicIndex).message_count == 0);
-            }
+            REQUIRE(metaData.topics_with_message_count.size() == 0);
         }
         SECTION("Specified topic run") {
-            parameters.allTopics = false;
-            parameters.includeUnpublishedTopics = true;
-            parameters.topics.push_back("/example");
+            parameters.includeUnpublishedTopics = false;
+            parameters.topics.push_back({ "/example", true });
 
             auto node = std::make_shared<rclcpp::Node>("tests_publisher");
             auto publisher = node->create_publisher<std_msgs::msg::Int32>("/example", 10);
