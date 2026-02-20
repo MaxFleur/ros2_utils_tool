@@ -1,59 +1,64 @@
 #pragma once
 
-#include "AdvancedInputWidget.hpp"
-#include "DeleteSourceSettings.hpp"
+#include "BasicInputWidget.hpp"
 #include "Parameters.hpp"
+#include "SelectableBagTopicSettings.hpp"
 
 #include <QPointer>
+#include <QTreeWidgetItem>
 #include <QWidget>
 
 class BagTreeWidget;
 
-class QCheckBox;
-class QHBoxLayout;
+class QLabel;
 class QTreeWidgetItem;
+class QVBoxLayout;
 
-// Widget for displaying bag contents for manipulation
-class BasicBagWidget : public AdvancedInputWidget
+// Widget for basic bag tree display, without any additional target file handling
+class BasicBagWidget : public BasicInputWidget
 {
     Q_OBJECT
 public:
     explicit
-    BasicBagWidget(Parameters::DeleteSourceParameters& parameters,
-                   const QString&                      titleText,
-                   const QString&                      iconText,
-                   const QString&                      settingsIdentifierText,
-                   const int                           outputFormat,
-                   QWidget*                            parent = 0);
+    BasicBagWidget(Parameters::SelectableBagTopicParameters& parameters,
+                   const QString&                            titleText,
+                   const QString&                            iconText,
+                   const QString&                            settingsText,
+                   const QString&                            unselectLabelText,
+                   QWidget*                                  parent = 0);
 
 protected slots:
-    virtual void
-    itemCheckStateChanged(QTreeWidgetItem* item,
-                          int              column) = 0;
+    void
+    findSourceButtonPressed();
 
-protected:
-    [[nodiscard]] bool
-    areIOParametersValid(int            topicSize,
-                         int            topicSizeWithoutDuplicates,
-                         const QString& secondSourceParameter = QString()) const;
+    void
+    itemCheckStateChanged(QTreeWidgetItem* item,
+                          int              column);
+
+    virtual void
+    handleTreeAfterSource()
+    {
+    }
+
+    virtual void
+    populateTreeWidget() = 0;
+
+    virtual void
+    enableOkButton() = 0;
 
 protected:
     QPointer<BagTreeWidget> m_treeWidget;
-
-    QPointer<QCheckBox> m_deleteSourceCheckBox;
-
-    QPointer<QHBoxLayout> m_diskSpaceLayout;
-
-    QPointer<QWidget> m_findTargetWidget;
+    QPointer<QLabel> m_unselectLabel;
+    QPointer<QVBoxLayout> m_controlsLayout;
 
     static constexpr int COL_CHECKBOXES = 0;
     static constexpr int COL_TOPIC_NAME = 1;
     static constexpr int COL_TOPIC_TYPE = 2;
 
 private:
-    Parameters::DeleteSourceParameters& m_parameters;
+    Parameters::SelectableBagTopicParameters& m_parameters;
 
-    DeleteSourceSettings m_settings;
+    SelectableBagTopicSettings m_settings;
 
-    bool m_isDiskSpaceSufficient{ true };
+    bool m_isPlayBag;
 };

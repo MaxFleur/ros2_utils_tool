@@ -1,20 +1,18 @@
 #pragma once
 
-#include "BasicInputWidget.hpp"
+#include "BasicBagWidget.hpp"
 #include "Parameters.hpp"
 #include "RecordBagSettings.hpp"
 
 #include <QPointer>
-#include <QTreeWidgetItem>
 #include <QWidget>
 
 class BagTreeWidget;
 
-class QLabel;
 class QPushButton;
 
 // Widget used to manage recording a bag file
-class RecordBagWidget : public BasicInputWidget
+class RecordBagWidget : public BasicBagWidget
 {
     Q_OBJECT
 
@@ -24,27 +22,20 @@ public:
 
 private slots:
     void
-    findSourceButtonPressed();
+    handleTreeAfterSource() override;
 
     void
-    populateTreeWidget();
+    populateTreeWidget() override;
 
     void
-    itemCheckStateChanged(QTreeWidgetItem* item,
-                          int              column);
+    enableOkButton() override;
 
 private:
-    QPointer<BagTreeWidget> m_treeWidget;
     QPointer<QPushButton> m_refreshButton;
-    QPointer<QLabel> m_unselectTopicsLabel;
 
     Parameters::RecordBagParameters& m_parameters;
 
     RecordBagSettings m_settings;
-
-    static constexpr int COL_CHECKBOXES = 0;
-    static constexpr int COL_TOPIC_NAME = 1;
-    static constexpr int COL_TOPIC_TYPE = 2;
 
     static constexpr int HEIGHT_OFFSET = 80;
 };

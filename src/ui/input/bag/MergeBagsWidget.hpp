@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BasicBagWidget.hpp"
+#include "AdvancedBagWidget.hpp"
 #include "MergeBagsSettings.hpp"
 #include "Parameters.hpp"
 
@@ -9,7 +9,7 @@
 #include <QPointer>
 
 // Widget for editing a bag file
-class MergeBagsWidget : public BasicBagWidget
+class MergeBagsWidget : public AdvancedBagWidget
 {
     Q_OBJECT
 public:

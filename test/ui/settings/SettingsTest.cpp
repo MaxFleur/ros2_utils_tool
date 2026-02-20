@@ -16,6 +16,7 @@
 #include "PublishSettings.hpp"
 #include "RecordBagSettings.hpp"
 #include "RGBSettings.hpp"
+#include "SelectableBagTopicSettings.hpp"
 #include "SendTF2Settings.hpp"
 #include "TF2ToFileSettings.hpp"
 #include "VideoSettings.hpp"
@@ -86,40 +87,6 @@ TEST_CASE("Settings Testing", "[settings]") {
             qSettings.endGroup();
         }
     }
-    SECTION("Record Bag Params Test") {
-        SECTION("Read") {
-            qSettings.beginGroup("record");
-            checkSettingsInvalidacy(qSettings, { "topics", "all_topics", "show_advanced",
-                                                 "include_hidden_topics", "include_unpublished_topics" });
-            qSettings.endGroup();
-        }
-        SECTION("Write") {
-            Parameters::RecordBagParameters parameters;
-            RecordBagSettings settings(parameters, "record");
-
-            parameters.topics.push_back({ { "/topic" }, true });
-            parameters.showAdvancedOptions = true;
-            parameters.includeHiddenTopics = true;
-            parameters.includeUnpublishedTopics = true;
-            settings.write();
-
-            qSettings.beginGroup("record");
-            verifiySettingPrimitive(qSettings, "show_advanced", true);
-            verifiySettingPrimitive(qSettings, "include_hidden_topics", true);
-            verifiySettingPrimitive(qSettings, "include_unpublished_topics", true);
-
-            const auto size = qSettings.beginReadArray("topics");
-            for (auto i = 0; i < size; ++i) {
-                qSettings.setArrayIndex(i);
-                verifiySettingQString(qSettings, "name", "/topic");
-                verifiySettingPrimitive(qSettings, "is_selected", true);
-            }
-            REQUIRE(size == 1);
-            qSettings.endArray();
-
-            qSettings.endGroup();
-        }
-    }
     SECTION("Dummmy Bag Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("dummy");
@@ -149,6 +116,119 @@ TEST_CASE("Settings Testing", "[settings]") {
             }
             REQUIRE(size == 1);
             qSettings.endArray();
+
+            qSettings.endGroup();
+        }
+    }
+    SECTION("Send TF2 Test") {
+        SECTION("Read") {
+            qSettings.beginGroup("send_tf2");
+            checkSettingsInvalidacy(qSettings, { "translation_x", "translation_y", "translation_z",
+                                                 "rotation_x", "rotation_y", "rotation_z", "rotation_w",
+                                                 "rate", "is_static" });
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Parameters::SendTF2Parameters parameters;
+            SendTF2Settings settings(parameters, "send_tf2");
+
+            parameters.translation[0] = 1.337;
+            parameters.translation[1] = 4.2;
+            parameters.translation[2] = 3.14159;
+            parameters.rotation[0] = 1.234;
+            parameters.rotation[1] = 6.7;
+            parameters.rotation[2] = 2.71828;
+            parameters.rotation[3] = -4.321;
+            parameters.childFrameName = "test";
+            parameters.rate = 3;
+            parameters.isStatic = true;
+            settings.write();
+
+            qSettings.beginGroup("send_tf2");
+            verifiySettingPrimitive(qSettings, "translation_x", 1.337);
+            verifiySettingPrimitive(qSettings, "translation_y", 4.2);
+            verifiySettingPrimitive(qSettings, "translation_z", 3.14159);
+            verifiySettingPrimitive(qSettings, "rotation_x", 1.234);
+            verifiySettingPrimitive(qSettings, "rotation_y", 6.7);
+            verifiySettingPrimitive(qSettings, "rotation_z", 2.71828);
+            verifiySettingPrimitive(qSettings, "rotation_w", -4.321);
+            verifiySettingQString(qSettings, "name", "test");
+            verifiySettingPrimitive(qSettings, "rate", 3);
+            verifiySettingPrimitive(qSettings, "is_static", true);
+            qSettings.endGroup();
+        }
+    }
+
+    SECTION("Selectable Bag Topic Params Test") {
+        SECTION("Read") {
+            qSettings.beginGroup("play_bag");
+            checkSettingsInvalidacy(qSettings, { "topics" });
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Parameters::SelectableBagTopicParameters parameters;
+            SelectableBagTopicSettings settings(parameters, "selectable_bag_topic");
+
+            parameters.topics.push_back({ { "topic" }, true });
+            settings.write();
+
+            qSettings.beginGroup("selectable_bag_topic");
+            const auto size = qSettings.beginReadArray("topics");
+            REQUIRE(size == 1);
+
+            for (auto i = 0; i < size; ++i) {
+                qSettings.setArrayIndex(i);
+                verifiySettingQString(qSettings, "name", "topic");
+                verifiySettingPrimitive(qSettings, "is_selected", true);
+            }
+            qSettings.endArray();
+
+            qSettings.endGroup();
+        }
+    }
+    SECTION("Play Bag Params Test") {
+        SECTION("Read") {
+            qSettings.beginGroup("play_bag");
+            checkSettingsInvalidacy(qSettings, { "topics", "rate", "loop" });
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Parameters::PlayBagParameters parameters;
+            PlayBagSettings settings(parameters, "play_bag");
+
+            parameters.topics.push_back({ { "topic" }, true });
+            parameters.rate = 4.2;
+            parameters.loop = true;
+            settings.write();
+
+            qSettings.beginGroup("play_bag");
+            verifiySettingPrimitive(qSettings, "rate", 4.2);
+            verifiySettingPrimitive(qSettings, "loop", true);
+
+            qSettings.endGroup();
+        }
+    }
+    SECTION("Record Bag Params Test") {
+        SECTION("Read") {
+            qSettings.beginGroup("record");
+            checkSettingsInvalidacy(qSettings, { "topics", "all_topics", "show_advanced",
+                                                 "include_hidden_topics", "include_unpublished_topics" });
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Parameters::RecordBagParameters parameters;
+            RecordBagSettings settings(parameters, "record");
+
+            parameters.topics.push_back({ { "/topic" }, true });
+            parameters.showAdvancedOptions = true;
+            parameters.includeHiddenTopics = true;
+            parameters.includeUnpublishedTopics = true;
+            settings.write();
+
+            qSettings.beginGroup("record");
+            verifiySettingPrimitive(qSettings, "show_advanced", true);
+            verifiySettingPrimitive(qSettings, "include_hidden_topics", true);
+            verifiySettingPrimitive(qSettings, "include_unpublished_topics", true);
 
             qSettings.endGroup();
         }
@@ -316,38 +396,6 @@ TEST_CASE("Settings Testing", "[settings]") {
             qSettings.endGroup();
         }
     }
-    SECTION("Play Bag Params Test") {
-        SECTION("Read") {
-            qSettings.beginGroup("play_bag");
-            checkSettingsInvalidacy(qSettings, { "topics", "rate", "loop" });
-            qSettings.endGroup();
-        }
-        SECTION("Write") {
-            Parameters::PlayBagParameters parameters;
-            PlayBagSettings settings(parameters, "play_bag");
-
-            parameters.topics.push_back({ { "topic" }, true });
-            parameters.rate = 4.2;
-            parameters.loop = true;
-            settings.write();
-
-            qSettings.beginGroup("play_bag");
-            verifiySettingPrimitive(qSettings, "rate", 4.2);
-            verifiySettingPrimitive(qSettings, "loop", true);
-
-            const auto size = qSettings.beginReadArray("topics");
-            REQUIRE(size == 1);
-
-            for (auto i = 0; i < size; ++i) {
-                qSettings.setArrayIndex(i);
-                verifiySettingQString(qSettings, "name", "topic");
-                verifiySettingPrimitive(qSettings, "is_selected", true);
-            }
-            qSettings.endArray();
-
-            qSettings.endGroup();
-        }
-    }
 
     SECTION("RGB Params Test") {
         SECTION("Read") {
@@ -471,45 +519,6 @@ TEST_CASE("Settings Testing", "[settings]") {
             verifiySettingPrimitive(qSettings, "height", 720);
             verifiySettingPrimitive(qSettings, "loop", true);
             verifiySettingPrimitive(qSettings, "scale", true);
-            qSettings.endGroup();
-        }
-    }
-
-    SECTION("Send TF2 Test") {
-        SECTION("Read") {
-            qSettings.beginGroup("send_tf2");
-            checkSettingsInvalidacy(qSettings, { "translation_x", "translation_y", "translation_z",
-                                                 "rotation_x", "rotation_y", "rotation_z", "rotation_w",
-                                                 "rate", "is_static" });
-            qSettings.endGroup();
-        }
-        SECTION("Write") {
-            Parameters::SendTF2Parameters parameters;
-            SendTF2Settings settings(parameters, "send_tf2");
-
-            parameters.translation[0] = 1.337;
-            parameters.translation[1] = 4.2;
-            parameters.translation[2] = 3.14159;
-            parameters.rotation[0] = 1.234;
-            parameters.rotation[1] = 6.7;
-            parameters.rotation[2] = 2.71828;
-            parameters.rotation[3] = -4.321;
-            parameters.childFrameName = "test";
-            parameters.rate = 3;
-            parameters.isStatic = true;
-            settings.write();
-
-            qSettings.beginGroup("send_tf2");
-            verifiySettingPrimitive(qSettings, "translation_x", 1.337);
-            verifiySettingPrimitive(qSettings, "translation_y", 4.2);
-            verifiySettingPrimitive(qSettings, "translation_z", 3.14159);
-            verifiySettingPrimitive(qSettings, "rotation_x", 1.234);
-            verifiySettingPrimitive(qSettings, "rotation_y", 6.7);
-            verifiySettingPrimitive(qSettings, "rotation_z", 2.71828);
-            verifiySettingPrimitive(qSettings, "rotation_w", -4.321);
-            verifiySettingQString(qSettings, "name", "test");
-            verifiySettingPrimitive(qSettings, "rate", 3);
-            verifiySettingPrimitive(qSettings, "is_static", true);
             qSettings.endGroup();
         }
     }

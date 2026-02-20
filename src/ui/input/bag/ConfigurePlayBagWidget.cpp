@@ -2,37 +2,23 @@
 
 #include "BagTreeWidget.hpp"
 #include "UtilsROS.hpp"
-#include "UtilsUI.hpp"
 
 #include <QCheckBox>
 #include <QDoubleSpinBox>
 #include <QFormLayout>
-#include <QHBoxLayout>
 #include <QLabel>
-#include <QMessageBox>
+#include <QLineEdit>
 #include <QPushButton>
-#include <QShortcut>
 #include <QVBoxLayout>
 
-#include <filesystem>
-
 ConfigurePlayBagWidget::ConfigurePlayBagWidget(Parameters::PlayBagParameters& parameters, QWidget *parent) :
-    BasicInputWidget("Play Bag", ":/icons/tools/play_bag", parent), m_parameters(parameters), m_settings(parameters, "play_bag")
+    BasicBagWidget(parameters, "Play Bag", ":/icons/tools/play_bag", "play_bag", "Unselect all items you don't want to play.", parent),
+    m_parameters(parameters), m_settings(parameters, "play_bag")
 {
-    m_sourceLineEdit->setText(m_parameters.sourceDirectory);
     m_okButton->setVisible(false);
 
     auto* const sourceFormLayout = new QFormLayout;
     sourceFormLayout->addRow("Source Bag:", m_findSourceLayout);
-
-    m_unselectLabel = new QLabel("Unselect all items you don't want to play.");
-    m_unselectLabel->setVisible(false);
-    auto labelFont = m_unselectLabel->font();
-    labelFont.setBold(true);
-    m_unselectLabel->setFont(labelFont);
-
-    m_treeWidget = new BagTreeWidget;
-    m_treeWidget->setMinimumWidth(350);
 
     m_lowerOptionsLayout = new QFormLayout;
     m_lowerOptionsLayout->setLabelAlignment(Qt::AlignLeft);
@@ -46,71 +32,37 @@ ConfigurePlayBagWidget::ConfigurePlayBagWidget(Parameters::PlayBagParameters& pa
     m_loopCheckBox->setTristate(false);
     m_loopCheckBox->setChecked(m_parameters.loop);
 
-    auto* const controlsLayout = new QVBoxLayout;
-    controlsLayout->addStretch();
-    controlsLayout->addWidget(m_headerPixmapLabel);
-    controlsLayout->addWidget(m_headerLabel);
-    controlsLayout->addSpacing(40);
-    controlsLayout->addLayout(sourceFormLayout);
-    controlsLayout->addSpacing(5);
-    controlsLayout->addWidget(m_unselectLabel);
-    controlsLayout->addWidget(m_treeWidget);
-    controlsLayout->addSpacing(10);
-    controlsLayout->addLayout(m_lowerOptionsLayout);
-    controlsLayout->addStretch();
+    m_controlsLayout->addLayout(sourceFormLayout);
+    m_controlsLayout->addSpacing(5);
+    m_controlsLayout->addWidget(m_unselectLabel);
+    m_controlsLayout->addWidget(m_treeWidget);
+    m_controlsLayout->addSpacing(10);
+    m_controlsLayout->addLayout(m_lowerOptionsLayout);
+    m_controlsLayout->addStretch();
 
-    auto* const controlsSqueezedLayout = new QHBoxLayout;
-    controlsSqueezedLayout->addStretch();
-    controlsSqueezedLayout->addLayout(controlsLayout);
-    controlsSqueezedLayout->addStretch();
-
-    auto* const mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(controlsSqueezedLayout);
-    mainLayout->addLayout(m_buttonLayout);
-    setLayout(mainLayout);
-
-    auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
-
-    connect(m_findSourceButton, &QPushButton::clicked, this, &ConfigurePlayBagWidget::findSourceButtonPressed);
-    connect(m_treeWidget, &QTreeWidget::itemChanged, this, &ConfigurePlayBagWidget::itemCheckStateChanged);
     connect(m_rateSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this] (double value) {
         writeParameterToSettings(m_parameters.rate, value, m_settings);
     });
     connect(m_loopCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.loop, state == Qt::Checked, m_settings);
     });
-    connect(m_okButton, &QPushButton::clicked, this, [this] {
-        emit okPressed();
-    });
-    connect(okShortCut, &QShortcut::activated, this, [this] {
-        emit okPressed();
-    });
 
     if (!m_sourceLineEdit->text().isEmpty()) {
-        populateWidget();
+        populateTreeWidget();
     }
 }
 
 
 void
-ConfigurePlayBagWidget::findSourceButtonPressed()
+ConfigurePlayBagWidget::handleTreeAfterSource()
 {
-    const auto bagDirectory = Utils::UI::isBagDirectoryValid(this);
-    if (bagDirectory == std::nullopt) {
-        return;
-    }
-
-    writeParameterToSettings(m_parameters.sourceDirectory, *bagDirectory, m_settings);
     m_parameters.topics.clear();
-    m_settings.write();
-
-    m_sourceLineEdit->setText(*bagDirectory);
-    populateWidget();
+    populateTreeWidget();
 }
 
 
 void
-ConfigurePlayBagWidget::populateWidget()
+ConfigurePlayBagWidget::populateTreeWidget()
 {
     m_treeWidget->clear();
     m_treeWidget->blockSignals(true);
@@ -146,23 +98,14 @@ ConfigurePlayBagWidget::populateWidget()
     m_treeWidget->setVisible(true);
     m_okButton->setVisible(true);
 
-    enableOkButton(!std::all_of(m_parameters.topics.begin(), m_parameters.topics.end(), [] (const auto& topic) {
-        return topic.isSelected == false;
-    }));
+    enableOkButton();
 }
 
 
 void
-ConfigurePlayBagWidget::itemCheckStateChanged(QTreeWidgetItem* item, int column)
+ConfigurePlayBagWidget::enableOkButton()
 {
-    if (column != COL_CHECKBOXES) {
-        return;
-    }
-
-    const auto rowIndex = m_treeWidget->indexOfTopLevelItem(item);
-    writeParameterToSettings(m_parameters.topics[rowIndex].isSelected, item->checkState(COL_CHECKBOXES) == Qt::Checked, m_settings);
-
-    enableOkButton(!std::all_of(m_parameters.topics.begin(), m_parameters.topics.end(), [] (const auto& topic) {
+    m_okButton->setEnabled(!std::all_of(m_parameters.topics.begin(), m_parameters.topics.end(), [] (const auto& topic) {
         return topic.isSelected == false;
     }));
 }

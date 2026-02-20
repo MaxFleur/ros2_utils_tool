@@ -32,23 +32,25 @@ struct DummyBagParameters : BasicParameters {
     int                    rate = 10;
     bool                   useCustomRate = false;
 };
-struct PlayBagParameters : BasicParameters {
-    QVector<SelectableBagTopic> topics = {};
-    double                      rate = 1.0;
-    bool                        loop = false;
-};
-struct RecordBagParameters : BasicParameters {
-    QVector<SelectableBagTopic> topics = {};
-    bool                        showAdvancedOptions = false;
-    bool                        includeHiddenTopics = false;
-    bool                        includeUnpublishedTopics = false;
-};
 struct SendTF2Parameters : BasicParameters {
     std::array<double, 3> translation = { 0.0, 0.0, 0.0 };
     std::array<double, 4> rotation = { 0.0, 0.0, 0.0, 1.0 };
     QString               childFrameName = "";
     int                   rate = 1;
     bool                  isStatic = true;
+};
+
+struct SelectableBagTopicParameters : BasicParameters {
+    QVector<SelectableBagTopic> topics = {};
+};
+struct PlayBagParameters : SelectableBagTopicParameters {
+    double rate = 1.0;
+    bool   loop = false;
+};
+struct RecordBagParameters : SelectableBagTopicParameters {
+    bool showAdvancedOptions = false;
+    bool includeHiddenTopics = false;
+    bool includeUnpublishedTopics = false;
 };
 
 struct AdvancedParameters : BasicParameters {

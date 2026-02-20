@@ -4,105 +4,104 @@
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
-#include <QCheckBox>
-#include <QFormLayout>
-#include <QMessageBox>
+#include <QFileDialog>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
 #include <QPushButton>
-#include <QTreeWidget>
+#include <QShortcut>
+#include <QToolButton>
+#include <QVBoxLayout>
 
 #include <filesystem>
 
-BasicBagWidget::BasicBagWidget(Parameters::DeleteSourceParameters& parameters,
-                               const QString& titleText, const QString& iconText, const QString& settingsIdentifierText, const int outputFormat,
-                               QWidget *parent) :
-    AdvancedInputWidget(parameters, titleText, iconText, "Source Bag:", "Target Bag:", settingsIdentifierText, outputFormat, parent),
-    m_parameters(parameters), m_settings(parameters, settingsIdentifierText)
+BasicBagWidget::BasicBagWidget(Parameters::SelectableBagTopicParameters& parameters,
+                               const QString& titleText, const QString& iconText, const QString& settingsText, const QString& unselectLabelText, QWidget *parent)
+    : BasicInputWidget(titleText, iconText, parent), m_parameters(parameters),
+    m_settings(parameters, settingsText), m_isPlayBag(settingsText == "play_bag")
 {
-    // Take the source and target form layout for manipulation
-    m_controlsLayout->takeAt(4);
-    // Reuse the target layout for a new form layout
-    const auto targetLocationRow = m_basicOptionsFormLayout->takeRow(1);
-
-    auto* const findTargetLayout = new QFormLayout;
-    findTargetLayout->addRow(targetLocationRow.labelItem->widget(), targetLocationRow.fieldItem->layout());
-
-    m_findTargetWidget = new QWidget;
-    m_findTargetWidget->setLayout(findTargetLayout);
-    m_findTargetWidget->setVisible(false);
-
     if (!std::filesystem::exists(m_parameters.sourceDirectory.toStdString()) ||
         !Utils::ROS::doesDirectoryContainBagFile(m_parameters.sourceDirectory)) {
         m_parameters.sourceDirectory = QString();
         writeParameterToSettings(m_parameters.sourceDirectory, QString(), m_settings);
     }
+    m_sourceLineEdit->setText(m_parameters.sourceDirectory);
 
-    m_deleteSourceCheckBox = new QCheckBox("Delete Source Bag File(s) after Completion");
-    m_deleteSourceCheckBox->setTristate(false);
-    m_deleteSourceCheckBox->setChecked(m_parameters.deleteSource);
+    m_unselectLabel = new QLabel(unselectLabelText);
+    m_unselectLabel->setVisible(false);
+    auto labelFont = m_unselectLabel->font();
+    labelFont.setBold(true);
+    m_unselectLabel->setFont(labelFont);
 
     m_treeWidget = new BagTreeWidget;
-
-    m_controlsLayout->addLayout(m_basicOptionsFormLayout);
-    m_controlsLayout->addSpacing(10);
+    m_treeWidget->setMinimumWidth(380);
 
     m_okButton->setEnabled(true);
-    m_okButton->setVisible(false);
 
+    m_controlsLayout = new QVBoxLayout;
+    m_controlsLayout->addStretch();
+    m_controlsLayout->addSpacing(20);
+    m_controlsLayout->addWidget(m_headerPixmapLabel);
+    m_controlsLayout->addWidget(m_headerLabel);
+    m_controlsLayout->addSpacing(30);
+
+    auto* const controlsSqueezedLayout = new QHBoxLayout;
+    controlsSqueezedLayout->addStretch();
+    controlsSqueezedLayout->addLayout(m_controlsLayout);
+    controlsSqueezedLayout->addStretch();
+
+    auto* const mainLayout = new QVBoxLayout;
+    mainLayout->addLayout(controlsSqueezedLayout);
+    mainLayout->addLayout(m_buttonLayout);
+    setLayout(mainLayout);
+
+    auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
+
+    connect(m_findSourceButton, &QPushButton::clicked, this, &BasicBagWidget::findSourceButtonPressed);
     connect(m_treeWidget, &QTreeWidget::itemChanged, this, &BasicBagWidget::itemCheckStateChanged);
-    connect(m_deleteSourceCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
-        writeParameterToSettings(m_parameters.deleteSource, state == Qt::Checked, m_settings);
+    connect(m_okButton, &QPushButton::clicked, this, [this] {
+        emit okPressed();
+    });
+    connect(okShortCut, &QShortcut::activated, this, [this] {
+        emit okPressed();
     });
 }
 
 
-bool
-BasicBagWidget::areIOParametersValid(int topicSize, int topicSizeWithOutDuplicates,
-                                     const QString& secondSourceParameter) const
+void
+BasicBagWidget::findSourceButtonPressed()
 {
-    QVector<QString> sourceParameters = { m_parameters.sourceDirectory };
-    if (!secondSourceParameter.isEmpty()) {
-        sourceParameters.push_back(secondSourceParameter);
-    }
+    QString fileName;
+    if (m_isPlayBag) {
+        const auto isValid = Utils::UI::isBagDirectoryValid(this);
+        if (isValid == std::nullopt) {
+            return;
+        }
 
-    const auto containsBagFile = [] (const auto& directory) {
-        return !Utils::ROS::doesDirectoryContainBagFile(directory);
-    };
-    // Critical errors first, then messageboxes allowing to continue
-    if (std::any_of(sourceParameters.begin(), sourceParameters.end(), containsBagFile)) {
-        Utils::UI::createCriticalMessageBox(sourceParameters.size() == 1 ? "Invalid bag file!" : "Invalid bag files!",
-                                            sourceParameters.size() == 1 ? "The source bag file seems to be invalid!" : "A source bag file seems to be invalid!");
-        return false;
-    }
-    if (std::any_of(sourceParameters.begin(), sourceParameters.end(), [this] (const auto& parameter) {
-        return parameter == m_parameters.targetDirectory;
-    })) {
-        auto *const msgBox = new QMessageBox(QMessageBox::Critical, "Equal files!",
-                                             "Source and target dir have the same path. Please enter a different name for the target file!",
-                                             QMessageBox::Ok);
-        msgBox->exec();
-        return false;
-    }
-    if (m_targetLineEdit->text().isEmpty()) {
-        auto *const msgBox = new QMessageBox(QMessageBox::Critical, "No target specified!", "Please make sure that a target file has been entered!",
-                                             QMessageBox::Ok);
-        msgBox->exec();
-        return false;
-    }
-
-    if (const auto sufficientSpace = showLowDiskSpaceMessageBox(); !sufficientSpace) {
-        return false;
-    }
-    if (!Utils::UI::continueForExistingTarget(m_parameters.targetDirectory, "Bag file", "bag file")) {
-        return false;
-    }
-    if (topicSize != topicSizeWithOutDuplicates) {
-        auto *const msgBox = new QMessageBox(QMessageBox::Warning, "Duplicate topic names!",
-                                             "Duplicate topic names were selected, which is not allowed in ROS bag files. These would be merged into one topic.\n"
-                                             "Are you sure you want to continue? ",
-                                             QMessageBox::Yes | QMessageBox::No);
-        if (const auto ret = msgBox->exec(); ret == QMessageBox::No) {
-            return false;
+        fileName = *isValid;
+    } else {
+        fileName = QFileDialog::getSaveFileName(this, "Save Bag File");
+        if (fileName.isEmpty()) {
+            return;
         }
     }
-    return true;
+
+    writeParameterToSettings(m_parameters.sourceDirectory, fileName, m_settings);
+    m_settings.write();
+    m_sourceLineEdit->setText(fileName);
+
+    handleTreeAfterSource();
+}
+
+
+void
+BasicBagWidget::itemCheckStateChanged(QTreeWidgetItem* item, int column)
+{
+    if (column != COL_CHECKBOXES) {
+        return;
+    }
+
+    const auto rowIndex = m_treeWidget->indexOfTopLevelItem(item);
+    writeParameterToSettings(m_parameters.topics[rowIndex].isSelected, item->checkState(COL_CHECKBOXES) == Qt::Checked, m_settings);
+    enableOkButton();
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BasicBagWidget.hpp"
+#include "AdvancedBagWidget.hpp"
 #include "EditBagSettings.hpp"
 #include "Parameters.hpp"
 
@@ -11,7 +11,7 @@ class QCheckBox;
 class QLabel;
 
 // Widget for editing a bag file
-class EditBagWidget : public BasicBagWidget
+class EditBagWidget : public AdvancedBagWidget
 {
     Q_OBJECT
 public:

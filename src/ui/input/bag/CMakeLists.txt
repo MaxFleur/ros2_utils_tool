@@ -5,6 +5,8 @@ target_include_directories (rt_input_bag
 )
 
 target_sources(rt_input_bag INTERFACE
+    ${CMAKE_CURRENT_LIST_DIR}/AdvancedBagWidget.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/AdvancedBagWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BasicBagWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BasicBagWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BagTreeWidget.cpp
