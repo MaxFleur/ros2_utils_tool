@@ -49,23 +49,16 @@ PublishWidget::PublishWidget(Parameters::PublishParameters& parameters, bool use
     auto* const switchRedBlueCheckBox = Utils::UI::createCheckBox("Switch the video's red and blue values.", m_parameters.exchangeRedBlueValues);
     auto* const loopCheckBox = Utils::UI::createCheckBox("Loop the video file if it has been played through.", m_parameters.loop);
 
+    auto* const fpsSpinBox = new QSpinBox;
+    fpsSpinBox->setRange(1, 60);
+    fpsSpinBox->setValue(m_parameters.fps);
+    fpsSpinBox->setToolTip("Set the fps value used for publishing.");
+
     m_advancedOptionsFormLayout = new QFormLayout;
     m_advancedOptionsFormLayout->addRow("Scale Video:", scaleCheckBox);
     m_advancedOptionsFormLayout->addRow("Switch Red and Blue Values:", switchRedBlueCheckBox);
     m_advancedOptionsFormLayout->addRow("Loop Video:", loopCheckBox);
-
-    // Different input widgets are needed depending on if we want to publish a video or image sequences
-    if (!m_publishVideo) {
-        auto* const fpsSpinBox = new QSpinBox;
-        fpsSpinBox->setRange(1, 60);
-        fpsSpinBox->setValue(m_parameters.fps);
-        fpsSpinBox->setToolTip("Set the fps value used for publishing.");
-
-        m_advancedOptionsFormLayout->addRow("FPS:", fpsSpinBox);
-        connect(fpsSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [this] (int value) {
-            writeParameterToSettings(m_parameters.fps, value, m_settings);
-        });
-    }
+    m_advancedOptionsFormLayout->addRow("FPS:", fpsSpinBox);
 
     auto* const advancedOptionsWidget = new QWidget;
     advancedOptionsWidget->setLayout(m_advancedOptionsFormLayout);
@@ -111,6 +104,9 @@ PublishWidget::PublishWidget(Parameters::PublishParameters& parameters, bool use
     });
     connect(loopCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.loop, state == Qt::Checked, m_settings);
+    });
+    connect(fpsSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [this] (int value) {
+        writeParameterToSettings(m_parameters.fps, value, m_settings);
     });
     connect(m_dialogButtonBox, &QDialogButtonBox::accepted, this, &PublishWidget::okButtonPressed);
     connect(okShortCut, &QShortcut::activated, this, &PublishWidget::okButtonPressed);

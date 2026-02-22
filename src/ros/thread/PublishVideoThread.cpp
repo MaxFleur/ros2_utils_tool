@@ -33,7 +33,7 @@ PublishVideoThread::run()
     cvBridge.header = header;
     cvBridge.encoding = sensor_msgs::image_encodings::BGR8;
 
-    const int rate = ((1000 / static_cast<float>(videoCapture.get(cv::CAP_PROP_FPS))) * 1000);
+    const int rate = ((1000 / static_cast<float>(m_parameters.fps)) * 1000);
     auto iterator = 0;
     const auto frameCount = videoCapture.get(cv::CAP_PROP_FRAME_COUNT);
 
