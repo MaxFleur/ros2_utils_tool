@@ -132,7 +132,12 @@ target_link_libraries(tool_video_to_bag
     Qt::Widgets rt_video_to_bag_thread rt_utils
 )
 
-if($ENV{ROS_DISTRO} STREQUAL "kilted")
+if($ENV{ROS_DISTRO} STREQUAL "jazzy")
+    ament_target_dependencies(tool_ui pcl_conversions)
+    ament_target_dependencies(tool_bag_to_pcds pcl_conversions)
+    ament_target_dependencies(tool_dummy_bag pcl_conversions )
+    ament_target_dependencies(tool_pcds_to_bag pcl_conversions)
+else()
     target_link_libraries(tool_ui
         pcl_conversions::pcl_conversions
     )
@@ -145,11 +150,6 @@ if($ENV{ROS_DISTRO} STREQUAL "kilted")
     target_link_libraries(tool_pcds_to_bag
         pcl_conversions::pcl_conversions
     )
-else()
-    ament_target_dependencies(tool_ui pcl_conversions)
-    ament_target_dependencies(tool_bag_to_pcds pcl_conversions)
-    ament_target_dependencies(tool_dummy_bag pcl_conversions )
-    ament_target_dependencies(tool_pcds_to_bag pcl_conversions)
 endif()
 
 install(TARGETS

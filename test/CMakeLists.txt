@@ -20,11 +20,11 @@ target_link_libraries(tool_tests
     catch_ros2::catch_ros2_with_main Qt::Widgets rt_all_threads rt_input_bag rt_settings_input rt_utils
 )
 
-if($ENV{ROS_DISTRO} STREQUAL "kilted")
+if($ENV{ROS_DISTRO} STREQUAL "jazzy")
+    ament_target_dependencies(tool_tests pcl_conversions)
+else()
     target_link_libraries(tool_tests
         pcl_conversions::pcl_conversions
     )
-else()
-    ament_target_dependencies(tool_tests pcl_conversions)
 endif()
 
