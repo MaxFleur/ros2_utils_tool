@@ -68,12 +68,12 @@ AdvancedBagWidget::areIOParametersValid(int topicSize, int topicSizeWithOutDupli
         return !Utils::ROS::doesDirectoryContainBagFile(directory);
     };
     // Critical errors first, then messageboxes allowing to continue
-    if (std::any_of(sourceParameters.begin(), sourceParameters.end(), containsBagFile)) {
+    if (std::ranges::any_of(sourceParameters, containsBagFile)) {
         Utils::UI::createCriticalMessageBox(sourceParameters.size() == 1 ? "Invalid bag file!" : "Invalid bag files!",
                                             sourceParameters.size() == 1 ? "The source bag file seems to be invalid!" : "A source bag file seems to be invalid!");
         return false;
     }
-    if (std::any_of(sourceParameters.begin(), sourceParameters.end(), [this] (const auto& parameter) {
+    if (std::ranges::any_of(sourceParameters, [this] (const auto& parameter) {
         return parameter == m_parameters.targetDirectory;
     })) {
         auto *const msgBox = new QMessageBox(QMessageBox::Critical, "Equal files!",

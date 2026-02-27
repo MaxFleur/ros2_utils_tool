@@ -187,7 +187,7 @@ RecordBagWidget::populateTreeWidget()
 void
 RecordBagWidget::enableOkButton()
 {
-    const auto isAnyTopicEnabled = std::any_of(m_parameters.topics.begin(), m_parameters.topics.end(), [] (const auto& topic) {
+    const auto isAnyTopicEnabled = std::ranges::any_of(m_parameters.topics, [] (const auto& topic) {
         return topic.isSelected == true;
     });
     m_okButton->setEnabled(isAnyTopicEnabled && !m_sourceLineEdit->text().isEmpty());

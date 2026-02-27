@@ -93,7 +93,7 @@ EditBagWidget::createTopicTree()
         const auto topicWithMessageCount = bagMetaData.topics_with_message_count.at(i);
         const auto& topicMetaData = topicWithMessageCount.topic_metadata;
 
-        const auto it = std::find_if(m_parameters.topics.begin(), m_parameters.topics.end(), [topicMetaData] (const auto& editBagTopic) {
+        const auto it = std::ranges::find_if(m_parameters.topics, [topicMetaData] (const auto& editBagTopic) {
             return editBagTopic.name.toStdString() == topicMetaData.name;
         });
         // If the settings do not contain any topic items, create them

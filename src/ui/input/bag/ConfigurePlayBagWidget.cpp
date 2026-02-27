@@ -73,7 +73,7 @@ ConfigurePlayBagWidget::populateTreeWidget()
         const auto topicWithMessageCount = bagMetaData.topics_with_message_count.at(i);
         const auto& topicMetaData = topicWithMessageCount.topic_metadata;
 
-        const auto it = std::find_if(m_parameters.topics.begin(), m_parameters.topics.end(), [topicMetaData] (const auto& playBagTopic) {
+        const auto it = std::ranges::find_if(m_parameters.topics, [topicMetaData] (const auto& playBagTopic) {
             return playBagTopic.name.toStdString() == topicMetaData.name;
         });
 
@@ -105,7 +105,7 @@ ConfigurePlayBagWidget::populateTreeWidget()
 void
 ConfigurePlayBagWidget::enableOkButton()
 {
-    m_okButton->setEnabled(!std::all_of(m_parameters.topics.begin(), m_parameters.topics.end(), [] (const auto& topic) {
+    m_okButton->setEnabled(!std::ranges::all_of(m_parameters.topics, [] (const auto& topic) {
         return topic.isSelected == false;
     }));
 }

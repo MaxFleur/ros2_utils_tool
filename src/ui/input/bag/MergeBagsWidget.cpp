@@ -115,7 +115,7 @@ MergeBagsWidget::createTopicTree(bool resetTopicsParameter)
             const auto& topicMetaData = topicWithMessageCount.topic_metadata;
 
             // Search if the topic already exists in parameters. If it is not there, add it to parameters.
-            const auto it = std::find_if(m_parameters.topics.begin(), m_parameters.topics.end(), [topicMetaData, bagFilePath] (const auto& topic) {
+            const auto it = std::ranges::find_if(m_parameters.topics, [topicMetaData, bagFilePath] (const auto& topic) {
                 return topic.name.toStdString() == topicMetaData.name && topic.bagDir == bagFilePath;
             });
 

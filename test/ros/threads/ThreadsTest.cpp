@@ -48,7 +48,7 @@ int
 getTopicIndex(const std::vector<rosbag2_storage::TopicInformation>& topics,
               const std::string&                                    topicName)
 {
-    const auto index = std::find_if(topics.begin(), topics.end(), [topicName] (const auto& topic) {
+    const auto index = std::ranges::find_if(topics, [topicName] (const auto& topic) {
         return topic.topic_metadata.name == topicName;
     });
 
