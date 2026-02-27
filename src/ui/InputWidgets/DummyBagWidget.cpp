@@ -50,11 +50,11 @@ DummyBagWidget::DummyBagWidget(Parameters::DummyBagParameters& parameters, bool 
     const auto addNewTopic = [this] {
         m_parameters.topics.push_back({ "String", "" });
         m_settings.write();
-        createNewDummyTopicWidget({ "", "" }, m_parameters.topics.size() - 1);
+        createNewDummyTopicWidget({ { "" }, "" }, m_parameters.topics.size() - 1, false);
     };
     // Create widgets for already existing topics
     for (auto i = 0; i < m_parameters.topics.size(); i++) {
-        createNewDummyTopicWidget(m_parameters.topics.at(i), i);
+        createNewDummyTopicWidget(m_parameters.topics.at(i), i, true);
     }
     if (m_parameters.topics.empty()) {
         addNewTopic();
@@ -97,7 +97,7 @@ DummyBagWidget::removeDummyTopicWidget(int row)
 
 
 void
-DummyBagWidget::createNewDummyTopicWidget(const Parameters::DummyBagParameters::DummyBagTopic& topic, int index)
+DummyBagWidget::createNewDummyTopicWidget(const Parameters::DummyBagParameters::DummyBagTopic& topic, int index, bool isCtor)
 {
     m_topicLabels.push_back(new QLabel("Topic " + QString::number(m_numberOfTopics + 1) + ":"));
 
@@ -105,7 +105,9 @@ DummyBagWidget::createNewDummyTopicWidget(const Parameters::DummyBagParameters::
     m_topicWidgets.push_back(topicWidget);
     // Keep it all inside the main form layout
     // Ensure that the plus button stays below the newly formed widget
-    m_formLayout->insertRow(m_formLayout->rowCount() - TOPIC_WIDGET_OFFSET, m_topicLabels.back(), topicWidget);
+    m_formLayout->insertRow(isCtor || !m_parameters.useCustomRate ? m_formLayout->rowCount() - TOPIC_WIDGET_OFFSET
+                                                                  : m_formLayout->rowCount() - TOPIC_WIDGET_OFFSET_WITH_CUSTOM_RATE,
+                            m_topicLabels.back(), topicWidget);
 
     connect(topicWidget, &TopicWidget::topicTypeChanged, this, [this, index] (const QString& text) {
         writeParameterToSettings(m_parameters.topics[index].type, text, m_settings);
