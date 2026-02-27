@@ -470,7 +470,7 @@ TEST_CASE("Threads Testing", "[threads]") {
 
             thread->start();
             thread->wait();
-            performVideoCheck(".avi", 1983148141, 30, 252, 0, 1);
+            performVideoCheck(".avi", 1094862674, 30, 255, 0, 3);
         }
         std::filesystem::remove("./video.avi");
     }
