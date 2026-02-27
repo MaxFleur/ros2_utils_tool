@@ -181,9 +181,9 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     backButtonLayout->addWidget(m_backButton);
     backButtonLayout->addStretch();
 
-    m_versionLabel = new QLabel("v0.14.0");
-    m_versionLabel->setToolTip("A tool to send TF2 messages, tf2 to yaml and\n"
-                               "a new threading flag for some CLI tools.");
+    m_versionLabel = new QLabel("v0.15.0");
+    m_versionLabel->setToolTip("A UI-tool to play bags, a completely redesigned recording tool,\n"
+                               "file saving/loading for sending tf2s and improved CLI help/info texts.");
 
     auto* const versionLayout = new QHBoxLayout;
     versionLayout->addStretch();
