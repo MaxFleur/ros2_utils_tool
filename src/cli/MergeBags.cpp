@@ -12,21 +12,23 @@
 #include <filesystem>
 #include <iostream>
 
+volatile sig_atomic_t signalStatus = 0;
+
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_merge_bags path/to/first/bag path/to/second/bag -t1 (...) -t2 (...) path/to/target/bag\n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_merge_bags path/to/first/bag path/to/second/bag -t1 (...) -t2 (...) path/to/target/bag\n\n";
     std::cout << "Topic names after '-t1' are those contained in the first bag file, names after '-t2' in the second file.\n";
-    std::cout << "Note that duplicate topics (equal topics contained in both bags) will be merged if both are specified.\n\n";
+    std::cout << "Note that duplicate specified topics (equal topics contained in both bags) will be merged to one.\n\n";
     std::cout << "Additional parameters:\n";
+    std::cout << "-th or --threads: Number of threads. Minimum is 1, maximum is " << std::thread::hardware_concurrency() << ", default is 1.\n\n";
     std::cout << "-d or --delete: Delete the source bag files.\n\n";
-    std::cout << "-th or --threads: Number of threads, must be at least 1 (maximum is " << std::thread::hardware_concurrency() << ").\n\n";
     std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "Example usage:\n";
+    std::cout << "ros2 run ros2_utils_tool tool_merge_bags /home/usr/first_bag /home/usr/second_bag -t1 /lidar -t2 /video /sensor /home/usr/target_bag -th 4\n\n";
     std::cout << "-h or --help: Show this help.\n";
 }
 
-
-volatile sig_atomic_t signalStatus = 0;
 
 int
 main(int argc, char* argv[])
@@ -40,7 +42,7 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    const QStringList checkList{ "-t1", "-t2", "-d", "-th", "-s", "--delete", "--threads", "--suppress" };
+    const QVector<QString> checkList{ "-t1", "-t2", "-th", "-d", "-s", "--threads", "--delete", "--suppress" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
@@ -71,7 +73,7 @@ main(int argc, char* argv[])
             throw std::runtime_error("The specified topic '" + arguments.at(bagIndex).toStdString() + "' does not exist!");
         }
 
-        parameters.topics.push_back({ arguments.at(bagIndex), bagDirectory, true });
+        parameters.topics.push_back({ { { arguments.at(bagIndex) }, true }, bagDirectory });
         topicNameSet.insert(arguments.at(bagIndex));
         bagIndex++;
         return true;
@@ -141,7 +143,7 @@ main(int argc, char* argv[])
     std::thread processingThread;
 
     QObject::connect(mergeBagsThread, &MergeBagsThread::processing, [&processingThread, &isMerging] {
-        processingThread = std::thread(&Utils::CLI::showProcessingString, std::ref(isMerging), Utils::CLI::CLI_MERGE);
+        processingThread = std::thread(&Utils::CLI::showProcessingString, std::ref(isMerging));
 
         return EXIT_SUCCESS;
     });
@@ -159,6 +161,14 @@ main(int argc, char* argv[])
         signalStatus = signal;
     });
 
+    std::cout << "Source bag file 1: " << std::filesystem::absolute(parameters.sourceDirectory.toStdString()) << "\n";
+    std::cout << "Source bag file 2: " << std::filesystem::absolute(parameters.secondSourceDirectory.toStdString()) << "\n";
+    std::cout << "Target bag file: " << std::filesystem::absolute(parameters.targetDirectory.toStdString()) << "\n";
+    std::cout << "Topics to merge:\n";
+    for (const auto& topic : parameters.topics) {
+        std::cout << "    " << topic.name.toStdString() << "\n";
+    }
+    std::cout << "Number of used threads: " << numberOfThreads << "\n\n";
     Utils::CLI::runThread(mergeBagsThread, signalStatus);
 
     return EXIT_SUCCESS;

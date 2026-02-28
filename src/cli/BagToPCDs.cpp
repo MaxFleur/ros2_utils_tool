@@ -10,19 +10,21 @@
 #include <filesystem>
 #include <iostream>
 
+volatile sig_atomic_t signalStatus = 0;
+
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_bag_to_pcds path/to/bag path/to/pcds\n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_bag_to_pcds path/to/bag path/to/pcds\n\n";
     std::cout << "Additional parameters:\n";
-    std::cout << "-t or --topic_name: Point cloud topic inside the bag. If no topic name is specified, the first found point cloud topic in the bag is taken.\n\n";
-    std::cout << "-th or --threads: Number of threads, must be at least 1 (maximum is " << std::thread::hardware_concurrency() << ").\n\n";
+    std::cout << "-t or --topic_name: Point cloud topic inside the bag. If no topic name is specified, the first found point cloud topic in the bag is taken.\n";
+    std::cout << "-th or --threads: Number of threads. Minimum is 1, maximum is " << std::thread::hardware_concurrency() << ", default is 1.\n\n";
     std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "Example usage:\n";
+    std::cout << "ros2 run ros2_utils_tool tool_bag_to_pcds /home/usr/input_bag /home/usr/pcd_dir -th 4\n\n";
     std::cout << "-h or --help: Show this help.\n";
 }
 
-
-volatile sig_atomic_t signalStatus = 0;
 
 int
 main(int argc, char* argv[])
@@ -36,7 +38,8 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, { "-t", "-th", "-s", "--topic_name", "--threads", "--suppress" });
+    const QVector<QString> checkList{ "-t", "-th", "-s", "--topic_name", "--threads", "--suppress" };
+    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList);
         argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
@@ -91,6 +94,10 @@ main(int argc, char* argv[])
         signalStatus = signal;
     });
 
+    std::cout << "Source bag file: " << std::filesystem::absolute(parameters.sourceDirectory.toStdString()) << "\n";
+    std::cout << "Target pcd dir: " << std::filesystem::absolute(parameters.targetDirectory.toStdString()) << "\n";
+    std::cout << "Topic name: " << parameters.topicName.toStdString() << "\n";
+    std::cout << "Number of used threads: " << numberOfThreads << "\n\n";
     std::cout << "Writing pcds. Please wait...\n";
     Utils::CLI::runThread(bagToPCDsThread, signalStatus);
 

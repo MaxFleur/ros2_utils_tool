@@ -2,6 +2,8 @@
 
 #include "UtilsROS.hpp"
 
+#include <cv_bridge/cv_bridge.hpp>
+
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl_conversions/pcl_conversions.h>
@@ -13,12 +15,6 @@
 
 #include <filesystem>
 #include <random>
-
-#ifdef ROS_HUMBLE
-#include <cv_bridge/cv_bridge.h>
-#else
-#include <cv_bridge/cv_bridge.hpp>
-#endif
 
 DummyBagThread::DummyBagThread(const Parameters::DummyBagParameters& parameters,
                                unsigned int numberOfThreads, QObject* parent) :
@@ -64,7 +60,7 @@ DummyBagThread::run()
 
             auto timeStamp = rclcpp::Clock(RCL_ROS_TIME).now();
             const auto rate = m_parameters.useCustomRate ? m_parameters.rate : 10;
-            const auto duration = rclcpp::Duration::from_seconds(1.0f / (float) rate);
+            const auto duration = rclcpp::Duration::from_seconds(1.0f / static_cast<float>(rate));
 
             for (auto i = 1; i <= m_parameters.messageCount; i++) {
                 if (isInterruptionRequested()) {
@@ -85,8 +81,8 @@ DummyBagThread::run()
                     writer->write(message, topicName, timeStamp);
                 } else if (topicType == "Image") {
                     // Create image which over time is lerped from blue to red
-                    const auto blue = 255 - ((i - 1) * (255.0f / (float) m_parameters.messageCount));
-                    const auto red = 0 + (i * (255.0f / (float) m_parameters.messageCount));
+                    const auto blue = 255 - ((i - 1) * (255.0f / static_cast<float>(m_parameters.messageCount)));
+                    const auto red = 0 + (i * (255.0f / static_cast<float>(m_parameters.messageCount)));
                     cv::Mat mat(720, 1280, CV_8UC3, cv::Scalar(blue, 0, red));
                     sensor_msgs::msg::Image message;
                     std_msgs::msg::Header header;
@@ -148,7 +144,7 @@ DummyBagThread::run()
                 }
 
                 emit progressChanged("Writing message " + QString::number(iterationCount) + " of " + QString::number(maximumMessageCount) + "...",
-                                     ((float) iterationCount / (float) maximumMessageCount) * 100);
+                                     (static_cast<float>(iterationCount) / static_cast<float>(maximumMessageCount) * 100));
                 iterationCount++;
             }
         }

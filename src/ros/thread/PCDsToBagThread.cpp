@@ -46,7 +46,7 @@ PCDsToBagThread::run()
 
     auto iterationCount = 1;
     auto timeStamp = rclcpp::Clock(RCL_ROS_TIME).now();
-    const auto duration = rclcpp::Duration::from_seconds(1.0f / (float) m_parameters.rate);
+    const auto duration = rclcpp::Duration::from_seconds(1.0f / static_cast<float>(m_parameters.rate));
 
     while (true) {
         if (isInterruptionRequested() || sortedPCDsSet.empty()) {
@@ -62,7 +62,7 @@ PCDsToBagThread::run()
 
         sortedPCDsSet.erase(sortedPCDsSet.begin());
         emit progressChanged("Writing pcd file " + QString::number(iterationCount) + " of " + QString::number(frameCount) + "...",
-                             ((float) iterationCount / (float) frameCount) * 100);
+                             (static_cast<float>(iterationCount) / static_cast<float>(frameCount) * 100));
         iterationCount++;
     }
 

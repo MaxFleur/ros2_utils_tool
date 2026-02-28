@@ -3,15 +3,11 @@
 #include "UtilsROS.hpp"
 #include "VideoEncoder.hpp"
 
+#include <cv_bridge/cv_bridge.hpp>
+
 #include "rosbag2_cpp/reader.hpp"
 
 #include "sensor_msgs/msg/image.hpp"
-
-#ifdef ROS_HUMBLE
-#include <cv_bridge/cv_bridge.h>
-#else
-#include <cv_bridge/cv_bridge.hpp>
-#endif
 
 BagToVideoThread::BagToVideoThread(const Parameters::BagToVideoParameters& parameters, bool useHardwareAcceleration,
                                    QObject*                                parent) :
@@ -39,9 +35,9 @@ BagToVideoThread::run()
 
     int codec;
     // https://abcavi.kibi.ru/fourcc.php
-    if (m_parameters.format == "mp4") {
+    if (m_parameters.targetDirectory.right(3) == "mp4") {
         codec = cv::VideoWriter::fourcc('m', 'p', '4', 'v');
-    } else if (m_parameters.format == "avi") {
+    } else if (m_parameters.targetDirectory.right(3) == "avi") {
         codec = m_parameters.lossless ? cv::VideoWriter::fourcc('R', 'G', 'B', 'A') : cv::VideoWriter::fourcc('F', 'M', 'P', '4');
     } else {
         codec = m_parameters.lossless ? cv::VideoWriter::fourcc('F', 'F', 'V', '1') : cv::VideoWriter::fourcc('X', '2', '6', '4');
@@ -93,7 +89,7 @@ BagToVideoThread::run()
 
         iterationCount++;
         emit progressChanged("Writing frame " + QString::number(iterationCount) + " of " + QString::number(*messageCount) + "...",
-                             ((float) iterationCount / (float) *messageCount) * 100);
+                             (static_cast<float>(iterationCount) / static_cast<float>(*messageCount) * 100));
     }
 
     reader->close();

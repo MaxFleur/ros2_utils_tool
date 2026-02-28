@@ -48,8 +48,8 @@ MergeBagsSettings::read()
     const auto size = settings.beginReadArray("topics");
     for (auto i = 0; i < size; ++i) {
         settings.setArrayIndex(i);
-        m_parameters.topics.append({ readParameter(settings, "name", QString("")), readParameter(settings, "dir", QString("")),
-                                     readParameter(settings, "is_selected", false) });
+        m_parameters.topics.append({ { { readParameter(settings, "name", QString("")) }, readParameter(settings, "is_selected", false) },
+                                       readParameter(settings, "dir", QString("")) });
     }
     settings.endArray();
     settings.endGroup();

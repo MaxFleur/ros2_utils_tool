@@ -9,23 +9,22 @@
 // store information in case an input widget is closed and reopened
 namespace Parameters
 {
+struct BagTopic {
+    QString name = "";
+};
+struct SelectableBagTopic : BagTopic {
+    bool isSelected = true;
+};
+
 struct BasicParameters {
     virtual
     ~BasicParameters() = default;
 
     QString sourceDirectory = "";
 };
-struct RecordBagParameters : BasicParameters {
-    QVector<QString> topics = {};
-    bool             allTopics = true;
-    bool             showAdvancedOptions = false;
-    bool             includeHiddenTopics = false;
-    bool             includeUnpublishedTopics = false;
-};
 struct DummyBagParameters : BasicParameters {
-    struct DummyBagTopic {
+    struct DummyBagTopic : BagTopic {
         QString type;
-        QString name;
     };
 
     QVector<DummyBagTopic> topics = {};
@@ -39,6 +38,26 @@ struct SendTF2Parameters : BasicParameters {
     QString               childFrameName = "";
     int                   rate = 1;
     bool                  isStatic = true;
+};
+
+struct SelectableBagTopicParameters : BasicParameters {
+    QVector<SelectableBagTopic> topics = {};
+};
+struct PlayBagParameters : SelectableBagTopicParameters {
+    double rate = 1.0;
+    bool   loop = false;
+};
+struct RecordBagParameters : SelectableBagTopicParameters {
+    int  maxSizeInMB = 1024;
+    int  maxDurationInSeconds = 60;
+
+    bool showAdvancedOptions = false;
+    bool includeHiddenTopics = false;
+    bool includeUnpublishedTopics = false;
+    bool useCustomSize = false;
+    bool useCustomDuration = false;
+    bool useCompression = false;
+    bool isCompressionFile = false;
 };
 
 struct AdvancedParameters : BasicParameters {
@@ -58,24 +77,20 @@ struct DeleteSourceParameters : AdvancedParameters {
     bool deleteSource = false;
 };
 struct EditBagParameters : DeleteSourceParameters {
-    struct EditBagTopic {
-        QString renamedTopicName = "";
-        QString originalTopicName;
+    struct EditBagTopic : SelectableBagTopic {
+        QString renamedName = "";
         size_t  lowerBoundary = 0;
         size_t  upperBoundary;
-        bool    isSelected = true;
     };
 
     QVector<EditBagTopic> topics = {};
     bool                  updateTimestamps = false;
 };
 struct MergeBagsParameters : DeleteSourceParameters {
-    struct MergeBagTopic {
-        QString name = "";
+    struct MergeBagTopic : SelectableBagTopic {
         // Topic names might be identical across bags, but cannot be identical in the same bag.
         // So store the bag directory as an additional identifier
         QString bagDir = "";
-        bool    isSelected = true;
     };
 
     QVector<MergeBagTopic> topics = {};
@@ -100,9 +115,8 @@ struct VideoParameters : RGBParameters {
     int fps = 30;
 };
 struct BagToVideoParameters : VideoParameters {
-    QString format = "mp4";
-    bool    useBWImages = false;
-    bool    lossless = false;
+    bool useBWImages = false;
+    bool lossless = false;
 };
 struct VideoToBagParameters : VideoParameters {
     bool useCustomFPS = false;

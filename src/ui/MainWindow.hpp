@@ -26,7 +26,7 @@ private slots:
     setInputWidget(Utils::UI::TOOL_ID mode);
 
     void
-    setProgressWidget(Utils::UI::TOOL_ID mode);
+    setProcessingWidget(Utils::UI::TOOL_ID mode);
 
 private:
     void
@@ -47,6 +47,7 @@ private:
     Parameters::DummyBagParameters m_parametersDummyBag;
     Parameters::CompressBagParameters m_parametersCompressBag;
     Parameters::CompressBagParameters m_parametersDecompressBag;
+    Parameters::PlayBagParameters m_parametersPlayBag;
 
     Parameters::PublishParameters m_parametersPublishVideo;
     Parameters::PublishParameters m_parametersPublishImages;

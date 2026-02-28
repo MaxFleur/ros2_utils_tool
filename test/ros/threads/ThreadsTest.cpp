@@ -17,6 +17,8 @@
 #include "UtilsUI.hpp"
 #include "VideoToBagThread.hpp"
 
+#include <cv_bridge/cv_bridge.hpp>
+
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/videoio.hpp>
 
@@ -40,19 +42,13 @@
 
 #include <filesystem>
 
-#ifdef ROS_HUMBLE
-#include <cv_bridge/cv_bridge.h>
-#else
-#include <cv_bridge/cv_bridge.hpp>
-#endif
-
 // Because of parallelized bag writing, the topic order in the output bag files might be different with each run
 // But we can instead check the topic's index inside the bagfile and the information associated with it
 int
 getTopicIndex(const std::vector<rosbag2_storage::TopicInformation>& topics,
               const std::string&                                    topicName)
 {
-    const auto index = std::find_if(topics.begin(), topics.end(), [topicName] (const auto& topic) {
+    const auto index = std::ranges::find_if(topics, [topicName] (const auto& topic) {
         return topic.topic_metadata.name == topicName;
     });
 
@@ -153,54 +149,52 @@ TEST_CASE("Threads Testing", "[threads]") {
             // No idea how and why, but sometimes the thread does not exit correctly
             // even if everything has been cleaned successfully. Need to call quit extra.
             thread->quit();
-
             thread->wait();
 
             const auto& metaData = Utils::ROS::getBagMetadata("./recorded_bag");
-            const auto& topics = metaData.topics_with_message_count;
-            REQUIRE(topics.size() >= 2);
-
-            std::size_t topicIndex = getTopicIndex(topics, "/events/write_split");
-            REQUIRE(topicIndex < topics.size());
-            REQUIRE(topics.at(topicIndex).message_count == 0);
-            topicIndex = getTopicIndex(topics, "/rosout");
-            REQUIRE(topicIndex < topics.size());
-            // This one might have be different each time
-            REQUIRE(topics.at(topicIndex).message_count > 0);
-            // This one is there only sometimes
-            if (topics.size() > 2) {
-                topicIndex = getTopicIndex(topics, "/parameter_events");
-                REQUIRE(topicIndex < topics.size());
-                REQUIRE(topics.at(topicIndex).message_count == 0);
-            }
+            REQUIRE(metaData.topics_with_message_count.size() == 0);
         }
         SECTION("Specified topic run") {
-            parameters.allTopics = false;
-            parameters.includeUnpublishedTopics = true;
-            parameters.topics.push_back("/example");
+            const auto sendFiveMessages = [thread, parameters, &rate] {
+                auto node = std::make_shared<rclcpp::Node>("tests_publisher");
+                auto publisher = node->create_publisher<std_msgs::msg::Int32>("/example", 10);
+                thread->start();
 
-            auto node = std::make_shared<rclcpp::Node>("tests_publisher");
-            auto publisher = node->create_publisher<std_msgs::msg::Int32>("/example", 10);
-            thread->start();
-
-            rate.sleep();
-            // Send some messages with smaller intervals between
-            for (auto i = 0; i < 5; i++) {
-                auto message = std_msgs::msg::Int32();
-                message.data = i;
-                publisher->publish(message);
                 rate.sleep();
+                // Send some messages with smaller intervals between
+                for (auto i = 0; i < 5; i++) {
+                    auto message = std_msgs::msg::Int32();
+                    message.data = i;
+                    publisher->publish(message);
+                    rate.sleep();
+                }
+
+                thread->requestInterruption();
+                thread->quit();
+                thread->wait();
+            };
+
+            SECTION("Uncompressed") {
+                parameters.includeUnpublishedTopics = false;
+                parameters.topics.push_back({ { "/example" }, true });
+
+                sendFiveMessages();
+
+                const auto& metaData = Utils::ROS::getBagMetadata("./recorded_bag");
+                const auto& topics = metaData.topics_with_message_count;
+                REQUIRE(topics.size() == 1);
+                REQUIRE(topics.at(0).topic_metadata.name == "/example");
+                REQUIRE(topics.at(0).message_count == 5);
             }
+            SECTION("Compressed") {
+                parameters.topics.push_back({ { "/example" }, true });
+                parameters.useCompression = true;
+                parameters.isCompressionFile = true;
 
-            thread->requestInterruption();
-            thread->quit();
-            thread->wait();
+                sendFiveMessages();
 
-            const auto& metaData = Utils::ROS::getBagMetadata("./recorded_bag");
-            const auto& topics = metaData.topics_with_message_count;
-            REQUIRE(topics.size() == 1);
-            REQUIRE(topics.at(0).topic_metadata.name == "/example");
-            REQUIRE(topics.at(0).message_count == 5);
+                REQUIRE(Utils::ROS::doesDirectoryContainCompressedBagFile("./recorded_bag") == true);
+            }
         }
         std::filesystem::remove_all("./recorded_bag");
     }
@@ -208,11 +202,11 @@ TEST_CASE("Threads Testing", "[threads]") {
         Parameters::DummyBagParameters parameters;
         parameters.sourceDirectory = "./dummy_bag";
         parameters.messageCount = 100;
-        parameters.topics.push_back({ "Image", "/dummy_image" });
-        parameters.topics.push_back({ "Integer", "/dummy_integer" });
-        parameters.topics.push_back({ "String", "/dummy_string" });
-        parameters.topics.push_back({ "Point Cloud", "/dummy_points" });
-        parameters.topics.push_back({ "TF2", "/dummy_tf2" });
+        parameters.topics.push_back({ { "/dummy_image" }, "Image" });
+        parameters.topics.push_back({ { "/dummy_integer" }, "Integer" });
+        parameters.topics.push_back({ { "/dummy_string" }, "String" });
+        parameters.topics.push_back({ { "/dummy_points" }, "Point Cloud" });
+        parameters.topics.push_back({ { "/dummy_tf2" }, "TF2" });
 
         auto* const thread = new DummyBagThread(parameters, std::thread::hardware_concurrency());
         QObject::connect(thread, &DummyBagThread::finished, thread, &QObject::deleteLater);
@@ -261,9 +255,9 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.sourceDirectory = "./dummy_bag";
         parameters.targetDirectory = "./edited_bag";
         parameters.updateTimestamps = true;
-        parameters.topics.push_back({ "", "/dummy_image", 0, 49, true });
-        parameters.topics.push_back({ "", "/dummy_integer", 0, 99, false });
-        parameters.topics.push_back({ "/renamed_string", "/dummy_string", 25, 74, true });
+        parameters.topics.push_back({ { { "/dummy_image" }, true }, "", 0, 49 });
+        parameters.topics.push_back({ { { "/dummy_integer" }, false }, "", 0, 99 });
+        parameters.topics.push_back({ { { "/dummy_string" }, true }, "/renamed_string", 25, 74 });
 
         auto* const thread = new EditBagThread(parameters, std::thread::hardware_concurrency());
         QObject::connect(thread, &EditBagThread::finished, thread, &QObject::deleteLater);
@@ -298,8 +292,8 @@ TEST_CASE("Threads Testing", "[threads]") {
         QObject::connect(thread, &MergeBagsThread::finished, thread, &QObject::deleteLater);
 
         SECTION("Unique Topics") {
-            parameters.topics.push_back({ "/dummy_integer", "./dummy_bag", true });
-            parameters.topics.push_back({ "/renamed_string", "./edited_bag", true });
+            parameters.topics.push_back({ { { "/dummy_integer" }, true }, "./dummy_bag" });
+            parameters.topics.push_back({ { { "/renamed_string" }, true }, "./edited_bag" });
 
             thread->start();
             thread->wait();
@@ -326,9 +320,9 @@ TEST_CASE("Threads Testing", "[threads]") {
         // Assure that two topics of the same name, but from different bags will be merged into one topic
         SECTION("Merged Topics") {
             parameters.topics.clear();
-            parameters.topics.push_back({ "/dummy_image", "./dummy_bag", true });
-            parameters.topics.push_back({ "/dummy_image", "./edited_bag", true });
-            parameters.topics.push_back({ "/renamed_string", "./edited_bag", true });
+            parameters.topics.push_back({ { { "/dummy_image" }, true }, "./dummy_bag" });
+            parameters.topics.push_back({ { { "/dummy_image" }, true }, "./edited_bag" });
+            parameters.topics.push_back({ { { "/renamed_string" }, true }, "./edited_bag" });
 
             thread->start();
             thread->wait();
@@ -464,8 +458,7 @@ TEST_CASE("Threads Testing", "[threads]") {
 
             thread->start();
             thread->wait();
-            // Codec number represents x264
-            performVideoCheck(".mkv", 1734701165, 30, 30, 30, 30);
+            performVideoCheck(".mkv", 875967080, 30, 30, 30, 30);
         }
         SECTION("AVI Lossless Values") {
             parameters.targetDirectory = "./video.avi";
@@ -474,7 +467,7 @@ TEST_CASE("Threads Testing", "[threads]") {
 
             thread->start();
             thread->wait();
-            performVideoCheck(".avi", 1983148141, 30, 252, 0, 1);
+            performVideoCheck(".avi", 1094862674, 30, 255, 0, 3);
         }
         std::filesystem::remove("./video.avi");
     }

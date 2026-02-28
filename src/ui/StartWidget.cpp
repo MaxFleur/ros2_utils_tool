@@ -97,30 +97,37 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     m_dummyBagButton = createToolButton("Create\nDummy Bag", "Create a ROS bag file with dummy data.");
     m_compressBagButton = createToolButton("Compress\nBag", "Decrease a ROS bag by creating a compressed variant.");
     m_decompressBagButton = createToolButton("Decompress\nBag", "Decompress a compressed ROS bag.");
+    m_playBagButton = createToolButton("Play Bag", "Play a ROS bag.");
 
-    auto* const bagToolsUpperLayout = new QHBoxLayout;
-    bagToolsUpperLayout->addStretch();
-    bagToolsUpperLayout->addWidget(m_editBagButton);
-    bagToolsUpperLayout->addWidget(m_mergeBagsButton);
-    bagToolsUpperLayout->addStretch();
+    auto* const bagToolsLayout_1 = new QHBoxLayout;
+    bagToolsLayout_1->addStretch();
+    bagToolsLayout_1->addWidget(m_editBagButton);
+    bagToolsLayout_1->addWidget(m_mergeBagsButton);
+    bagToolsLayout_1->addStretch();
 
-    auto* const bagToolsCenterLayout = new QHBoxLayout;
-    bagToolsCenterLayout->addStretch();
-    bagToolsCenterLayout->addWidget(m_recordBagButton);
-    bagToolsCenterLayout->addWidget(m_dummyBagButton);
-    bagToolsCenterLayout->addStretch();
+    auto* const bagToolsLayout_2 = new QHBoxLayout;
+    bagToolsLayout_2->addStretch();
+    bagToolsLayout_2->addWidget(m_recordBagButton);
+    bagToolsLayout_2->addWidget(m_dummyBagButton);
+    bagToolsLayout_2->addStretch();
 
-    auto* const bagToolsLowerLayout = new QHBoxLayout;
-    bagToolsLowerLayout->addStretch();
-    bagToolsLowerLayout->addWidget(m_compressBagButton);
-    bagToolsLowerLayout->addWidget(m_decompressBagButton);
-    bagToolsLowerLayout->addStretch();
+    auto* const bagToolsLayout_3 = new QHBoxLayout;
+    bagToolsLayout_3->addStretch();
+    bagToolsLayout_3->addWidget(m_compressBagButton);
+    bagToolsLayout_3->addWidget(m_decompressBagButton);
+    bagToolsLayout_3->addStretch();
+
+    auto* const bagToolsLayout_4 = new QHBoxLayout;
+    bagToolsLayout_4->addStretch();
+    bagToolsLayout_4->addWidget(m_playBagButton);
+    bagToolsLayout_4->addStretch();
 
     auto* const bagToolsMainLayout = new QVBoxLayout;
     bagToolsMainLayout->addStretch();
-    bagToolsMainLayout->addLayout(bagToolsUpperLayout);
-    bagToolsMainLayout->addLayout(bagToolsCenterLayout);
-    bagToolsMainLayout->addLayout(bagToolsLowerLayout);
+    bagToolsMainLayout->addLayout(bagToolsLayout_1);
+    bagToolsMainLayout->addLayout(bagToolsLayout_2);
+    bagToolsMainLayout->addLayout(bagToolsLayout_3);
+    bagToolsMainLayout->addLayout(bagToolsLayout_4);
     bagToolsMainLayout->addStretch();
 
     auto* const bagToolsWidget = new QWidget;
@@ -174,9 +181,9 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     backButtonLayout->addWidget(m_backButton);
     backButtonLayout->addStretch();
 
-    m_versionLabel = new QLabel("v0.14.0");
-    m_versionLabel->setToolTip("A tool to send TF2 messages, tf2 to yaml and\n"
-                               "a new threading flag for some CLI tools.");
+    m_versionLabel = new QLabel("v0.15.0");
+    m_versionLabel->setToolTip("A UI-tool to play bags, a completely redesigned recording tool,\n"
+                               "file saving/loading for sending tf2s and improved CLI help/info texts.");
 
     auto* const versionLayout = new QHBoxLayout;
     versionLayout->addStretch();
@@ -267,6 +274,9 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     });
     connect(m_decompressBagButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_ID::DECOMPRESS_BAG);
+    });
+    connect(m_playBagButton, &QPushButton::clicked, this, [this] {
+        emit toolRequested(Utils::UI::TOOL_ID::PLAY_BAG);
     });
     connect(m_publishVideoButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_ID::PUBLISH_VIDEO);
@@ -367,34 +377,35 @@ void
 StartWidget::setButtonIcons()
 {
     const auto isDarkMode = Utils::UI::isDarkMode();
-    m_settingsButton->setIcon(QIcon(isDarkMode ? ":/icons/gear_white.svg" : ":/icons/gear_black.svg"));
+    m_settingsButton->setIcon(QIcon(isDarkMode ? ":/icons/widgets/gear_white.svg" : ":/icons/widgets/gear_black.svg"));
 
-    m_conversionToolsButton->setIcon(QIcon(isDarkMode ? ":/icons/conversion_tools_white.svg" : ":/icons/conversion_tools_black.svg"));
-    m_bagToolsButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_tools_white.svg" : ":/icons/bag_tools_black.svg"));
-    m_publishingToolsButton->setIcon(QIcon(isDarkMode ? ":/icons/publishing_tools_white.svg" : ":/icons/publishing_tools_black.svg"));
-    m_infoToolsButton->setIcon(QIcon(isDarkMode ? ":/icons/info_tools_white.svg" : ":/icons/info_tools_black.svg"));
+    m_conversionToolsButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/conversion_tools_white.svg" : ":/icons/tools/conversion_tools_black.svg"));
+    m_bagToolsButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_tools_white.svg" : ":/icons/tools/bag_tools_black.svg"));
+    m_publishingToolsButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/publishing_tools_white.svg" : ":/icons/tools/publishing_tools_black.svg"));
+    m_infoToolsButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/info_tools_white.svg" : ":/icons/tools/info_tools_black.svg"));
 
-    m_bagToVideoPushButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_to_video_white.svg" : ":/icons/bag_to_video_black.svg"));
-    m_videoToBagPushButton->setIcon(QIcon(isDarkMode ? ":/icons/video_to_bag_white.svg" : ":/icons/video_to_bag_black.svg"));
-    m_bagToPCDsPushButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_to_pcd_white.svg" : ":/icons/bag_to_pcd_black.svg"));
-    m_PCDsToBagPushButton->setIcon(QIcon(isDarkMode ? ":/icons/pcd_to_bag_white.svg" : ":/icons/pcd_to_bag_black.svg"));
-    m_bagToImagesPushButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_to_images_white.svg" : ":/icons/bag_to_images_black.svg"));
-    m_tf2ToFilePushButton->setIcon(QIcon(isDarkMode ? ":/icons/tf2_to_file_white.svg" : ":/icons/tf2_to_file_black.svg"));
+    m_bagToVideoPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_to_video_white.svg" : ":/icons/tools/bag_to_video_black.svg"));
+    m_videoToBagPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/video_to_bag_white.svg" : ":/icons/tools/video_to_bag_black.svg"));
+    m_bagToPCDsPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_to_pcd_white.svg" : ":/icons/tools/bag_to_pcd_black.svg"));
+    m_PCDsToBagPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/pcd_to_bag_white.svg" : ":/icons/tools/pcd_to_bag_black.svg"));
+    m_bagToImagesPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_to_images_white.svg" : ":/icons/tools/bag_to_images_black.svg"));
+    m_tf2ToFilePushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/tf2_to_file_white.svg" : ":/icons/tools/tf2_to_file_black.svg"));
 
-    m_editBagButton->setIcon(QIcon(isDarkMode ? ":/icons/edit_bag_white.svg" : ":/icons/edit_bag_black.svg"));
-    m_mergeBagsButton->setIcon(QIcon(isDarkMode ? ":/icons/merge_bags_white.svg" : ":/icons/merge_bags_black.svg"));
-    m_recordBagButton->setIcon(QIcon(isDarkMode ? ":/icons/record_bag_white.svg" : ":/icons/record_bag_black.svg"));
-    m_dummyBagButton->setIcon(QIcon(isDarkMode ? ":/icons/dummy_bag_white.svg" : ":/icons/dummy_bag_black.svg"));
-    m_compressBagButton->setIcon(QIcon(isDarkMode ? ":/icons/compress_bag_white.svg" : ":/icons/compress_bag_black.svg"));
-    m_decompressBagButton->setIcon(QIcon(isDarkMode ? ":/icons/decompress_bag_white.svg" : ":/icons/decompress_bag_black.svg"));
+    m_editBagButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/edit_bag_white.svg" : ":/icons/tools/edit_bag_black.svg"));
+    m_mergeBagsButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/merge_bags_white.svg" : ":/icons/tools/merge_bags_black.svg"));
+    m_recordBagButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/record_bag_white.svg" : ":/icons/tools/record_bag_black.svg"));
+    m_dummyBagButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/dummy_bag_white.svg" : ":/icons/tools/dummy_bag_black.svg"));
+    m_compressBagButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/compress_bag_white.svg" : ":/icons/tools/compress_bag_black.svg"));
+    m_decompressBagButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/decompress_bag_white.svg" : ":/icons/tools/decompress_bag_black.svg"));
+    m_playBagButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/play_bag_white.svg" : ":/icons/tools/play_bag_black.svg"));
 
-    m_publishVideoButton->setIcon(QIcon(isDarkMode ? ":/icons/publish_video_white.svg" : ":/icons/publish_video_black.svg"));
-    m_publishImagesButton->setIcon(QIcon(isDarkMode ? ":/icons/publish_images_white.svg" : ":/icons/publish_images_black.svg"));
-    m_sendTF2Button->setIcon(QIcon(isDarkMode ? ":/icons/send_tf2_white.svg" : ":/icons/send_tf2_black.svg"));
+    m_publishVideoButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/publish_video_white.svg" : ":/icons/tools/publish_video_black.svg"));
+    m_publishImagesButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/publish_images_white.svg" : ":/icons/tools/publish_images_black.svg"));
+    m_sendTF2Button->setIcon(QIcon(isDarkMode ? ":/icons/tools/send_tf2_white.svg" : ":/icons/tools/send_tf2_black.svg"));
 
-    m_topicServiceInfoButton->setIcon(QIcon(isDarkMode ? ":/icons/topics_services_info_white.svg"
-                                                       : ":/icons/topics_services_info_black.svg"));
-    m_bagInfoButton->setIcon(QIcon(isDarkMode ? ":/icons/bag_info_white.svg" : ":/icons/bag_info_black.svg"));
+    m_topicServiceInfoButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/topics_services_info_white.svg"
+                                                       : ":/icons/tools/topics_services_info_black.svg"));
+    m_bagInfoButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_info_white.svg" : ":/icons/tools/bag_info_black.svg"));
 }
 
 

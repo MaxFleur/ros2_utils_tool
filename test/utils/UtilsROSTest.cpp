@@ -52,11 +52,7 @@ TEST_CASE("Utils ROS Testing", "[utils]") {
     outputStorage.uri = "compressed_bag_file";
 
     rosbag2_transport::RecordOptions outputRecord;
-#ifdef ROS_HUMBLE
-    outputRecord.all = true;
-#else
     outputRecord.all_topics = true;
-#endif
     outputRecord.compression_format = "zstd";
     outputRecord.compression_mode = "file";
     outputRecord.compression_queue_size = 0;
@@ -109,7 +105,7 @@ TEST_CASE("Utils ROS Testing", "[utils]") {
 
         SECTION("Topics test") {
             const auto& topics = Utils::ROS::getTopicInformation();
-            const auto it = std::find_if(topics.begin(), topics.end(), [] (const auto& element) {
+            const auto it = std::ranges::find_if(topics, [] (const auto& element) {
                 return element.first == "/example";
             });
             REQUIRE(it != topics.end());

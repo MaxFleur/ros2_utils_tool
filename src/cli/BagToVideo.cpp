@@ -10,24 +10,26 @@
 #include <filesystem>
 #include <iostream>
 
+volatile sig_atomic_t signalStatus = 0;
+
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_bag_to_video path/to/bag path/to/video\n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_bag_to_video path/to/bag path/to/video\n\n";
     std::cout << "Accepted video formats are mp4, mkv or avi.\n\n";
     std::cout << "Additional parameters:\n";
-    std::cout << "-t or --topic_name: Video topic inside the bag. If no topic name is specified, the first found video topic in the bag is taken.\n";
-    std::cout << "-r or --rate: Framerate for the encoded video. Must be from 10 to 60.\n\n";
+    std::cout << "-r or --rate: Framerate for the encoded video. Minimum is 10, maximum is 60, default is 30.\n";
+    std::cout << "-t or --topic_name: Video topic inside the bag. If no topic name is specified, the first found video topic in the bag is taken.\n\n";
     std::cout << "-a or --accelerate: Use hardware acceleration.\n";
-    std::cout << "-e or --exchange: Exchange red and blue values.\n";
     std::cout << "-c or --colorless: Use colorless images.\n";
+    std::cout << "-e or --exchange: Exchange red and blue values.\n";
     std::cout << "-l or --lossless (mkv only): Use lossless images.\n\n";
     std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "Example usage:\n";
+    std::cout << "ros2 run ros2_utils_tool tool_bag_to_video /home/usr/input_bag /home/usr/target_video -t /endoscope_video -r 20 -a -c -l\n\n";
     std::cout << "-h or --help: Show this help.\n";
 }
 
-
-volatile sig_atomic_t signalStatus = 0;
 
 int
 main(int argc, char* argv[])
@@ -41,8 +43,8 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    const QStringList checkList{ "-t", "-r", "-a", "-e", "-c", "-l", "-s",
-                                 "--topic_name", "--rate", "--accelerate", "--exchange", "--colorless", "--lossless", "--suppress" };
+    const QVector<QString> checkList{ "-r", "-t", "-a", "-c", "-e", "-l", "-s",
+                                      "--rate", "--topic_name", "--accelerate", "--colorless", "--exchange", "--lossless", "--suppress" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
@@ -58,8 +60,7 @@ main(int argc, char* argv[])
     parameters.targetDirectory = arguments.at(2);
     Utils::CLI::checkParentDirectory(parameters.targetDirectory);
 
-    parameters.format = parameters.targetDirectory.right(3);
-    if (parameters.format != "mp4" && parameters.format != "mkv" && parameters.format != "avi") {
+    if (const QVector<QString> acceptedFormats { "mp4", "mkv", "avi" }; !acceptedFormats.contains(parameters.targetDirectory.right(3))) {
         throw std::runtime_error("The entered video name is in invalid format. Please make sure that the video has the ending 'mp4', 'mkv' or 'avi'!");
     }
 
@@ -114,6 +115,10 @@ main(int argc, char* argv[])
         signalStatus = signal;
     });
 
+    std::cout << "Source bag file: " << std::filesystem::absolute(parameters.sourceDirectory.toStdString()) << "\n";
+    std::cout << "Target video file: " << std::filesystem::absolute(parameters.targetDirectory.toStdString()) << "\n";
+    std::cout << "Rate: " << parameters.fps << "\n";
+    std::cout << "Hardware acceleration " << (useHardwareAcceleration ? "enabled" : "disabled") << "\n\n";
     std::cout << "Encoding video. Please wait...\n";
     Utils::CLI::runThread(encodingThread, signalStatus);
 

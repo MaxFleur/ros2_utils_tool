@@ -9,19 +9,21 @@
 #include <filesystem>
 #include <iostream>
 
+volatile sig_atomic_t signalStatus = 0;
+
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run mediassist4_ros_tools tool_pcds_to_bag path/to/pcds/dir path/to/bag\n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_pcds_to_bag path/to/pcds/dir path/to/bag\n\n";
     std::cout << "Additional parameters:\n";
-    std::cout << "-t or --topic_name: Topic name in the bag file. If this is empty, the name '/topic_point_cloud' will be used.\n";
-    std::cout << "-r or --rate: Number of messages per second. Must be between 1 and 30, default is 5.\n\n";
+    std::cout << "-t or --topic_name: Topic name in the bag file. If no topic name is specified, the name '/topic_point_cloud' will be used.\n";
+    std::cout << "-r or --rate: Number of messages per second. Minimum is 1, maximum is 30, default is 5.\n\n";
     std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "Example usage:\n";
+    std::cout << "ros2 run ros2_utils_tool tool_pcds_to_bag /home/usr/pcd_dir /home/usr/output_bag -t /scanner_pcd -r 2\n\n";
     std::cout << "-h or --help: Show this help.\n";
 }
 
-
-volatile sig_atomic_t signalStatus = 0;
 
 int
 main(int argc, char* argv[])
@@ -35,7 +37,7 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    const QStringList checkList{ "-t", "-r", "-s", "--topic_name", "--rate", "--suppress" };
+    const QVector<QString> checkList{ "-t", "-r", "-s", "--topic_name", "--rate", "--suppress" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
@@ -101,7 +103,11 @@ main(int argc, char* argv[])
         signalStatus = signal;
     });
 
-    std::cout << "Writing pcd files to bag. Please wait...\n";
+    std::cout << "Source pcd directory: " << std::filesystem::absolute(parameters.sourceDirectory.toStdString()) << "\n";
+    std::cout << "Target bag file: " << std::filesystem::absolute(parameters.targetDirectory.toStdString()) << "\n";
+    std::cout << "Topic name: " << parameters.topicName.toStdString() << "\n";
+    std::cout << "Rate: " << parameters.rate << " point clouds per second\n\n";
+    std::cout << "Please wait...\n";
     Utils::CLI::runThread(pcdsToBagThread, signalStatus);
 
     return EXIT_SUCCESS;

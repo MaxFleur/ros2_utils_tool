@@ -5,6 +5,7 @@ target_include_directories (rt_cli
 ) 
 
 target_sources(rt_cli INTERFACE
+    ${CMAKE_CURRENT_LIST_DIR}/BagTF2ToFile.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToImages.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToPCDs.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToVideo.cpp
@@ -16,7 +17,6 @@ target_sources(rt_cli INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/PublishImages.cpp
     ${CMAKE_CURRENT_LIST_DIR}/PublishVideo.cpp
     ${CMAKE_CURRENT_LIST_DIR}/SendTF2.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/TF2ToFile.cpp
     ${CMAKE_CURRENT_LIST_DIR}/VideoToBag.cpp
 )
 

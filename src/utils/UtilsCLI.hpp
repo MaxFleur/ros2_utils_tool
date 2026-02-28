@@ -3,6 +3,7 @@
 #include <QString>
 #include <QStringList>
 #include <QThread>
+#include <QVector>
 
 #include <optional>
 #include <string>
@@ -15,8 +16,8 @@ namespace Utils::CLI
 // Determines if an argument list contains invalid arguments
 // by comparing it with a matching checklist, returns the invalid argument if found
 std::optional<std::string>
-containsInvalidParameters(const QStringList& argumentsList,
-                          const QStringList& checkList);
+containsInvalidParameters(const QStringList&      argumentsList,
+                          const QVector<QString>& checkList);
 
 // Checks if the command arguments stringlist contains either a specific
 // short or long argument and returns the index
@@ -90,15 +91,10 @@ drawProgressString(int progress);
 
 // Shows a processing string while something is processed in the background
 void
-showProcessingString(bool& isProcessing,
-                     int   toolOperation);
+showProcessingString(bool& isProcessing);
 
 // Run the thread handling the main operation
 void
 runThread(QThread*               thread,
           volatile sig_atomic_t& signalStatus);
-
-static constexpr int CLI_COMPRESS = 0;
-static constexpr int CLI_DECOMPRESS = 1;
-static constexpr int CLI_MERGE = 2;
 }

@@ -54,6 +54,10 @@ const QString
 replaceTextAppendix(const QString& inputText,
                     const QString& newAppendix);
 
+// Finds a bag file and checks if it is valid
+std::optional<QString>
+isBagDirectoryValid(QWidget* parent);
+
 // Checks if the application is in dark mode
 [[nodiscard]] bool
 isDarkMode();
@@ -71,6 +75,7 @@ enum class TOOL_ID {
     DUMMY_BAG,
     COMPRESS_BAG,
     DECOMPRESS_BAG,
+    PLAY_BAG,
     PUBLISH_VIDEO,
     PUBLISH_IMAGES,
     SEND_TF2,
@@ -78,6 +83,6 @@ enum class TOOL_ID {
     BAG_INFO
 };
 
-static constexpr int FONT_SIZE_HEADER = 16;
-static constexpr int FONT_SIZE_BUTTON = 14;
+inline constexpr int FONT_SIZE_HEADER = 16;
+inline constexpr int FONT_SIZE_BUTTON = 14;
 }

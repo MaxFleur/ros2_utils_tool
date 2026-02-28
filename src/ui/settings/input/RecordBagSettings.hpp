@@ -1,9 +1,9 @@
 #pragma once
 
-#include "BasicSettings.hpp"
+#include "SelectableBagTopicSettings.hpp"
 
 // Store bag recording parameters
-class RecordBagSettings : public BasicSettings {
+class RecordBagSettings : public SelectableBagTopicSettings {
 public:
     RecordBagSettings(Parameters::RecordBagParameters& parameters,
                       const QString&                   groupName);

@@ -8,7 +8,7 @@
 namespace Utils::CLI
 {
 std::optional<std::string>
-containsInvalidParameters(const QStringList& argumentsList, const QStringList& checkList)
+containsInvalidParameters(const QStringList& argumentsList, const QVector<QString>& checkList)
 {
     for (const auto& argument : argumentsList) {
         if ((argument.startsWith("-") || argument.startsWith("--")) && !checkList.contains(argument)) {
@@ -191,7 +191,7 @@ continueExistingTargetLowDiskSpace(const QStringList& arguments, const QString& 
 std::string
 drawProgressString(int progress)
 {
-    const int numberOfHashtags = ((float) progress / 100.0f) * 50;
+    const int numberOfHashtags = (static_cast<float>(progress) / 100.0f) * 50;
     const auto numberOfDashes = 50 - numberOfHashtags;
 
     const auto progressString = std::string(numberOfHashtags, '#') + std::string(numberOfDashes, '-');
@@ -200,12 +200,11 @@ drawProgressString(int progress)
 
 
 void
-showProcessingString(bool& isProcessing, int toolOperation)
+showProcessingString(bool& isProcessing)
 {
     auto processingChar = '\\';
-    std::string isProcessingString;
-
     isProcessing = true;
+
     while (isProcessing) {
         switch (processingChar) {
         case '|':
@@ -224,19 +223,7 @@ showProcessingString(bool& isProcessing, int toolOperation)
             break;
         }
 
-        switch (toolOperation) {
-        case 0:
-            isProcessingString = "Writing and compressing target file, please wait... ";
-            break;
-        case 1:
-            isProcessingString = "Decompressing and writing target file, please wait... ";
-            break;
-        case 2:
-            isProcessingString = "Merging bags, please wait... ";
-            break;
-        }
-
-        std::cout << isProcessingString << processingChar << "\r" << std::flush;
+        std::cout << "Operation started, please wait... " << processingChar << "\r" << std::flush;
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 }

@@ -64,15 +64,15 @@ EditBagThread::run()
             const auto topic = queue.back();
             queue.pop_back();
 
-            const auto originalTopicNameStd = topic.originalTopicName.toStdString();
+            const auto nameStd = topic.name.toStdString();
             const auto& metadata = Utils::ROS::getBagMetadata(m_parameters.sourceDirectory);
             // Create a new topic using either the original or new name
             for (const auto &topicMetaData : metadata.topics_with_message_count) {
-                if (topicMetaData.topic_metadata.name == originalTopicNameStd) {
+                if (topicMetaData.topic_metadata.name == nameStd) {
                     auto topicToBeModified = topicMetaData.topic_metadata;
 
-                    if (!topic.renamedTopicName.isEmpty()) {
-                        topicToBeModified.name = topic.renamedTopicName.toStdString();
+                    if (!topic.renamedName.isEmpty()) {
+                        topicToBeModified.name = topic.renamedName.toStdString();
                     }
                     writer->create_topic(topicToBeModified);
                     break;
@@ -93,7 +93,7 @@ EditBagThread::run()
                 }
                 // Read the original message
                 message = reader.read_next();
-                if (message->topic_name != originalTopicNameStd) {
+                if (message->topic_name != nameStd) {
                     continue;
                 }
                 // Stay within boundaries
@@ -105,20 +105,16 @@ EditBagThread::run()
                     break;
                 }
 
-                if (!topic.renamedTopicName.isEmpty()) {
-                    message->topic_name = topic.renamedTopicName.toStdString();
+                if (!topic.renamedName.isEmpty()) {
+                    message->topic_name = topic.renamedName.toStdString();
                 }
                 if (m_parameters.updateTimestamps) {
-#ifdef ROS_HUMBLE
-                    message->time_stamp = node->now().nanoseconds();
-#else
                     message->recv_timestamp = node->now().nanoseconds();
-#endif
                 }
                 writer->write(message);
 
                 emit progressChanged("Writing message " + QString::number(instanceCount) + " of " + QString::number(totalInstances) + "...",
-                                     ((float) instanceCount / (float) totalInstances) * 100);
+                                     (static_cast<float>(instanceCount) / static_cast<float>(totalInstances)) * 100);
                 boundaryCounter++;
                 instanceCount++;
             }

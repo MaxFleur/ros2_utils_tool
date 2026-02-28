@@ -21,9 +21,9 @@ EditBagSettings::write()
     settings.beginWriteArray("topics");
     for (auto i = 0; i < m_parameters.topics.size(); ++i) {
         settings.setArrayIndex(i);
-        writeParameter(settings, "renamed_name", m_parameters.topics.at(i).renamedTopicName);
-        writeParameter(settings, "original_name", m_parameters.topics.at(i).originalTopicName);
+        writeParameter(settings, "name", m_parameters.topics.at(i).name);
         writeParameter(settings, "is_selected", m_parameters.topics.at(i).isSelected);
+        writeParameter(settings, "renamed_name", m_parameters.topics.at(i).renamedName);
         writeParameter(settings, "lower_boundary", m_parameters.topics.at(i).lowerBoundary);
         writeParameter(settings, "upper_boundary", m_parameters.topics.at(i).upperBoundary);
     }
@@ -50,10 +50,11 @@ EditBagSettings::read()
     const auto size = settings.beginReadArray("topics");
     for (auto i = 0; i < size; ++i) {
         settings.setArrayIndex(i);
-        m_parameters.topics.append({ readParameter(settings, "renamed_name", QString("")), readParameter(settings, "original_name", QString("")),
-                                     static_cast<size_t>(readParameter(settings, "lower_boundary", 0)),
-                                     static_cast<size_t>(readParameter(settings, "upper_boundary", 0)),
-                                     readParameter(settings, "is_selected", false) });
+        m_parameters.topics.append({ { { readParameter(settings, "name", QString("")) },
+                                       readParameter(settings, "is_selected", false) },
+                                       readParameter(settings, "renamed_name", QString("")),
+                                       static_cast<size_t>(readParameter(settings, "lower_boundary", 0)),
+                                       static_cast<size_t>(readParameter(settings, "upper_boundary", 0)) });
     }
     settings.endArray();
     settings.endGroup();

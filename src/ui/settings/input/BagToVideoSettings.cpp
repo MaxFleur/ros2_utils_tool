@@ -14,7 +14,6 @@ BagToVideoSettings::write()
         return false;
     }
 
-    writeParameter(m_groupName, "format", m_parameters.format);
     writeParameter(m_groupName, "bw_images", m_parameters.useBWImages);
     writeParameter(m_groupName, "lossless_images", m_parameters.lossless);
 
@@ -29,7 +28,6 @@ BagToVideoSettings::read()
         return false;
     }
 
-    m_parameters.format = readParameter(m_groupName, "format", QString("mp4"));
     m_parameters.useBWImages = readParameter(m_groupName, "bw_images", false);
     m_parameters.lossless = readParameter(m_groupName, "lossless_images", false);
 
