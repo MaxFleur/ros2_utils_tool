@@ -13,6 +13,7 @@ class QLabel;
 class QLineEdit;
 class QPushButton;
 class QToolButton;
+class QVBoxLayout;
 
 template<typename T, typename U>
 concept InputParameterSetting = (std::same_as<T, U> && (std::same_as<T, QString> || std::same_as<T, int> ||
@@ -82,6 +83,7 @@ protected:
     QPointer<QPushButton> m_okButton;
 
     QPointer<QHBoxLayout> m_findSourceLayout;
+    QPointer<QVBoxLayout> m_controlsLayout;
     QPointer<QHBoxLayout> m_buttonLayout;
     QPointer<QDialogButtonBox> m_dialogButtonBox;
 

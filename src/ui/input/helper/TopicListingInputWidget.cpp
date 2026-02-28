@@ -10,7 +10,6 @@
 #include <QPushButton>
 #include <QShortcut>
 #include <QToolButton>
-#include <QVBoxLayout>
 
 #include <filesystem>
 
@@ -30,22 +29,6 @@ TopicListingInputWidget::TopicListingInputWidget(Parameters::BasicParameters& pa
     m_topicButtonLayout->addWidget(m_addTopicButton);
     m_topicButtonLayout->setSpacing(0);
     m_topicButtonLayout->setContentsMargins(0, 0, 0, 0);
-
-    m_controlsLayout = new QVBoxLayout;
-    m_controlsLayout->addStretch();
-    m_controlsLayout->addWidget(m_headerPixmapLabel);
-    m_controlsLayout->addWidget(m_headerLabel);
-    m_controlsLayout->addSpacing(40);
-
-    auto* const controlsSqueezedLayout = new QHBoxLayout;
-    controlsSqueezedLayout->addStretch();
-    controlsSqueezedLayout->addLayout(m_controlsLayout);
-    controlsSqueezedLayout->addStretch();
-
-    auto* const mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(controlsSqueezedLayout);
-    mainLayout->addLayout(m_buttonLayout);
-    setLayout(mainLayout);
 
     auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
 

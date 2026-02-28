@@ -7,7 +7,6 @@
 #include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QFormLayout>
-#include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QShortcut>
@@ -34,25 +33,11 @@ AdvancedInputWidget::AdvancedInputWidget(Parameters::AdvancedParameters& paramet
 
     m_lowDiskSpaceWidget = new LowDiskSpaceWidget;
 
-    m_controlsLayout = new QVBoxLayout;
-    m_controlsLayout->addStretch();
-    m_controlsLayout->addWidget(m_headerPixmapLabel);
-    m_controlsLayout->addWidget(m_headerLabel);
     m_controlsLayout->addSpacing(40);
     m_controlsLayout->addLayout(m_basicOptionsFormLayout);
     m_controlsLayout->addSpacing(5);
     m_controlsLayout->addWidget(m_lowDiskSpaceWidget);
     m_controlsLayout->addSpacing(5);
-
-    auto* const controlsSqueezedLayout = new QHBoxLayout;
-    controlsSqueezedLayout->addStretch();
-    controlsSqueezedLayout->addLayout(m_controlsLayout);
-    controlsSqueezedLayout->addStretch();
-
-    auto* const mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(controlsSqueezedLayout);
-    mainLayout->addLayout(m_buttonLayout);
-    setLayout(mainLayout);
 
     auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
 

@@ -49,8 +49,6 @@ EditBagWidget::EditBagWidget(Parameters::EditBagParameters& parameters, bool war
     m_controlsLayout->addWidget(m_differentDirsLabel);
     m_controlsLayout->addWidget(m_deleteSourceCheckBox);
     m_controlsLayout->addWidget(m_updateTimestampsCheckBox);
-    // Give it a more "squishy" look
-    m_controlsLayout->setContentsMargins(30, 30, 30, 30);
     m_controlsLayout->addStretch();
 
     connect(m_updateTimestampsCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {

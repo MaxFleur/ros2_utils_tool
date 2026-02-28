@@ -11,7 +11,6 @@
 #include <QPushButton>
 #include <QShortcut>
 #include <QToolButton>
-#include <QVBoxLayout>
 
 #include <filesystem>
 
@@ -37,23 +36,6 @@ BasicBagWidget::BasicBagWidget(Parameters::SelectableBagTopicParameters& paramet
     m_treeWidget->setMinimumWidth(380);
 
     m_okButton->setEnabled(true);
-
-    m_controlsLayout = new QVBoxLayout;
-    m_controlsLayout->addStretch();
-    m_controlsLayout->addSpacing(20);
-    m_controlsLayout->addWidget(m_headerPixmapLabel);
-    m_controlsLayout->addWidget(m_headerLabel);
-    m_controlsLayout->addSpacing(30);
-
-    auto* const controlsSqueezedLayout = new QHBoxLayout;
-    controlsSqueezedLayout->addStretch();
-    controlsSqueezedLayout->addLayout(m_controlsLayout);
-    controlsSqueezedLayout->addStretch();
-
-    auto* const mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(controlsSqueezedLayout);
-    mainLayout->addLayout(m_buttonLayout);
-    setLayout(mainLayout);
 
     auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
 
