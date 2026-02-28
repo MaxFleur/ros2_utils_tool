@@ -1,6 +1,33 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Changelog for the ros2_utils_tool
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+0.15.0 (2026-02-28)
+-------------------
+**New:**
+
+* UI - A tool to play bag files, including topic selection, rate adjustion and an option to loop the bag!
+* UI - The record bag tool has been completely overhauled and now shows available topics inside a tree. Additionally, more options were added to it.
+
+**Enhanced:**
+
+* The send tf2 tool can now save the used tf2 config to a json or yaml file. This file can be loaded again instead of typing in values manually.
+* The publish video tool can now use a custom framerate, similar to the publish images tool.
+* UI - The bag info tool now also shows the ROS distro and bag version.
+* CLI - Added example commands to all help texts and more additional info before the operation is started.
+
+**Changed/Improved:**
+
+* CLI - Help texts were restructured and cleaned up.
+* Beautified ReadMe.
+
+**Fixed:**
+
+* UI - The ok button did not correctly enable when selecting a valid source file in the conversion tools.
+* UI - The ok button in the record and dummy bag tool could be pressed even when no target file was entered.
+* UI - Error messages when early returning file searches in some tools.
+
+**Other:**
+- Removed support for humble.
 
 0.14.0 (2025-12-22)
 -------------------
