@@ -43,9 +43,6 @@ RecordBagThread::run()
         recordOptions.compression_queue_size = 0;
     }
 
-    // Disable terminal logging
-    auto result = rcutils_logging_set_logger_level("rosbag2_recorder", RCUTILS_LOG_SEVERITY_FATAL);
-    Q_UNUSED(result);
     auto writer = rosbag2_transport::ReaderWriterFactory::make_writer(recordOptions);
     auto recorder = std::make_shared<rosbag2_transport::Recorder>(std::move(writer), storageOptions, recordOptions);
 

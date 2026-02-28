@@ -30,6 +30,15 @@ spinNode(std::shared_ptr<rclcpp::Node> node)
 
 
 void
+disableROSLogging()
+{
+    rcutils_logging_set_output_handler([] (const rcutils_log_location_t*, int, const char*,
+                                           rcutils_time_point_value_t, const char*, va_list*) {
+    });
+}
+
+
+void
 sendStaticTransformation(const std::array<double, 3>& translation,
                          const std::array<double, 4>& rotation,
                          std::shared_ptr<NodeWrapper> nodeWrapper)

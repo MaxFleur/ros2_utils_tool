@@ -1,6 +1,6 @@
 #include "ui/MainWindow.hpp"
 
-#include "rclcpp/rclcpp.hpp"
+#include "UtilsROS.hpp"
 
 #include <QApplication>
 
@@ -9,6 +9,8 @@ main(int argc, char* argv[])
 {
     // Initialize ROS and Qt
     rclcpp::init(argc, argv);
+    Utils::ROS::disableROSLogging();
+
     QApplication app(argc, argv);
     app.setWindowIcon(QIcon(":/icons/tools/main.svg"));
 
