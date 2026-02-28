@@ -13,6 +13,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QToolButton>
+#include <QVBoxLayout>
 
 #include <filesystem>
 
@@ -39,10 +40,22 @@ BasicInputWidget::BasicInputWidget(const QString& headerText, const QString& ico
     // Layout can be already complete
     m_findSourceLayout = Utils::UI::createLineEditButtonLayout(m_sourceLineEdit, m_findSourceButton);
 
+    m_controlsLayout = new QVBoxLayout;
+    m_controlsLayout->addStretch();
+    m_controlsLayout->addWidget(m_headerPixmapLabel);
+    m_controlsLayout->addWidget(m_headerLabel);
+    m_controlsLayout->setContentsMargins(Utils::UI::CONTROLS_LAYOUT_MARGIN, Utils::UI::CONTROLS_LAYOUT_MARGIN,
+                                         Utils::UI::CONTROLS_LAYOUT_MARGIN, Utils::UI::CONTROLS_LAYOUT_MARGIN);
+
     m_buttonLayout = new QHBoxLayout;
     m_buttonLayout->addWidget(m_backButton);
     m_buttonLayout->addStretch();
     m_buttonLayout->addWidget(m_dialogButtonBox);
+
+    auto* const mainLayout = new QVBoxLayout;
+    mainLayout->addLayout(m_controlsLayout);
+    mainLayout->addLayout(m_buttonLayout);
+    setLayout(mainLayout);
 
     connect(m_backButton, &QPushButton::clicked, this, [this] {
         emit back();

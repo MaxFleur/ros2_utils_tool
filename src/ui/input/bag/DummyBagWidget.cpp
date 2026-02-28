@@ -40,6 +40,7 @@ DummyBagWidget::DummyBagWidget(Parameters::DummyBagParameters& parameters, bool 
     m_formLayout->addRow("Message Count:", messageCountSpinBox);
     m_formLayout->addRow("Use Custom Rate:", useCustomRateCheckBox);
 
+    m_controlsLayout->addSpacing(40);
     m_controlsLayout->addLayout(m_formLayout);
     m_controlsLayout->addSpacing(5);
     m_controlsLayout->addWidget(m_lowDiskSpaceWidget);

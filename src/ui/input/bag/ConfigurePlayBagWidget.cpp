@@ -32,6 +32,7 @@ ConfigurePlayBagWidget::ConfigurePlayBagWidget(Parameters::PlayBagParameters& pa
     m_loopCheckBox->setTristate(false);
     m_loopCheckBox->setChecked(m_parameters.loop);
 
+    m_controlsLayout->addSpacing(30);
     m_controlsLayout->addLayout(sourceFormLayout);
     m_controlsLayout->addSpacing(5);
     m_controlsLayout->addWidget(m_unselectLabel);

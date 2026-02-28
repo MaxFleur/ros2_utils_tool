@@ -6,7 +6,6 @@
 
 class QFormLayout;
 class QLineEdit;
-class QVBoxLayout;
 
 // Derived from basic input, provides functions to search for an input bag or a target directory
 class AdvancedInputWidget : public BasicInputWidget
@@ -53,7 +52,6 @@ protected:
     QPointer<QLineEdit> m_targetLineEdit;
 
     QPointer<QFormLayout> m_basicOptionsFormLayout;
-    QPointer<QVBoxLayout> m_controlsLayout;
 
     Parameters::AdvancedParameters& m_parameters;
 

@@ -1,8 +1,8 @@
 #include "BagInfoWidget.hpp"
 
+#include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QFormLayout>
-#include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMessageBox>
@@ -14,13 +14,17 @@
 
 #include "UtilsGeneral.hpp"
 #include "UtilsROS.hpp"
+#include "UtilsUI.hpp"
 
 #include <chrono>
 
 BagInfoWidget::BagInfoWidget(QWidget *parent) :
     BasicInputWidget("Bag Info", ":/icons/tools/bag_info", parent)
 {
-    auto* const bagLineEdit = new QLineEdit();
+    // Don't need it here
+    m_dialogButtonBox->setVisible(false);
+
+    auto* const bagLineEdit = new QLineEdit;
     bagLineEdit->setToolTip("The source bag file directory.");
 
     auto* const formLayout = new QFormLayout;
@@ -35,28 +39,11 @@ BagInfoWidget::BagInfoWidget(QWidget *parent) :
     m_infoTreeWidget->setMinimumWidth(430);
     m_infoTreeWidget->setMinimumHeight(300);
 
-    auto* const controlsLayout = new QVBoxLayout;
-    controlsLayout->addStretch();
-    controlsLayout->addWidget(m_headerPixmapLabel);
-    controlsLayout->addWidget(m_headerLabel);
-    controlsLayout->addSpacing(30);
-    controlsLayout->addLayout(formLayout);
-    controlsLayout->addSpacing(10);
-    controlsLayout->addWidget(m_infoTreeWidget);
-    controlsLayout->addStretch();
-
-    auto* const controlsSqueezedLayout = new QHBoxLayout;
-    controlsSqueezedLayout->addStretch();
-    controlsSqueezedLayout->addLayout(controlsLayout);
-    controlsSqueezedLayout->addStretch();
-
-    m_okButton->setEnabled(true);
-    m_okButton->setVisible(false);
-
-    auto* const mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(controlsSqueezedLayout);
-    mainLayout->addLayout(m_buttonLayout);
-    setLayout(mainLayout);
+    m_controlsLayout->addSpacing(30);
+    m_controlsLayout->addLayout(formLayout);
+    m_controlsLayout->addSpacing(10);
+    m_controlsLayout->addWidget(m_infoTreeWidget);
+    m_controlsLayout->addStretch();
 
     connect(m_findSourceButton, &QPushButton::clicked, this, &BagInfoWidget::displayBagInfo);
     connect(m_okButton, &QPushButton::clicked, this, [this] {
@@ -133,5 +120,4 @@ BagInfoWidget::displayBagInfo()
     m_infoTreeWidget->expandAll();
     m_infoTreeWidget->resizeColumnToContents(COL_DESCRIPTION);
     m_infoTreeWidget->setVisible(true);
-    m_okButton->setVisible(true);
 }

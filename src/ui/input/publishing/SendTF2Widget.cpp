@@ -92,27 +92,13 @@ SendTF2Widget::SendTF2Widget(Parameters::SendTF2Parameters& parameters, QWidget 
     m_transformSentLabel->setFont(boldFont);
     m_transformSentLabel->setVisible(false);
 
-    auto* const controlsLayout = new QVBoxLayout;
-    controlsLayout->addStretch();
-    controlsLayout->addWidget(m_headerPixmapLabel);
-    controlsLayout->addWidget(m_headerLabel);
-    controlsLayout->addSpacing(25);
-    controlsLayout->addLayout(m_formLayout);
-    controlsLayout->addLayout(loadFileButtonLayout);
-    controlsLayout->addSpacing(5);
-    controlsLayout->addWidget(m_transformSentLabel);
-    controlsLayout->addStretch();
-    controlsLayout->setAlignment(m_transformSentLabel, Qt::AlignCenter);
-
-    auto* const controlsSqueezedLayout = new QHBoxLayout;
-    controlsSqueezedLayout->addStretch();
-    controlsSqueezedLayout->addLayout(controlsLayout);
-    controlsSqueezedLayout->addStretch();
-
-    auto* const mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(controlsSqueezedLayout);
-    mainLayout->addLayout(m_buttonLayout);
-    setLayout(mainLayout);
+    m_controlsLayout->addSpacing(25);
+    m_controlsLayout->addLayout(m_formLayout);
+    m_controlsLayout->addLayout(loadFileButtonLayout);
+    m_controlsLayout->addSpacing(5);
+    m_controlsLayout->addWidget(m_transformSentLabel);
+    m_controlsLayout->addStretch();
+    m_controlsLayout->setAlignment(m_transformSentLabel, Qt::AlignCenter);
 
     m_timer = new QTimer(this);
     m_timer->setSingleShot(true);

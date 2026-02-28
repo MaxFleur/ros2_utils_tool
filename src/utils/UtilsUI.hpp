@@ -85,4 +85,5 @@ enum class TOOL_ID {
 
 inline constexpr int FONT_SIZE_HEADER = 16;
 inline constexpr int FONT_SIZE_BUTTON = 14;
+inline constexpr int CONTROLS_LAYOUT_MARGIN = 50;
 }
