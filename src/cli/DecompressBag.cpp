@@ -31,6 +31,7 @@ showHelp()
 int
 main(int argc, char* argv[])
 {
+    Utils::ROS::disableROSLogging();
     // Create application
     QCoreApplication app(argc, argv);
 

@@ -21,6 +21,9 @@ concept WriteMessageParameter = (std::same_as<T, std_msgs::msg::String> && std::
 // ROS related util functions
 namespace Utils::ROS
 {
+void
+disableROSLogging();
+
 // Sends a static transformation using tf broadcaster
 // @NOTE: For whatever reason, just creating and spinning a local node
 //        does not work here, we have to spin a global node
