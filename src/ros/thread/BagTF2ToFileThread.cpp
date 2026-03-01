@@ -1,4 +1,4 @@
-#include "TF2ToFileThread.hpp"
+#include "BagTF2ToFileThread.hpp"
 
 #include "UtilsGeneral.hpp"
 #include "UtilsROS.hpp"
@@ -13,14 +13,14 @@
 #include <filesystem>
 #include <fstream>
 
-TF2ToFileThread::TF2ToFileThread(const Parameters::TF2ToFileParameters& parameters, QObject* parent) :
+BagTF2ToFileThread::BagTF2ToFileThread(const Parameters::TF2ToFileParameters& parameters, QObject* parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent), m_parameters(parameters)
 {
 }
 
 
 void
-TF2ToFileThread::run()
+BagTF2ToFileThread::run()
 {
     const auto& targetDirectory = m_parameters.targetDirectory;
     if (std::filesystem::exists(targetDirectory.toStdString())) {
@@ -66,8 +66,8 @@ TF2ToFileThread::run()
             continue;
         }
 
-        rclcpp::SerializedMessage serializedMsg(*bagMessage->serialized_data);
-        serializiation.deserialize_message(&serializedMsg, tfMessage.get());
+        rclcpp::SerializedMessage serializedMessage(*bagMessage->serialized_data);
+        serializiation.deserialize_message(&serializedMessage, tfMessage.get());
 
         isFormatJson ? writeMessageToJson() : writeMessageToYaml();
 

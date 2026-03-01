@@ -17,11 +17,11 @@ public:
 
 private slots:
     void
-    displayBagInfo();
+    populateTreeWidget();
 
 private:
     // Main tree used to display bag info
-    QPointer<QTreeWidget> m_infoTreeWidget;
+    QPointer<QTreeWidget> m_treeWidget;
 
     static constexpr int COL_DESCRIPTION = 0;
     static constexpr int COL_INFORMATION = 1;

@@ -33,8 +33,8 @@ target_sources(rt_all_threads INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/RecordBagThread.hpp
     ${CMAKE_CURRENT_LIST_DIR}/SendTF2Thread.cpp
     ${CMAKE_CURRENT_LIST_DIR}/SendTF2Thread.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/TF2ToFileThread.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/TF2ToFileThread.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/BagTF2ToFileThread.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/BagTF2ToFileThread.hpp
     ${CMAKE_CURRENT_LIST_DIR}/VideoToBagThread.cpp
     ${CMAKE_CURRENT_LIST_DIR}/VideoToBagThread.hpp
 )
@@ -111,8 +111,8 @@ target_sources(rt_send_tf2_thread INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/SendTF2Thread.hpp
 )
 target_sources(rt_tf2_to_file_thread INTERFACE
-    ${CMAKE_CURRENT_LIST_DIR}/TF2ToFileThread.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/TF2ToFileThread.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/BagTF2ToFileThread.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/BagTF2ToFileThread.hpp
 )
 target_sources(rt_video_to_bag_thread INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/VideoToBagThread.cpp

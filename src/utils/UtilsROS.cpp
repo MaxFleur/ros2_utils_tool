@@ -83,10 +83,10 @@ doesDirectoryContainBagFile(const QString& bagDirectory)
 bool
 doesDirectoryContainCompressedBagFile(const QString& bagDirectory)
 {
-    rosbag2_storage::MetadataIo metadata_IO;
+    rosbag2_storage::MetadataIo metadataIO;
     rosbag2_storage::BagMetadata metadata;
     try {
-        metadata = metadata_IO.read_metadata(bagDirectory.toStdString());
+        metadata = metadataIO.read_metadata(bagDirectory.toStdString());
     } catch (...) {
         return false;
     }

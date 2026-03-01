@@ -68,52 +68,52 @@ MainWindow::setInputWidget(Utils::UI::TOOL_ID mode)
     QPointer<BasicInputWidget> basicInputWidget;
     switch (mode) {
     case Utils::UI::TOOL_ID::BAG_TO_VIDEO:
-        basicInputWidget = new BagToVideoWidget(m_parametersBagToVideo);
+        basicInputWidget = new BagToVideoWidget(m_bagToVideoParameters);
         break;
     case Utils::UI::TOOL_ID::VIDEO_TO_BAG:
-        basicInputWidget = new VideoToBagWidget(m_parametersVideoToBag, m_dialogParameters.usePredefinedTopicNames,
+        basicInputWidget = new VideoToBagWidget(m_videoToBagParameters, m_dialogParameters.usePredefinedTopicNames,
                                                 m_dialogParameters.warnROS2NameConvention);
         break;
     case Utils::UI::TOOL_ID::BAG_TO_PCDS:
-        basicInputWidget = new BagToPCDsWidget(m_parametersBagToPCDs);
+        basicInputWidget = new BagToPCDsWidget(m_bagToPCDsParameters);
         break;
     case Utils::UI::TOOL_ID::PCDS_TO_BAG:
-        basicInputWidget = new PCDsToBagWidget(m_parametersPCDsToBag, m_dialogParameters.usePredefinedTopicNames,
+        basicInputWidget = new PCDsToBagWidget(m_PCDsToBagParameters, m_dialogParameters.usePredefinedTopicNames,
                                                m_dialogParameters.warnROS2NameConvention);
         break;
     case Utils::UI::TOOL_ID::BAG_TO_IMAGES:
-        basicInputWidget = new BagToImagesWidget(m_parametersBagToImages);
+        basicInputWidget = new BagToImagesWidget(m_bagToImagesParameters);
         break;
     case Utils::UI::TOOL_ID::TF2_TO_FILE:
-        basicInputWidget = new BagTF2ToFileWidget(m_parametersTF2ToFile);
+        basicInputWidget = new BagTF2ToFileWidget(m_TF2ToFileParameters);
         break;
     case Utils::UI::TOOL_ID::EDIT_BAG:
-        basicInputWidget = new EditBagWidget(m_parametersEditBag, m_dialogParameters.warnROS2NameConvention);
+        basicInputWidget = new EditBagWidget(m_editBagParameters, m_dialogParameters.warnROS2NameConvention);
         break;
     case Utils::UI::TOOL_ID::MERGE_BAGS:
-        basicInputWidget = new MergeBagsWidget(m_parametersMergeBags);
+        basicInputWidget = new MergeBagsWidget(m_mergeBagsParameters);
         break;
     case Utils::UI::TOOL_ID::RECORD_BAG:
-        basicInputWidget = new RecordBagWidget(m_parametersRecordBag);
+        basicInputWidget = new RecordBagWidget(m_recordBagParameters);
         break;
     case Utils::UI::TOOL_ID::DUMMY_BAG:
-        basicInputWidget = new DummyBagWidget(m_parametersDummyBag, m_dialogParameters.warnROS2NameConvention);
+        basicInputWidget = new DummyBagWidget(m_dummyBagParameters, m_dialogParameters.warnROS2NameConvention);
         break;
     case Utils::UI::TOOL_ID::COMPRESS_BAG:
-        basicInputWidget = new ChangeCompressionWidget(m_parametersCompressBag, true);
+        basicInputWidget = new ChangeCompressionWidget(m_compressBagParameters, true);
         break;
     case Utils::UI::TOOL_ID::DECOMPRESS_BAG:
-        basicInputWidget = new ChangeCompressionWidget(m_parametersDecompressBag, false);
+        basicInputWidget = new ChangeCompressionWidget(m_decompressBagParameters, false);
         break;
     case Utils::UI::TOOL_ID::PLAY_BAG:
-        basicInputWidget = new ConfigurePlayBagWidget(m_parametersPlayBag);
+        basicInputWidget = new ConfigurePlayBagWidget(m_playBagParameters);
         break;
     case Utils::UI::TOOL_ID::PUBLISH_VIDEO:
-        basicInputWidget = new PublishWidget(m_parametersPublishVideo, m_dialogParameters.usePredefinedTopicNames,
+        basicInputWidget = new PublishWidget(m_publishVideoParameters, m_dialogParameters.usePredefinedTopicNames,
                                              m_dialogParameters.warnROS2NameConvention, true);
         break;
     case Utils::UI::TOOL_ID::PUBLISH_IMAGES:
-        basicInputWidget = new PublishWidget(m_parametersPublishImages, m_dialogParameters.usePredefinedTopicNames,
+        basicInputWidget = new PublishWidget(m_publishImagesParameters, m_dialogParameters.usePredefinedTopicNames,
                                              m_dialogParameters.warnROS2NameConvention, false);
         break;
     case Utils::UI::TOOL_ID::SEND_TF2:
@@ -144,7 +144,7 @@ void
 MainWindow::setProcessingWidget(Utils::UI::TOOL_ID mode)
 {
     if (mode == Utils::UI::TOOL_ID::PLAY_BAG) {
-        auto* const controlPlayBagWidget = new ControlPlayBagWidget(m_parametersPlayBag);
+        auto* const controlPlayBagWidget = new ControlPlayBagWidget(m_playBagParameters);
         setCentralWidget(controlPlayBagWidget);
 
         connect(controlPlayBagWidget, &ControlPlayBagWidget::stopped, this, [this, mode] {
@@ -157,46 +157,46 @@ MainWindow::setProcessingWidget(Utils::UI::TOOL_ID mode)
     QPointer<ProgressWidget> progressWidget;
     switch (mode) {
     case Utils::UI::TOOL_ID::BAG_TO_VIDEO:
-        progressWidget = new ProgressWidget("Encoding Video...", m_parametersBagToVideo, mode);
+        progressWidget = new ProgressWidget("Encoding Video...", m_bagToVideoParameters, mode);
         break;
     case Utils::UI::TOOL_ID::VIDEO_TO_BAG:
-        progressWidget = new ProgressWidget("Writing to Bag...", m_parametersVideoToBag, mode);
+        progressWidget = new ProgressWidget("Writing to Bag...", m_videoToBagParameters, mode);
         break;
     case Utils::UI::TOOL_ID::BAG_TO_PCDS:
-        progressWidget = new ProgressWidget("Writing PCD files...", m_parametersBagToPCDs, mode);
+        progressWidget = new ProgressWidget("Writing PCD files...", m_bagToPCDsParameters, mode);
         break;
     case Utils::UI::TOOL_ID::PCDS_TO_BAG:
-        progressWidget = new ProgressWidget("Writing to Bag...", m_parametersPCDsToBag, mode);
+        progressWidget = new ProgressWidget("Writing to Bag...", m_PCDsToBagParameters, mode);
         break;
     case Utils::UI::TOOL_ID::BAG_TO_IMAGES:
-        progressWidget = new ProgressWidget("Writing Images...", m_parametersBagToImages, mode);
+        progressWidget = new ProgressWidget("Writing Images...", m_bagToImagesParameters, mode);
         break;
     case Utils::UI::TOOL_ID::TF2_TO_FILE:
-        progressWidget = new ProgressWidget("Writing File(s)...", m_parametersTF2ToFile, mode);
+        progressWidget = new ProgressWidget("Writing File(s)...", m_TF2ToFileParameters, mode);
         break;
     case Utils::UI::TOOL_ID::EDIT_BAG:
-        progressWidget = new ProgressWidget("Writing edited Bag File...", m_parametersEditBag, mode);
+        progressWidget = new ProgressWidget("Writing edited Bag File...", m_editBagParameters, mode);
         break;
     case Utils::UI::TOOL_ID::MERGE_BAGS:
-        progressWidget = new ProgressWidget("Writing merged Bag File...", m_parametersMergeBags, mode);
+        progressWidget = new ProgressWidget("Writing merged Bag File...", m_mergeBagsParameters, mode);
         break;
     case Utils::UI::TOOL_ID::RECORD_BAG:
-        progressWidget = new ProgressWidget("Recording Bag File...", m_parametersRecordBag, mode);
+        progressWidget = new ProgressWidget("Recording Bag File...", m_recordBagParameters, mode);
         break;
     case Utils::UI::TOOL_ID::DUMMY_BAG:
-        progressWidget = new ProgressWidget("Creating Bag...", m_parametersDummyBag, mode);
+        progressWidget = new ProgressWidget("Creating Bag...", m_dummyBagParameters, mode);
         break;
     case Utils::UI::TOOL_ID::COMPRESS_BAG:
-        progressWidget = new ProgressWidget("Compressing Bag...", m_parametersCompressBag, mode);
+        progressWidget = new ProgressWidget("Compressing Bag...", m_compressBagParameters, mode);
         break;
     case Utils::UI::TOOL_ID::DECOMPRESS_BAG:
-        progressWidget = new ProgressWidget("Decompressing Bag...", m_parametersDecompressBag, mode);
+        progressWidget = new ProgressWidget("Decompressing Bag...", m_decompressBagParameters, mode);
         break;
     case Utils::UI::TOOL_ID::PUBLISH_VIDEO:
-        progressWidget = new ProgressWidget("Publishing Video...", m_parametersPublishVideo, mode);
+        progressWidget = new ProgressWidget("Publishing Video...", m_publishVideoParameters, mode);
         break;
     case Utils::UI::TOOL_ID::PUBLISH_IMAGES:
-        progressWidget = new ProgressWidget("Publishing Images...", m_parametersPublishImages, mode);
+        progressWidget = new ProgressWidget("Publishing Images...", m_publishImagesParameters, mode);
         break;
     case Utils::UI::TOOL_ID::SEND_TF2:
         // The input widget contains a ROS node, which would still be active if we create the progress widget

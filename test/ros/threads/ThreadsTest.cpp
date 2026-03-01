@@ -1,5 +1,6 @@
 #include "catch_ros2/catch_ros2.hpp"
 
+#include "BagTF2ToFileThread.hpp"
 #include "BagToImagesThread.hpp"
 #include "BagToPCDsThread.hpp"
 #include "BagToVideoThread.hpp"
@@ -12,7 +13,6 @@
 #include "PublishVideoThread.hpp"
 #include "RecordBagThread.hpp"
 #include "SendTF2Thread.hpp"
-#include "TF2ToFileThread.hpp"
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 #include "VideoToBagThread.hpp"
@@ -684,8 +684,8 @@ TEST_CASE("Threads Testing", "[threads]") {
             }
         };
 
-        auto* const thread = new TF2ToFileThread(parameters);
-        QObject::connect(thread, &TF2ToFileThread::finished, thread, &QObject::deleteLater);
+        auto* const thread = new BagTF2ToFileThread(parameters);
+        QObject::connect(thread, &BagTF2ToFileThread::finished, thread, &QObject::deleteLater);
 
         SECTION("Default Parameter Values - JSON") {
             thread->start();

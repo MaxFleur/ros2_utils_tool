@@ -30,22 +30,22 @@ BagInfoWidget::BagInfoWidget(QWidget *parent) :
     auto* const formLayout = new QFormLayout;
     formLayout->addRow("Bag File:", m_findSourceLayout);
 
-    m_infoTreeWidget = new QTreeWidget;
-    m_infoTreeWidget->setColumnCount(2);
-    m_infoTreeWidget->headerItem()->setText(COL_DESCRIPTION, "Metadata");
-    m_infoTreeWidget->headerItem()->setText(COL_INFORMATION, "Values");
-    m_infoTreeWidget->setVisible(false);
-    m_infoTreeWidget->setRootIsDecorated(false);
-    m_infoTreeWidget->setMinimumWidth(430);
-    m_infoTreeWidget->setMinimumHeight(300);
+    m_treeWidget = new QTreeWidget;
+    m_treeWidget->setColumnCount(2);
+    m_treeWidget->headerItem()->setText(COL_DESCRIPTION, "Metadata");
+    m_treeWidget->headerItem()->setText(COL_INFORMATION, "Values");
+    m_treeWidget->setVisible(false);
+    m_treeWidget->setRootIsDecorated(false);
+    m_treeWidget->setMinimumWidth(430);
+    m_treeWidget->setMinimumHeight(300);
 
     m_controlsLayout->addSpacing(30);
     m_controlsLayout->addLayout(formLayout);
     m_controlsLayout->addSpacing(10);
-    m_controlsLayout->addWidget(m_infoTreeWidget);
+    m_controlsLayout->addWidget(m_treeWidget);
     m_controlsLayout->addStretch();
 
-    connect(m_findSourceButton, &QPushButton::clicked, this, &BagInfoWidget::displayBagInfo);
+    connect(m_findSourceButton, &QPushButton::clicked, this, &BagInfoWidget::populateTreeWidget);
     connect(m_okButton, &QPushButton::clicked, this, [this] {
         emit back();
     });
@@ -53,7 +53,7 @@ BagInfoWidget::BagInfoWidget(QWidget *parent) :
 
 
 void
-BagInfoWidget::displayBagInfo()
+BagInfoWidget::populateTreeWidget()
 {
     const auto bagDirectory = QFileDialog::getExistingDirectory(this, "Open Source Bag File", "",
                                                                 QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
@@ -67,7 +67,7 @@ BagInfoWidget::displayBagInfo()
         return;
     }
 
-    m_infoTreeWidget->clear();
+    m_treeWidget->clear();
     m_sourceLineEdit->setText(bagDirectory);
     const auto& bagMetaData = Utils::ROS::getBagMetadata(bagDirectory);
     // Fill tree with bag data
@@ -116,8 +116,8 @@ BagInfoWidget::displayBagInfo()
 
     treeWidgetItems.append(topicMetaDataItem);
 
-    m_infoTreeWidget->addTopLevelItems(treeWidgetItems);
-    m_infoTreeWidget->expandAll();
-    m_infoTreeWidget->resizeColumnToContents(COL_DESCRIPTION);
-    m_infoTreeWidget->setVisible(true);
+    m_treeWidget->addTopLevelItems(treeWidgetItems);
+    m_treeWidget->expandAll();
+    m_treeWidget->resizeColumnToContents(COL_DESCRIPTION);
+    m_treeWidget->setVisible(true);
 }
