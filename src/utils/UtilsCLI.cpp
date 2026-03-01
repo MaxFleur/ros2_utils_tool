@@ -110,7 +110,7 @@ checkParentDirectory(const QString& directory, bool isTarget)
 void
 checkForTargetTopic(const QString& directory, QString& parameterTopicName, const QString& topicType)
 {
-    const auto targetTopicName = Utils::ROS::getFirstTopicWithCertainType(directory, topicType);
+    const auto targetTopicName = Utils::ROS::getFirstTopicWithCertainTypeName(directory, topicType);
     if (targetTopicName == std::nullopt) {
         throw std::runtime_error("The bag file does not contain any topics of type '" + topicType.toStdString() + "'!");
     }
@@ -153,7 +153,7 @@ continueWithInvalidROS2Name(const QStringList& arguments, QString& parameterTopi
         return true;
     }
 
-    if (!Utils::ROS::isNameROS2Conform(topicName)) {
+    if (!Utils::ROS::isTopicNameROS2Conform(topicName)) {
         const auto errorString = "The topic name does not follow the ROS2 naming convention! More information on ROS2 naming convention is found here:\n"
                                  "https://design.ros2.org/articles/topic_and_service_names.html\n"
                                  "Do you want to continue anyways? [y]/n";

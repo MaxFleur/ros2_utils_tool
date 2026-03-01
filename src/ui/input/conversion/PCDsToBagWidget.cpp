@@ -104,7 +104,7 @@ PCDsToBagWidget::okButtonPressed() const
     if (const auto sufficientSpace = showLowDiskSpaceMessageBox(); !sufficientSpace) {
         return;
     }
-    if (m_warnROS2NameConvention && !Utils::ROS::isNameROS2Conform(m_parameters.topicName)) {
+    if (m_warnROS2NameConvention && !Utils::ROS::isTopicNameROS2Conform(m_parameters.topicName)) {
         if (const auto returnValue = Utils::UI::continueWithInvalidROS2Names(); !returnValue) {
             return;
         }

@@ -78,15 +78,15 @@ getTopicType(const QString& bagDirectory,
 
 // Returns the first topic in a bag file with a certain type
 [[nodiscard]] std::optional<QString>
-getFirstTopicWithCertainType(const QString& bagDirectory,
-                             const QString& typeName);
+getFirstTopicWithCertainTypeName(const QString& bagDirectory,
+                                 const QString& typeName);
 
 // Returns all video bag topics stored in a ROS bag file
 [[nodiscard]] QVector<QString>
-getBagTopics(const QString& bagDirectory,
-             const QString& topicType);
+getBagTopicNames(const QString& bagDirectory,
+                 const QString& topicType);
 
 // Returns if a topic name follows the ROS2 naming convention
 [[nodiscard]] bool
-isNameROS2Conform(const QString& topicName);
+isTopicNameROS2Conform(const QString& topicName);
 }

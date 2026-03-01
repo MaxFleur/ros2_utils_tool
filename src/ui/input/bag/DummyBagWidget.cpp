@@ -160,7 +160,7 @@ DummyBagWidget::areTopicsValid() const
             Utils::UI::createCriticalMessageBox("Empty topic name!", "Please enter a topic name for every topic!");
             return std::nullopt;
         }
-        if (m_warnROS2NameConvention && !Utils::ROS::isNameROS2Conform(dummyTopicWidget->getTopicName()) && areROS2NamesValid) {
+        if (m_warnROS2NameConvention && !Utils::ROS::isTopicNameROS2Conform(dummyTopicWidget->getTopicName()) && areROS2NamesValid) {
             if (const auto returnValue = Utils::UI::continueWithInvalidROS2Names(); !returnValue) {
                 return std::nullopt;
             }

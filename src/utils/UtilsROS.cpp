@@ -83,10 +83,10 @@ doesDirectoryContainBagFile(const QString& bagDirectory)
 bool
 doesDirectoryContainCompressedBagFile(const QString& bagDirectory)
 {
-    rosbag2_storage::MetadataIo metadata_IO;
+    rosbag2_storage::MetadataIo metadataIO;
     rosbag2_storage::BagMetadata metadata;
     try {
-        metadata = metadata_IO.read_metadata(bagDirectory.toStdString());
+        metadata = metadataIO.read_metadata(bagDirectory.toStdString());
     } catch (...) {
         return false;
     }
@@ -142,13 +142,13 @@ getBagMetadata(const QString& bagDirectory)
 std::optional<rosbag2_storage::TopicInformation>
 getTopicInBag(const QString& bagDirectory, const QString& topicName)
 {
-    const auto stdStringTopicName = topicName.toStdString();
+    const auto topicNameStdString = topicName.toStdString();
 
     const auto& metadata = getBagMetadata(bagDirectory);
     const auto& topics = metadata.topics_with_message_count;
 
     auto it = std::ranges::find_if(topics, [&] (const auto& topic) {
-        return topic.topic_metadata.name == stdStringTopicName;
+        return topic.topic_metadata.name == topicNameStdString;
     });
     return it != topics.end() ? std::optional(*it) : std::nullopt;
 }
@@ -186,7 +186,7 @@ getTopicType(const QString& bagDirectory, const QString& topicName)
 
 
 std::optional<QString>
-getFirstTopicWithCertainType(const QString& bagDirectory, const QString& typeName)
+getFirstTopicWithCertainTypeName(const QString& bagDirectory, const QString& typeName)
 {
     const auto& metadata = getBagMetadata(bagDirectory);
     const auto& topics = metadata.topics_with_message_count;
@@ -199,7 +199,7 @@ getFirstTopicWithCertainType(const QString& bagDirectory, const QString& typeNam
 
 
 QVector<QString>
-getBagTopics(const QString& bagDirectory, const QString& topicType)
+getBagTopicNames(const QString& bagDirectory, const QString& topicType)
 {
     QVector<QString> bagTopics;
     if (const auto doesDirContainBag = doesDirectoryContainBagFile(bagDirectory); !doesDirContainBag) {
@@ -219,7 +219,7 @@ getBagTopics(const QString& bagDirectory, const QString& topicType)
 
 
 bool
-isNameROS2Conform(const QString& topicName)
+isTopicNameROS2Conform(const QString& topicName)
 {
     // Only may contain A-z, a-z, 0-9, _ and /
     QRegularExpression regularExpression("[^A-Za-z0-9/_{}~]");

@@ -22,7 +22,7 @@ setWidgetFontSize(QWidget* widget, bool isButton)
 bool
 fillComboBoxWithTopics(QPointer<QComboBox> comboBox, const QString& bagDirectory, const QString& topicType)
 {
-    const auto videoTopics = Utils::ROS::getBagTopics(bagDirectory, topicType);
+    const auto videoTopics = Utils::ROS::getBagTopicNames(bagDirectory, topicType);
     if (videoTopics.empty()) {
         return false;
     }

@@ -13,12 +13,12 @@ template<typename T>
 concept NodeParameter = std::same_as<T, YAML::Node> || std::same_as<T, QJsonObject>;
 
 // Used to send nonstatic transformations at a custom rate
-class TF2ToFileThread : public BasicThread {
+class BagTF2ToFileThread : public BasicThread {
     Q_OBJECT
 public:
     explicit
-    TF2ToFileThread(const Parameters::TF2ToFileParameters& parameters,
-                    QObject*                               parent = nullptr);
+    BagTF2ToFileThread(const Parameters::TF2ToFileParameters& parameters,
+                       QObject*                               parent = nullptr);
 
     void
     run() override;

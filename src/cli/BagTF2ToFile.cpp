@@ -1,4 +1,4 @@
-#include "TF2ToFileThread.hpp"
+#include "BagTF2ToFileThread.hpp"
 
 #include "Parameters.hpp"
 #include "UtilsCLI.hpp"
@@ -80,18 +80,18 @@ main(int argc, char* argv[])
     }
 
     // Create thread and connect to its informations
-    auto* const tf2ToFileThread = new TF2ToFileThread(parameters);
-    QObject::connect(tf2ToFileThread, &TF2ToFileThread::progressChanged, [] (const QString& progressString, int progress) {
+    auto* const bagTF2ToFileThread = new BagTF2ToFileThread(parameters);
+    QObject::connect(bagTF2ToFileThread, &BagTF2ToFileThread::progressChanged, [] (const QString& progressString, int progress) {
         const auto progressStringCMD = Utils::CLI::drawProgressString(progress);
         // Always clear the last line for a nice "progress bar" feeling
         std::cout << progressString.toStdString() << " " << progressStringCMD << " " << progress << "%" << "\r" << std::flush;
     });
-    QObject::connect(tf2ToFileThread, &TF2ToFileThread::finished, [] {
+    QObject::connect(bagTF2ToFileThread, &BagTF2ToFileThread::finished, [] {
         std::cout << "\n"; // Extra line to stop flushing
         std::cout << "Writing finished!\n";
         return EXIT_SUCCESS;
     });
-    QObject::connect(tf2ToFileThread, &TF2ToFileThread::finished, tf2ToFileThread, &QObject::deleteLater);
+    QObject::connect(bagTF2ToFileThread, &BagTF2ToFileThread::finished, bagTF2ToFileThread, &QObject::deleteLater);
 
     signal(SIGINT, [] (int signal) {
         signalStatus = signal;
@@ -101,7 +101,7 @@ main(int argc, char* argv[])
     std::cout << "Target file: " << std::filesystem::absolute(parameters.targetDirectory.toStdString()) << "\n";
     std::cout << "Topic name: " << parameters.topicName.toStdString() << "\n\n";
     std::cout << "Please wait...\n";
-    Utils::CLI::runThread(tf2ToFileThread, signalStatus);
+    Utils::CLI::runThread(bagTF2ToFileThread, signalStatus);
 
     return EXIT_SUCCESS;
 }

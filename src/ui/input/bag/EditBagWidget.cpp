@@ -173,7 +173,7 @@ EditBagWidget::okButtonPressed() const
             return;
         }
         if (!topic.renamedName.isEmpty() && m_warnROS2NameConvention &&
-            !Utils::ROS::isNameROS2Conform(topic.renamedName) && areROS2NamesValid) {
+            !Utils::ROS::isTopicNameROS2Conform(topic.renamedName) && areROS2NamesValid) {
             // Ask only once for invalid names
             areROS2NamesValid = false;
         }

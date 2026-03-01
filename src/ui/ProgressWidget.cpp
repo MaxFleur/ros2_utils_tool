@@ -14,7 +14,7 @@
 #include "PublishVideoThread.hpp"
 #include "RecordBagThread.hpp"
 #include "SendTF2Thread.hpp"
-#include "TF2ToFileThread.hpp"
+#include "BagTF2ToFileThread.hpp"
 #include "VideoToBagThread.hpp"
 
 #include <QLabel>
@@ -50,7 +50,7 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
                                          DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
         break;
     case Utils::UI::TOOL_ID::TF2_TO_FILE:
-        m_thread = new TF2ToFileThread(dynamic_cast<Parameters::TF2ToFileParameters&>(parameters), this);
+        m_thread = new BagTF2ToFileThread(dynamic_cast<Parameters::TF2ToFileParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_ID::EDIT_BAG:
         m_thread = new EditBagThread(dynamic_cast<Parameters::EditBagParameters&>(parameters),
