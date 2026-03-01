@@ -26,6 +26,11 @@ PublishWidget::PublishWidget(Parameters::PublishParameters& parameters, bool use
     m_parameters(parameters), m_settings(parameters, publishVideo ? "publish_video" : "publish_images"),
     m_warnROS2NameConvention(warnROS2NameConvention), m_publishVideo(publishVideo)
 {
+    if (!std::filesystem::exists(m_parameters.sourceDirectory.toStdString())) {
+        m_parameters.sourceDirectory = QString();
+        writeParameterToSettings(m_parameters.sourceDirectory, QString(), m_settings);
+    }
+
     m_sourceLineEdit->setText(parameters.sourceDirectory);
     m_sourceLineEdit->setToolTip(m_publishVideo ? "The source video file directory." : "The source images file directory.");
 

@@ -21,6 +21,10 @@ AdvancedInputWidget::AdvancedInputWidget(Parameters::AdvancedParameters& paramet
     BasicInputWidget(headerText, iconPath, parent),
     m_parameters(parameters), m_settings(parameters, settingsIdentifier), m_outputFormat(outputFormat)
 {
+    if (!std::filesystem::exists(m_parameters.sourceDirectory.toStdString())) {
+        m_parameters.sourceDirectory = QString();
+        writeParameterToSettings(m_parameters.sourceDirectory, QString(), m_settings);
+    }
     m_sourceLineEdit->setText(parameters.sourceDirectory);
 
     m_targetLineEdit = new QLineEdit(m_parameters.targetDirectory);
