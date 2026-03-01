@@ -41,12 +41,8 @@ BasicBagWidget::BasicBagWidget(Parameters::SelectableBagTopicParameters& paramet
 
     connect(m_findSourceButton, &QPushButton::clicked, this, &BasicBagWidget::findSourceButtonPressed);
     connect(m_treeWidget, &QTreeWidget::itemChanged, this, &BasicBagWidget::itemCheckStateChanged);
-    connect(m_okButton, &QPushButton::clicked, this, [this] {
-        emit okPressed();
-    });
-    connect(okShortCut, &QShortcut::activated, this, [this] {
-        emit okPressed();
-    });
+    connect(m_okButton, &QPushButton::clicked, this, &BasicBagWidget::okButtonPressed);
+    connect(okShortCut, &QShortcut::activated, this, &BasicBagWidget::okButtonPressed);
 }
 
 
@@ -86,4 +82,15 @@ BasicBagWidget::itemCheckStateChanged(QTreeWidgetItem* item, int column)
     const auto rowIndex = m_treeWidget->indexOfTopLevelItem(item);
     writeParameterToSettings(m_parameters.topics[rowIndex].isSelected, item->checkState(COL_CHECKBOXES) == Qt::Checked, m_settings);
     enableOkButton();
+}
+
+
+void
+BasicBagWidget::okButtonPressed() const
+{
+    if (!m_okButton->isEnabled()) {
+        return;
+    }
+
+    emit okPressed();
 }
