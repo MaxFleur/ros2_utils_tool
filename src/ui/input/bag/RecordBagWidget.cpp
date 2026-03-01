@@ -3,6 +3,7 @@
 #include "BagTreeWidget.hpp"
 #include "LowDiskSpaceWidget.hpp"
 #include "UtilsROS.hpp"
+#include "UtilsUI.hpp"
 
 #include <QCheckBox>
 #include <QFormLayout>
@@ -147,6 +148,20 @@ void
 RecordBagWidget::handleTreeAfterSource()
 {
     enableOkButton();
+}
+
+
+void
+RecordBagWidget::okButtonPressed() const
+{
+    if (!m_okButton->isEnabled()) {
+        return;
+    }
+    if (!Utils::UI::continueForExistingTarget(m_parameters.sourceDirectory, "Bag file", "bag file")) {
+        return;
+    }
+
+    emit okPressed();
 }
 
 
