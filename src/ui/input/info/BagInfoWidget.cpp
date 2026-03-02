@@ -3,13 +3,12 @@
 #include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QFormLayout>
-#include <QLabel>
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QToolButton>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
+#include <QToolButton>
 #include <QVBoxLayout>
 
 #include "UtilsGeneral.hpp"

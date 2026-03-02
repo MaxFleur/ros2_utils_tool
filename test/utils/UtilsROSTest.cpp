@@ -172,54 +172,43 @@ TEST_CASE("Utils ROS Testing", "[utils]") {
         REQUIRE(topicType == std::nullopt);
     }
     SECTION("First topic with type test") {
-        auto topicName = Utils::ROS::getFirstTopicWithCertainType(qString, "sensor_msgs/msg/Image");
+        auto topicName = Utils::ROS::getFirstTopicWithCertainTypeName(qString, "sensor_msgs/msg/Image");
         REQUIRE(*topicName == "/topic_image");
-        topicName = Utils::ROS::getFirstTopicWithCertainType(qString, "std_msgs/msg/String");
+        topicName = Utils::ROS::getFirstTopicWithCertainTypeName(qString, "std_msgs/msg/String");
         REQUIRE(*topicName == "/topic_string");
-        topicName = Utils::ROS::getFirstTopicWithCertainType(qString, "std_msgs/msg/Int32");
+        topicName = Utils::ROS::getFirstTopicWithCertainTypeName(qString, "std_msgs/msg/Int32");
         REQUIRE(topicName == "/topic_integer");
-        topicName = Utils::ROS::getFirstTopicWithCertainType(qString, "std_msgs/msg/Float32");
+        topicName = Utils::ROS::getFirstTopicWithCertainTypeName(qString, "std_msgs/msg/Float32");
         REQUIRE(topicName == std::nullopt);
     }
     SECTION("Video topics test") {
-        const auto videoTopics = Utils::ROS::getBagTopics(qString, "sensor_msgs/msg/Image");
+        const auto videoTopics = Utils::ROS::getBagTopicNames(qString, "sensor_msgs/msg/Image");
         REQUIRE(videoTopics.size() == 1);
         REQUIRE(videoTopics.at(0) == "/topic_image");
     }
     SECTION("Name ROS2 convention tests") {
         SECTION("Fails for special characters") {
-            const auto followsConvention = Utils::ROS::isNameROS2Conform("!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}");
+            const auto followsConvention = Utils::ROS::isTopicNameROS2Conform("!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}");
             REQUIRE(followsConvention == false);
         }
         SECTION("Slash and underbrackets") {
-            auto followsConvention = Utils::ROS::isNameROS2Conform("test_topic/");
-            REQUIRE(followsConvention == false);
-            followsConvention = Utils::ROS::isNameROS2Conform("test__topic");
-            REQUIRE(followsConvention == false);
-            followsConvention = Utils::ROS::isNameROS2Conform("//test_topic");
-            REQUIRE(followsConvention == false);
+            REQUIRE(Utils::ROS::isTopicNameROS2Conform("test_topic/") == false);
+            REQUIRE(Utils::ROS::isTopicNameROS2Conform("test__topic") == false);
+            REQUIRE(Utils::ROS::isTopicNameROS2Conform("//test_topic") == false);
         }
         SECTION("First char number") {
-            auto followsConvention = Utils::ROS::isNameROS2Conform("0test_topic");
-            REQUIRE(followsConvention == false);
-            followsConvention = Utils::ROS::isNameROS2Conform("test_topic");
-            REQUIRE(followsConvention == true);
+            REQUIRE(Utils::ROS::isTopicNameROS2Conform("0test_topic") == false);
+            REQUIRE(Utils::ROS::isTopicNameROS2Conform("test_topic") == true);
         }
         SECTION("Tilde and slash") {
-            auto followsConvention = Utils::ROS::isNameROS2Conform("test~topic");
-            REQUIRE(followsConvention == false);
-            followsConvention = Utils::ROS::isNameROS2Conform("test~/topic");
-            REQUIRE(followsConvention == true);
+            REQUIRE(Utils::ROS::isTopicNameROS2Conform("test~topic") == false);
+            REQUIRE(Utils::ROS::isTopicNameROS2Conform("test~/topic") == true);
         }
         SECTION("Balanced curly braces") {
-            auto followsConvention = Utils::ROS::isNameROS2Conform("test{topic}");
-            REQUIRE(followsConvention == true);
-            followsConvention = Utils::ROS::isNameROS2Conform("test_{topic");
-            REQUIRE(followsConvention == false);
-            followsConvention = Utils::ROS::isNameROS2Conform("test_topic}");
-            REQUIRE(followsConvention == false);
-            followsConvention = Utils::ROS::isNameROS2Conform("test_{t{opic}");
-            REQUIRE(followsConvention == false);
+            REQUIRE(Utils::ROS::isTopicNameROS2Conform("test{topic}") == true);
+            REQUIRE(Utils::ROS::isTopicNameROS2Conform("test_{topic") == false);
+            REQUIRE(Utils::ROS::isTopicNameROS2Conform("test_topic}") == false);
+            REQUIRE(Utils::ROS::isTopicNameROS2Conform("test_{t{opic}") == false);
         }
     }
 

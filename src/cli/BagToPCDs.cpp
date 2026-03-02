@@ -2,7 +2,6 @@
 
 #include "Parameters.hpp"
 #include "UtilsCLI.hpp"
-#include "UtilsROS.hpp"
 
 #include <QCoreApplication>
 #include <QObject>

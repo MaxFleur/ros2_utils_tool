@@ -1,7 +1,6 @@
 #include "PCDsToBagThread.hpp"
 
 #include "UtilsCLI.hpp"
-#include "UtilsUI.hpp"
 
 #include <QCoreApplication>
 #include <QObject>

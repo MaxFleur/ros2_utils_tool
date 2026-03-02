@@ -1,7 +1,6 @@
 #include "TopicsServicesInfoWidget.hpp"
 
 #include <QDialogButtonBox>
-#include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
 #include <QTreeWidget>

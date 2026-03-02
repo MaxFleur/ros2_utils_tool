@@ -7,9 +7,8 @@
 
 #include <QCheckBox>
 #include <QFormLayout>
-#include <QLabel>
-#include <QLineEdit>
 #include <QHBoxLayout>
+#include <QLabel>
 #include <QPushButton>
 #include <QRadioButton>
 #include <QSpinBox>

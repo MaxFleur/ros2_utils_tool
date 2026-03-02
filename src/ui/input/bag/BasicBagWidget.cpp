@@ -5,12 +5,10 @@
 #include "UtilsUI.hpp"
 
 #include <QFileDialog>
-#include <QHBoxLayout>
 #include <QLabel>
-#include <QLineEdit>
 #include <QPushButton>
 #include <QShortcut>
-#include <QToolButton>
+#include <QTreeWidgetItem>
 
 #include <filesystem>
 

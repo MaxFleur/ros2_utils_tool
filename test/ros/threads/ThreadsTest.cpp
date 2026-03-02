@@ -14,7 +14,6 @@
 #include "RecordBagThread.hpp"
 #include "SendTF2Thread.hpp"
 #include "UtilsROS.hpp"
-#include "UtilsUI.hpp"
 #include "VideoToBagThread.hpp"
 
 #include <cv_bridge/cv_bridge.hpp>
@@ -25,7 +24,6 @@
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
-#include <QJsonObject>
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_cloud.h>
@@ -604,7 +602,7 @@ TEST_CASE("Threads Testing", "[threads]") {
 
         rclcpp::Rate loopRate(5);
         auto node = std::make_shared<rclcpp::Node>("tf2_test");
-        auto callback = [node, &rotationX, &run](const tf2_msgs::msg::TFMessage& message) {
+        auto callback = [node, &rotationX, &run] (const tf2_msgs::msg::TFMessage& message) {
             if (!run) {
                 return;
             }
@@ -675,11 +673,7 @@ TEST_CASE("Threads Testing", "[threads]") {
 
                 for (auto j = 0; j < 3; ++j) {
                     const auto& transformNode = messageNode["transform_" + std::to_string(j)];
-                    if (containsHeaderStamp) {
-                        REQUIRE(transformNode.size() == 5);
-                    } else {
-                        REQUIRE(transformNode.size() == 4);
-                    }
+                    REQUIRE(transformNode.size() == (containsHeaderStamp ? 5 : 4));
                 }
             }
         };

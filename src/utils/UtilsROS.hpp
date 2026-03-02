@@ -6,7 +6,6 @@
 #include <QVector>
 
 #include "rclcpp/rclcpp.hpp"
-#include "rosbag2_cpp/writer.hpp"
 #include "rosbag2_storage/bag_metadata.hpp"
 
 #include "std_msgs/msg/int32.hpp"

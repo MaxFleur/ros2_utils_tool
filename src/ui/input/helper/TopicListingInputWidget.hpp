@@ -7,8 +7,6 @@
 #include <QPointer>
 #include <QWidget>
 
-#include <optional>
-
 class TopicWidget;
 
 class QFormLayout;

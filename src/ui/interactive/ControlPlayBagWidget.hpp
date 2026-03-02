@@ -42,7 +42,7 @@ private:
 private:
     std::unique_ptr<BagPlayer> m_bagPlayer;
 
-    QPointer<QListWidget> m_loggerWidget;
+    QPointer<QListWidget> m_loggerListWidget;
     QPointer<QToolButton> m_playPauseButton;
 
     double m_currentRate;

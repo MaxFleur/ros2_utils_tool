@@ -30,4 +30,6 @@ TEST_CASE("Bag Tree Widget Testing", "[bag_tree_widget]") {
     auto* const lastTopicLabel = static_cast<QLabel*>(bagTreeWidget->itemWidget(lastItem, 2));
     REQUIRE(!lastNameLabel->isEnabled());
     REQUIRE(!lastTopicLabel->isEnabled());
+
+    delete bagTreeWidget;
 }

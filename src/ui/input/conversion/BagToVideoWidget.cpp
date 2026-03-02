@@ -5,8 +5,6 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QFormLayout>
-#include <QHBoxLayout>
-#include <QLabel>
 #include <QSpinBox>
 
 BagToVideoWidget::BagToVideoWidget(Parameters::BagToVideoParameters& parameters, QWidget *parent) :

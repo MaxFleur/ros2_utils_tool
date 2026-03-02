@@ -7,6 +7,7 @@
 
 #include <QFormLayout>
 #include <QLabel>
+#include <QLineEdit>
 #include <QPushButton>
 #include <QToolButton>
 

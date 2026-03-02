@@ -199,8 +199,7 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     m_mainLayout->addLayout(backButtonLayout);
     setLayout(m_mainLayout);
 
-    const auto switchToOverallTools = [this, conversionToolsWidget, bagToolsWidget, publishingToolsWidget,
-                                       infoToolsWidget, overallToolsWidget] {
+    const auto switchToOverallTools = [this, conversionToolsWidget, bagToolsWidget, publishingToolsWidget, infoToolsWidget, overallToolsWidget] {
         switch (m_widgetOnInstantiation) {
         case WIDGET_CONVERSION:
             replaceWidgets(conversionToolsWidget, overallToolsWidget, WIDGET_OVERALL, true);

@@ -113,21 +113,7 @@ SendTF2Widget::SendTF2Widget(Parameters::SendTF2Parameters& parameters, QWidget 
     });
     connect(m_dialogButtonBox, &QDialogButtonBox::accepted, this, &SendTF2Widget::okButtonPressed);
     connect(okShortCut, &QShortcut::activated, this, &SendTF2Widget::okButtonPressed);
-
-    connect(m_timer, &QTimer::timeout, this, [this] {
-        static constexpr int LABEL_FADEOUT = 1000;
-
-        // Create a small fading text if a transformation has been sent
-        auto *const effect = new QGraphicsOpacityEffect;
-        m_transformSentLabel->setGraphicsEffect(effect);
-
-        auto *const animation = new QPropertyAnimation(effect, "opacity");
-        animation->setDuration(LABEL_FADEOUT);
-        animation->setStartValue(1.0);
-        animation->setEndValue(0.0);
-        animation->setEasingCurve(QEasingCurve::OutQuad);
-        animation->start(QAbstractAnimation::DeleteWhenStopped);
-    });
+    connect(m_timer, &QTimer::timeout, this, &SendTF2Widget::timeoutActivated);
 
     staticCheckBoxPressed(m_parameters.isStatic);
     setPixmapLabelIcon();
@@ -201,6 +187,22 @@ SendTF2Widget::loadFromFileButtonPressed()
     m_childFrameNameLineEdit->setText(m_parameters.childFrameName);
 
     animateInfoLabel("File successfully loaded.");
+}
+
+
+void
+SendTF2Widget::timeoutActivated()
+{
+    // Create a small fading text if a transformation has been sent
+    auto *const effect = new QGraphicsOpacityEffect;
+    m_transformSentLabel->setGraphicsEffect(effect);
+
+    auto *const animation = new QPropertyAnimation(effect, "opacity");
+    animation->setDuration(LABEL_FADEOUT);
+    animation->setStartValue(ANIMATION_VALUE_START);
+    animation->setEndValue(ANIMATION_VALUE_END);
+    animation->setEasingCurve(QEasingCurve::OutQuad);
+    animation->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 

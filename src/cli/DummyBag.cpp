@@ -82,7 +82,7 @@ main(int argc, char* argv[])
         const auto argument = arguments.at(i);
 
         if (i % 2 == 0) {
-            if (!Utils::ROS::isNameROS2Conform(argument) && areROS2NamesValid && !Utils::CLI::containsArguments(arguments, "-s", "--suppress")) {
+            if (!Utils::ROS::isTopicNameROS2Conform(argument) && areROS2NamesValid && !Utils::CLI::containsArguments(arguments, "-s", "--suppress")) {
                 const auto errorString = "The topic name does not follow the ROS2 naming convention! More information on ROS2 naming convention is found here:\n"
                                          "https://design.ros2.org/articles/topic_and_service_names.html\n"
                                          "Do you want to continue anyways? [y]/n";

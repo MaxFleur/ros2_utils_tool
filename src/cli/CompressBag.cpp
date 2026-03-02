@@ -7,10 +7,8 @@
 #include <QCoreApplication>
 #include <QObject>
 
-#include <chrono>
 #include <filesystem>
 #include <iostream>
-#include <thread>
 
 volatile sig_atomic_t signalStatus = 0;
 

@@ -3,8 +3,6 @@
 #include "UtilsUI.hpp"
 
 #include <QFormLayout>
-#include <QHBoxLayout>
-#include <QLabel>
 
 BagToPCDsWidget::BagToPCDsWidget(Parameters::AdvancedParameters& parameters, QWidget *parent) :
     TopicComboBoxWidget(parameters, "Bag to PCD Files", ":/icons/tools/bag_to_pcd", "Bag File:", "PCDs Location:", "bag_to_pcds", OUTPUT_PCDS, parent),

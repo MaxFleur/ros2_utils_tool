@@ -16,16 +16,16 @@ TEST_CASE("Utils CLI Testing", "[utils]") {
     const auto bagDirectory = std::filesystem::path("test_bag_file");
     std::filesystem::remove_all(bagDirectory);
 
-    rosbag2_cpp::Writer writer;
-    writer.open(bagDirectory);
+    auto writer = std::make_shared<rosbag2_cpp::Writer>();
+    writer->open(bagDirectory);
 
     for (auto i = 0; i < 5; i++) {
         sensor_msgs::msg::Image imageMessage;
         imageMessage.width = 1;
         imageMessage.height = 1;
-        writer.write(imageMessage, "/topic_image", rclcpp::Clock().now());
+        writer->write(imageMessage, "/topic_image", rclcpp::Clock().now());
     }
-    writer.close();
+    writer->close();
 
     SECTION("Contains invalid parameters test") {
         arguments.append("-h");

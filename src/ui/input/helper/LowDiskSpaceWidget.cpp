@@ -2,7 +2,6 @@
 
 #include "UtilsGeneral.hpp"
 
-#include <QDir>
 #include <QEvent>
 #include <QHBoxLayout>
 #include <QIcon>

@@ -7,7 +7,6 @@
 
 #include <QFormLayout>
 #include <QLabel>
-#include <QMessageBox>
 #include <QPushButton>
 #include <QSet>
 #include <QSpinBox>

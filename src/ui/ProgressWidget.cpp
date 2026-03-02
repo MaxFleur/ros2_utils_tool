@@ -236,17 +236,11 @@ ProgressWidget::~ProgressWidget()
 }
 
 
-void
-ProgressWidget::startThread()
-{
-    m_thread->start();
-}
-
-
 bool
 ProgressWidget::event(QEvent *event)
 {
     [[unlikely]] if ((event->type() == QEvent::ApplicationPaletteChange || event->type() == QEvent::PaletteChange) && m_movie) {
+        // Gif has a dark and light mode version
         m_movie->stop();
 
         auto movieFileName = m_movie->fileName();

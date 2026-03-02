@@ -5,7 +5,6 @@
 #include "SelectableBagTopicSettings.hpp"
 
 #include <QPointer>
-#include <QTreeWidgetItem>
 #include <QWidget>
 
 class BagTreeWidget;

@@ -1,7 +1,5 @@
 #include "DummyBagThread.hpp"
 
-#include "UtilsROS.hpp"
-
 #include <cv_bridge/cv_bridge.hpp>
 
 #include <pcl/point_cloud.h>
@@ -11,7 +9,11 @@
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "sensor_msgs/msg/image.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
+#include "std_msgs/msg/int32.hpp"
+#include "std_msgs/msg/string.hpp"
 #include "tf2_msgs/msg/tf_message.hpp"
+
+#include "rosbag2_cpp/writer.hpp"
 
 #include <filesystem>
 #include <random>

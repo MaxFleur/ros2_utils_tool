@@ -5,8 +5,6 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QFormLayout>
-#include <QHBoxLayout>
-#include <QLabel>
 #include <QSlider>
 
 BagToImagesWidget::BagToImagesWidget(Parameters::BagToImagesParameters& parameters, QWidget *parent) :
