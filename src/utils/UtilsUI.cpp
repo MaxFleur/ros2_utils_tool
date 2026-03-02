@@ -87,6 +87,7 @@ bool
 continueForExistingTarget(const QString& targetDirectory, const QString& headerTextBeginning,
                           const QString& targetIdentifier)
 {
+    // Don't have to show this if disabled in the options
     if (!DialogSettings::getStaticParameter("warn_target_overwrite", true)) {
         return true;
     }
@@ -96,7 +97,7 @@ continueForExistingTarget(const QString& targetDirectory, const QString& headerT
                                              "The specified " + targetIdentifier + " already exists! Are you sure you want to continue? "
                                              "This will overwrite all target files.",
                                              QMessageBox::Yes | QMessageBox::No);
-
+        // Do not show again check box
         auto* const checkBox = createMessageBoxCheckBox("warn_target_overwrite");
         msgBox->setCheckBox(checkBox);
 

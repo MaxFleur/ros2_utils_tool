@@ -34,6 +34,7 @@ BagToPCDsThread::run()
 
     // Prepare parameters
     const auto messageCount = Utils::ROS::getTopicMessageCount(m_sourceDirectory, m_topicName);
+    // Used to fill the file names with zeroes
     const auto messageCountNumberOfDigits = int(log10(*messageCount) + 1);
 
     auto reader = std::make_shared<rosbag2_cpp::Reader>();
@@ -71,7 +72,7 @@ BagToPCDsThread::run()
             emit progressChanged("Writing pcd file " + QString::number(iterationCount) + " of " + QString::number(*messageCount) + "...",
                                  (static_cast<float>(iterationCount) / static_cast<float>(*messageCount) * 100));
 
-            // Have to create this as extra string to keep it atomic inside the mutex
+            // Have to create this as extra string to keep it atomic
             std::stringstream formatedIterationCount;
             // Use leading zeroes
             formatedIterationCount << std::setw(messageCountNumberOfDigits) << std::setfill('0') << iterationCount;
@@ -91,7 +92,7 @@ BagToPCDsThread::run()
         if (isInterruptionRequested()) {
             return;
         }
-
+        // Multithread
         std::vector<std::thread> threadPool;
         for (unsigned int i = 0; i < m_numberOfThreads; ++i) {
             threadPool.emplace_back(writePCD);

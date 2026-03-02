@@ -35,7 +35,7 @@ ChangeCompressionBagThread::run()
         outputRecord.compression_format = "zstd";
         outputRecord.compression_mode = m_parameters.compressPerMessage ? "message" : "file";
         outputRecord.compression_threads = m_numberOfThreads;
-        // Need to set this so no messages are dropped
+        // Need to set this to prevent message dropping
         outputRecord.compression_queue_size = 0;
     }
 

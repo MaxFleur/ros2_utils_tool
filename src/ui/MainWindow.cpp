@@ -43,7 +43,7 @@ MainWindow::setStartWidget()
 {
     auto* const startWidget = new StartWidget(m_dialogParameters);
 
-    // With more buttons, additonal scrolling looks better
+    // If we have many buttons we need a scrollbar
     auto* const scrollArea = new QScrollArea;
     scrollArea->setWidgetResizable(true);
     scrollArea->setFrameShape(QFrame::NoFrame);
@@ -143,6 +143,8 @@ MainWindow::setInputWidget(Utils::UI::TOOL_ID mode)
 void
 MainWindow::setProcessingWidget(Utils::UI::TOOL_ID mode)
 {
+    // Doesn't make sense to show any progress when we want to actively control playing a bag
+    // So use a control widget instead
     if (mode == Utils::UI::TOOL_ID::PLAY_BAG) {
         auto* const controlPlayBagWidget = new ControlPlayBagWidget(m_playBagParameters);
         setCentralWidget(controlPlayBagWidget);
@@ -208,7 +210,7 @@ MainWindow::setProcessingWidget(Utils::UI::TOOL_ID mode)
     default:
         break;
     }
-    // Resize event is not called inside the function, so use a delay
+    // Resize event is executed a moment after this function is finished, so use a delay
     QTimer::singleShot(1, [this] {
         resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     });

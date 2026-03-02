@@ -13,6 +13,7 @@ main(int argc, char **argv)
     QApplication app(argc, argv);
 
     rclcpp::init(argc, argv);
+    // Don't want to see any ROS logging stuff
     Utils::ROS::disableROSLogging();
 
     return Catch::Session().run(argc, argv);

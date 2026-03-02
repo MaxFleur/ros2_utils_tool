@@ -19,6 +19,7 @@ EditBagThread::EditBagThread(const Parameters::EditBagParameters& parameters,
 void
 EditBagThread::run()
 {
+    // Calculate number of messages written
     auto totalInstances = 0;
     for (const auto& topic : m_parameters.topics) {
         if (!topic.isSelected) {
@@ -37,7 +38,7 @@ EditBagThread::run()
     auto writer = std::make_shared<rosbag2_cpp::Writer>();
     writer->open(targetDirectoryStd);
 
-    // Store selected topics in queue
+    // Store selected topics in queue so they can be accessed in parallel
     std::deque<Parameters::EditBagParameters::EditBagTopic> queue;
     for (const auto& topic : m_parameters.topics) {
         if (!topic.isSelected) {
@@ -54,9 +55,10 @@ EditBagThread::run()
     // Move to own lambda for multithreading
     const auto writeTopicToBag = [this, &queue, &instanceCount, &mutex, writer, node, totalInstances] {
         while (true) {
+            // Reader can't work in parallel, so we have to lock this part
             mutex.lock();
 
-            // Take out and handle items out of the queue until it is empty
+            // Take out and handle items out of the queue until it is empty or the thread was stopped
             if (isInterruptionRequested() || queue.empty()) {
                 mutex.unlock();
                 break;
@@ -105,6 +107,7 @@ EditBagThread::run()
                     break;
                 }
 
+                // Set data and write
                 if (!topic.renamedName.isEmpty()) {
                     message->topic_name = topic.renamedName.toStdString();
                 }

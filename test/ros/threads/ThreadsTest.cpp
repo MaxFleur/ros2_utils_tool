@@ -76,7 +76,7 @@ template<typename T>
 concept MessageType = std::same_as<T, std_msgs::msg::Int32> || std::same_as<T, std_msgs::msg::String> ||
                       std::same_as<T, tf2_msgs::msg::TFMessage> || std::same_as<T, sensor_msgs::msg::PointCloud2>;
 
-// Verify all messages of string, int or point cloud type inside an input bag file
+// Verify all messages of string, int, point cloud or tf2 type inside an input bag file
 template<typename T>
 requires MessageType<T>
 void
@@ -243,8 +243,8 @@ TEST_CASE("Threads Testing", "[threads]") {
         rclcpp::Serialization<std_msgs::msg::Int32> serializationInt;
         rclcpp::Serialization<std_msgs::msg::String> serializationString;
         rclcpp::Serialization<tf2_msgs::msg::TFMessage> serializationTF2;
-        // No use in verifying point clouds because the point contents are randomized
 
+        // No use in verifying point clouds because the point contents are randomized
         verifyMessages("./dummy_bag", "/dummy_int", serializationInt, 0);
         verifyMessages("./dummy_bag", "/dummy_string", serializationString, 0);
         verifyMessages("./dummy_bag", "/dummy_tf2", serializationTF2, 0);
@@ -346,7 +346,7 @@ TEST_CASE("Threads Testing", "[threads]") {
 
         std::filesystem::remove_all("./merged_bag");
     }
-    // Compress Dummy Bag
+    // Compress/Decompress Dummy Bag
     SECTION("Compression/Decompression Tests") {
         Parameters::CompressBagParameters parametersCompression;
         parametersCompression.sourceDirectory = "./dummy_bag";
@@ -429,7 +429,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             videoCapture >> frame;
             const auto& color = frame.at<cv::Vec3b>(cv::Point(0, 0));
             // For whatever reasons, OpenCV does not generate the expected blue and red values
-            // which were initalliy passed into the dummy bag file. Thus, I had to figure them out
+            // which were initially passed into the dummy bag file. Thus, I had to figure them out
             // manually. These values might change for newer OpenCV versions...
             REQUIRE(static_cast<int>(color[0]) == blueValue);
             REQUIRE(static_cast<int>(color[1]) == greenValue);

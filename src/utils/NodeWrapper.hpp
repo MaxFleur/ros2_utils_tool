@@ -2,7 +2,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 
-// Wrapper for a ROS node to keep ROS includes out of the UI code
+// Wrapper for a ROS node to keep ROS includes out of UI code
 class NodeWrapper {
 public:
     explicit

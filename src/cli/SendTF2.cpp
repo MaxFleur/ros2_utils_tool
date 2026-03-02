@@ -174,6 +174,7 @@ main(int argc, char* argv[])
     });
 
     showInfo(parameters, false);
+    // Start operation
     Utils::CLI::runThread(sendTF2Thread, signalStatus);
 
     rclcpp::shutdown();

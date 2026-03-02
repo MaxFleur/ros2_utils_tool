@@ -5,10 +5,11 @@
 
 #include <thread>
 
-// Parameters used to configure the threads and
-// store information in case an input widget is closed and reopened
+// Parameters used to store all kinds of information, for interaction
+// between UI parts and saving input values for later reusage
 namespace Parameters
 {
+// Related to storing bag topic info
 struct BagTopic {
     QString name = "";
 };
@@ -16,6 +17,7 @@ struct SelectableBagTopic : BagTopic {
     bool isSelected = true;
 };
 
+// Main parameters for threads and input storage
 struct BasicParameters {
     virtual
     ~BasicParameters() = default;
@@ -128,6 +130,7 @@ struct PublishParameters : VideoParameters {
     bool scale = false;
 };
 
+// Parameters related to options dialog
 struct DialogParameters {
     unsigned int maxNumberOfThreads = std::thread::hardware_concurrency();
     bool         useHardwareAcceleration = false;

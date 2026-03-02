@@ -2,7 +2,7 @@
 
 #include "VideoSettings.hpp"
 
-// Store bag creation parameters
+// Store the specific parameters for the video to bag tool
 class VideoToBagSettings : public VideoSettings {
 public:
     VideoToBagSettings(Parameters::VideoToBagParameters& parameters,

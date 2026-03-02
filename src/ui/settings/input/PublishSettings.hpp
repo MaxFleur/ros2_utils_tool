@@ -2,7 +2,7 @@
 
 #include "VideoSettings.hpp"
 
-// Store publishing parameters
+// Store publishing tools parameters
 class PublishSettings : public VideoSettings {
 public:
     PublishSettings(Parameters::PublishParameters& parameters,

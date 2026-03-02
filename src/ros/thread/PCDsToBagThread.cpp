@@ -26,7 +26,7 @@ PCDsToBagThread::run()
     emit informOfGatheringData();
 
     auto frameCount = 0;
-    // It is faster to first store all valid pcd file paths and then iterate over those
+    // It is faster to first store all valid pcd file paths and then to iterate over those
     std::set<std::filesystem::path> sortedPCDsSet;
     for (auto const& entry : std::filesystem::directory_iterator(m_sourceDirectory)) {
         if (entry.path().extension() != ".pcd") {
@@ -37,6 +37,7 @@ PCDsToBagThread::run()
         frameCount++;
     }
 
+    // Prepare parameters
     pcl::PCLPointCloud2 cloud;
     sensor_msgs::msg::PointCloud2 message;
     pcl::PCDReader reader;

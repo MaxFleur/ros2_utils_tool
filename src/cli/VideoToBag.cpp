@@ -116,6 +116,7 @@ main(int argc, char* argv[])
     std::cout << "Topic name: " << parameters.topicName.toStdString() << "\n";
     std::cout << "Rate: " << parameters.fps << " fps\n\n";
     std::cout << "Please wait...\n";
+    // Start operation
     Utils::CLI::runThread(videoToBagThread, signalStatus);
 
     return EXIT_SUCCESS;

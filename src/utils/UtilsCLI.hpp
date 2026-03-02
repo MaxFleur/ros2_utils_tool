@@ -40,10 +40,10 @@ checkArgumentValidity(const QStringList& argumentsList,
                       int&               parameter,
                       int                lowerRange,
                       int                higherRange,
-                      // In most cases, the value to set the argument comes directly at the position after it
+                      // Sometimes the value to set the argument does not come directly at the position after it
                       int                argumentListOffset = 1);
 
-// Checks if the topic name is at a valid position in the args list
+// Checks if a variable storing a topic name is at a valid position in the args list
 void
 checkTopicParameterPosition(const QStringList& argumentsList);
 
@@ -58,12 +58,13 @@ checkTopicNameValidity(const QStringList& argumentsList,
 void
 checkBagSourceDirectory(const QString& bagDirectory);
 
-// Checks if the parent dir of a specified directory exists
+// Checks if the parent directory of a specified directory exists
 void
 checkParentDirectory(const QString& directory,
                      bool           isTarget = true);
 
-// Checks for existing topics in a bag directory and writes the first found topic to a parameter topic name, if found
+// Checks for existing topics in a bag directory and writes the
+// first found topic to a parameter topic name, if found
 void
 checkForTargetTopic(const QString& directory,
                     QString&       parameterTopicName,
@@ -93,7 +94,7 @@ drawProgressString(int progress);
 void
 showProcessingString(bool& isProcessing);
 
-// Run the thread handling the main operation
+// Run the thread handling the main CLI tool operation
 void
 runThread(QThread*               thread,
           volatile sig_atomic_t& signalStatus);

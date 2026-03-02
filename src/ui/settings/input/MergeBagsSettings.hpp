@@ -2,7 +2,7 @@
 
 #include "DeleteSourceSettings.hpp"
 
-// Store bag editing parameters
+// Store bag merging parameters
 class MergeBagsSettings : public DeleteSourceSettings {
 public:
     MergeBagsSettings(Parameters::MergeBagsParameters& parameters,

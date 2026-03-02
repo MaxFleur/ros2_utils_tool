@@ -29,6 +29,7 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
                                const Utils::UI::TOOL_ID threadTypeId, QWidget *parent) :
     QWidget(parent)
 {
+    // Create thread
     switch (threadTypeId) {
     case Utils::UI::TOOL_ID::BAG_TO_VIDEO:
         m_thread = new BagToVideoThread(dynamic_cast<Parameters::BagToVideoParameters&>(parameters),
@@ -93,6 +94,7 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
 
     const auto isDarkMode = Utils::UI::isDarkMode();
 
+    // UI parts
     auto* const headerLabel = new QLabel(headerLabelText);
     Utils::UI::setWidgetFontSize(headerLabel);
     headerLabel->setAlignment(Qt::AlignHCenter);
@@ -112,6 +114,7 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
     buttonLayout->addWidget(finishedButton);
 
     QWidget* progressWidget;
+    // Play gif
     const auto setMovie = [this, &progressWidget, progressLabel, isDarkMode] (const QString& moviePath, int width, int height) {
         m_movie = new QMovie(isDarkMode ? moviePath + "_white.gif" : moviePath + "_black.gif");
         m_movie->setScaledSize(QSize(width, height));
@@ -129,8 +132,8 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
         m_movie->start();
     };
 
-    // Display a progress bar or play a gif
     switch (threadTypeId) {
+    // For some widgets, display a gif
     case Utils::UI::TOOL_ID::MERGE_BAGS:
         progressLabel->setText("Writing merged Bag File...");
         setMovie(":/gifs/merging", 120, 110);
@@ -154,6 +157,7 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
     case Utils::UI::TOOL_ID::SEND_TF2:
         setMovie(":/gifs/sending_tf2", 100, 100);
         break;
+    // Normally, display a progress bar
     default:
         auto* const progressBar = new QProgressBar;
         progressBar->setVisible(false);

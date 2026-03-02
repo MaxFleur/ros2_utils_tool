@@ -56,7 +56,6 @@ VideoToBagWidget::VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
     m_controlsLayout->addWidget(advancedOptionsWidget);
     m_controlsLayout->addStretch();
 
-    // Generally, enable ok only if we have a source and target dir and an existing topic name
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.targetDirectory.isEmpty() && !m_parameters.topicName.isEmpty());
 
     connect(topicNameLineEdit, &QLineEdit::textChanged, this, [this, topicNameLineEdit] {

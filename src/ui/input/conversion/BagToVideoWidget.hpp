@@ -11,7 +11,7 @@ class QCheckBox;
 class QComboBox;
 class QFormLayout;
 
-// Widget used to configure a video encoding out of a ros bag
+// Widget used to configure writing a ROS bag image message topic to a video
 class BagToVideoWidget : public TopicComboBoxWidget
 {
     Q_OBJECT

@@ -37,15 +37,18 @@ bool
 checkArgumentValidity(const QStringList& argumentsList, const QString& shortArg, const QString& longArg,
                       int& parameter, int lowerRange, int higherRange, int argumentListOffset)
 {
+    // Nothing there -> argument is valid
     if (!containsArguments(argumentsList, shortArg, longArg)) {
         return true;
     }
 
     const auto argumentIndex = std::max(argumentsList.lastIndexOf(shortArg), argumentsList.lastIndexOf(longArg));
+    // Check for parameter position
     if (argumentsList.at(argumentIndex) == argumentsList.last() ||
         (argumentListOffset == 2 && argumentsList.at(argumentIndex + 1) == argumentsList.last())) {
         return false;
     }
+    // Check for correct parameter range
     if (parameter = argumentsList.at(argumentIndex + argumentListOffset).toInt(); parameter < lowerRange || parameter > higherRange) {
         return false;
     }
@@ -131,6 +134,7 @@ shouldContinue(const std::string& message)
         // 'Y' or 'Enter' key will accept
         if (input == "y" || input.length() == 0) {
             return true;
+            // 'N' will abort
         } else if (input == "n") {
             return false;
         }
@@ -204,7 +208,7 @@ showProcessingString(bool& isProcessing)
 {
     auto processingChar = '\\';
     isProcessing = true;
-
+    // Imitate a circle
     while (isProcessing) {
         switch (processingChar) {
         case '|':

@@ -49,7 +49,6 @@ BagToImagesWidget::BagToImagesWidget(Parameters::BagToImagesParameters& paramete
 
     adjustWidgetsToChangedFormat(m_parameters.format);
 
-    // Generally, only enable this if the source bag, topic name and target dir line edit contain text
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() &&
                    !m_topicNameComboBox->currentText().isEmpty() && !m_parameters.targetDirectory.isEmpty());
 

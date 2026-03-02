@@ -44,7 +44,7 @@ private:
     void
     animateInfoLabel(const QString& labelText);
 
-    // Have to overwrite this one because we are using more additional icons then just the top one
+    // Have to overwrite this one because we are using more additional icons then just the header
     void
     setPixmapLabelIcon() const;
 

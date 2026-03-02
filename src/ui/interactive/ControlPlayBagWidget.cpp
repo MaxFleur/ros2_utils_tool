@@ -107,7 +107,7 @@ ControlPlayBagWidget::ControlPlayBagWidget(Parameters::PlayBagParameters& parame
     });
 
     m_bagPlayer = std::make_unique<BagPlayer>(parameters);
-    // Simulate the first few terminal info messages when calling ros2 bag play
+    // Simulate the first few terminal info messages displayed when calling ros2 bag play
     addLoggerWidgetEntry("Set rate to " + QString::number(m_currentRate));
     addLoggerWidgetEntry("Press SPACE for Pause/Resume");
     addLoggerWidgetEntry("Press CURSOR_RIGHT for Play Next Message");
@@ -133,7 +133,7 @@ ControlPlayBagWidget::setPlayerState()
 {
     m_isPlaying = !m_isPlaying;
     m_bagPlayer->togglePlayerState(m_isPlaying);
-
+    // Button icon has to switch between "Pause" and "Play"
     const auto isDarkMode = Utils::UI::isDarkMode();
     if (m_isPlaying) {
         m_playPauseButton->setIcon(QIcon(isDarkMode ? ":/icons/player/stop_white.svg" : ":/icons/player/stop_black.svg"));

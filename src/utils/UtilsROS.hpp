@@ -21,6 +21,8 @@ concept WriteMessageParameter = (std::same_as<T, std_msgs::msg::String> && std::
 // ROS related util functions
 namespace Utils::ROS
 {
+// Called at the beginning of applications, disabling all ROS logging so that
+// the terminal contains no ROS log messages
 void
 disableROSLogging();
 
@@ -57,7 +59,7 @@ std::optional<rosbag2_storage::TopicInformation>
 getTopicInBag(const QString& bagDirectory,
               const QString& topicName);
 
-// If a ROS bag contains a certain topic
+// If a ROS bag contains a certain topic indicated by the name
 [[nodiscard]] bool
 doesBagContainTopicName(const QString& bagDirectory,
                         const QString& topicName);
@@ -67,6 +69,7 @@ doesBagContainTopicName(const QString& bagDirectory,
 getTopicMessageCount(const QString& bagDirectory,
                      const QString& topicName);
 
+// Get a ROS bag topic's message count
 [[nodiscard]] std::optional<int>
 getTopicMessageCount(const std::string& bagDirectory,
                      const std::string& topicName);

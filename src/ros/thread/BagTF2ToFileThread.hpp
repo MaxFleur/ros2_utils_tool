@@ -24,8 +24,7 @@ public:
     run() override;
 
 private:
-    // Both YAML node and QJsonObject are very similar in terms of array handling, so
-    // templatize to avoid messy boilerplate code for json and yaml handling
+    // Both YAML node and QJsonObject are very similar in terms of array handling, so we can templatize
     template<typename T>
     requires NodeParameter<T>
     void

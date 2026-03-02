@@ -32,6 +32,7 @@ showHelp()
 int
 main(int argc, char* argv[])
 {
+    // Don't want ROS logging to break our progress info
     Utils::ROS::disableROSLogging();
     // Create application
     QCoreApplication app(argc, argv);
@@ -119,6 +120,7 @@ main(int argc, char* argv[])
     std::cout << "Source uncompressed bag file: " << std::filesystem::absolute(parameters.sourceDirectory.toStdString()) << "\n";
     std::cout << "Target compressed bag file: " << std::filesystem::absolute(parameters.targetDirectory.toStdString()) << "\n";
     std::cout << "Number of used threads: " << numberOfThreads << "\n\n";
+    // Start operation
     Utils::CLI::runThread(compressBagThread, signalStatus);
 
     return EXIT_SUCCESS;

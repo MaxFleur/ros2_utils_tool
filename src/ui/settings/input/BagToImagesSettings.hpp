@@ -2,7 +2,7 @@
 
 #include "RGBSettings.hpp"
 
-// Store parameters for image sequence out of ROS bag creation
+// Store bag to image tool parameters
 class BagToImagesSettings : public RGBSettings {
 public:
     BagToImagesSettings(Parameters::BagToImagesParameters& parameters,

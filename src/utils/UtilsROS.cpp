@@ -8,9 +8,17 @@
 namespace Utils::ROS
 {
 void
+disableROSLogging()
+{
+    rcutils_logging_set_output_handler([] (const rcutils_log_location_t*, int, const char*,
+                                           rcutils_time_point_value_t, const char*, va_list*) {
+    });
+}
+
+
+void
 spinNode(std::shared_ptr<rclcpp::Node> node)
 {
-    // We spin a node for some time before getting any topics/services from it
     // This implementation is based is based on ros2cli:
     // https://github.com/ros2/ros2cli/blob/rolling/ros2cli/ros2cli/node/direct.py#L25
     auto executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
@@ -30,19 +38,11 @@ spinNode(std::shared_ptr<rclcpp::Node> node)
 
 
 void
-disableROSLogging()
-{
-    rcutils_logging_set_output_handler([] (const rcutils_log_location_t*, int, const char*,
-                                           rcutils_time_point_value_t, const char*, va_list*) {
-    });
-}
-
-
-void
 sendStaticTransformation(const std::array<double, 3>& translation,
                          const std::array<double, 4>& rotation,
                          std::shared_ptr<NodeWrapper> nodeWrapper)
 {
+    // We need to create and spin a node for some time to be able to send transformations
     auto node = nodeWrapper->getNode();
     auto broadcaster = std::make_shared<tf2_ros::StaticTransformBroadcaster>(node);
 
@@ -123,6 +123,7 @@ std::map<std::string, std::vector<std::string> >
 getServiceNamesAndTypes()
 {
     auto node = std::make_shared<rclcpp::Node>("services_node");
+    // Spin to get available services and topics
     spinNode(node);
 
     return node->get_service_names_and_types();

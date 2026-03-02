@@ -43,7 +43,7 @@ MergeBagsThread::run()
     outputBags.push_back({ outputStorage, outputRecord });
 
     emit processing();
-    // Do merge
+    // Merge
     rosbag2_transport::bag_rewrite({ inputStorageFirstBag, inputStorageSecondBag }, outputBags);
 
     if (m_parameters.deleteSource) {

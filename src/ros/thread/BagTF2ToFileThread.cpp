@@ -27,6 +27,7 @@ BagTF2ToFileThread::run()
         std::filesystem::remove_all(targetDirectory.toStdString());
     }
 
+    // Prepare parameters
     const auto isFormatJson = Utils::General::getFileExtension(targetDirectory) == "json";
     const auto messageCount = Utils::ROS::getTopicMessageCount(m_sourceDirectory, m_topicName);
     auto iterationCount = 0;
@@ -75,6 +76,7 @@ BagTF2ToFileThread::run()
                              (static_cast<float>(iterationCount) / static_cast<float>(*messageCount) * 100));
     }
 
+    // Write to file
     if (isFormatJson) {
         QJsonDocument doc(messagesArray);
         QFile outFile(targetDirectory);

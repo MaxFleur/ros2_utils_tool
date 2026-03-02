@@ -9,7 +9,7 @@
 class QListWidget;
 class QToolButton;
 
-// Widget used control playing a bag file.
+// Widget used to control playing a bag file.
 class ControlPlayBagWidget : public QWidget
 {
     Q_OBJECT

@@ -11,7 +11,7 @@ class QComboBox;
 class QFormLayout;
 class QRadioButton;
 
-// Widget used to configure sending tf2 messages
+// Widget used to configure writing a ROS bag tf message topic to a json/yaml file
 class BagTF2ToFileWidget : public TopicComboBoxWidget
 {
     Q_OBJECT

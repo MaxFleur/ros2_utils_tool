@@ -9,6 +9,7 @@ main(int argc, char* argv[])
 {
     // Initialize ROS and Qt
     rclcpp::init(argc, argv);
+    // We don't want any ROS log stuff to appear in the CLI
     Utils::ROS::disableROSLogging();
 
     QApplication app(argc, argv);

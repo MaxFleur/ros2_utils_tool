@@ -21,6 +21,7 @@ RecordBagThread::run()
         std::filesystem::remove_all(targetDirectoryStd);
     }
 
+    // Prepare parameters
     rosbag2_storage::StorageOptions storageOptions;
     storageOptions.uri = targetDirectoryStd;
     storageOptions.max_bagfile_size = m_parameters.useCustomSize ? m_parameters.maxSizeInMB * 1048576 : 0;
@@ -44,9 +45,9 @@ RecordBagThread::run()
     }
 
     auto writer = rosbag2_transport::ReaderWriterFactory::make_writer(recordOptions);
+    // Initialize recorder
     auto recorder = std::make_shared<rosbag2_transport::Recorder>(std::move(writer), storageOptions, recordOptions);
 
-    // Initialize recorder
     recorder->record();
     auto executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
     executor->add_node(recorder);

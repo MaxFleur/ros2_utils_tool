@@ -10,6 +10,7 @@
 // this will call a corresponding input widget where a user can modify all necessary parameters.
 // If done, the input widget will be replaced with a progress widget showing the current progress.
 // The progress widget calls a separate thread performing the main operation in the background.
+// Alternatively, a controlling widget will be shown to control operations, e.g. playing a bag file.
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -18,7 +19,7 @@ public:
     MainWindow();
 
 private slots:
-    // Used to switch between start, input and progress widget
+    // Functions used to switch between start, input and progress widget
     void
     setStartWidget();
 
@@ -34,7 +35,7 @@ private:
 
 private:
     // Parameters storing all configurations done by a user in the input widgets.
-    // The parameters are transferred to the progress widget and their thread.
+    // The parameters are transferred to the progress/control widget and the threads.
     Parameters::BagToVideoParameters m_bagToVideoParameters;
     Parameters::VideoToBagParameters m_videoToBagParameters;
     Parameters::AdvancedParameters m_bagToPCDsParameters;

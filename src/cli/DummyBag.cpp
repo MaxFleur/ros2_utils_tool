@@ -95,6 +95,7 @@ main(int argc, char* argv[])
             topicNames.push_back(argument);
             topicNameSet.insert(argument);
         } else {
+            // Type
             if (const QVector<QString> arguments { "String", "Integer", "Image", "PointCloud", "TF2" }; !arguments.contains(argument)) {
                 throw std::runtime_error("The topic type must be either 'String', 'Integer', 'Image', 'PointCloud' or 'TF2'!");
             }
@@ -162,6 +163,7 @@ main(int argc, char* argv[])
     std::cout << "Rate: " << parameters.rate << "\n";
     std::cout << "Number of used threads: " << numberOfThreads << "\n\n";
     std::cout << "Please wait...\n";
+    // Start operation
     Utils::CLI::runThread(dummyBagThread, signalStatus);
 
     return EXIT_SUCCESS;
