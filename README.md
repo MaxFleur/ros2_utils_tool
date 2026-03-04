@@ -1,11 +1,11 @@
-<img src="https://github.com/user-attachments/assets/9ee5cb03-35d4-4d94-a8aa-30438abe8c1f" height=110 align="right">
+<img src="https://github.com/user-attachments/assets/9ee5cb03-35d4-4d94-a8aa-30438abe8c1f" height=120 align="right">
 
 # ros2_utils_tool - An intuitive and powerful toolset for everyday ROS2 activities.
 
 <p align="center">
   <img src="https://img.shields.io/badge/License-EUPLv1.2-blue.svg"/>
   <img src="https://img.shields.io/badge/C++-20-blue.svg"/>
-  <img src="https://img.shields.io/badge/Release-v0.15.0-blue.svg"/>
+  <img src="https://img.shields.io/badge/Release-v0.15.1-blue.svg"/>
   <img src="https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/jazzy.yml/badge.svg?event=push"/>
   <img src="https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/kilted.yml/badge.svg?event=push"/>
   <img src="https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/rolling.yml/badge.svg?event=push"/>
