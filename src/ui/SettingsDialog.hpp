@@ -5,7 +5,7 @@
 
 #include <QDialog>
 
-// Dialog used to modify settings
+// Dialog used to modify some general settings
 class SettingsDialog : public QDialog {
     Q_OBJECT
 

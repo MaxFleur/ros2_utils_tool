@@ -5,13 +5,10 @@
 #include "UtilsUI.hpp"
 
 #include <QFileDialog>
-#include <QHBoxLayout>
 #include <QLabel>
-#include <QLineEdit>
 #include <QPushButton>
 #include <QShortcut>
-#include <QToolButton>
-#include <QVBoxLayout>
+#include <QTreeWidgetItem>
 
 #include <filesystem>
 
@@ -38,33 +35,12 @@ BasicBagWidget::BasicBagWidget(Parameters::SelectableBagTopicParameters& paramet
 
     m_okButton->setEnabled(true);
 
-    m_controlsLayout = new QVBoxLayout;
-    m_controlsLayout->addStretch();
-    m_controlsLayout->addSpacing(20);
-    m_controlsLayout->addWidget(m_headerPixmapLabel);
-    m_controlsLayout->addWidget(m_headerLabel);
-    m_controlsLayout->addSpacing(30);
-
-    auto* const controlsSqueezedLayout = new QHBoxLayout;
-    controlsSqueezedLayout->addStretch();
-    controlsSqueezedLayout->addLayout(m_controlsLayout);
-    controlsSqueezedLayout->addStretch();
-
-    auto* const mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(controlsSqueezedLayout);
-    mainLayout->addLayout(m_buttonLayout);
-    setLayout(mainLayout);
-
     auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
 
     connect(m_findSourceButton, &QPushButton::clicked, this, &BasicBagWidget::findSourceButtonPressed);
     connect(m_treeWidget, &QTreeWidget::itemChanged, this, &BasicBagWidget::itemCheckStateChanged);
-    connect(m_okButton, &QPushButton::clicked, this, [this] {
-        emit okPressed();
-    });
-    connect(okShortCut, &QShortcut::activated, this, [this] {
-        emit okPressed();
-    });
+    connect(m_okButton, &QPushButton::clicked, this, &BasicBagWidget::okButtonPressed);
+    connect(okShortCut, &QShortcut::activated, this, &BasicBagWidget::okButtonPressed);
 }
 
 
@@ -104,4 +80,15 @@ BasicBagWidget::itemCheckStateChanged(QTreeWidgetItem* item, int column)
     const auto rowIndex = m_treeWidget->indexOfTopLevelItem(item);
     writeParameterToSettings(m_parameters.topics[rowIndex].isSelected, item->checkState(COL_CHECKBOXES) == Qt::Checked, m_settings);
     enableOkButton();
+}
+
+
+void
+BasicBagWidget::okButtonPressed() const
+{
+    if (!m_okButton->isEnabled()) {
+        return;
+    }
+
+    emit okPressed();
 }

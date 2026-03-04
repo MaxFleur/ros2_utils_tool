@@ -9,7 +9,7 @@
 class QListWidget;
 class QToolButton;
 
-// Widget used control playing a bag file.
+// Widget used to control playing a bag file.
 class ControlPlayBagWidget : public QWidget
 {
     Q_OBJECT
@@ -42,7 +42,7 @@ private:
 private:
     std::unique_ptr<BagPlayer> m_bagPlayer;
 
-    QPointer<QListWidget> m_loggerWidget;
+    QPointer<QListWidget> m_loggerListWidget;
     QPointer<QToolButton> m_playPauseButton;
 
     double m_currentRate;

@@ -181,9 +181,8 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     backButtonLayout->addWidget(m_backButton);
     backButtonLayout->addStretch();
 
-    m_versionLabel = new QLabel("v0.15.0");
-    m_versionLabel->setToolTip("A UI-tool to play bags, a completely redesigned recording tool,\n"
-                               "file saving/loading for sending tf2s and improved CLI help/info texts.");
+    m_versionLabel = new QLabel("v0.15.1");
+    m_versionLabel->setToolTip("Layout adjustments and smaller fixes.");
 
     auto* const versionLayout = new QHBoxLayout;
     versionLayout->addStretch();
@@ -199,8 +198,7 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     m_mainLayout->addLayout(backButtonLayout);
     setLayout(m_mainLayout);
 
-    const auto switchToOverallTools = [this, conversionToolsWidget, bagToolsWidget, publishingToolsWidget,
-                                       infoToolsWidget, overallToolsWidget] {
+    const auto switchToOverallTools = [this, conversionToolsWidget, bagToolsWidget, publishingToolsWidget, infoToolsWidget, overallToolsWidget] {
         switch (m_widgetOnInstantiation) {
         case WIDGET_CONVERSION:
             replaceWidgets(conversionToolsWidget, overallToolsWidget, WIDGET_OVERALL, true);

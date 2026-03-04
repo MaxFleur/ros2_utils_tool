@@ -13,6 +13,7 @@ SendTF2Thread::SendTF2Thread(const Parameters::SendTF2Parameters& parameters,
 void
 SendTF2Thread::run()
 {
+    // Prepare parameters
     const int rate = ((1000 / static_cast<float>(m_parameters.rate)) * 1000);
     geometry_msgs::msg::TransformStamped transformStamped;
 
@@ -40,7 +41,7 @@ SendTF2Thread::run()
 
     auto executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
     executor->add_node(m_node);
-
+    // Spin to send
     while (!isInterruptionRequested()) {
         executor->spin_once();
     }

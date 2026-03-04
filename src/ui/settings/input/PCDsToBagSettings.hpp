@@ -2,7 +2,7 @@
 
 #include "AdvancedSettings.hpp"
 
-// Store bag creation parameters
+// Store pcd to bag file tool parameters
 class PCDsToBagSettings : public AdvancedSettings {
 public:
     PCDsToBagSettings(Parameters::PCDsToBagParameters& parameters,

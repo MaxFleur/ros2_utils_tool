@@ -1,4 +1,4 @@
-#include "TF2ToFileThread.hpp"
+#include "BagTF2ToFileThread.hpp"
 
 #include "UtilsGeneral.hpp"
 #include "UtilsROS.hpp"
@@ -13,20 +13,21 @@
 #include <filesystem>
 #include <fstream>
 
-TF2ToFileThread::TF2ToFileThread(const Parameters::TF2ToFileParameters& parameters, QObject* parent) :
+BagTF2ToFileThread::BagTF2ToFileThread(const Parameters::TF2ToFileParameters& parameters, QObject* parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent), m_parameters(parameters)
 {
 }
 
 
 void
-TF2ToFileThread::run()
+BagTF2ToFileThread::run()
 {
     const auto& targetDirectory = m_parameters.targetDirectory;
     if (std::filesystem::exists(targetDirectory.toStdString())) {
         std::filesystem::remove_all(targetDirectory.toStdString());
     }
 
+    // Prepare parameters
     const auto isFormatJson = Utils::General::getFileExtension(targetDirectory) == "json";
     const auto messageCount = Utils::ROS::getTopicMessageCount(m_sourceDirectory, m_topicName);
     auto iterationCount = 0;
@@ -40,7 +41,7 @@ TF2ToFileThread::run()
     QJsonArray messagesArray;
     YAML::Node transformsNode;
 
-    const auto writeMessageToJson = [this, tfMessage, &messagesArray, &iterationCount] {
+    const auto writeMessageToJsonArray = [this, tfMessage, &messagesArray, &iterationCount] {
         QJsonObject transformsObject;
         fillNode(tfMessage, transformsObject);
 
@@ -48,8 +49,7 @@ TF2ToFileThread::run()
         messageObject["message_" + QString::number(iterationCount)] = transformsObject;
         messagesArray.append(messageObject);
     };
-
-    const auto writeMessageToYaml = [this, tfMessage, &transformsNode, &iterationCount] {
+    const auto writeMessageToYamlNode = [this, tfMessage, &transformsNode, &iterationCount] {
         YAML::Node transformNode;
         fillNode(tfMessage, transformNode);
 
@@ -66,16 +66,17 @@ TF2ToFileThread::run()
             continue;
         }
 
-        rclcpp::SerializedMessage serializedMsg(*bagMessage->serialized_data);
-        serializiation.deserialize_message(&serializedMsg, tfMessage.get());
+        rclcpp::SerializedMessage serializedMessage(*bagMessage->serialized_data);
+        serializiation.deserialize_message(&serializedMessage, tfMessage.get());
 
-        isFormatJson ? writeMessageToJson() : writeMessageToYaml();
+        isFormatJson ? writeMessageToJsonArray() : writeMessageToYamlNode();
 
         iterationCount++;
         emit progressChanged("Writing message " + QString::number(iterationCount) + " of " + QString::number(*messageCount) + "...",
                              (static_cast<float>(iterationCount) / static_cast<float>(*messageCount) * 100));
     }
 
+    // Write to file
     if (isFormatJson) {
         QJsonDocument doc(messagesArray);
         QFile outFile(targetDirectory);

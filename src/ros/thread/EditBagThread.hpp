@@ -3,7 +3,7 @@
 #include "BasicThread.hpp"
 #include "Parameters.hpp"
 
-// Thread used to write an edited ROS bag file
+// Thread used to create a new, edited bag file out of an existing one
 class EditBagThread : public BasicThread {
     Q_OBJECT
 public:

@@ -7,15 +7,12 @@
 #include <QPointer>
 #include <QWidget>
 
-#include <optional>
-
 class TopicWidget;
 
 class QFormLayout;
 class QHBoxLayout;
 class QLabel;
 class QToolButton;
-class QVBoxLayout;
 
 // A widget showing widgets to add and remove topics
 class TopicListingInputWidget : public BasicInputWidget
@@ -57,7 +54,6 @@ protected:
 
     QPointer<QFormLayout> m_formLayout;
     QPointer<QHBoxLayout> m_topicButtonLayout;
-    QPointer<QVBoxLayout> m_controlsLayout;
 
     int m_numberOfTopics = 0;
 

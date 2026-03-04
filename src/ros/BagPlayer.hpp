@@ -4,7 +4,7 @@
 
 #include "rosbag2_transport/player.hpp"
 
-// Used to control a bag player
+// Used to control a bag player from the UI
 class BagPlayer {
 public:
     explicit

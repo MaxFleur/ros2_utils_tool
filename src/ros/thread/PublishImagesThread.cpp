@@ -34,6 +34,7 @@ PublishImagesThread::run()
     }
     auto setIterator = sortedImagesSet.begin();
 
+    // Prepare parameters
     cv::Mat frame;
     sensor_msgs::msg::Image message;
 
@@ -86,7 +87,7 @@ PublishImagesThread::run()
 
     auto executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
     executor->add_node(m_node);
-
+    // Spin to publish
     while (!isInterruptionRequested()) {
         executor->spin_once();
     }

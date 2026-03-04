@@ -73,6 +73,7 @@ AdvancedBagWidget::areIOParametersValid(int topicSize, int topicSizeWithOutDupli
                                             sourceParameters.size() == 1 ? "The source bag file seems to be invalid!" : "A source bag file seems to be invalid!");
         return false;
     }
+
     if (std::ranges::any_of(sourceParameters, [this] (const auto& parameter) {
         return parameter == m_parameters.targetDirectory;
     })) {
@@ -82,6 +83,7 @@ AdvancedBagWidget::areIOParametersValid(int topicSize, int topicSizeWithOutDupli
         msgBox->exec();
         return false;
     }
+
     if (m_targetLineEdit->text().isEmpty()) {
         auto *const msgBox = new QMessageBox(QMessageBox::Critical, "No target specified!", "Please make sure that a target file has been entered!",
                                              QMessageBox::Ok);

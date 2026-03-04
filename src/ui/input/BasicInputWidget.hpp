@@ -13,6 +13,7 @@ class QLabel;
 class QLineEdit;
 class QPushButton;
 class QToolButton;
+class QVBoxLayout;
 
 template<typename T, typename U>
 concept InputParameterSetting = (std::same_as<T, U> && (std::same_as<T, QString> || std::same_as<T, int> ||
@@ -22,7 +23,7 @@ concept InputParameterSetting = (std::same_as<T, U> && (std::same_as<T, QString>
 // Each input widget uses a corresponding parameter and settings member.
 // The parameters are used to store all input for reusing if the widget is closed and opened again,
 // while the settings are used to write the parameters to file in case the parameters should be
-// used after closing and restarting the application.
+// used after restarting the application.
 
 // The basic widget provides a few members and functions used by all derived members.
 class BasicInputWidget : public QWidget
@@ -77,11 +78,12 @@ protected:
     // All input widgets need some sort of source file, provide it here
     QPointer<QLineEdit> m_sourceLineEdit;
     QPointer<QToolButton> m_findSourceButton;
-    // Also need an ok and cancel button
+    // Also need an ok and go back button
     QPointer<QPushButton> m_backButton;
     QPointer<QPushButton> m_okButton;
 
     QPointer<QHBoxLayout> m_findSourceLayout;
+    QPointer<QVBoxLayout> m_controlsLayout;
     QPointer<QHBoxLayout> m_buttonLayout;
     QPointer<QDialogButtonBox> m_dialogButtonBox;
 

@@ -1,7 +1,5 @@
 #include "DummyBagThread.hpp"
 
-#include "UtilsROS.hpp"
-
 #include <cv_bridge/cv_bridge.hpp>
 
 #include <pcl/point_cloud.h>
@@ -11,7 +9,11 @@
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "sensor_msgs/msg/image.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
+#include "std_msgs/msg/int32.hpp"
+#include "std_msgs/msg/string.hpp"
 #include "tf2_msgs/msg/tf_message.hpp"
+
+#include "rosbag2_cpp/writer.hpp"
 
 #include <filesystem>
 #include <random>
@@ -32,7 +34,7 @@ DummyBagThread::run()
     if (std::filesystem::exists(m_sourceDirectory)) {
         std::filesystem::remove_all(m_sourceDirectory);
     }
-
+    // Prepare parameters
     auto writer = std::make_shared<rosbag2_cpp::Writer>();
     writer->open(m_sourceDirectory);
 
@@ -47,6 +49,7 @@ DummyBagThread::run()
     // Move to own lambda for multithreading
     const auto writeDummyTopic = [this, &queue, &mutex, &iterationCount, writer, maximumMessageCount] {
         while (true) {
+            // Queue access must be singlethreaded
             mutex.lock();
             if (isInterruptionRequested() || queue.empty()) {
                 mutex.unlock();
@@ -70,11 +73,13 @@ DummyBagThread::run()
                 timeStamp += duration;
                 // Write message depending on type
                 if (topicType == "String") {
+                    // Simple string
                     std_msgs::msg::String message;
                     message.data = "Message " + std::to_string(i);
 
                     writer->write(message, topicName, timeStamp);
                 } else if (topicType == "Integer") {
+                    // Simple integer
                     std_msgs::msg::Int32 message;
                     message.data = i;
 
@@ -92,7 +97,7 @@ DummyBagThread::run()
                     cvBridge.toImageMsg(message);
                     writer->write(message, topicName, timeStamp);
                 } else if (topicType == "Point Cloud" || topicType == "PointCloud") {
-                    // Create a randomized point cloud with 10 points
+                    // Create a point cloud with ten points (point data is randomized)
                     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>());
                     cloud->width = 10;
                     cloud->height = 1;
@@ -115,13 +120,13 @@ DummyBagThread::run()
                     pcl::toROSMsg(*cloud, message);
                     writer->write(message, topicName, timeStamp);
                 } else {
+                    // Generate a tf2 message with three transformations, each containing randomized translation and rotation
                     tf2_msgs::msg::TFMessage message;
 
                     std::random_device randomDevice;
                     std::mt19937 generator(randomDevice());
                     std::uniform_real_distribution<> distribution(-1.0, 1.0);
 
-                    // Generate a tf2 message with three transformations, each containing randomized translation and rotation
                     for (auto i = 0; i < 3; i++) {
                         geometry_msgs::msg::TransformStamped transformStamped;
 

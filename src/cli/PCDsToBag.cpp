@@ -1,7 +1,6 @@
 #include "PCDsToBagThread.hpp"
 
 #include "UtilsCLI.hpp"
-#include "UtilsUI.hpp"
 
 #include <QCoreApplication>
 #include <QObject>
@@ -108,6 +107,7 @@ main(int argc, char* argv[])
     std::cout << "Topic name: " << parameters.topicName.toStdString() << "\n";
     std::cout << "Rate: " << parameters.rate << " point clouds per second\n\n";
     std::cout << "Please wait...\n";
+    // Start operation
     Utils::CLI::runThread(pcdsToBagThread, signalStatus);
 
     return EXIT_SUCCESS;

@@ -5,14 +5,12 @@
 #include "SelectableBagTopicSettings.hpp"
 
 #include <QPointer>
-#include <QTreeWidgetItem>
 #include <QWidget>
 
 class BagTreeWidget;
 
 class QLabel;
 class QTreeWidgetItem;
-class QVBoxLayout;
 
 // Widget for basic bag tree display, without any additional target file handling
 class BasicBagWidget : public BasicInputWidget
@@ -41,6 +39,9 @@ protected slots:
     }
 
     virtual void
+    okButtonPressed() const;
+
+    virtual void
     populateTreeWidget() = 0;
 
     virtual void
@@ -49,7 +50,6 @@ protected slots:
 protected:
     QPointer<BagTreeWidget> m_treeWidget;
     QPointer<QLabel> m_unselectLabel;
-    QPointer<QVBoxLayout> m_controlsLayout;
 
     static constexpr int COL_CHECKBOXES = 0;
     static constexpr int COL_TOPIC_NAME = 1;

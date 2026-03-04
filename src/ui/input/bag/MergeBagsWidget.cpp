@@ -7,6 +7,7 @@
 
 #include <QFormLayout>
 #include <QLabel>
+#include <QLineEdit>
 #include <QPushButton>
 #include <QToolButton>
 
@@ -114,11 +115,10 @@ MergeBagsWidget::createTopicTree(bool resetTopicsParameter)
             const auto topicWithMessageCount = bagMetaData.topics_with_message_count.at(i);
             const auto& topicMetaData = topicWithMessageCount.topic_metadata;
 
-            // Search if the topic already exists in parameters. If it is not there, add it to parameters.
+            // Search if the topic already exists in the parameters. If it is not there, add it to them.
             const auto it = std::ranges::find_if(m_parameters.topics, [topicMetaData, bagFilePath] (const auto& topic) {
                 return topic.name.toStdString() == topicMetaData.name && topic.bagDir == bagFilePath;
             });
-
             const auto itemAlreadyExists = it != m_parameters.topics.end();
             if (!itemAlreadyExists) {
                 Parameters::MergeBagsParameters::MergeBagTopic mergeBagTopic;

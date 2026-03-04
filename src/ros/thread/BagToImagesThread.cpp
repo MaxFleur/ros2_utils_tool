@@ -48,34 +48,6 @@ BagToImagesThread::run()
     auto iterationCount = 0;
     std::mutex mutex;
 
-    const auto pushMessagesToQueue = [this, &queue, &mutex, reader] {
-        constexpr auto maximumInstancesForQueue = 100;
-        rosbag2_storage::SerializedBagMessageSharedPtr message;
-
-        while (reader->has_next()) {
-            if (isInterruptionRequested()) {
-                return;
-            }
-
-            // Limit queue size to 100
-            while (queue.size() < maximumInstancesForQueue) {
-                mutex.lock();
-                if (isInterruptionRequested() || !reader->has_next()) {
-                    mutex.unlock();
-                    break;
-                }
-
-                message = reader->read_next();
-                if (message->topic_name != m_topicName) {
-                    mutex.unlock();
-                    continue;
-                }
-                queue.push_front(message);
-                mutex.unlock();
-            }
-        }
-    };
-
     cv_bridge::CvImagePtr cvPointer;
     auto rosMessage = std::make_shared<sensor_msgs::msg::Image>();
 
@@ -125,7 +97,7 @@ BagToImagesThread::run()
             const auto targetString = targetDirectoryStd + "/" + formatedIterationCount.str() + "." + m_parameters.format.toStdString();
 
             mutex.unlock();
-            // The main writing can be done in parallel
+            // The main writing can be done in parallel, no mutex required
             cv::imwrite(targetString, cvPointer->image,
                         { m_parameters.format == "jpg" ? cv::IMWRITE_JPEG_QUALITY : cv::IMWRITE_PNG_COMPRESSION,
                           // Adjust the quality value to fit OpenCV param range
@@ -135,10 +107,38 @@ BagToImagesThread::run()
         }
     };
 
-    // Writing images might take lots of time, especially if higher compression is used. Thus, we aim to multithread the image writing.
-    // However, the reader does not support parallel reading, thus we store the messages in a queue for parallel access.
+    // The bag reader does not support parallel reading, thus we store the messages in a queue for parallel access.
     // Messages have a pretty large size and storing all of them at once might lead to an overflow quickly, though.
-    // Thus, we use a central queue storing up to 100 messages. One thread constantly writes messages into the queue,
+    // Thus we limit the queue size to 100.
+    const auto pushMessagesToQueue = [this, &queue, &mutex, reader] {
+        constexpr auto maximumInstancesForQueue = 100;
+        rosbag2_storage::SerializedBagMessageSharedPtr message;
+
+        while (reader->has_next()) {
+            if (isInterruptionRequested()) {
+                return;
+            }
+
+            // Limit queue size to 100
+            while (queue.size() < maximumInstancesForQueue) {
+                mutex.lock();
+                if (isInterruptionRequested() || !reader->has_next()) {
+                    mutex.unlock();
+                    break;
+                }
+
+                message = reader->read_next();
+                if (message->topic_name != m_topicName) {
+                    mutex.unlock();
+                    continue;
+                }
+                queue.push_front(message);
+                mutex.unlock();
+            }
+        }
+    };
+
+    // One thread constantly writes messages into the queue,
     // while the remaining threads will read messages out of and remove them from the queue.
     while (reader->has_next()) {
         if (isInterruptionRequested()) {

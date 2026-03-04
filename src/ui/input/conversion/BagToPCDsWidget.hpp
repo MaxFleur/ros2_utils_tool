@@ -4,10 +4,7 @@
 #include "Parameters.hpp"
 #include "TopicComboBoxWidget.hpp"
 
-class QComboBox;
-class QLineEdit;
-
-// The widget used to manage writing pcd files out of a ROS bag
+// The widget used to manage writing a ROS bag point cloud message topic to a set of pcd files
 class BagToPCDsWidget : public TopicComboBoxWidget
 {
     Q_OBJECT

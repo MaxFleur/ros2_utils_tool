@@ -82,7 +82,7 @@ main(int argc, char* argv[])
         const auto argument = arguments.at(i);
 
         if (i % 2 == 0) {
-            if (!Utils::ROS::isNameROS2Conform(argument) && areROS2NamesValid && !Utils::CLI::containsArguments(arguments, "-s", "--suppress")) {
+            if (!Utils::ROS::isTopicNameROS2Conform(argument) && areROS2NamesValid && !Utils::CLI::containsArguments(arguments, "-s", "--suppress")) {
                 const auto errorString = "The topic name does not follow the ROS2 naming convention! More information on ROS2 naming convention is found here:\n"
                                          "https://design.ros2.org/articles/topic_and_service_names.html\n"
                                          "Do you want to continue anyways? [y]/n";
@@ -95,6 +95,7 @@ main(int argc, char* argv[])
             topicNames.push_back(argument);
             topicNameSet.insert(argument);
         } else {
+            // Type
             if (const QVector<QString> arguments { "String", "Integer", "Image", "PointCloud", "TF2" }; !arguments.contains(argument)) {
                 throw std::runtime_error("The topic type must be either 'String', 'Integer', 'Image', 'PointCloud' or 'TF2'!");
             }
@@ -162,6 +163,7 @@ main(int argc, char* argv[])
     std::cout << "Rate: " << parameters.rate << "\n";
     std::cout << "Number of used threads: " << numberOfThreads << "\n\n";
     std::cout << "Please wait...\n";
+    // Start operation
     Utils::CLI::runThread(dummyBagThread, signalStatus);
 
     return EXIT_SUCCESS;

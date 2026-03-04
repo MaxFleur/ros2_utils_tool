@@ -1,5 +1,6 @@
 #include "catch_ros2/catch_ros2.hpp"
 
+#include "BagTF2ToFileThread.hpp"
 #include "BagToImagesThread.hpp"
 #include "BagToPCDsThread.hpp"
 #include "BagToVideoThread.hpp"
@@ -12,9 +13,7 @@
 #include "PublishVideoThread.hpp"
 #include "RecordBagThread.hpp"
 #include "SendTF2Thread.hpp"
-#include "TF2ToFileThread.hpp"
 #include "UtilsROS.hpp"
-#include "UtilsUI.hpp"
 #include "VideoToBagThread.hpp"
 
 #include <cv_bridge/cv_bridge.hpp>
@@ -25,7 +24,6 @@
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
-#include <QJsonObject>
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_cloud.h>
@@ -76,7 +74,7 @@ template<typename T>
 concept MessageType = std::same_as<T, std_msgs::msg::Int32> || std::same_as<T, std_msgs::msg::String> ||
                       std::same_as<T, tf2_msgs::msg::TFMessage> || std::same_as<T, sensor_msgs::msg::PointCloud2>;
 
-// Verify all messages of string, int or point cloud type inside an input bag file
+// Verify all messages of string, int, point cloud or tf2 type inside an input bag file
 template<typename T>
 requires MessageType<T>
 void
@@ -243,8 +241,8 @@ TEST_CASE("Threads Testing", "[threads]") {
         rclcpp::Serialization<std_msgs::msg::Int32> serializationInt;
         rclcpp::Serialization<std_msgs::msg::String> serializationString;
         rclcpp::Serialization<tf2_msgs::msg::TFMessage> serializationTF2;
-        // No use in verifying point clouds because the point contents are randomized
 
+        // No use in verifying point clouds because the point contents are randomized
         verifyMessages("./dummy_bag", "/dummy_int", serializationInt, 0);
         verifyMessages("./dummy_bag", "/dummy_string", serializationString, 0);
         verifyMessages("./dummy_bag", "/dummy_tf2", serializationTF2, 0);
@@ -346,7 +344,7 @@ TEST_CASE("Threads Testing", "[threads]") {
 
         std::filesystem::remove_all("./merged_bag");
     }
-    // Compress Dummy Bag
+    // Compress/Decompress Dummy Bag
     SECTION("Compression/Decompression Tests") {
         Parameters::CompressBagParameters parametersCompression;
         parametersCompression.sourceDirectory = "./dummy_bag";
@@ -429,7 +427,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             videoCapture >> frame;
             const auto& color = frame.at<cv::Vec3b>(cv::Point(0, 0));
             // For whatever reasons, OpenCV does not generate the expected blue and red values
-            // which were initalliy passed into the dummy bag file. Thus, I had to figure them out
+            // which were initially passed into the dummy bag file. Thus, I had to figure them out
             // manually. These values might change for newer OpenCV versions...
             REQUIRE(static_cast<int>(color[0]) == blueValue);
             REQUIRE(static_cast<int>(color[1]) == greenValue);
@@ -604,7 +602,7 @@ TEST_CASE("Threads Testing", "[threads]") {
 
         rclcpp::Rate loopRate(5);
         auto node = std::make_shared<rclcpp::Node>("tf2_test");
-        auto callback = [node, &rotationX, &run](const tf2_msgs::msg::TFMessage& message) {
+        auto callback = [node, &rotationX, &run] (const tf2_msgs::msg::TFMessage& message) {
             if (!run) {
                 return;
             }
@@ -675,17 +673,13 @@ TEST_CASE("Threads Testing", "[threads]") {
 
                 for (auto j = 0; j < 3; ++j) {
                     const auto& transformNode = messageNode["transform_" + std::to_string(j)];
-                    if (containsHeaderStamp) {
-                        REQUIRE(transformNode.size() == 5);
-                    } else {
-                        REQUIRE(transformNode.size() == 4);
-                    }
+                    REQUIRE(transformNode.size() == (containsHeaderStamp ? 5 : 4));
                 }
             }
         };
 
-        auto* const thread = new TF2ToFileThread(parameters);
-        QObject::connect(thread, &TF2ToFileThread::finished, thread, &QObject::deleteLater);
+        auto* const thread = new BagTF2ToFileThread(parameters);
+        QObject::connect(thread, &BagTF2ToFileThread::finished, thread, &QObject::deleteLater);
 
         SECTION("Default Parameter Values - JSON") {
             thread->start();

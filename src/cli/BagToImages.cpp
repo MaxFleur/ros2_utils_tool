@@ -2,7 +2,6 @@
 
 #include "Parameters.hpp"
 #include "UtilsCLI.hpp"
-#include "UtilsROS.hpp"
 
 #include <QCoreApplication>
 #include <QObject>
@@ -128,6 +127,7 @@ main(int argc, char* argv[])
     std::cout << "Format: " << parameters.format.toStdString() << "\n";
     std::cout << "Number of used threads: " << numberOfThreads << "\n\n";
     std::cout << "Writing images. Please wait...\n";
+    // Start operation
     Utils::CLI::runThread(bagToImagesThread, signalStatus);
 
     return EXIT_SUCCESS;

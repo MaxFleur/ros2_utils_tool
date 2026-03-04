@@ -2,7 +2,6 @@
 
 #include "UtilsCLI.hpp"
 #include "Parameters.hpp"
-#include "UtilsUI.hpp"
 
 #include <QCoreApplication>
 #include <QObject>
@@ -120,6 +119,7 @@ main(int argc, char* argv[])
         std::cout << "Looping enabled.\n";
     }
     std::cout << "\n";
+    // Start operation
     Utils::CLI::runThread(publishVideoThread, signalStatus);
 
     rclcpp::shutdown();

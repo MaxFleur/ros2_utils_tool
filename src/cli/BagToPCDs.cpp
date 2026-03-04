@@ -2,7 +2,6 @@
 
 #include "Parameters.hpp"
 #include "UtilsCLI.hpp"
-#include "UtilsROS.hpp"
 
 #include <QCoreApplication>
 #include <QObject>
@@ -99,6 +98,7 @@ main(int argc, char* argv[])
     std::cout << "Topic name: " << parameters.topicName.toStdString() << "\n";
     std::cout << "Number of used threads: " << numberOfThreads << "\n\n";
     std::cout << "Writing pcds. Please wait...\n";
+    // Start operation
     Utils::CLI::runThread(bagToPCDsThread, signalStatus);
 
     return EXIT_SUCCESS;

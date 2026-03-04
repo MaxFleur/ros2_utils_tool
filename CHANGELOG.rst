@@ -1,6 +1,22 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Changelog for the ros2_utils_tool
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+0.15.1 (2026-03-04)
+-------------------
+**Changed/Improved:**
+
+* Disabled unwanted ROS terminal logging.
+* UI - Improved horizontal responsiveness for all UI tools.
+
+**Fixed:**
+
+* UI - Possible crashes when tools were opened after source files were renamed.
+* UI - The record bag tool not asking for overwriting already existing source files with the same name.
+
+**Other:**
+
+* Code cleanups and updated documentation.
+
 0.15.0 (2026-02-28)
 -------------------
 **New:**

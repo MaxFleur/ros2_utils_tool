@@ -10,6 +10,7 @@
 // this will call a corresponding input widget where a user can modify all necessary parameters.
 // If done, the input widget will be replaced with a progress widget showing the current progress.
 // The progress widget calls a separate thread performing the main operation in the background.
+// Alternatively, a controlling widget will be shown to control operations, e.g. playing a bag file.
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -18,7 +19,7 @@ public:
     MainWindow();
 
 private slots:
-    // Used to switch between start, input and progress widget
+    // Functions used to switch between start, input and progress widget
     void
     setStartWidget();
 
@@ -34,23 +35,23 @@ private:
 
 private:
     // Parameters storing all configurations done by a user in the input widgets.
-    // The parameters are transferred to the progress widget and their thread.
-    Parameters::BagToVideoParameters m_parametersBagToVideo;
-    Parameters::VideoToBagParameters m_parametersVideoToBag;
-    Parameters::AdvancedParameters m_parametersBagToPCDs;
-    Parameters::PCDsToBagParameters m_parametersPCDsToBag;
-    Parameters::BagToImagesParameters m_parametersBagToImages;
-    Parameters::TF2ToFileParameters m_parametersTF2ToFile;
-    Parameters::EditBagParameters m_parametersEditBag;
-    Parameters::MergeBagsParameters m_parametersMergeBags;
-    Parameters::RecordBagParameters m_parametersRecordBag;
-    Parameters::DummyBagParameters m_parametersDummyBag;
-    Parameters::CompressBagParameters m_parametersCompressBag;
-    Parameters::CompressBagParameters m_parametersDecompressBag;
-    Parameters::PlayBagParameters m_parametersPlayBag;
+    // The parameters are transferred to the progress/control widget and the threads.
+    Parameters::BagToVideoParameters m_bagToVideoParameters;
+    Parameters::VideoToBagParameters m_videoToBagParameters;
+    Parameters::AdvancedParameters m_bagToPCDsParameters;
+    Parameters::PCDsToBagParameters m_PCDsToBagParameters;
+    Parameters::BagToImagesParameters m_bagToImagesParameters;
+    Parameters::TF2ToFileParameters m_TF2ToFileParameters;
+    Parameters::EditBagParameters m_editBagParameters;
+    Parameters::MergeBagsParameters m_mergeBagsParameters;
+    Parameters::RecordBagParameters m_recordBagParameters;
+    Parameters::DummyBagParameters m_dummyBagParameters;
+    Parameters::CompressBagParameters m_compressBagParameters;
+    Parameters::CompressBagParameters m_decompressBagParameters;
+    Parameters::PlayBagParameters m_playBagParameters;
 
-    Parameters::PublishParameters m_parametersPublishVideo;
-    Parameters::PublishParameters m_parametersPublishImages;
+    Parameters::PublishParameters m_publishVideoParameters;
+    Parameters::PublishParameters m_publishImagesParameters;
 
     Parameters::SendTF2Parameters m_parametersSendTF2;
     // Parameters for settings dialog

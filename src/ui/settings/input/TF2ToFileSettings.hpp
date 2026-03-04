@@ -2,7 +2,7 @@
 
 #include "AdvancedSettings.hpp"
 
-// Store tf2 to json parameters
+// Store tf2 to file parameters
 class TF2ToFileSettings : public AdvancedSettings {
 public:
     TF2ToFileSettings(Parameters::TF2ToFileParameters& parameters,

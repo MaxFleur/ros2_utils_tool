@@ -2,7 +2,7 @@
 
 #include "SelectableBagTopicSettings.hpp"
 
-// Store bag recording parameters
+// Store bag recording tool parameters
 class RecordBagSettings : public SelectableBagTopicSettings {
 public:
     RecordBagSettings(Parameters::RecordBagParameters& parameters,

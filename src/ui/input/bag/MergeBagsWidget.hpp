@@ -4,11 +4,12 @@
 #include "MergeBagsSettings.hpp"
 #include "Parameters.hpp"
 
-#include <QLabel>
-#include <QLineEdit>
 #include <QPointer>
 
-// Widget for editing a bag file
+class QLabel;
+class QLineEdit;
+
+// Widget for merging bag files to a new file
 class MergeBagsWidget : public AdvancedBagWidget
 {
     Q_OBJECT

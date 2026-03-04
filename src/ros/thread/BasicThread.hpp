@@ -2,7 +2,7 @@
 
 #include <QThread>
 
-// Basic thread class, overridden by custom classes
+// Basic thread class, used by all other threads
 class BasicThread : public QThread {
     Q_OBJECT
 public:

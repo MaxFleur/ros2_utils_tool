@@ -38,13 +38,16 @@ private slots:
     loadFromFileButtonPressed();
 
     void
+    timeoutActivated();
+
+    void
     okButtonPressed();
 
 private:
     void
     animateInfoLabel(const QString& labelText);
 
-    // Have to overwrite this one because we are using more additional icons then just the top one
+    // Have to overwrite this one because we are using more additional icons then just the header
     void
     setPixmapLabelIcon() const;
 
@@ -80,6 +83,9 @@ private:
 
     static constexpr double SPINBOX_LOWER_RANGE = -1000.0;
     static constexpr double SPINBOX_UPPER_RANGE = 1000.0;
+    static constexpr double ANIMATION_VALUE_START = 1.0;
+    static constexpr double ANIMATION_VALUE_END = 0.0;
     static constexpr int NUMBER_OF_DECIMALS = 5;
     static constexpr int LABEL_SHOWN_DURATION = 1500;
+    static constexpr int LABEL_FADEOUT = 1000;
 };

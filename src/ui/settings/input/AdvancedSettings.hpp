@@ -2,7 +2,7 @@
 
 #include "BasicSettings.hpp"
 
-// Store advanced settings
+// Store advanced parameters (e.g. target dir)
 class AdvancedSettings : public BasicSettings {
 public:
     AdvancedSettings(Parameters::AdvancedParameters& parameters,

@@ -3,7 +3,7 @@
 #include "BasicThread.hpp"
 #include "Parameters.hpp"
 
-// Thread writing a bag images topic to a video file
+// Thread writing ROS image messages in a bag to a video file
 class BagToVideoThread : public BasicThread {
     Q_OBJECT
 public:

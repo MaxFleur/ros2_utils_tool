@@ -29,6 +29,7 @@ VideoToBagThread::run()
         return;
     }
 
+    // Prepare parameters
     const auto targetDirectoryStd = m_parameters.targetDirectory.toStdString();
     if (std::filesystem::exists(targetDirectoryStd)) {
         std::filesystem::remove_all(targetDirectoryStd);
@@ -68,7 +69,7 @@ VideoToBagThread::run()
             cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
         }
 
-        // Create empty sensor message
+        // Update image message data
         timeStamp += duration;
         header.stamp = timeStamp;
 

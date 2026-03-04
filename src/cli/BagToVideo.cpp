@@ -2,7 +2,6 @@
 
 #include "UtilsCLI.hpp"
 #include "Parameters.hpp"
-#include "UtilsROS.hpp"
 
 #include <QCoreApplication>
 #include <QObject>
@@ -120,6 +119,7 @@ main(int argc, char* argv[])
     std::cout << "Rate: " << parameters.fps << "\n";
     std::cout << "Hardware acceleration " << (useHardwareAcceleration ? "enabled" : "disabled") << "\n\n";
     std::cout << "Encoding video. Please wait...\n";
+    // Start operation
     Utils::CLI::runThread(encodingThread, signalStatus);
 
     return EXIT_SUCCESS;

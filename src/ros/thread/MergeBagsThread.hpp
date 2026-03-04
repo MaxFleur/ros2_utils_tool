@@ -3,8 +3,7 @@
 #include "BasicThread.hpp"
 #include "Parameters.hpp"
 
-// Thread used to merge a bag file using two input bag files
-// Makes use of the rosbag2_transport API for simplicity and performance
+// Thread used to merge two bag files into a new one
 class MergeBagsThread : public BasicThread {
     Q_OBJECT
 public:

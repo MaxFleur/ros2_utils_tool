@@ -8,7 +8,7 @@ class QCheckBox;
 class QFormLayout;
 class QSlider;
 
-// The widget used to manage writing images out of a ROS bag
+// The widget used to manage writing a ROS bag image message topic to a set of image files
 class BagToImagesWidget : public TopicComboBoxWidget
 {
     Q_OBJECT

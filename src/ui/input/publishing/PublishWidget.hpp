@@ -11,7 +11,7 @@ class QFormLayout;
 class QLineEdit;
 class QSpinBox;
 
-// Widget used to configure publishing a video OR image sequence as ROS messages
+// Widget used to configure publishing a video OR image sequence as ROS image message
 class PublishWidget : public BasicInputWidget
 {
     Q_OBJECT

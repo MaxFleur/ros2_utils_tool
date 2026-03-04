@@ -3,8 +3,6 @@
 #include "UtilsUI.hpp"
 
 #include <QFormLayout>
-#include <QHBoxLayout>
-#include <QLabel>
 
 BagToPCDsWidget::BagToPCDsWidget(Parameters::AdvancedParameters& parameters, QWidget *parent) :
     TopicComboBoxWidget(parameters, "Bag to PCD Files", ":/icons/tools/bag_to_pcd", "Bag File:", "PCDs Location:", "bag_to_pcds", OUTPUT_PCDS, parent),
@@ -18,7 +16,6 @@ BagToPCDsWidget::BagToPCDsWidget(Parameters::AdvancedParameters& parameters, QWi
 
     m_controlsLayout->addStretch();
 
-    // Generally, only enable this if the source bag, topic name and target dir line edit contain text
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() &&
                    !m_topicNameComboBox->currentText().isEmpty() && !m_parameters.targetDirectory.isEmpty());
 }

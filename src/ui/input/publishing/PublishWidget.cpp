@@ -8,7 +8,6 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QFormLayout>
-#include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMessageBox>
@@ -26,6 +25,11 @@ PublishWidget::PublishWidget(Parameters::PublishParameters& parameters, bool use
     m_parameters(parameters), m_settings(parameters, publishVideo ? "publish_video" : "publish_images"),
     m_warnROS2NameConvention(warnROS2NameConvention), m_publishVideo(publishVideo)
 {
+    if (!std::filesystem::exists(m_parameters.sourceDirectory.toStdString())) {
+        m_parameters.sourceDirectory = QString();
+        writeParameterToSettings(m_parameters.sourceDirectory, QString(), m_settings);
+    }
+
     m_sourceLineEdit->setText(parameters.sourceDirectory);
     m_sourceLineEdit->setToolTip(m_publishVideo ? "The source video file directory." : "The source images file directory.");
 
@@ -64,27 +68,13 @@ PublishWidget::PublishWidget(Parameters::PublishParameters& parameters, bool use
     advancedOptionsWidget->setLayout(m_advancedOptionsFormLayout);
     advancedOptionsWidget->setVisible(m_parameters.showAdvancedOptions);
 
-    auto* const controlsLayout = new QVBoxLayout;
-    controlsLayout->addStretch();
-    controlsLayout->addWidget(m_headerPixmapLabel);
-    controlsLayout->addWidget(m_headerLabel);
-    controlsLayout->addSpacing(40);
-    controlsLayout->addLayout(basicOptionsFormLayout);
-    controlsLayout->addSpacing(5);
-    controlsLayout->addWidget(advancedOptionsCheckBox);
-    controlsLayout->addSpacing(10);
-    controlsLayout->addWidget(advancedOptionsWidget);
-    controlsLayout->addStretch();
-
-    auto* const controlsSqueezedLayout = new QHBoxLayout;
-    controlsSqueezedLayout->addStretch();
-    controlsSqueezedLayout->addLayout(controlsLayout);
-    controlsSqueezedLayout->addStretch();
-
-    auto* const mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(controlsSqueezedLayout);
-    mainLayout->addLayout(m_buttonLayout);
-    setLayout(mainLayout);
+    m_controlsLayout->addSpacing(40);
+    m_controlsLayout->addLayout(basicOptionsFormLayout);
+    m_controlsLayout->addSpacing(5);
+    m_controlsLayout->addWidget(advancedOptionsCheckBox);
+    m_controlsLayout->addSpacing(10);
+    m_controlsLayout->addWidget(advancedOptionsWidget);
+    m_controlsLayout->addStretch();
 
     auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.topicName.isEmpty());
@@ -195,7 +185,7 @@ PublishWidget::okButtonPressed() const
         return;
     }
 
-    if (m_warnROS2NameConvention && !Utils::ROS::isNameROS2Conform(m_parameters.topicName)) {
+    if (m_warnROS2NameConvention && !Utils::ROS::isTopicNameROS2Conform(m_parameters.topicName)) {
         if (const auto returnValue = Utils::UI::continueWithInvalidROS2Names(); !returnValue) {
             return;
         }

@@ -23,6 +23,7 @@ public:
     }
 
 private:
-    int m_fourcc;
     cv::VideoWriter m_videoWriter;
+
+    int m_fourcc;
 };

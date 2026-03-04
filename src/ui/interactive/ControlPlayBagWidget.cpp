@@ -60,8 +60,8 @@ ControlPlayBagWidget::ControlPlayBagWidget(Parameters::PlayBagParameters& parame
     controlsLayout->addWidget(playNextMessageButton);
     controlsLayout->addStretch();
 
-    m_loggerWidget = new QListWidget;
-    m_loggerWidget->setMinimumHeight(200);
+    m_loggerListWidget = new QListWidget;
+    m_loggerListWidget->setMinimumHeight(200);
 
     auto* const stopButton = new QPushButton("Stop");
     auto* const buttonLayout = new QHBoxLayout;
@@ -75,7 +75,7 @@ ControlPlayBagWidget::ControlPlayBagWidget(Parameters::PlayBagParameters& parame
     upperLayout->addSpacing(40);
     upperLayout->addLayout(controlsLayout);
     upperLayout->addSpacing(10);
-    upperLayout->addWidget(m_loggerWidget);
+    upperLayout->addWidget(m_loggerListWidget);
     upperLayout->setContentsMargins(20, 20, 20, 20);
     upperLayout->addStretch();
 
@@ -107,7 +107,7 @@ ControlPlayBagWidget::ControlPlayBagWidget(Parameters::PlayBagParameters& parame
     });
 
     m_bagPlayer = std::make_unique<BagPlayer>(parameters);
-    // Simulate the first few terminal info messages when calling ros2 bag play
+    // Simulate the first few terminal info messages displayed when calling ros2 bag play
     addLoggerWidgetEntry("Set rate to " + QString::number(m_currentRate));
     addLoggerWidgetEntry("Press SPACE for Pause/Resume");
     addLoggerWidgetEntry("Press CURSOR_RIGHT for Play Next Message");
@@ -124,7 +124,7 @@ ControlPlayBagWidget::ControlPlayBagWidget(Parameters::PlayBagParameters& parame
     }
     addLoggerWidgetEntry("Playing topics " + topicsString);
     addLoggerWidgetEntry("Started play.");
-    m_loggerWidget->setFocus();
+    m_loggerListWidget->setFocus();
 }
 
 
@@ -133,7 +133,7 @@ ControlPlayBagWidget::setPlayerState()
 {
     m_isPlaying = !m_isPlaying;
     m_bagPlayer->togglePlayerState(m_isPlaying);
-
+    // Button icon has to switch between "Pause" and "Play"
     const auto isDarkMode = Utils::UI::isDarkMode();
     if (m_isPlaying) {
         m_playPauseButton->setIcon(QIcon(isDarkMode ? ":/icons/player/stop_white.svg" : ":/icons/player/stop_black.svg"));
@@ -180,9 +180,10 @@ ControlPlayBagWidget::playNextMessage()
 void
 ControlPlayBagWidget::addLoggerWidgetEntry(const QString& entryText)
 {
+    // Give it a ROS terminal log like style
     auto* const item = new QListWidgetItem("[" + m_bagPlayer->getCurrentTimeAsString() + "] " + entryText);
     item->setFlags(item->flags() & ~Qt::ItemIsSelectable);
 
-    m_loggerWidget->addItem(item);
-    m_loggerWidget->setCurrentRow(m_loggerWidget->count() - 1);
+    m_loggerListWidget->addItem(item);
+    m_loggerListWidget->setCurrentRow(m_loggerListWidget->count() - 1);
 }

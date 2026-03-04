@@ -6,7 +6,6 @@
 #include <QVector>
 
 #include "rclcpp/rclcpp.hpp"
-#include "rosbag2_cpp/writer.hpp"
 #include "rosbag2_storage/bag_metadata.hpp"
 
 #include "std_msgs/msg/int32.hpp"
@@ -21,6 +20,11 @@ concept WriteMessageParameter = (std::same_as<T, std_msgs::msg::String> && std::
 // ROS related util functions
 namespace Utils::ROS
 {
+// Called at the beginning of applications, disabling all ROS logging so that
+// the terminal contains no ROS log messages
+void
+disableROSLogging();
+
 // Sends a static transformation using tf broadcaster
 // @NOTE: For whatever reason, just creating and spinning a local node
 //        does not work here, we have to spin a global node
@@ -54,7 +58,7 @@ std::optional<rosbag2_storage::TopicInformation>
 getTopicInBag(const QString& bagDirectory,
               const QString& topicName);
 
-// If a ROS bag contains a certain topic
+// If a ROS bag contains a certain topic indicated by the name
 [[nodiscard]] bool
 doesBagContainTopicName(const QString& bagDirectory,
                         const QString& topicName);
@@ -64,6 +68,7 @@ doesBagContainTopicName(const QString& bagDirectory,
 getTopicMessageCount(const QString& bagDirectory,
                      const QString& topicName);
 
+// Get a ROS bag topic's message count
 [[nodiscard]] std::optional<int>
 getTopicMessageCount(const std::string& bagDirectory,
                      const std::string& topicName);
@@ -75,15 +80,15 @@ getTopicType(const QString& bagDirectory,
 
 // Returns the first topic in a bag file with a certain type
 [[nodiscard]] std::optional<QString>
-getFirstTopicWithCertainType(const QString& bagDirectory,
-                             const QString& typeName);
+getFirstTopicWithCertainTypeName(const QString& bagDirectory,
+                                 const QString& typeName);
 
 // Returns all video bag topics stored in a ROS bag file
 [[nodiscard]] QVector<QString>
-getBagTopics(const QString& bagDirectory,
-             const QString& topicType);
+getBagTopicNames(const QString& bagDirectory,
+                 const QString& topicType);
 
 // Returns if a topic name follows the ROS2 naming convention
 [[nodiscard]] bool
-isNameROS2Conform(const QString& topicName);
+isTopicNameROS2Conform(const QString& topicName);
 }

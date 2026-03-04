@@ -7,13 +7,11 @@
 #include <QPointer>
 #include <QWidget>
 
-class BagTreeWidget;
-
 class QCheckBox;
 class QDoubleSpinBox;
 class QFormLayout;
 
-// Widget for setting parameters to playing a bag file
+// Widget for the parameters for control playing a bag file
 class ConfigurePlayBagWidget : public BasicBagWidget
 {
     Q_OBJECT

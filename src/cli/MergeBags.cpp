@@ -2,7 +2,6 @@
 
 #include "Parameters.hpp"
 #include "UtilsCLI.hpp"
-#include "UtilsGeneral.hpp"
 #include "UtilsROS.hpp"
 
 #include <QCoreApplication>
@@ -33,6 +32,8 @@ showHelp()
 int
 main(int argc, char* argv[])
 {
+    // Don't want ROS logging to break our progress info
+    Utils::ROS::disableROSLogging();
     // Create application
     QCoreApplication app(argc, argv);
 
@@ -169,6 +170,7 @@ main(int argc, char* argv[])
         std::cout << "    " << topic.name.toStdString() << "\n";
     }
     std::cout << "Number of used threads: " << numberOfThreads << "\n\n";
+    // Start operation
     Utils::CLI::runThread(mergeBagsThread, signalStatus);
 
     return EXIT_SUCCESS;

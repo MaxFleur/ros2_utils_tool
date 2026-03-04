@@ -4,12 +4,10 @@
 #include "UtilsGeneral.hpp"
 #include "UtilsIO.hpp"
 #include "UtilsROS.hpp"
-#include "UtilsUI.hpp"
 
 #include <QCoreApplication>
 #include <QObject>
 
-#include <filesystem>
 #include <iostream>
 
 volatile sig_atomic_t signalStatus = 0;
@@ -174,6 +172,7 @@ main(int argc, char* argv[])
     });
 
     showInfo(parameters, false);
+    // Start operation
     Utils::CLI::runThread(sendTF2Thread, signalStatus);
 
     rclcpp::shutdown();

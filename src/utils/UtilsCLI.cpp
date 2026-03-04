@@ -37,15 +37,18 @@ bool
 checkArgumentValidity(const QStringList& argumentsList, const QString& shortArg, const QString& longArg,
                       int& parameter, int lowerRange, int higherRange, int argumentListOffset)
 {
+    // Nothing there -> argument is valid
     if (!containsArguments(argumentsList, shortArg, longArg)) {
         return true;
     }
 
     const auto argumentIndex = std::max(argumentsList.lastIndexOf(shortArg), argumentsList.lastIndexOf(longArg));
+    // Check for parameter position
     if (argumentsList.at(argumentIndex) == argumentsList.last() ||
         (argumentListOffset == 2 && argumentsList.at(argumentIndex + 1) == argumentsList.last())) {
         return false;
     }
+    // Check for correct parameter range
     if (parameter = argumentsList.at(argumentIndex + argumentListOffset).toInt(); parameter < lowerRange || parameter > higherRange) {
         return false;
     }
@@ -110,7 +113,7 @@ checkParentDirectory(const QString& directory, bool isTarget)
 void
 checkForTargetTopic(const QString& directory, QString& parameterTopicName, const QString& topicType)
 {
-    const auto targetTopicName = Utils::ROS::getFirstTopicWithCertainType(directory, topicType);
+    const auto targetTopicName = Utils::ROS::getFirstTopicWithCertainTypeName(directory, topicType);
     if (targetTopicName == std::nullopt) {
         throw std::runtime_error("The bag file does not contain any topics of type '" + topicType.toStdString() + "'!");
     }
@@ -131,6 +134,7 @@ shouldContinue(const std::string& message)
         // 'Y' or 'Enter' key will accept
         if (input == "y" || input.length() == 0) {
             return true;
+            // 'N' will abort
         } else if (input == "n") {
             return false;
         }
@@ -153,7 +157,7 @@ continueWithInvalidROS2Name(const QStringList& arguments, QString& parameterTopi
         return true;
     }
 
-    if (!Utils::ROS::isNameROS2Conform(topicName)) {
+    if (!Utils::ROS::isTopicNameROS2Conform(topicName)) {
         const auto errorString = "The topic name does not follow the ROS2 naming convention! More information on ROS2 naming convention is found here:\n"
                                  "https://design.ros2.org/articles/topic_and_service_names.html\n"
                                  "Do you want to continue anyways? [y]/n";
@@ -204,7 +208,7 @@ showProcessingString(bool& isProcessing)
 {
     auto processingChar = '\\';
     isProcessing = true;
-
+    // Imitate a circle
     while (isProcessing) {
         switch (processingChar) {
         case '|':

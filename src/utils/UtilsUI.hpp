@@ -4,7 +4,6 @@
 #include <QComboBox>
 #include <QHBoxLayout>
 #include <QLineEdit>
-#include <QMessageBox>
 #include <QPointer>
 #include <QToolButton>
 #include <QWidget>
@@ -17,11 +16,13 @@ void
 setWidgetFontSize(QWidget* widget,
                   bool     isButton = false);
 
+// Add topics contained in a ROS bag to a QComboBox
 [[maybe_unused]] bool
 fillComboBoxWithTopics(QPointer<QComboBox> comboBox,
                        const QString&      bagDirectory,
                        const QString&      topicType);
 
+// Create and set a checkbox aling with its value and tooltip
 [[nodiscard]] QCheckBox*
 createCheckBox(const QString& toolTipText,
                bool           checkState);
@@ -54,7 +55,7 @@ const QString
 replaceTextAppendix(const QString& inputText,
                     const QString& newAppendix);
 
-// Finds a bag file and checks if it is valid
+// Finds a bag file and checks if it's valid
 std::optional<QString>
 isBagDirectoryValid(QWidget* parent);
 
@@ -85,4 +86,5 @@ enum class TOOL_ID {
 
 inline constexpr int FONT_SIZE_HEADER = 16;
 inline constexpr int FONT_SIZE_BUTTON = 14;
+inline constexpr int CONTROLS_LAYOUT_MARGIN = 50;
 }

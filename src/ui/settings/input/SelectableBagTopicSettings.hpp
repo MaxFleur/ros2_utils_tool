@@ -2,7 +2,7 @@
 
 #include "BasicSettings.hpp"
 
-// Store topics for play bag and record bag settings
+// Store topics for play bag and record bag parameters
 class SelectableBagTopicSettings : public BasicSettings {
 public:
     SelectableBagTopicSettings(Parameters::SelectableBagTopicParameters& parameters,

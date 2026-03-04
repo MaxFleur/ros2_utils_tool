@@ -1,6 +1,7 @@
 #include "BagTreeWidget.hpp"
 
 #include <QLabel>
+#include <QTreeWidgetItem>
 
 BagTreeWidget::BagTreeWidget(QWidget *parent) : QTreeWidget(parent)
 {
@@ -16,7 +17,8 @@ BagTreeWidget::BagTreeWidget(QWidget *parent) : QTreeWidget(parent)
 
 
 void
-BagTreeWidget::createItemWithTopicNameAndType(const QString& topicName, const QString& topicType, bool isSelected, QTreeWidgetItem* parentItem)
+BagTreeWidget::createItemWithTopicNameAndType(const QString& topicName, const QString& topicType,
+                                              bool isSelected, QTreeWidgetItem* parentItem)
 {
     auto* const item = new QTreeWidgetItem;
     parentItem ? parentItem->addChild(item) : addTopLevelItem(item);

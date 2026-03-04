@@ -1,7 +1,6 @@
 #include "TopicsServicesInfoWidget.hpp"
 
 #include <QDialogButtonBox>
-#include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
 #include <QTreeWidget>
@@ -23,30 +22,16 @@ TopicsServicesInfoWidget::TopicsServicesInfoWidget(QWidget *parent) :
 
     fillTree();
 
-    auto* const controlsLayout = new QVBoxLayout;
-    controlsLayout->addStretch();
-    controlsLayout->addWidget(m_headerPixmapLabel);
-    controlsLayout->addWidget(m_headerLabel);
-    controlsLayout->addSpacing(30);
-    controlsLayout->addWidget(m_treeWidget);
-    controlsLayout->addStretch();
-    // Give it a more "squishy" look
-    controlsLayout->setContentsMargins(30, 30, 30, 30);
-    controlsLayout->addStretch();
-
-    auto* const controlsSqueezedLayout = new QHBoxLayout;
-    controlsSqueezedLayout->addStretch();
-    controlsSqueezedLayout->addLayout(controlsLayout);
-    controlsSqueezedLayout->addStretch();
+    m_controlsLayout->addStretch();
+    m_controlsLayout->addWidget(m_headerPixmapLabel);
+    m_controlsLayout->addWidget(m_headerLabel);
+    m_controlsLayout->addSpacing(30);
+    m_controlsLayout->addWidget(m_treeWidget);
+    m_controlsLayout->addStretch();
 
     auto* const refreshButton = new QPushButton("Refresh");
     m_dialogButtonBox->addButton(refreshButton, QDialogButtonBox::AcceptRole);
     m_okButton->setVisible(false);
-
-    auto* const mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(controlsSqueezedLayout);
-    mainLayout->addLayout(m_buttonLayout);
-    setLayout(mainLayout);
 
     connect(refreshButton, &QPushButton::clicked, this, &TopicsServicesInfoWidget::fillTree);
 }

@@ -2,15 +2,23 @@
 
 #include <QRegularExpression>
 
-#include "rosbag2_cpp/reader.hpp"
+#include "rosbag2_storage/metadata_io.hpp"
 #include "tf2_ros/static_transform_broadcaster.h"
 
 namespace Utils::ROS
 {
 void
+disableROSLogging()
+{
+    rcutils_logging_set_output_handler([] (const rcutils_log_location_t*, int, const char*,
+                                           rcutils_time_point_value_t, const char*, va_list*) {
+    });
+}
+
+
+void
 spinNode(std::shared_ptr<rclcpp::Node> node)
 {
-    // We spin a node for some time before getting any topics/services from it
     // This implementation is based is based on ros2cli:
     // https://github.com/ros2/ros2cli/blob/rolling/ros2cli/ros2cli/node/direct.py#L25
     auto executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
@@ -34,6 +42,7 @@ sendStaticTransformation(const std::array<double, 3>& translation,
                          const std::array<double, 4>& rotation,
                          std::shared_ptr<NodeWrapper> nodeWrapper)
 {
+    // We need to create and spin a node for some time to be able to send transformations
     auto node = nodeWrapper->getNode();
     auto broadcaster = std::make_shared<tf2_ros::StaticTransformBroadcaster>(node);
 
@@ -74,10 +83,10 @@ doesDirectoryContainBagFile(const QString& bagDirectory)
 bool
 doesDirectoryContainCompressedBagFile(const QString& bagDirectory)
 {
-    rosbag2_storage::MetadataIo metadata_IO;
+    rosbag2_storage::MetadataIo metadataIO;
     rosbag2_storage::BagMetadata metadata;
     try {
-        metadata = metadata_IO.read_metadata(bagDirectory.toStdString());
+        metadata = metadataIO.read_metadata(bagDirectory.toStdString());
     } catch (...) {
         return false;
     }
@@ -114,6 +123,7 @@ std::map<std::string, std::vector<std::string> >
 getServiceNamesAndTypes()
 {
     auto node = std::make_shared<rclcpp::Node>("services_node");
+    // Spin to get available services and topics
     spinNode(node);
 
     return node->get_service_names_and_types();
@@ -133,13 +143,13 @@ getBagMetadata(const QString& bagDirectory)
 std::optional<rosbag2_storage::TopicInformation>
 getTopicInBag(const QString& bagDirectory, const QString& topicName)
 {
-    const auto stdStringTopicName = topicName.toStdString();
+    const auto topicNameStdString = topicName.toStdString();
 
     const auto& metadata = getBagMetadata(bagDirectory);
     const auto& topics = metadata.topics_with_message_count;
 
     auto it = std::ranges::find_if(topics, [&] (const auto& topic) {
-        return topic.topic_metadata.name == stdStringTopicName;
+        return topic.topic_metadata.name == topicNameStdString;
     });
     return it != topics.end() ? std::optional(*it) : std::nullopt;
 }
@@ -177,7 +187,7 @@ getTopicType(const QString& bagDirectory, const QString& topicName)
 
 
 std::optional<QString>
-getFirstTopicWithCertainType(const QString& bagDirectory, const QString& typeName)
+getFirstTopicWithCertainTypeName(const QString& bagDirectory, const QString& typeName)
 {
     const auto& metadata = getBagMetadata(bagDirectory);
     const auto& topics = metadata.topics_with_message_count;
@@ -190,7 +200,7 @@ getFirstTopicWithCertainType(const QString& bagDirectory, const QString& typeNam
 
 
 QVector<QString>
-getBagTopics(const QString& bagDirectory, const QString& topicType)
+getBagTopicNames(const QString& bagDirectory, const QString& topicType)
 {
     QVector<QString> bagTopics;
     if (const auto doesDirContainBag = doesDirectoryContainBagFile(bagDirectory); !doesDirContainBag) {
@@ -210,7 +220,7 @@ getBagTopics(const QString& bagDirectory, const QString& topicType)
 
 
 bool
-isNameROS2Conform(const QString& topicName)
+isTopicNameROS2Conform(const QString& topicName)
 {
     // Only may contain A-z, a-z, 0-9, _ and /
     QRegularExpression regularExpression("[^A-Za-z0-9/_{}~]");

@@ -4,8 +4,8 @@
 #include <QSpinBox>
 #include <QWidget>
 
-// Display the lower and upper messages which should be extracted out of an existing ROS bag
-// into a newly edited one
+// Displays the lower and upper messages which should be extracted out of an existing ROS bag topic
+// Primarily used for the edit bag widget
 class MessageCountWidget : public QWidget
 {
     Q_OBJECT

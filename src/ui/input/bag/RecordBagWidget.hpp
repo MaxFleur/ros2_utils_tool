@@ -25,6 +25,9 @@ private slots:
     handleTreeAfterSource() override;
 
     void
+    okButtonPressed() const override;
+
+    void
     populateTreeWidget() override;
 
     void

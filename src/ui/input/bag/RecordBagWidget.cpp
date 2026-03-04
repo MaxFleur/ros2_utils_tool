@@ -3,12 +3,12 @@
 #include "BagTreeWidget.hpp"
 #include "LowDiskSpaceWidget.hpp"
 #include "UtilsROS.hpp"
+#include "UtilsUI.hpp"
 
 #include <QCheckBox>
 #include <QFormLayout>
-#include <QLabel>
-#include <QLineEdit>
 #include <QHBoxLayout>
+#include <QLabel>
 #include <QPushButton>
 #include <QRadioButton>
 #include <QSpinBox>
@@ -34,35 +34,35 @@ RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QW
     advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions);
     advancedOptionsCheckBox->setText("Show Advanced Options");
 
-    const auto createCheckbox = [this] (const QString& toolTip, bool& enableValue) {
-        auto* const checkbox = new QCheckBox;
-        checkbox->setCheckState(enableValue ? Qt::Checked : Qt::Unchecked);
-        checkbox->setToolTip(toolTip);
+    const auto createCheckBox = [this] (const QString& toolTip, bool& enableValue) {
+        auto* const checkBox = new QCheckBox;
+        checkBox->setCheckState(enableValue ? Qt::Checked : Qt::Unchecked);
+        checkBox->setToolTip(toolTip);
 
-        connect(checkbox, &QCheckBox::stateChanged, this, [this, &enableValue] (int state) {
+        connect(checkBox, &QCheckBox::stateChanged, this, [this, &enableValue] (int state) {
             writeParameterToSettings(enableValue, state == Qt::Checked, m_settings);
         });
 
-        return checkbox;
+        return checkBox;
     };
-    const auto createLayout = [this, createCheckbox] (const QString& toolTip, int maximumSpinBoxRange, int& spinBoxValueToSave, bool& enableValue) {
+    const auto createLayout = [this, createCheckBox] (const QString& toolTip, int maximumSpinBoxRange, int& spinBoxValueToSave, bool& enableValue) {
         auto* const spinBox = new QSpinBox;
         spinBox->setRange(0, maximumSpinBoxRange);
         spinBox->setValue(spinBoxValueToSave);
         spinBox->setEnabled(enableValue);
         spinBox->setToolTip(toolTip);
 
-        auto* const checkbox = createCheckbox(toolTip, enableValue);
+        auto* const checkBox = createCheckBox(toolTip, enableValue);
 
         auto* const layout = new QHBoxLayout;
-        layout->addWidget(checkbox);
+        layout->addWidget(checkBox);
         layout->addWidget(spinBox);
         layout->addStretch();
 
         connect(spinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [this, &spinBoxValueToSave] (int value) {
             writeParameterToSettings(spinBoxValueToSave, value, m_settings);
         });
-        connect(checkbox, &QCheckBox::stateChanged, this, [spinBox] (int state) {
+        connect(checkBox, &QCheckBox::stateChanged, this, [spinBox] (int state) {
             spinBox->setEnabled(state == Qt::Checked);
         });
 
@@ -76,8 +76,8 @@ RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QW
     auto* const spacerWidget = new QWidget;
     spacerWidget->setFixedHeight(5);
 
-    auto* const includeHiddenTopicsCheckBox = createCheckbox("Whether to include topics not publically shown.", m_parameters.includeHiddenTopics);
-    auto* const includeUnpublishedTopicsCheckBox = createCheckbox("Whether to include topics where nothing has been published so far.", m_parameters.includeUnpublishedTopics);
+    auto* const includeHiddenTopicsCheckBox = createCheckBox("Whether to include topics not publically shown.", m_parameters.includeHiddenTopics);
+    auto* const includeUnpublishedTopicsCheckBox = createCheckBox("Whether to include topics where nothing has been published so far.", m_parameters.includeUnpublishedTopics);
 
     auto* const secondSpacerWidget = new QWidget;
     secondSpacerWidget->setFixedHeight(5);
@@ -106,6 +106,7 @@ RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QW
     advancedOptionsWidget->setLayout(advancedOptionsFormLayout);
     advancedOptionsWidget->setVisible(m_parameters.showAdvancedOptions);
 
+    m_controlsLayout->addSpacing(30);
     m_controlsLayout->addWidget(m_unselectLabel);
     m_controlsLayout->addWidget(m_treeWidget);
     m_controlsLayout->addLayout(refreshButtonLayout);
@@ -146,6 +147,20 @@ void
 RecordBagWidget::handleTreeAfterSource()
 {
     enableOkButton();
+}
+
+
+void
+RecordBagWidget::okButtonPressed() const
+{
+    if (!m_okButton->isEnabled()) {
+        return;
+    }
+    if (!Utils::UI::continueForExistingTarget(m_parameters.sourceDirectory, "Bag file", "bag file")) {
+        return;
+    }
+
+    emit okPressed();
 }
 
 

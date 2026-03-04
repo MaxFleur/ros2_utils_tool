@@ -2,7 +2,7 @@
 
 #include "RGBSettings.hpp"
 
-// Store video settings
+// Store video parameters (fps value)
 class VideoSettings : public RGBSettings {
 public:
     VideoSettings(Parameters::VideoParameters& parameters,

@@ -1,7 +1,8 @@
 #pragma once
 
 #include <QTreeWidget>
-#include <QTreeWidgetItem>
+
+class QTreeWidgetItem;
 
 // Widget for displaying bag contents in a tree
 class BagTreeWidget : public QTreeWidget

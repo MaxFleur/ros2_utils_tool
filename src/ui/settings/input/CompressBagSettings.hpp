@@ -2,7 +2,7 @@
 
 #include "DeleteSourceSettings.hpp"
 
-// Store bag editing parameters
+// Store bag compression parameters
 class CompressBagSettings : public DeleteSourceSettings {
 public:
     CompressBagSettings(Parameters::CompressBagParameters& parameters,

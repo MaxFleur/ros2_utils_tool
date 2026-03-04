@@ -2,7 +2,7 @@
 
 #include "AdvancedSettings.hpp"
 
-// Store rgb settings
+// Store rgb value parameters
 class RGBSettings : public AdvancedSettings {
 public:
     RGBSettings(Parameters::RGBParameters& parameters,
