@@ -10,6 +10,7 @@
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QRadioButton>
 #include <QSpinBox>
 
 #include <filesystem>
@@ -37,13 +38,16 @@ VideoToBagWidget::VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
     advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions);
     advancedOptionsCheckBox->setText("Show Advanced Options");
 
+    auto* const switchRedBlueCheckBox = Utils::UI::createCheckBox("Switch the video's red and blue values.", m_parameters.exchangeRedBlueValues);
     auto* const useCustomFPSCheckBox = Utils::UI::createCheckBox("Use custom fps for the bag file. If this is unchecked, "
                                                                  "the video's fps will be used.", m_parameters.useCustomFPS);
-    auto* const switchRedBlueCheckBox = Utils::UI::createCheckBox("Switch the video's red and blue values.", m_parameters.exchangeRedBlueValues);
+    auto* const useCompressionCheckBox = Utils::UI::createCheckBox("Use compressed image messages. This decreases the bag's size, "
+                                                                   "but writing takes longer", m_parameters.useCompression);
 
     m_advancedOptionsFormLayout = new QFormLayout;
-    m_advancedOptionsFormLayout->addRow("Use Custom FPS:", useCustomFPSCheckBox);
     m_advancedOptionsFormLayout->addRow("Switch Red and Blue Values:", switchRedBlueCheckBox);
+    m_advancedOptionsFormLayout->addRow("Use Custom FPS:", useCustomFPSCheckBox);
+    m_advancedOptionsFormLayout->addRow("Use Compression:", useCompressionCheckBox);
 
     auto* const advancedOptionsWidget = new QWidget;
     advancedOptionsWidget->setLayout(m_advancedOptionsFormLayout);
@@ -64,12 +68,14 @@ VideoToBagWidget::VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
         writeParameterToSettings(m_parameters.showAdvancedOptions, state == Qt::Checked, m_settings);
         advancedOptionsWidget->setVisible(state == Qt::Checked);
     });
-    connect(useCustomFPSCheckBox, &QCheckBox::stateChanged, this, &VideoToBagWidget::useCustomFPSCheckBoxPressed);
     connect(switchRedBlueCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.exchangeRedBlueValues, state == Qt::Checked, m_settings);
     });
+    connect(useCustomFPSCheckBox, &QCheckBox::stateChanged, this, &VideoToBagWidget::useCustomFPSCheckBoxPressed);
+    connect(useCompressionCheckBox, &QCheckBox::stateChanged, this, &VideoToBagWidget::useCompressionCheckBoxPressed);
 
     useCustomFPSCheckBoxPressed(m_parameters.useCustomFPS);
+    useCompressionCheckBoxPressed(m_parameters.useCompression);
 }
 
 
@@ -119,13 +125,44 @@ VideoToBagWidget::useCustomFPSCheckBoxPressed(int state)
         m_fpsSpinBox->setValue(m_parameters.fps);
         m_fpsSpinBox->setToolTip("FPS of the video stored in the bag.");
 
-        m_advancedOptionsFormLayout->insertRow(1, "", m_fpsSpinBox);
+        m_advancedOptionsFormLayout->insertRow(ADVANCED_OPTIONS_LAYOUT_ROW_THIRD, "", m_fpsSpinBox);
 
         connect(m_fpsSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [this] (int value) {
             writeParameterToSettings(m_parameters.fps, value, m_settings);
         });
     } else if (m_fpsSpinBox) {
         m_advancedOptionsFormLayout->removeRow(m_fpsSpinBox);
+    }
+}
+
+
+// Same here
+void
+VideoToBagWidget::useCompressionCheckBoxPressed(int state)
+{
+    // Partially checked value can still count for this case
+    writeParameterToSettings(m_parameters.useCompression, state != Qt::Unchecked, m_settings);
+
+    if (state != Qt::Unchecked) {
+        m_compressJPEGRadioButton = new QRadioButton("JPEG");
+        m_compressPNGRadioButton = new QRadioButton("PNG");
+
+        m_advancedOptionsFormLayout->insertRow(m_parameters.useCustomFPS ? ADVANCED_OPTIONS_LAYOUT_ROW_FIFTH
+                                                                         : ADVANCED_OPTIONS_LAYOUT_ROW_FOURTH, "", m_compressJPEGRadioButton);
+        m_advancedOptionsFormLayout->insertRow(m_parameters.useCustomFPS ? ADVANCED_OPTIONS_LAYOUT_ROW_SIXTH
+                                                                         : ADVANCED_OPTIONS_LAYOUT_ROW_FIFTH, "", m_compressPNGRadioButton);
+
+        m_parameters.isCompressionJPEG ? m_compressJPEGRadioButton->click() : m_compressPNGRadioButton->click();
+
+        connect(m_compressJPEGRadioButton, &QPushButton::clicked, this, [this] {
+            writeParameterToSettings(m_parameters.isCompressionJPEG, true, m_settings);
+        });
+        connect(m_compressPNGRadioButton, &QPushButton::clicked, this, [this] {
+            writeParameterToSettings(m_parameters.isCompressionJPEG, false, m_settings);
+        });
+    } else if (m_compressJPEGRadioButton && m_compressPNGRadioButton) {
+        m_advancedOptionsFormLayout->removeRow(m_compressJPEGRadioButton);
+        m_advancedOptionsFormLayout->removeRow(m_compressPNGRadioButton);
     }
 }
 

@@ -1,6 +1,7 @@
 #include "BagToVideoThread.hpp"
 
 #include "UtilsROS.hpp"
+#include "UtilsThreads.hpp"
 #include "VideoEncoder.hpp"
 
 #include <cv_bridge/cv_bridge.hpp>
@@ -25,10 +26,13 @@ BagToVideoThread::run()
 
     // Prepare parameters
     const auto messageCount = Utils::ROS::getTopicMessageCount(m_sourceDirectory, m_topicName);
-    rclcpp::Serialization<sensor_msgs::msg::Image> serialization;
     rosbag2_storage::SerializedBagMessageSharedPtr message;
-    auto rosMessage = std::make_shared<sensor_msgs::msg::Image>();
     cv_bridge::CvImagePtr cvPointer;
+
+    rclcpp::Serialization<sensor_msgs::msg::Image> serialization;
+    rclcpp::Serialization<sensor_msgs::msg::CompressedImage> serializationCompressed;
+    auto imageMessage = std::make_shared<sensor_msgs::msg::Image>();
+    auto imageMessageCompressed = std::make_shared<sensor_msgs::msg::CompressedImage>();
 
     auto iterationCount = 0;
     const auto topicNameStdString = m_topicName;
@@ -57,34 +61,31 @@ BagToVideoThread::run()
             continue;
         }
 
-        rclcpp::SerializedMessage serializedMessage(*message->serialized_data);
-        serialization.deserialize_message(&serializedMessage, rosMessage.get());
+        auto frame = m_parameters.useCompression ? Utils::Threads::convertImageMessageToMat(*message->serialized_data, serialization, cvPointer, imageMessage)
+                                                 : Utils::Threads::convertImageMessageToMat(*message->serialized_data, serializationCompressed,
+                                                                                            cvPointer, imageMessageCompressed);
 
         // Setup the video encoder on the first iteration
         if (iterationCount == 0) {
             if (!videoEncoder->setVideoWriter(m_parameters.targetDirectory.toStdString(), m_parameters.fps,
-                                              rosMessage->width, rosMessage->height,
-                                              m_useHardwareAcceleration, m_parameters.useBWImages)) {
+                                              frame.cols, frame.rows, m_useHardwareAcceleration, m_parameters.useBWImages)) {
                 emit failed();
                 return;
             }
         }
-
-        // Convert message to cv and encode
-        cvPointer = cv_bridge::toCvCopy(rosMessage, rosMessage->encoding);
 
         if (m_parameters.useBWImages) {
             // It seems that just setting the VIDEOWRITER_PROP_IS_COLOR in the videowriter leads to a broken video,
             // at least if FFMPEG is used. Converting to a gray mat beforehand provides a fix. More information here:
             // https://github.com/opencv/opencv/issues/26276#issuecomment-2406825667
             cv::Mat greyMat;
-            cv::cvtColor(cvPointer->image, greyMat, cv::COLOR_BGR2GRAY);
+            cv::cvtColor(frame, greyMat, cv::COLOR_BGR2GRAY);
             videoEncoder->writeImageToVideo(greyMat);
         } else {
             if (m_parameters.exchangeRedBlueValues) {
-                cv::cvtColor(cvPointer->image, cvPointer->image, cv::COLOR_BGR2RGB);
+                cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
             }
-            videoEncoder->writeImageToVideo(cvPointer->image);
+            videoEncoder->writeImageToVideo(frame);
         }
 
         iterationCount++;

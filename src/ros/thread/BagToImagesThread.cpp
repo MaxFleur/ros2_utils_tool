@@ -1,6 +1,7 @@
 #include "BagToImagesThread.hpp"
 
 #include "UtilsROS.hpp"
+#include "UtilsThreads.hpp"
 
 #include <cv_bridge/cv_bridge.hpp>
 
@@ -44,15 +45,18 @@ BagToImagesThread::run()
     reader->open(m_sourceDirectory);
     std::deque<rosbag2_storage::SerializedBagMessageSharedPtr> queue;
 
-    rclcpp::Serialization<sensor_msgs::msg::Image> serialization;
-    auto iterationCount = 0;
-    std::mutex mutex;
-
     cv_bridge::CvImagePtr cvPointer;
-    auto rosMessage = std::make_shared<sensor_msgs::msg::Image>();
+    std::mutex mutex;
+    auto iterationCount = 0;
+
+    rclcpp::Serialization<sensor_msgs::msg::Image> serialization;
+    rclcpp::Serialization<sensor_msgs::msg::CompressedImage> serializationCompressed;
+    auto imageMessage = std::make_shared<sensor_msgs::msg::Image>();
+    auto imageMessageCompressed = std::make_shared<sensor_msgs::msg::CompressedImage>();
 
     const auto writeImageFromQueue = [this, &targetDirectoryStd, &queue, &iterationCount, &mutex, &cvPointer,
-                                      rosMessage, reader, serialization, messageCount, messageCountNumberOfDigits] {
+                                      imageMessage, imageMessageCompressed, reader, serialization, serializationCompressed,
+                                      messageCount, messageCountNumberOfDigits] {
         while (true) {
             mutex.lock();
             // Stop if interrupted or if everything has been read
@@ -66,23 +70,22 @@ BagToImagesThread::run()
                 continue;
             }
 
-            // Deserialize
-            rclcpp::SerializedMessage serializedMessage(*queue.back()->serialized_data);
-            serialization.deserialize_message(&serializedMessage, rosMessage.get());
+            // Deserialize and convert to OpenCV mat
+            auto frame = m_parameters.useCompression ? Utils::Threads::convertImageMessageToMat(*queue.back()->serialized_data, serialization, cvPointer, imageMessage)
+                                                     : Utils::Threads::convertImageMessageToMat(*queue.back()->serialized_data, serializationCompressed,
+                                                                                                cvPointer, imageMessageCompressed);
             queue.pop_back();
 
-            // Convert message to cv
-            cvPointer = cv_bridge::toCvCopy(rosMessage, rosMessage->encoding);
             // Convert to grayscale
             if (m_parameters.format == "png" && m_parameters.pngBilevel) {
                 // Converting to a different channel seems to be saver then converting
                 // to grayscale before calling imwrite
-                cv::Mat mat(cvPointer->image.size(), CV_8UC1);
-                mat.convertTo(cvPointer->image, CV_8UC1);
+                cv::Mat mat(frame.size(), CV_8UC1);
+                mat.convertTo(frame, CV_8UC1);
             } else if (m_parameters.useBWImages) {
-                cv::cvtColor(cvPointer->image, cvPointer->image, cv::COLOR_BGR2GRAY);
+                cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY);
             } else if (m_parameters.exchangeRedBlueValues) {
-                cv::cvtColor(cvPointer->image, cvPointer->image, cv::COLOR_BGR2RGB);
+                cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
             }
 
             // Inform of progress update
@@ -98,7 +101,7 @@ BagToImagesThread::run()
 
             mutex.unlock();
             // The main writing can be done in parallel, no mutex required
-            cv::imwrite(targetString, cvPointer->image,
+            cv::imwrite(targetString, frame,
                         { m_parameters.format == "jpg" ? cv::IMWRITE_JPEG_QUALITY : cv::IMWRITE_PNG_COMPRESSION,
                           // Adjust the quality value to fit OpenCV param range
                           m_parameters.format == "jpg" ? (m_parameters.quality * 10) + 10 : m_parameters.quality,

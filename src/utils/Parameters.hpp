@@ -103,6 +103,7 @@ struct CompressBagParameters : DeleteSourceParameters {
 };
 
 struct RGBParameters : AdvancedParameters {
+    bool useCompression = false;
     bool exchangeRedBlueValues = false;
 };
 struct BagToImagesParameters : RGBParameters {
@@ -122,6 +123,7 @@ struct BagToVideoParameters : VideoParameters {
 };
 struct VideoToBagParameters : VideoParameters {
     bool useCustomFPS = false;
+    bool isCompressionJPEG = true;
 };
 struct PublishParameters : VideoParameters {
     int  width = 1280;

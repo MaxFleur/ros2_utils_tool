@@ -6,6 +6,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "rosbag2_cpp/writer.hpp"
+#include "sensor_msgs/msg/compressed_image.hpp"
 #include "sensor_msgs/msg/image.hpp"
 
 #include <filesystem>
@@ -46,11 +47,18 @@ VideoToBagThread::run()
 
     cv::Mat frame;
     std_msgs::msg::Header header;
-    sensor_msgs::msg::Image message;
+    sensor_msgs::msg::Image imageMessage;
+
+    sensor_msgs::msg::CompressedImage imageMessageCompressed;
+    if (m_parameters.useCompression) {
+        imageMessageCompressed.format = m_parameters.isCompressionJPEG ? "jpeg" : "png";
+    }
 
     cv_bridge::CvImage cvBridge;
     cvBridge.header = header;
     cvBridge.encoding = sensor_msgs::image_encodings::BGR8;
+
+    cv_bridge::CvImagePtr cvPointer;
 
     while (true) {
         if (isInterruptionRequested()) {
@@ -73,10 +81,16 @@ VideoToBagThread::run()
         timeStamp += duration;
         header.stamp = timeStamp;
 
+
         // Convert and write image
         cvBridge.image = frame;
-        cvBridge.toImageMsg(message);
-        writer->write(message, m_topicName, timeStamp);
+
+        m_parameters.useCompression ? cvBridge.toCompressedImageMsg(imageMessageCompressed) : cvBridge.toImageMsg(imageMessage);
+        if (m_parameters.useCompression) {
+            writer->write(imageMessageCompressed, m_topicName, timeStamp);
+        } else {
+            writer->write(imageMessage, m_topicName, timeStamp);
+        }
 
         emit progressChanged("Writing message " + QString::number(iterationCount) + " of " + QString::number(frameCount) + "...",
                              (static_cast<float>(iterationCount) / static_cast<float>(frameCount) * 100));

@@ -413,7 +413,7 @@ TEST_CASE("Settings Testing", "[settings]") {
     SECTION("RGB Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("rgb");
-            checkSettingsInvalidacy(qSettings, { "switch_red_blue" });
+            checkSettingsInvalidacy(qSettings, { "switch_red_blue", "use_compression" });
             qSettings.endGroup();
         }
         SECTION("Write") {
@@ -421,10 +421,12 @@ TEST_CASE("Settings Testing", "[settings]") {
             RGBSettings settings(parameters, "rgb");
 
             parameters.exchangeRedBlueValues = true;
+            parameters.useCompression = true;
             settings.write();
 
             qSettings.beginGroup("rgb");
             verifiySettingPrimitive(qSettings, "switch_red_blue", true);
+            verifiySettingPrimitive(qSettings, "use_compression", true);
             qSettings.endGroup();
         }
     }
@@ -496,18 +498,20 @@ TEST_CASE("Settings Testing", "[settings]") {
     SECTION("Video to Bag Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("bag");
-            checkSettingsInvalidacy(qSettings, { "custom_fps" });
+            checkSettingsInvalidacy(qSettings, { "custom_fps", "is_compression_jpeg" });
             qSettings.endGroup();
         }
         SECTION("Write") {
             Parameters::VideoToBagParameters parameters;
             VideoToBagSettings settings(parameters, "bag");
 
+            parameters.isCompressionJPEG = true;
             parameters.useCustomFPS = true;
             settings.write();
 
             qSettings.beginGroup("bag");
             verifiySettingPrimitive(qSettings, "custom_fps", true);
+            verifiySettingPrimitive(qSettings, "is_compression_jpeg", true);
             qSettings.endGroup();
         }
     }
