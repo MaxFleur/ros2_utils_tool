@@ -63,7 +63,7 @@ main(int argc, char* argv[])
     // Check for optional arguments
     if (arguments.size() > 3) {
         // Topic name
-        Utils::CLI::checkTopicNameValidity(arguments, parameters.sourceDirectory, "sensor_msgs/msg/Image", parameters.topicName);
+        Utils::CLI::checkTopicNameValidity(arguments, parameters.sourceDirectory, { "sensor_msgs/msg/Image", "sensor_msgs/msg/CompressedImage" }, parameters.topicName);
         // Quality
         if (!Utils::CLI::checkArgumentValidity(arguments, "-q", "--quality", parameters.quality, 0, 9)) {
             throw std::runtime_error("Please enter a quality value in the range of 0 to 9!");
@@ -96,7 +96,7 @@ main(int argc, char* argv[])
 
     // Search for topic name in bag file if not specified
     if (parameters.topicName.isEmpty()) {
-        Utils::CLI::checkForTargetTopic(parameters.sourceDirectory, parameters.topicName, "sensor_msgs/msg/Image");
+        Utils::CLI::checkForTargetTopic(parameters.sourceDirectory, parameters.topicName, { "sensor_msgs/msg/Image", "sensor_msgs/msg/CompressedImage" });
     }
 
     if (!Utils::CLI::continueExistingTargetLowDiskSpace(arguments, parameters.targetDirectory)) {

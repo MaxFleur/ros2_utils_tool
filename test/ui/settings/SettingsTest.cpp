@@ -496,18 +496,22 @@ TEST_CASE("Settings Testing", "[settings]") {
     SECTION("Video to Bag Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("bag");
-            checkSettingsInvalidacy(qSettings, { "custom_fps" });
+            checkSettingsInvalidacy(qSettings, { "use_compression", "custom_fps", "is_compression_jpeg" });
             qSettings.endGroup();
         }
         SECTION("Write") {
             Parameters::VideoToBagParameters parameters;
             VideoToBagSettings settings(parameters, "bag");
 
+            parameters.useCompression = true;
             parameters.useCustomFPS = true;
+            parameters.isCompressionJPEG = true;
             settings.write();
 
             qSettings.beginGroup("bag");
+            verifiySettingPrimitive(qSettings, "use_compression", true);
             verifiySettingPrimitive(qSettings, "custom_fps", true);
+            verifiySettingPrimitive(qSettings, "is_compression_jpeg", true);
             qSettings.endGroup();
         }
     }

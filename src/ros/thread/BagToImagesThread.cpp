@@ -1,14 +1,11 @@
 #include "BagToImagesThread.hpp"
 
 #include "UtilsROS.hpp"
-
-#include <cv_bridge/cv_bridge.hpp>
+#include "UtilsThreads.hpp"
 
 #include <opencv2/imgcodecs.hpp>
 
 #include "rosbag2_cpp/reader.hpp"
-
-#include "sensor_msgs/msg/image.hpp"
 
 #include <cmath>
 #include <filesystem>
@@ -25,6 +22,7 @@ void
 BagToImagesThread::run()
 {
     const auto targetDirectoryStd = m_parameters.targetDirectory.toStdString();
+    const auto isCompressed = *Utils::ROS::getTopicType(m_parameters.sourceDirectory, m_parameters.topicName) == "sensor_msgs/msg/CompressedImage";
 
     if (!std::filesystem::exists(targetDirectoryStd)) {
         std::filesystem::create_directory(targetDirectoryStd);
@@ -44,15 +42,18 @@ BagToImagesThread::run()
     reader->open(m_sourceDirectory);
     std::deque<rosbag2_storage::SerializedBagMessageSharedPtr> queue;
 
-    rclcpp::Serialization<sensor_msgs::msg::Image> serialization;
-    auto iterationCount = 0;
     std::mutex mutex;
+    auto iterationCount = 0;
 
+    rclcpp::Serialization<sensor_msgs::msg::Image> serialization;
+    rclcpp::Serialization<sensor_msgs::msg::CompressedImage> serializationCompressed;
+    auto imageMessage = std::make_shared<sensor_msgs::msg::Image>();
+    auto imageMessageCompressed = std::make_shared<sensor_msgs::msg::CompressedImage>();
     cv_bridge::CvImagePtr cvPointer;
-    auto rosMessage = std::make_shared<sensor_msgs::msg::Image>();
 
-    const auto writeImageFromQueue = [this, &targetDirectoryStd, &queue, &iterationCount, &mutex, &cvPointer,
-                                      rosMessage, reader, serialization, messageCount, messageCountNumberOfDigits] {
+    const auto writeImageFromQueue = [this, &targetDirectoryStd, &queue, &iterationCount, &mutex,
+                                      cvPointer, imageMessage, imageMessageCompressed, reader, serialization, serializationCompressed,
+                                      messageCount, messageCountNumberOfDigits, isCompressed] {
         while (true) {
             mutex.lock();
             // Stop if interrupted or if everything has been read
@@ -66,23 +67,21 @@ BagToImagesThread::run()
                 continue;
             }
 
-            // Deserialize
-            rclcpp::SerializedMessage serializedMessage(*queue.back()->serialized_data);
-            serialization.deserialize_message(&serializedMessage, rosMessage.get());
+            // Deserialize and convert to OpenCV mat
+            auto frame = isCompressed ? Utils::Threads::convertCompressedImageMessageToMat(*queue.back()->serialized_data, serializationCompressed, imageMessageCompressed)
+                                      : Utils::Threads::convertImageMessageToMat(*queue.back()->serialized_data, serialization, cvPointer, imageMessage);
             queue.pop_back();
 
-            // Convert message to cv
-            cvPointer = cv_bridge::toCvCopy(rosMessage, rosMessage->encoding);
             // Convert to grayscale
             if (m_parameters.format == "png" && m_parameters.pngBilevel) {
                 // Converting to a different channel seems to be saver then converting
                 // to grayscale before calling imwrite
-                cv::Mat mat(cvPointer->image.size(), CV_8UC1);
-                mat.convertTo(cvPointer->image, CV_8UC1);
+                cv::Mat mat(frame.size(), CV_8UC1);
+                mat.convertTo(frame, CV_8UC1);
             } else if (m_parameters.useBWImages) {
-                cv::cvtColor(cvPointer->image, cvPointer->image, cv::COLOR_BGR2GRAY);
+                cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY);
             } else if (m_parameters.exchangeRedBlueValues) {
-                cv::cvtColor(cvPointer->image, cvPointer->image, cv::COLOR_BGR2RGB);
+                cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
             }
 
             // Inform of progress update
@@ -98,7 +97,7 @@ BagToImagesThread::run()
 
             mutex.unlock();
             // The main writing can be done in parallel, no mutex required
-            cv::imwrite(targetString, cvPointer->image,
+            cv::imwrite(targetString, frame,
                         { m_parameters.format == "jpg" ? cv::IMWRITE_JPEG_QUALITY : cv::IMWRITE_PNG_COMPRESSION,
                           // Adjust the quality value to fit OpenCV param range
                           m_parameters.format == "jpg" ? (m_parameters.quality * 10) + 10 : m_parameters.quality,

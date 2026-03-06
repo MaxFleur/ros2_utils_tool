@@ -121,7 +121,9 @@ struct BagToVideoParameters : VideoParameters {
     bool lossless = false;
 };
 struct VideoToBagParameters : VideoParameters {
+    bool useCompression = false;
     bool useCustomFPS = false;
+    bool isCompressionJPEG = true;
 };
 struct PublishParameters : VideoParameters {
     int  width = 1280;

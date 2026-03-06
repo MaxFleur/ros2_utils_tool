@@ -68,7 +68,7 @@ main(int argc, char* argv[])
 
     if (arguments.size() > 3) {
         // Topic name
-        Utils::CLI::checkTopicNameValidity(arguments, parameters.sourceDirectory, "sensor_msgs/msg/Image", parameters.topicName);
+        Utils::CLI::checkTopicNameValidity(arguments, parameters.sourceDirectory, { "sensor_msgs/msg/Image", "sensor_msgs/msg/CompressedImage" }, parameters.topicName);
         // Framerate
         if (!Utils::CLI::checkArgumentValidity(arguments, "-r", "--rate", parameters.fps, 10, 60)) {
             throw std::runtime_error("Please enter a framerate in the range of 10 to 60!");
@@ -86,7 +86,7 @@ main(int argc, char* argv[])
 
     // Search for topic name in bag file if not specified
     if (parameters.topicName.isEmpty()) {
-        Utils::CLI::checkForTargetTopic(parameters.sourceDirectory, parameters.topicName, "sensor_msgs/msg/Image");
+        Utils::CLI::checkForTargetTopic(parameters.sourceDirectory, parameters.topicName, { "sensor_msgs/msg/Image", "sensor_msgs/msg/CompressedImage" });
     }
 
     if (!Utils::CLI::continueExistingTargetLowDiskSpace(arguments, parameters.targetDirectory)) {

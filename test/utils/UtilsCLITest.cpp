@@ -89,18 +89,19 @@ TEST_CASE("Utils CLI Testing", "[utils]") {
     }
     SECTION("Topic name validity test") {
         QString topicName = "";
-        REQUIRE_NOTHROW(Utils::CLI::checkTopicNameValidity(arguments, "test_bag_file", "sensor_msgs/msg/Image", topicName));
+        REQUIRE_NOTHROW(Utils::CLI::checkTopicNameValidity(arguments, "test_bag_file", { "sensor_msgs/msg/Image" }, topicName));
         arguments.append("-t");
-        CHECK_THROWS_WITH(Utils::CLI::checkTopicNameValidity(arguments, "test_bag_file", "sensor_msgs/msg/Image", topicName),
+        CHECK_THROWS_WITH(Utils::CLI::checkTopicNameValidity(arguments, "test_bag_file", { "sensor_msgs/msg/Image" }, topicName),
                           "Please enter a valid topic name!");
         arguments.append("/random_topic");
-        CHECK_THROWS_WITH(Utils::CLI::checkTopicNameValidity(arguments, "test_bag_file", "sensor_msgs/msg/Image", topicName),
+        CHECK_THROWS_WITH(Utils::CLI::checkTopicNameValidity(arguments, "test_bag_file", { "sensor_msgs/msg/Image" }, topicName),
                           "Topic '/random_topic' has not been found in the bag file!");
         arguments.pop_back();
         arguments.append("/topic_image");
-        CHECK_THROWS_WITH(Utils::CLI::checkTopicNameValidity(arguments, "test_bag_file", "sensor_msgs/msg/PointCloud2", topicName),
+        CHECK_THROWS_WITH(Utils::CLI::checkTopicNameValidity(arguments, "test_bag_file", { "sensor_msgs/msg/PointCloud2" }, topicName),
                           "Topic '/topic_image' doesn't have the correct type!");
-        REQUIRE_NOTHROW(Utils::CLI::checkTopicNameValidity(arguments, "test_bag_file", "sensor_msgs/msg/Image", topicName));
+        REQUIRE_NOTHROW(Utils::CLI::checkTopicNameValidity(arguments, "test_bag_file", { "sensor_msgs/msg/Image" }, topicName));
+        REQUIRE_NOTHROW(Utils::CLI::checkTopicNameValidity(arguments, "test_bag_file", { "sensor_msgs/msg/CompressedImage", "sensor_msgs/msg/Image" }, topicName));
 
         std::filesystem::remove_all(bagDirectory);
     }
@@ -122,11 +123,14 @@ TEST_CASE("Utils CLI Testing", "[utils]") {
     }
     SECTION("Check target topic test") {
         QString topicName = "";
-        REQUIRE_NOTHROW(Utils::CLI::checkForTargetTopic("test_bag_file", topicName, "sensor_msgs/msg/Image"));
+        REQUIRE_NOTHROW(Utils::CLI::checkForTargetTopic("test_bag_file", topicName, { "sensor_msgs/msg/Image" }));
+        REQUIRE_NOTHROW(Utils::CLI::checkForTargetTopic("test_bag_file", topicName, { "sensor_msgs/msg/CompressedImage", "sensor_msgs/msg/Image" }));
         REQUIRE(topicName == "/topic_image");
 
-        CHECK_THROWS_WITH(Utils::CLI::checkForTargetTopic("test_bag_file", topicName, "sensor_msgs/msg/PointCloud2"),
+        CHECK_THROWS_WITH(Utils::CLI::checkForTargetTopic("test_bag_file", topicName, { "sensor_msgs/msg/PointCloud2" }),
                           "The bag file does not contain any topics of type 'sensor_msgs/msg/PointCloud2'!");
+        CHECK_THROWS_WITH(Utils::CLI::checkForTargetTopic("test_bag_file", topicName, { "sensor_msgs/msg/CompressedImage", "sensor_msgs/msg/PointCloud2" }),
+                          "The bag file does not contain any topics of type 'sensor_msgs/msg/CompressedImage', 'sensor_msgs/msg/PointCloud2'!");
     }
     SECTION("Progress string test") {
         auto progressString = Utils::CLI::drawProgressString(0);

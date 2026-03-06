@@ -14,9 +14,8 @@
 #include "RecordBagThread.hpp"
 #include "SendTF2Thread.hpp"
 #include "UtilsROS.hpp"
+#include "UtilsThreads.hpp"
 #include "VideoToBagThread.hpp"
-
-#include <cv_bridge/cv_bridge.hpp>
 
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/videoio.hpp>
@@ -30,9 +29,9 @@
 #include <pcl/point_types.h>
 #include <pcl_conversions/pcl_conversions.h>
 
-#include "rclcpp/rclcpp.hpp"
 #include "rosbag2_cpp/reader.hpp"
-#include "sensor_msgs/msg/image.hpp"
+#include "rosbag2_cpp/writer.hpp"
+#include "sensor_msgs/msg/compressed_image.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
 #include "tf2_msgs/msg/tf_message.hpp"
 
@@ -196,6 +195,23 @@ TEST_CASE("Threads Testing", "[threads]") {
         }
         std::filesystem::remove_all("./recorded_bag");
     }
+    // Move this into an extra function to avoid multiple executions of trying to write the bag file
+    SECTION("Create compressed image bag file") {
+        // Create compressed image bag file
+        auto writer = std::make_unique<rosbag2_cpp::Writer>();
+        writer->open("./compressed_image_bag");
+
+        for (auto i = 0; i < 100; ++i) {
+            cv::Mat mat(720, 1280, CV_8UC3, cv::Scalar(255, 0, 0));
+            const cv_bridge::CvImage cvImage(std_msgs::msg::Header(), sensor_msgs::image_encodings::RGB8, mat);
+
+            sensor_msgs::msg::CompressedImage compressedMessage;
+            cvImage.toCompressedImageMsg(compressedMessage);
+            writer->write(compressedMessage, "/compressed_image_topic", rclcpp::Clock(RCL_ROS_TIME).now());
+        }
+        writer->close();
+    }
+
     SECTION("Dummy Bag Thread Test") {
         Parameters::DummyBagParameters parameters;
         parameters.sourceDirectory = "./dummy_bag";
@@ -415,20 +431,26 @@ TEST_CASE("Threads Testing", "[threads]") {
         auto* const thread = new BagToVideoThread(parameters, false);
         QObject::connect(thread, &BagToVideoThread::finished, thread, &QObject::deleteLater);
 
-        const auto performVideoCheck = [] (const std::string& fileExtension, int codec, int fps, int blueValue, int greenValue, int redValue) {
+        const auto performVideoCheck = [] (const std::string& fileExtension, int codec, int fps, int blueValue, int greenValue, int redValue, bool useColorRange = false) {
             auto videoCapture = cv::VideoCapture("./video" + fileExtension);
             REQUIRE(videoCapture.get(cv::CAP_PROP_FRAME_COUNT) == 100);
             REQUIRE(videoCapture.get(cv::CAP_PROP_FRAME_WIDTH) == 1280);
             REQUIRE(videoCapture.get(cv::CAP_PROP_FRAME_HEIGHT) == 720);
             REQUIRE(videoCapture.get(cv::CAP_PROP_FOURCC) == codec);
             REQUIRE(videoCapture.get(cv::CAP_PROP_FPS) == fps);
+
             // Read the first frame and check its color values
             cv::Mat frame;
             videoCapture >> frame;
+
             const auto& color = frame.at<cv::Vec3b>(cv::Point(0, 0));
-            // For whatever reasons, OpenCV does not generate the expected blue and red values
-            // which were initially passed into the dummy bag file. Thus, I had to figure them out
-            // manually. These values might change for newer OpenCV versions...
+            if (useColorRange) {
+                // Compressed image messages introduce minor color shifts due to lossy JPEG compression
+                REQUIRE_THAT(static_cast<int>(color[0]), Catch::Matchers::WithinAbs(blueValue, 5));
+                REQUIRE_THAT(static_cast<int>(color[1]), Catch::Matchers::WithinAbs(greenValue, 5));
+                REQUIRE_THAT(static_cast<int>(color[2]), Catch::Matchers::WithinAbs(redValue, 5));
+                return;
+            }
             REQUIRE(static_cast<int>(color[0]) == blueValue);
             REQUIRE(static_cast<int>(color[1]) == greenValue);
             REQUIRE(static_cast<int>(color[2]) == redValue);
@@ -437,7 +459,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         SECTION("Default Parameter Values") {
             thread->start();
             thread->wait();
-            // Codecs are generated out of char sequences, that's why we have these weird numbers
+
             // Codec number represents mp4v
             performVideoCheck(".mp4", 1983148141, 30, 252, 0, 1);
         }
@@ -467,6 +489,19 @@ TEST_CASE("Threads Testing", "[threads]") {
             thread->wait();
             performVideoCheck(".avi", 1094862674, 30, 255, 0, 3);
         }
+        SECTION("Compressed Image Values") {
+            parameters.sourceDirectory = "./compressed_image_bag";
+            parameters.topicName = "/compressed_image_topic";
+
+            // Reset thread to apply new source directory and topic name
+            auto* const thread = new BagToVideoThread(parameters, false);
+            QObject::connect(thread, &BagToVideoThread::finished, thread, &QObject::deleteLater);
+
+            thread->start();
+            thread->wait();
+
+            performVideoCheck(".mp4", 1983148141, 30, 0, 0, 252, true);
+        }
         std::filesystem::remove("./video.avi");
     }
     SECTION("Video to Bag Thread Test") {
@@ -474,27 +509,31 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.sourceDirectory = "./video.mp4";
         parameters.targetDirectory = "./video_bag";
         parameters.topicName = "/video_topic";
+        parameters.useCompression = false;
 
         rosbag2_cpp::Reader reader;
         rclcpp::Serialization<sensor_msgs::msg::Image> serialization;
+        rclcpp::Serialization<sensor_msgs::msg::CompressedImage> serializationCompressed;
         cv_bridge::CvImagePtr cvPointer;
 
         auto* const thread = new VideoToBagThread(parameters, false);
         QObject::connect(thread, &VideoToBagThread::finished, thread, &QObject::deleteLater);
 
-        const auto performBagCheck = [&reader, &serialization, &cvPointer] (unsigned int width, unsigned int height,
-                                                                            int redValue, int greenValue, int blueValue) {
+        const auto performBagCheck = [&parameters, &reader, &serialization, &serializationCompressed, cvPointer]
+                                     (int width, int height, int redValue, int greenValue, int blueValue) {
             reader.open("./video_bag");
             // Check first message values
-            auto msg = reader.read_next();
-            rclcpp::SerializedMessage serializedMessage(*msg->serialized_data);
-            auto rosMsg = std::make_shared<sensor_msgs::msg::Image>();
-            serialization.deserialize_message(&serializedMessage, rosMsg.get());
-            REQUIRE(rosMsg->width == width);
-            REQUIRE(rosMsg->height == height);
+            auto rosMessage = reader.read_next();
+            auto imageMessage = std::make_shared<sensor_msgs::msg::Image>();
+            auto imageMessageCompressed = std::make_shared<sensor_msgs::msg::CompressedImage>();
 
-            cvPointer = cv_bridge::toCvCopy(*rosMsg, rosMsg->encoding);
-            const auto& color = cvPointer->image.at<cv::Vec3b>(cv::Point(0, 0));
+            const auto frame = parameters.useCompression ? Utils::Threads::convertCompressedImageMessageToMat(*rosMessage->serialized_data, serializationCompressed, imageMessageCompressed)
+                                                         : Utils::Threads::convertImageMessageToMat(*rosMessage->serialized_data, serialization, cvPointer, imageMessage);
+
+            REQUIRE(frame.cols == width);
+            REQUIRE(frame.rows == height);
+
+            const auto& color = frame.at<cv::Vec3b>(cv::Point(0, 0));
             REQUIRE(static_cast<int>(color[0]) == redValue);
             REQUIRE(static_cast<int>(color[1]) == greenValue);
             REQUIRE(static_cast<int>(color[2]) == blueValue);
@@ -516,7 +555,15 @@ TEST_CASE("Threads Testing", "[threads]") {
 
             performBagCheck(1280, 720, 0, 0, 252);
         }
-        SECTION("Changed Parameter Values") {
+        SECTION("Compression Test") {
+            parameters.useCompression = true;
+
+            thread->start();
+            thread->wait();
+
+            performBagCheck(1280, 720, 0, 0, 252);
+        }
+        SECTION("Exchange RGB test") {
             parameters.exchangeRedBlueValues = true;
 
             thread->start();
@@ -524,16 +571,13 @@ TEST_CASE("Threads Testing", "[threads]") {
 
             performBagCheck(1280, 720, 252, 0, 0);
         }
-        SECTION("MKV Values") {
+        SECTION("MKV test") {
             parameters.sourceDirectory = "./video.mkv";
             parameters.exchangeRedBlueValues = false;
 
-            // Reset thread to apply new source directory
-            if (thread) {
-                delete thread;
-            }
+            // Reset thread to apply new source directory and topic name
             auto* const thread = new VideoToBagThread(parameters, false);
-            QObject::connect(thread, &VideoToBagThread::finished, thread, &QObject::deleteLater);
+            QObject::connect(thread, &BagToImagesThread::finished, thread, &QObject::deleteLater);
 
             thread->start();
             thread->wait();
@@ -549,7 +593,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.targetDirectory = "./images";
         parameters.topicName = "/dummy_image";
 
-        const auto performImageCheck = [] (const std::string& fileExtension, int valueBlue, int valueGreen, int valueRed) {
+        const auto performImageCheck = [] (const std::string& fileExtension, int valueBlue, int valueGreen, int valueRed, bool colorRangeUsed = false) {
             const auto extensionCheckValues = getDirFileCountWithExtensions("./images", fileExtension);
             REQUIRE(extensionCheckValues[0] == 100);
             REQUIRE(extensionCheckValues[1] == 100);
@@ -557,7 +601,15 @@ TEST_CASE("Threads Testing", "[threads]") {
             const auto mat = cv::imread("./images/001" + fileExtension);
             REQUIRE(mat.rows == 720);
             REQUIRE(mat.cols == 1280);
+
             const auto& color = mat.at<cv::Vec3b>(cv::Point(0, 0));
+            if (colorRangeUsed) {
+                // Compressed image messages introduce minor color shifts due to lossy JPEG compression
+                REQUIRE_THAT(static_cast<int>(color[0]), Catch::Matchers::WithinAbs(valueBlue, 5));
+                REQUIRE_THAT(static_cast<int>(color[1]), Catch::Matchers::WithinAbs(valueGreen, 5));
+                REQUIRE_THAT(static_cast<int>(color[2]), Catch::Matchers::WithinAbs(valueRed, 5));
+                return;
+            }
             REQUIRE(static_cast<int>(color[0]) == valueBlue);
             REQUIRE(static_cast<int>(color[1]) == valueGreen);
             REQUIRE(static_cast<int>(color[2]) == valueRed);
@@ -589,6 +641,19 @@ TEST_CASE("Threads Testing", "[threads]") {
             thread->wait();
 
             performImageCheck(".bmp", 30, 30, 30);
+        }
+        SECTION("Compressed Image Values") {
+            parameters.sourceDirectory = "./compressed_image_bag";
+            parameters.topicName = "/compressed_image_topic";
+
+            // Reset thread to apply new source directory and topic name
+            auto* const thread = new BagToImagesThread(parameters, std::thread::hardware_concurrency());
+            QObject::connect(thread, &BagToImagesThread::finished, thread, &QObject::deleteLater);
+
+            thread->start();
+            thread->wait();
+
+            performImageCheck(".jpg", 0, 0, 252, true);
         }
     }
     SECTION("Send TF2 Test") {
@@ -836,6 +901,7 @@ TEST_CASE("Threads Testing", "[threads]") {
     // This will be executed before EACH segment, so set true at the very end
     if (shouldDelete) {
         std::filesystem::remove_all("./dummy_bag");
+        std::filesystem::remove_all("./compressed_image_bag");
         std::filesystem::remove_all("./edited_bag");
         std::filesystem::remove_all("./images");
         std::filesystem::remove("./video.mp4");

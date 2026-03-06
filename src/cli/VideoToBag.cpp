@@ -20,7 +20,9 @@ showHelp()
     std::cout << "-r or --rate: Framerate for the image stream. Minimum is 10, maximum is 60, default is original video's rate.\n";
     std::cout << "-t or --topic_name: Topic name. If this is empty, the name '/topic_video' will be taken.\n\n";
     std::cout << "-a or --accelerate: Use hardware acceleration.\n";
-    std::cout << "-e or --exchange: Exchange red and blue values.\n\n";
+    std::cout << "-c or --compress: Compress the video frames, using compressed image messages.\n";
+    std::cout << "-e or --exchange: Exchange red and blue values.\n";
+    std::cout << "-f or --format: Compressed image message format. Must be jpg or png, default is jpg.\n\n";
     std::cout << "-s or --suppress: Suppress any warnings.\n\n";
     std::cout << "Example usage:\n";
     std::cout << "ros2 run ros2_utils_tool tool_video_to_bag /home/usr/video.mkv /home/usr/output_bag -t /example_topic -r 20 -a -s\n\n";
@@ -40,7 +42,8 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    const QVector<QString> checkList{ "-r", "-t", "-a", "-e", "-s", "--rate", "--topic_name", "--accelerate", "--exchange", "--suppress" };
+    const QVector<QString> checkList{ "-r", "-t", "-a", "-c", "-e", "-f", "-s",
+                                      "--rate", "--topic_name", "--accelerate", "--compress", "--exchange", "--format", "--suppress" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
@@ -75,6 +78,17 @@ main(int argc, char* argv[])
         }
         // Hardware acceleration
         useHardwareAcceleration = Utils::CLI::containsArguments(arguments, "-a", "--accelerate");
+        // Compression enabled/disabled
+        parameters.useCompression = Utils::CLI::containsArguments(arguments, "-c", "--compression");
+        // Compression format
+        if (Utils::CLI::containsArguments(arguments, "-f", "--format")) {
+            const auto compressionFormatIndex = Utils::CLI::getArgumentsIndex(arguments, "-f", "--format");
+            const QVector<QString> acceptedFormats { "jpg", "png" };
+            if (arguments.at(compressionFormatIndex) == arguments.last() || !acceptedFormats.contains(arguments.at(compressionFormatIndex + 1))) {
+                throw std::runtime_error("Please enter either 'jpg'or 'png' for the format!");
+            }
+            parameters.isCompressionJPEG = arguments.at(compressionFormatIndex + 1) == "jpg";
+        }
         // Exchange red and blue values
         parameters.exchangeRedBlueValues = Utils::CLI::containsArguments(arguments, "-e", "--exchange");
     }

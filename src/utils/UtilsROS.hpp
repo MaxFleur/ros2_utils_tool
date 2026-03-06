@@ -13,10 +13,6 @@
 
 #include <string>
 
-template<typename T, typename U>
-concept WriteMessageParameter = (std::same_as<T, std_msgs::msg::String> && std::same_as<U, std::string&>) ||
-                                (std::same_as<T, std_msgs::msg::Int32> && std::same_as<U, int>);
-
 // ROS related util functions
 namespace Utils::ROS
 {

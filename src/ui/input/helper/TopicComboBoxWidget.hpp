@@ -23,6 +23,10 @@ protected slots:
     void
     fillTopicComboBox() override;
 
+private:
+    void
+    mainFillOperation();
+
 protected:
     QPointer<QComboBox> m_topicNameComboBox;
 };

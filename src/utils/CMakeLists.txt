@@ -15,6 +15,7 @@ target_sources(rt_utils INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/UtilsIO.hpp
     ${CMAKE_CURRENT_LIST_DIR}/UtilsROS.cpp
     ${CMAKE_CURRENT_LIST_DIR}/UtilsROS.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/UtilsThreads.hpp
     ${CMAKE_CURRENT_LIST_DIR}/UtilsUI.cpp
     ${CMAKE_CURRENT_LIST_DIR}/UtilsUI.hpp
     ${CMAKE_CURRENT_LIST_DIR}/VideoEncoder.cpp

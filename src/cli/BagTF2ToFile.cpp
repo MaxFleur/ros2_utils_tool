@@ -61,7 +61,7 @@ main(int argc, char* argv[])
     // Check for optional arguments
     if (arguments.size() > 3) {
         // Topic name
-        Utils::CLI::checkTopicNameValidity(arguments, parameters.sourceDirectory, "tf2_msgs/msg/TFMessage", parameters.topicName);
+        Utils::CLI::checkTopicNameValidity(arguments, parameters.sourceDirectory, { "tf2_msgs/msg/TFMessage" }, parameters.topicName);
         // Timestamps
         parameters.keepTimestamps = Utils::CLI::containsArguments(arguments, "-k", "--keep_timestamps");
         // Indenting
@@ -70,7 +70,7 @@ main(int argc, char* argv[])
 
     // Search for topic name in bag file if not specified
     if (parameters.topicName.isEmpty()) {
-        Utils::CLI::checkForTargetTopic(parameters.sourceDirectory, parameters.topicName, "tf2_msgs/msg/TFMessage");
+        Utils::CLI::checkForTargetTopic(parameters.sourceDirectory, parameters.topicName, { "tf2_msgs/msg/TFMessage" });
     }
 
     if (!Utils::CLI::continueExistingTargetLowDiskSpace(arguments, parameters.targetDirectory)) {

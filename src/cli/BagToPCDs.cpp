@@ -57,7 +57,7 @@ main(int argc, char* argv[])
     // Check for optional arguments
     if (arguments.size() > 3) {
         // Topic name
-        Utils::CLI::checkTopicNameValidity(arguments, parameters.sourceDirectory, "sensor_msgs/msg/PointCloud2", parameters.topicName);
+        Utils::CLI::checkTopicNameValidity(arguments, parameters.sourceDirectory, { "sensor_msgs/msg/PointCloud2" }, parameters.topicName);
     }
 
     // Thread count
@@ -68,7 +68,7 @@ main(int argc, char* argv[])
 
     // Search for topic name in bag file if not specified
     if (parameters.topicName.isEmpty()) {
-        Utils::CLI::checkForTargetTopic(parameters.sourceDirectory, parameters.topicName, "sensor_msgs/msg/PointCloud2");
+        Utils::CLI::checkForTargetTopic(parameters.sourceDirectory, parameters.topicName, { "sensor_msgs/msg/PointCloud2" });
     }
 
     if (!Utils::CLI::continueExistingTargetLowDiskSpace(arguments, parameters.targetDirectory)) {
