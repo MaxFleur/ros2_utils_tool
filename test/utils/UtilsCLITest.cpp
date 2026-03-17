@@ -68,6 +68,17 @@ TEST_CASE("Utils CLI Testing", "[utils]") {
         arguments.insert(2, "--test");
         REQUIRE(Utils::CLI::getArgumentsIndex(arguments, "-t", "--test") == 2);
     }
+    SECTION("Format index test") {
+        arguments.append("-f");
+        arguments.append("png");
+
+        REQUIRE_THROWS_WITH(Utils::CLI::getFormatIndex(arguments, { "jpg", "svg", "bmp", "tif" }),
+                            "Invalid format detected. Accepted formats are: jpg, svg, bmp and tif.");
+        REQUIRE_THROWS_WITH(Utils::CLI::getFormatIndex(arguments, { "jpg", "bmp" }), "Invalid format detected. Accepted formats are: jpg and bmp.");
+
+        REQUIRE_NOTHROW(Utils::CLI::getFormatIndex(arguments, { "jpg", "png" }));
+        REQUIRE(Utils::CLI::getFormatIndex(arguments, { "jpg", "png" }) == 4);
+    }
     SECTION("Check argument validity test") {
         auto parameter = 42;
 

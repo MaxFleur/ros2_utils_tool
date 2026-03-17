@@ -82,12 +82,7 @@ main(int argc, char* argv[])
         parameters.useCompression = Utils::CLI::containsArguments(arguments, "-c", "--compression");
         // Compression format
         if (Utils::CLI::containsArguments(arguments, "-f", "--format")) {
-            const auto compressionFormatIndex = Utils::CLI::getArgumentsIndex(arguments, "-f", "--format");
-            const QVector<QString> acceptedFormats { "jpg", "png" };
-            if (arguments.at(compressionFormatIndex) == arguments.last() || !acceptedFormats.contains(arguments.at(compressionFormatIndex + 1))) {
-                throw std::runtime_error("Please enter either 'jpg'or 'png' for the format!");
-            }
-            parameters.isCompressionJPEG = arguments.at(compressionFormatIndex + 1) == "jpg";
+            parameters.isCompressionJPEG = arguments.at(Utils::CLI::getFormatIndex(arguments, { "jpg", "png" })) == "jpg";
         }
         // Exchange red and blue values
         parameters.exchangeRedBlueValues = Utils::CLI::containsArguments(arguments, "-e", "--exchange");

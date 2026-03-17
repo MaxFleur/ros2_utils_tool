@@ -33,6 +33,29 @@ getArgumentsIndex(const QStringList& argumentsList, const QString& shortArg, con
 }
 
 
+int
+getFormatIndex(const QStringList& arguments, const QStringList& formats)
+{
+    const auto formatIndex = Utils::CLI::getArgumentsIndex(arguments, "-f", "--format");
+    if (arguments.at(formatIndex) != arguments.last() && formats.contains(arguments.at(formatIndex + 1))) {
+        return formatIndex + 1;
+    }
+
+    QString acceptedFormatsString = "";
+    for (auto i = 0; i < formats.size() - 1; ++i) {
+        acceptedFormatsString += formats.at(i);
+        if (i >= formats.size() - 2) {
+            continue;
+        }
+
+        acceptedFormatsString += ", ";
+    }
+    acceptedFormatsString += " and " + formats.back();
+
+    throw std::runtime_error("Invalid format detected. Accepted formats are: " + acceptedFormatsString.toStdString() + ".");
+}
+
+
 bool
 checkArgumentValidity(const QStringList& argumentsList, const QString& shortArg, const QString& longArg,
                       int& parameter, int lowerRange, int higherRange, int argumentListOffset)

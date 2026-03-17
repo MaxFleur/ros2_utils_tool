@@ -70,12 +70,7 @@ main(int argc, char* argv[])
         }
         // Format
         if (Utils::CLI::containsArguments(arguments, "-f", "--format")) {
-            const auto qualityFormatIndex = Utils::CLI::getArgumentsIndex(arguments, "-f", "--format");
-            const QVector<QString> acceptedFormats { "jpg", "png", "bmp" };
-            if (arguments.at(qualityFormatIndex) == arguments.last() || !acceptedFormats.contains(arguments.at(qualityFormatIndex + 1))) {
-                throw std::runtime_error("Please enter either 'jpg', 'png' or 'bmp' for the format!");
-            }
-            parameters.format = arguments.at(qualityFormatIndex + 1);
+            parameters.format = arguments.at(Utils::CLI::getFormatIndex(arguments, { "jpg", "png", "bmp" }));
         }
 
         // Exchange red and blue values

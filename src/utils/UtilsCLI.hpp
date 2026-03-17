@@ -32,6 +32,10 @@ getArgumentsIndex(const QStringList& argumentsList,
                   const QString&     shortArg,
                   const QString&     longArg);
 
+int
+getFormatIndex(const QStringList& argumentsList,
+               const QStringList& formats);
+
 // Check if an argument to be set with a value is correctly called
 bool
 checkArgumentValidity(const QStringList& argumentsList,
