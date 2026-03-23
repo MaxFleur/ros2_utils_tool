@@ -1,16 +1,14 @@
 #pragma once
 
 #include "BagPlayer.hpp"
+#include "ControlBagWidget.hpp"
 #include "Parameters.hpp"
+#include "UtilsROS.hpp"
 
-#include <QPointer>
 #include <QWidget>
 
-class QListWidget;
-class QToolButton;
-
 // Widget used to control playing a bag file.
-class ControlPlayBagWidget : public QWidget
+class ControlPlayBagWidget : public ControlBagWidget
 {
     Q_OBJECT
 
@@ -18,14 +16,7 @@ public:
     ControlPlayBagWidget(Parameters::PlayBagParameters& parameters,
                          QWidget*                       parent = 0);
 
-signals:
-    void
-    stopped();
-
 private slots:
-    void
-    setPlayerState();
-
     void
     decreaseRate();
 
@@ -37,19 +28,19 @@ private slots:
 
 private:
     void
-    addLoggerWidgetEntry(const QString& entryText);
+    handleBagControlInstance() override
+    {
+        m_bagPlayer->toggleState(m_isActive);
+    }
+
+    inline void
+    addPlayBagLoggerEntry(const QString& entryText)
+    {
+        addLoggerWidgetEntry(Utils::ROS::getCurrentROSTimeAsString() + " " + entryText);
+    }
 
 private:
     std::unique_ptr<BagPlayer> m_bagPlayer;
 
-    QPointer<QListWidget> m_loggerListWidget;
-    QPointer<QToolButton> m_playPauseButton;
-
     double m_currentRate;
-    bool m_isPlaying { true };
-
-    static constexpr int TOOLBUTTON_SIZE = 40;
-    static constexpr int TOOLBUTTON_ICON_SIZE = 20;
-    static constexpr int TOOLBUTTON_SIZE_PLAYER = 70;
-    static constexpr int TOOLBUTTON_ICON_SIZE_PLAYER = 40;
 };

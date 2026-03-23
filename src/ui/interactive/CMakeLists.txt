@@ -5,8 +5,12 @@ target_include_directories (rt_interactive
 )
 
 target_sources(rt_interactive INTERFACE
+    ${CMAKE_CURRENT_LIST_DIR}/ControlBagWidget.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/ControlBagWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/ControlPlayBagWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/ControlPlayBagWidget.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/ControlRecordBagWidget.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/ControlRecordBagWidget.hpp
 )
 
 target_link_libraries(rt_interactive

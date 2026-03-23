@@ -11,10 +11,17 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
+#include <filesystem>
+
 ConfigurePlayBagWidget::ConfigurePlayBagWidget(Parameters::PlayBagParameters& parameters, QWidget *parent) :
     BasicBagWidget(parameters, "Play Bag", ":/icons/tools/play_bag", "play_bag", "Unselect all items you don't want to play.", parent),
     m_parameters(parameters), m_settings(parameters, "play_bag")
 {
+    if (!std::filesystem::exists(m_parameters.sourceDirectory.toStdString()) || !Utils::ROS::doesDirectoryContainBagFile(m_parameters.sourceDirectory)) {
+        m_parameters.sourceDirectory = QString();
+        writeParameterToSettings(m_parameters.sourceDirectory, QString(), m_settings);
+    }
+
     m_okButton->setVisible(false);
 
     auto* const sourceFormLayout = new QFormLayout;

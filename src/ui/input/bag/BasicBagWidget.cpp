@@ -17,11 +17,6 @@ BasicBagWidget::BasicBagWidget(Parameters::SelectableBagTopicParameters& paramet
     : BasicInputWidget(titleText, iconText, parent), m_parameters(parameters),
     m_settings(parameters, settingsText), m_isPlayBag(settingsText == "play_bag")
 {
-    if (!std::filesystem::exists(m_parameters.sourceDirectory.toStdString()) ||
-        !Utils::ROS::doesDirectoryContainBagFile(m_parameters.sourceDirectory)) {
-        m_parameters.sourceDirectory = QString();
-        writeParameterToSettings(m_parameters.sourceDirectory, QString(), m_settings);
-    }
     m_sourceLineEdit->setText(m_parameters.sourceDirectory);
 
     m_unselectLabel = new QLabel(unselectLabelText);

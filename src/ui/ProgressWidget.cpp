@@ -12,7 +12,6 @@
 #include "PCDsToBagThread.hpp"
 #include "PublishImagesThread.hpp"
 #include "PublishVideoThread.hpp"
-#include "RecordBagThread.hpp"
 #include "SendTF2Thread.hpp"
 #include "BagTF2ToFileThread.hpp"
 #include "VideoToBagThread.hpp"
@@ -60,9 +59,6 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
     case Utils::UI::TOOL_ID::MERGE_BAGS:
         m_thread = new MergeBagsThread(dynamic_cast<Parameters::MergeBagsParameters&>(parameters),
                                        DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
-        break;
-    case Utils::UI::TOOL_ID::RECORD_BAG:
-        m_thread = new RecordBagThread(dynamic_cast<Parameters::RecordBagParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_ID::DUMMY_BAG:
         m_thread = new DummyBagThread(dynamic_cast<Parameters::DummyBagParameters&>(parameters),
@@ -145,10 +141,6 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
     case Utils::UI::TOOL_ID::DECOMPRESS_BAG:
         progressLabel->setText("Decompressing and writing new Bag File...");
         setMovie(":/gifs/decompressing", 55, 120);
-        break;
-    case Utils::UI::TOOL_ID::RECORD_BAG:
-        progressLabel->setText("Recording Bag File...");
-        setMovie(":/gifs/recording", 120, 70);
         break;
     case Utils::UI::TOOL_ID::PUBLISH_VIDEO:
     case Utils::UI::TOOL_ID::PUBLISH_IMAGES:

@@ -11,7 +11,6 @@
 #include "PCDsToBagThread.hpp"
 #include "PublishImagesThread.hpp"
 #include "PublishVideoThread.hpp"
-#include "RecordBagThread.hpp"
 #include "SendTF2Thread.hpp"
 #include "UtilsROS.hpp"
 #include "UtilsThreads.hpp"
@@ -129,72 +128,6 @@ verifyMessages(const std::string& bagDirectory, const std::string& topicName,
 TEST_CASE("Threads Testing", "[threads]") {
     auto shouldDelete = false;
 
-    SECTION("Record Bag Thread Test") {
-        Parameters::RecordBagParameters parameters;
-        parameters.sourceDirectory = "./recorded_bag";
-
-        rclcpp::Rate rate(10);
-        auto* const thread = new RecordBagThread(parameters);
-        QObject::connect(thread, &RecordBagThread::finished, thread, &QObject::deleteLater);
-
-        SECTION("General unspecified run") {
-            thread->start();
-
-            // Wait for some time so the recorder can set up properly
-            rate.sleep();
-            thread->requestInterruption();
-            // No idea how and why, but sometimes the thread does not exit correctly
-            // even if everything has been cleaned successfully. Need to call quit extra.
-            thread->quit();
-            thread->wait();
-
-            const auto& metaData = Utils::ROS::getBagMetadata("./recorded_bag");
-            REQUIRE(metaData.topics_with_message_count.size() == 0);
-        }
-        SECTION("Specified topic run") {
-            const auto sendFiveMessages = [thread, parameters, &rate] {
-                auto node = std::make_shared<rclcpp::Node>("tests_publisher");
-                auto publisher = node->create_publisher<std_msgs::msg::Int32>("/example", 10);
-                thread->start();
-
-                rate.sleep();
-                // Send some messages with smaller intervals between
-                for (auto i = 0; i < 5; i++) {
-                    auto message = std_msgs::msg::Int32();
-                    message.data = i;
-                    publisher->publish(message);
-                    rate.sleep();
-                }
-
-                thread->requestInterruption();
-                thread->quit();
-                thread->wait();
-            };
-
-            SECTION("Uncompressed") {
-                parameters.includeUnpublishedTopics = false;
-                parameters.topics.push_back({ { "/example" }, true });
-
-                sendFiveMessages();
-
-                const auto& metaData = Utils::ROS::getBagMetadata("./recorded_bag");
-                const auto& topics = metaData.topics_with_message_count;
-                REQUIRE(topics.size() == 1);
-                REQUIRE(topics.at(0).topic_metadata.name == "/example");
-                REQUIRE(topics.at(0).message_count == 5);
-            }
-            SECTION("Compressed") {
-                parameters.topics.push_back({ { "/example" }, true });
-                parameters.useCompression = true;
-                parameters.isCompressionFile = true;
-
-                sendFiveMessages();
-
-                REQUIRE(Utils::ROS::doesDirectoryContainCompressedBagFile("./recorded_bag") == true);
-            }
-        }
-        std::filesystem::remove_all("./recorded_bag");
-    }
     // Move this into an extra function to avoid multiple executions of trying to write the bag file
     SECTION("Create compressed image bag file") {
         // Create compressed image bag file

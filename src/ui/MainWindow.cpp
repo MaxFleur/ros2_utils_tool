@@ -7,6 +7,7 @@
 #include "ChangeCompressionWidget.hpp"
 #include "ConfigurePlayBagWidget.hpp"
 #include "ControlPlayBagWidget.hpp"
+#include "ControlRecordBagWidget.hpp"
 #include "DummyBagWidget.hpp"
 #include "EditBagWidget.hpp"
 #include "MergeBagsWidget.hpp"
@@ -143,13 +144,22 @@ MainWindow::setInputWidget(Utils::UI::TOOL_ID mode)
 void
 MainWindow::setProcessingWidget(Utils::UI::TOOL_ID mode)
 {
-    // Doesn't make sense to show any progress when we want to actively control playing a bag
+    // Doesn't make sense to show any progress when we want to actively control things
     // So use a control widget instead
     if (mode == Utils::UI::TOOL_ID::PLAY_BAG) {
-        auto* const controlPlayBagWidget = new ControlPlayBagWidget(m_playBagParameters);
-        setCentralWidget(controlPlayBagWidget);
+        auto* const playBagWidget = new ControlPlayBagWidget(m_playBagParameters);
+        setCentralWidget(playBagWidget);
 
-        connect(controlPlayBagWidget, &ControlPlayBagWidget::stopped, this, [this, mode] {
+        connect(playBagWidget, &ControlPlayBagWidget::stopped, this, [this, mode] {
+            setInputWidget(mode);
+        });
+
+        return;
+    } else if (mode == Utils::UI::TOOL_ID::RECORD_BAG) {
+        auto* const recordBagWidget = new ControlRecordBagWidget(m_recordBagParameters);
+        setCentralWidget(recordBagWidget);
+
+        connect(recordBagWidget, &ControlRecordBagWidget::stopped, this, [this, recordBagWidget, mode] {
             setInputWidget(mode);
         });
 
@@ -181,9 +191,6 @@ MainWindow::setProcessingWidget(Utils::UI::TOOL_ID mode)
         break;
     case Utils::UI::TOOL_ID::MERGE_BAGS:
         progressWidget = new ProgressWidget("Writing merged Bag File...", m_mergeBagsParameters, mode);
-        break;
-    case Utils::UI::TOOL_ID::RECORD_BAG:
-        progressWidget = new ProgressWidget("Recording Bag File...", m_recordBagParameters, mode);
         break;
     case Utils::UI::TOOL_ID::DUMMY_BAG:
         progressWidget = new ProgressWidget("Creating Bag...", m_dummyBagParameters, mode);

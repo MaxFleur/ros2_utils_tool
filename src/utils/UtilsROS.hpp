@@ -87,4 +87,8 @@ getBagTopicNames(const QString& bagDirectory,
 // Returns if a topic name follows the ROS2 naming convention
 [[nodiscard]] bool
 isTopicNameROS2Conform(const QString& topicName);
+
+// Returns the current ROS time. Does not require a node.
+QString
+getCurrentROSTimeAsString(rclcpp::Node* node = nullptr);
 }
