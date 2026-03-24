@@ -5,7 +5,10 @@
 #include "Parameters.hpp"
 #include "UtilsROS.hpp"
 
+#include <QPointer>
 #include <QWidget>
+
+class QLabel;
 
 // Widget used to control playing a bag file.
 class ControlRecordBagWidget : public ControlBagWidget
@@ -17,6 +20,9 @@ public:
                            QWidget*                         parent = 0);
 
 private:
+    void
+    updateSpaceInfoLabel();
+
     void
     handleBagControlInstance() override
     {
@@ -31,4 +37,11 @@ private:
 
 private:
     std::unique_ptr<BagRecorder> m_bagRecorder;
+
+    QPointer<QLabel> m_bagSizeLabel;
+    QPointer<QLabel> m_availableDiskSpaceLabel;
+
+    const Parameters::RecordBagParameters& m_parameters;
+
+    static constexpr long MEGABYTE_IN_BYTES = 1048576;
 };

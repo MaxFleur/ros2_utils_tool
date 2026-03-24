@@ -42,19 +42,19 @@ ControlBagWidget::ControlBagWidget(Parameters::SelectableBagTopicParameters& par
     buttonLayout->addWidget(stopButton);
     buttonLayout->setAlignment(stopButton, Qt::AlignLeft);
 
-    auto* const upperLayout = new QVBoxLayout;
-    upperLayout->addStretch();
-    upperLayout->addWidget(headerPixmapLabel);
-    upperLayout->addWidget(headerLabel);
-    upperLayout->addSpacing(40);
-    upperLayout->addLayout(m_controlsLayout);
-    upperLayout->addSpacing(10);
-    upperLayout->addWidget(m_loggerListWidget);
-    upperLayout->setContentsMargins(20, 20, 20, 20);
-    upperLayout->addStretch();
+    m_upperLayout = new QVBoxLayout;
+    m_upperLayout->addStretch();
+    m_upperLayout->addWidget(headerPixmapLabel);
+    m_upperLayout->addWidget(headerLabel);
+    m_upperLayout->addSpacing(40);
+    m_upperLayout->addLayout(m_controlsLayout);
+    m_upperLayout->addSpacing(10);
+    m_upperLayout->addWidget(m_loggerListWidget);
+    m_upperLayout->setContentsMargins(20, 20, 20, 20);
+    m_upperLayout->addStretch();
 
     auto* const mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(upperLayout);
+    mainLayout->addLayout(m_upperLayout);
     mainLayout->addLayout(buttonLayout);
     setLayout(mainLayout);
 

@@ -8,6 +8,7 @@
 
 class QHBoxLayout;
 class QListWidget;
+class QVBoxLayout;
 
 // Widget used to control playing a bag file.
 class ControlBagWidget : public QWidget
@@ -46,6 +47,7 @@ protected:
 
 protected:
     QPointer<QHBoxLayout> m_controlsLayout;
+    QPointer<QVBoxLayout> m_upperLayout;
     QPointer<QToolButton> m_playPauseButton;
     QPointer<QListWidget> m_loggerListWidget;
 
