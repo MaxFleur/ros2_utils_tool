@@ -13,7 +13,7 @@
 
 ControlBagWidget::ControlBagWidget(Parameters::SelectableBagTopicParameters& parameters,
                                    const QString& headerText, const QString& headerPixmapLabelText, bool isRecorder, QWidget* parent)
-    : QWidget(parent), m_isRecorder(isRecorder)
+    : StoppableWidget(parent), m_isRecorder(isRecorder)
 {
     auto* const headerLabel = new QLabel(headerText + parameters.sourceDirectory);
     auto font = headerLabel->font();

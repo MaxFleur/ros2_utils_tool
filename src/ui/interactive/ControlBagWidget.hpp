@@ -1,5 +1,6 @@
 #pragma once
 
+#include "StoppableWidget.hpp"
 #include "Parameters.hpp"
 
 #include <QPointer>
@@ -11,7 +12,7 @@ class QListWidget;
 class QVBoxLayout;
 
 // Widget used to control playing a bag file.
-class ControlBagWidget : public QWidget
+class ControlBagWidget : public StoppableWidget
 {
     Q_OBJECT
 
@@ -21,10 +22,6 @@ public:
                      const QString&                            headerPixmapLabelText,
                      bool                                      isRecorder,
                      QWidget*                                  parent = 0);
-
-signals:
-    void
-    stopped();
 
 protected slots:
     void

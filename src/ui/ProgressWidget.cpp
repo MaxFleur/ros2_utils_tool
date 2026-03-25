@@ -26,7 +26,7 @@
 
 ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::BasicParameters& parameters,
                                const Utils::UI::TOOL_ID threadTypeId, QWidget *parent) :
-    QWidget(parent)
+    StoppableWidget(parent)
 {
     // Create thread
     switch (threadTypeId) {
@@ -189,7 +189,7 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
             m_thread->requestInterruption();
             m_thread->wait();
         }
-        emit progressStopped();
+        emit stopped();
     });
     connect(finishedButton, &QPushButton::clicked, this, [this] {
         emit finished();
@@ -216,7 +216,7 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
                                                  "The file processing failed. Please make sure that all input parameters are set correctly, "
                                                  "that the input data is valid and disable the hardware acceleration, if necessary.");
         messageBox->exec();
-        emit progressStopped();
+        emit stopped();
     });
 }
 
