@@ -39,6 +39,8 @@ private:
 
     PlayBagSettings m_settings;
 
+    bool m_rowsAdded{ false };
+
     static constexpr double SPINBOX_LOWER_RANGE = 0.0;
     static constexpr double SPINBOX_UPPER_RANGE = 100.0;
 

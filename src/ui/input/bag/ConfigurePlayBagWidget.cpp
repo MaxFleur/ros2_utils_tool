@@ -105,14 +105,20 @@ ConfigurePlayBagWidget::populateTreeWidget()
     m_treeWidget->resizeColumns();
     m_treeWidget->blockSignals(false);
 
-    m_lowerOptionsLayout->addRow("Rate:", m_rateSpinBox);
-    m_lowerOptionsLayout->addRow("Loop File:", m_loopCheckBox);
-
     m_unselectLabel->setVisible(true);
     m_treeWidget->setVisible(true);
     m_okButton->setVisible(true);
 
     enableOkButton();
+
+    // Only add the spinbox and checkbox once
+    if (m_rowsAdded) {
+        return;
+    }
+
+    m_lowerOptionsLayout->addRow("Rate:", m_rateSpinBox);
+    m_lowerOptionsLayout->addRow("Loop File:", m_loopCheckBox);
+    m_rowsAdded = true;
 }
 
 
