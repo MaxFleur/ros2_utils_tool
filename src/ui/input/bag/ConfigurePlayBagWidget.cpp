@@ -72,6 +72,8 @@ ConfigurePlayBagWidget::handleTreeAfterSource()
 void
 ConfigurePlayBagWidget::populateTreeWidget()
 {
+    m_parameters.services.clear();
+    m_parameters.topics.clear();
     m_treeWidget->clear();
     m_treeWidget->blockSignals(true);
 
@@ -98,6 +100,7 @@ ConfigurePlayBagWidget::populateTreeWidget()
         auto& playBagTopic = itemAlreadyExists ? *it : vectorToStore.back();
         m_treeWidget->createItemWithTopicNameAndType(topicNameQString, QString::fromStdString(topicMetaData.type), playBagTopic.isSelected);
     }
+    m_settings.write();
 
     m_treeWidget->resizeColumns();
     m_treeWidget->blockSignals(false);
