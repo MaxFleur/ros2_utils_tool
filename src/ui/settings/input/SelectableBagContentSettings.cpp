@@ -27,6 +27,7 @@ SelectableBagContentSettings::write()
     };
 
     settings.beginGroup(m_groupName);
+    writeArraySettings("services", m_parameters.services);
     writeArraySettings("topics", m_parameters.topics);
     settings.endGroup();
 
@@ -51,8 +52,10 @@ SelectableBagContentSettings::read()
         settings.endArray();
     };
 
+    m_parameters.services.clear();
     m_parameters.topics.clear();
     settings.beginGroup(m_groupName);
+    readArraySettings("services", m_parameters.services);
     readArraySettings("topics", m_parameters.topics);
     settings.endGroup();
 

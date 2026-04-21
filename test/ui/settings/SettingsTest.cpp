@@ -162,13 +162,14 @@ TEST_CASE("Settings Testing", "[settings]") {
     SECTION("Selectable Bag Content Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("play_bag");
-            checkSettingsInvalidacy(qSettings, { "topics" });
+            checkSettingsInvalidacy(qSettings, { "topics", "services" });
             qSettings.endGroup();
         }
         SECTION("Write") {
             Parameters::SelectableBagContentParameters parameters;
             SelectableBagContentSettings settings(parameters, "selectable_bag_content");
 
+            parameters.services.push_back({ { "service" }, true });
             parameters.topics.push_back({ { "topic" }, true });
             settings.write();
 
@@ -185,6 +186,7 @@ TEST_CASE("Settings Testing", "[settings]") {
             };
 
             qSettings.beginGroup("selectable_bag_content");
+            verify("services", "service");
             verify("topics", "topic");
             qSettings.endGroup();
         }

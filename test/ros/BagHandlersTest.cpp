@@ -11,8 +11,18 @@
 #include "sensor_msgs/msg/image.hpp"
 #include "std_msgs/msg/int32.hpp"
 #include "std_msgs/msg/string.hpp"
+#include "std_srvs/srv/set_bool.hpp"
 
 #include <filesystem>
+
+void
+serviceCallback(const std::shared_ptr<std_srvs::srv::SetBool::Request> request,
+                std::shared_ptr<std_srvs::srv::SetBool::Response>      response)
+{
+    (void) request;
+    (void) response;
+}
+
 
 TEST_CASE("Bah Handlers Testing", "[threads]") {
     SECTION("Bag Player Test") {
@@ -69,11 +79,20 @@ TEST_CASE("Bah Handlers Testing", "[threads]") {
         rclcpp::Rate rate(20);
         auto shouldDelete = false;
 
-        const auto sendMessages = [&rate] {
-            auto node = std::make_shared<rclcpp::Node>("tests_publisher");
-            auto publisherInteger = node->create_publisher<std_msgs::msg::Int32>("/integer", 10);
-            auto publisherString = node->create_publisher<std_msgs::msg::String>("/string", 10);
-            auto publisherImage = node->create_publisher<sensor_msgs::msg::Image>("/image", 10);
+        // Theoretically we could define these in the sendMessages lambda,
+        // but then they might be destroyed before services are handled completely.
+        // So make them more local to outlive the lambda.
+        auto node = std::make_shared<rclcpp::Node>("tests_publisher");
+        auto publisherInteger = node->create_publisher<std_msgs::msg::Int32>("/integer", 10);
+        auto publisherString = node->create_publisher<std_msgs::msg::String>("/string", 10);
+        auto publisherImage = node->create_publisher<sensor_msgs::msg::Image>("/image", 10);
+
+        auto service = node->create_service<std_srvs::srv::SetBool>("/set_bool", &serviceCallback);
+        service->configure_introspection(node->get_clock(), rclcpp::QoS{ 10 }, RCL_SERVICE_INTROSPECTION_CONTENTS);
+        auto client = node->create_client<std_srvs::srv::SetBool>("/set_bool");
+        client->configure_introspection(node->get_clock(), rclcpp::QoS{ 10 }, RCL_SERVICE_INTROSPECTION_CONTENTS);
+
+        const auto sendMessages = [node, publisherInteger, publisherString, publisherImage, client, &rate] {
             cv::Mat mat(100, 100, CV_8UC3, cv::Scalar(255, 0, 0));
 
             // Send some messages with smaller intervals between
@@ -92,7 +111,16 @@ TEST_CASE("Bah Handlers Testing", "[threads]") {
                 publisherInteger->publish(messageInteger);
                 publisherString->publish(messageString);
                 publisherImage->publish(messageImage);
+
                 rate.sleep();
+
+                auto request = std::make_shared<std_srvs::srv::SetBool::Request>();
+                request->data = true;
+                auto result = client->async_send_request(request);
+
+                while (rclcpp::spin_until_future_complete(node, result, std::chrono::milliseconds(50)) != rclcpp::FutureReturnCode::SUCCESS) {
+                    rate.sleep();
+                }
             }
         };
 
@@ -117,10 +145,17 @@ TEST_CASE("Bah Handlers Testing", "[threads]") {
                 };
 
                 recordBagParameters.includeUnpublishedTopics = false;
+                recordBagParameters.services.push_back({ { "/set_bool" }, true });
                 recordBagParameters.topics.push_back({ { "/image" }, false });
                 recordBagParameters.topics.push_back({ { "/integer" }, true });
                 recordBagParameters.topics.push_back({ { "/string" }, true });
 
+                // Let the data distribution service propagate before the recorder starts
+                // so that the recorder's first discovery snapshot contains all topics AND the service
+                for (auto i = 0; i < 10; ++i) {
+                    rclcpp::spin_some(node);
+                    rate.sleep();
+                }
                 {
                     auto bagRecorder = std::make_unique<BagRecorder>(recordBagParameters);
                     rate.sleep();
@@ -130,7 +165,8 @@ TEST_CASE("Bah Handlers Testing", "[threads]") {
 
                 const auto& metaData = Utils::ROS::getBagMetadata("./recorded_bag");
                 const auto& topics = metaData.topics_with_message_count;
-                REQUIRE(topics.size() == 2);
+                REQUIRE(topics.size() == 3);
+                REQUIRE(containsTopic(topics, "/set_bool/_service_event"));
                 REQUIRE(containsTopic(topics, "/integer"));
                 REQUIRE(containsTopic(topics, "/string"));
                 REQUIRE(!containsTopic(topics, "/image"));

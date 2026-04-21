@@ -49,13 +49,19 @@ ControlPlayBagWidget::ControlPlayBagWidget(Parameters::PlayBagParameters& parame
     addPlayBagLoggerEntry("Press CURSOR_DOWN for Decrease Rate 10%");
 
     QString topicsString = "";
-    for (auto i = 0; i < parameters.topics.size(); ++i) {
-        if (!parameters.topics.at(i).isSelected) {
-            continue;
-        }
+    const auto addTopics = [&topicsString] (const QVector<Parameters::SelectableBagContent>& params) {
+        for (auto i = 0; i < params.size(); ++i) {
+            if (!params.at(i).isSelected) {
+                continue;
+            }
 
-        topicsString += parameters.topics.at(i).name + " ";
-    }
+            topicsString += params.at(i).name + " ";
+        }
+    };
+
+    addTopics(parameters.topics);
+    addTopics(parameters.services);
+
     addPlayBagLoggerEntry("Playing topics " + topicsString);
     addPlayBagLoggerEntry("Started play.");
     m_loggerListWidget->setFocus();

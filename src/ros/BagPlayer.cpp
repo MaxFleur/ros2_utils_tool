@@ -12,6 +12,12 @@ BagPlayer::BagPlayer(const Parameters::PlayBagParameters& parameters) : m_parame
         }
         playOptions.topics_to_filter.push_back(topic.name.toStdString());
     }
+    for (const auto& service : m_parameters.services) {
+        if (!service.isSelected) {
+            continue;
+        }
+        playOptions.services_to_filter.push_back(service.name.toStdString());
+    }
     playOptions.rate = m_parameters.rate;
     playOptions.loop = m_parameters.loop;
 

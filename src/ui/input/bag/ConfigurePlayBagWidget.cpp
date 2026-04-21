@@ -81,19 +81,22 @@ ConfigurePlayBagWidget::populateTreeWidget()
         const auto topicWithMessageCount = bagMetaData.topics_with_message_count.at(i);
         const auto& topicMetaData = topicWithMessageCount.topic_metadata;
 
-        const auto it = std::ranges::find_if(m_parameters.topics, [topicMetaData] (const auto& playBagTopic) {
+        const QString topicNameQString(QString::fromStdString(topicMetaData.name));
+        // Each message always contains the '/msg/' substring. With this, we can differentiate between messages and services.
+        auto& vectorToStore = QString::fromStdString(topicMetaData.type).contains("/msg/") ? m_parameters.topics : m_parameters.services;
+
+        const auto it = std::ranges::find_if(vectorToStore, [topicMetaData] (const auto& playBagTopic) {
             return playBagTopic.name.toStdString() == topicMetaData.name;
         });
 
         // If the settings do not contain any topic items, create them
-        const auto itemAlreadyExists = it != m_parameters.topics.end();
+        const auto itemAlreadyExists = it != vectorToStore.end();
         if (!itemAlreadyExists) {
-            m_parameters.topics.push_back({ { QString::fromStdString(topicMetaData.name) }, true });
+            vectorToStore.push_back({ { topicNameQString }, true });
         }
 
-        auto& playBagTopic = itemAlreadyExists ? *it : m_parameters.topics.back();
-        m_treeWidget->createItemWithTopicNameAndType(QString::fromStdString(topicMetaData.name), QString::fromStdString(topicMetaData.type),
-                                                     playBagTopic.isSelected);
+        auto& playBagTopic = itemAlreadyExists ? *it : vectorToStore.back();
+        m_treeWidget->createItemWithTopicNameAndType(topicNameQString, QString::fromStdString(topicMetaData.type), playBagTopic.isSelected);
     }
 
     m_treeWidget->resizeColumns();
@@ -113,7 +116,11 @@ ConfigurePlayBagWidget::populateTreeWidget()
 void
 ConfigurePlayBagWidget::enableOkButton()
 {
-    m_okButton->setEnabled(!std::ranges::all_of(m_parameters.topics, [] (const auto& topic) {
-        return topic.isSelected == false;
-    }));
+    const auto isAnyTopicEnabled = std::ranges::any_of(m_parameters.topics, [] (const auto& topic) {
+        return topic.isSelected == true;
+    });
+    const auto isAnyServiceEnabled = std::ranges::any_of(m_parameters.services, [] (const auto& service) {
+        return service.isSelected == true;
+    });
+    m_okButton->setEnabled(isAnyTopicEnabled || isAnyServiceEnabled);
 }

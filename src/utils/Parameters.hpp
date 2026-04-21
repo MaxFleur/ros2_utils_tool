@@ -43,6 +43,7 @@ struct SendTF2Parameters : BasicParameters {
 };
 
 struct SelectableBagContentParameters : BasicParameters {
+    QVector<SelectableBagContent> services = {};
     QVector<SelectableBagContent> topics = {};
 };
 struct PlayBagParameters : SelectableBagContentParameters {

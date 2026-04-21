@@ -29,6 +29,13 @@ BagRecorder::BagRecorder(const Parameters::RecordBagParameters& parameters) : m_
         recordOptions.topics.push_back(topic.name.toStdString());
         m_selectedTopicsCount++;
     }
+    for (const auto& service : m_parameters.services) {
+        if (!service.isSelected) {
+            continue;
+        }
+        recordOptions.services.push_back(service.name.toStdString() + "/_service_event");
+        m_selectedTopicsCount++;
+    }
     recordOptions.rmw_serialization_format = "cdr";
     recordOptions.include_hidden_topics = m_parameters.includeHiddenTopics;
     recordOptions.include_unpublished_topics = m_parameters.includeUnpublishedTopics;
@@ -61,7 +68,7 @@ void
 BagRecorder::searchForNewSubscription()
 {
     std::vector<std::string> subscribedTopics {};
-    while (true) {
+    while (!m_abortCalled) {
         for (const auto& topic : m_recorder->subscriptions()) {
             if (std::ranges::find(subscribedTopics, topic.first) != subscribedTopics.end()) {
                 continue;
@@ -74,7 +81,7 @@ BagRecorder::searchForNewSubscription()
         if (m_recorder->subscriptions().size() == m_selectedTopicsCount) {
             break;
         }
-        m_topicSubscribedFuture.wait_for(std::chrono::milliseconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 }
 
@@ -83,7 +90,7 @@ void
 BagRecorder::searchForAllSubscriptions()
 {
     while ((m_selectedTopicsCount != m_recorder->subscriptions().size()) && !m_abortCalled) {
-        m_allTopicsSubscribedFuture.wait_for(std::chrono::milliseconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     emit allTopicsSubscribed();
 }
