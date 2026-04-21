@@ -17,11 +17,11 @@ class ControlBagWidget : public StoppableWidget
     Q_OBJECT
 
 public:
-    ControlBagWidget(Parameters::SelectableBagTopicParameters& parameters,
-                     const QString&                            headerText,
-                     const QString&                            headerPixmapLabelText,
-                     bool                                      isRecorder,
-                     QWidget*                                  parent = 0);
+    ControlBagWidget(Parameters::SelectableBagContentParameters& parameters,
+                     const QString&                              headerText,
+                     const QString&                              headerPixmapLabelText,
+                     bool                                        isRecorder,
+                     QWidget*                                    parent = 0);
 
 protected slots:
     void

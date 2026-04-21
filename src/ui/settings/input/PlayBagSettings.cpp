@@ -2,7 +2,7 @@
 
 PlayBagSettings::PlayBagSettings(Parameters::PlayBagParameters& parameters,
                                  const QString&                 groupName) :
-    SelectableBagTopicSettings(parameters, groupName), m_parameters(parameters)
+    SelectableBagContentSettings(parameters, groupName), m_parameters(parameters)
 {
     read();
 }
@@ -11,7 +11,7 @@ PlayBagSettings::PlayBagSettings(Parameters::PlayBagParameters& parameters,
 bool
 PlayBagSettings::write()
 {
-    if (!SelectableBagTopicSettings::write()) {
+    if (!SelectableBagContentSettings::write()) {
         return false;
     }
 
@@ -25,7 +25,7 @@ PlayBagSettings::write()
 bool
 PlayBagSettings::read()
 {
-    if (!SelectableBagTopicSettings::read()) {
+    if (!SelectableBagContentSettings::read()) {
         return false;
     }
 

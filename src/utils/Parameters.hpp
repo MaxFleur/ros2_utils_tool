@@ -10,10 +10,10 @@
 namespace Parameters
 {
 // Related to storing bag topic info
-struct BagTopic {
+struct BagContent {
     QString name = "";
 };
-struct SelectableBagTopic : BagTopic {
+struct SelectableBagContent : BagContent {
     bool isSelected = true;
 };
 
@@ -25,7 +25,7 @@ struct BasicParameters {
     QString sourceDirectory = "";
 };
 struct DummyBagParameters : BasicParameters {
-    struct DummyBagTopic : BagTopic {
+    struct DummyBagTopic : BagContent {
         QString type;
     };
 
@@ -42,14 +42,14 @@ struct SendTF2Parameters : BasicParameters {
     bool                  isStatic = true;
 };
 
-struct SelectableBagTopicParameters : BasicParameters {
-    QVector<SelectableBagTopic> topics = {};
+struct SelectableBagContentParameters : BasicParameters {
+    QVector<SelectableBagContent> topics = {};
 };
-struct PlayBagParameters : SelectableBagTopicParameters {
+struct PlayBagParameters : SelectableBagContentParameters {
     double rate = 1.0;
     bool   loop = false;
 };
-struct RecordBagParameters : SelectableBagTopicParameters {
+struct RecordBagParameters : SelectableBagContentParameters {
     int  maxSizeInMB = 1024;
     int  maxDurationInSeconds = 60;
 
@@ -79,7 +79,7 @@ struct DeleteSourceParameters : AdvancedParameters {
     bool deleteSource = false;
 };
 struct EditBagParameters : DeleteSourceParameters {
-    struct EditBagTopic : SelectableBagTopic {
+    struct EditBagTopic : SelectableBagContent {
         QString renamedName = "";
         size_t  lowerBoundary = 0;
         size_t  upperBoundary;
@@ -89,7 +89,7 @@ struct EditBagParameters : DeleteSourceParameters {
     bool                  updateTimestamps = false;
 };
 struct MergeBagsParameters : DeleteSourceParameters {
-    struct MergeBagTopic : SelectableBagTopic {
+    struct MergeBagTopic : SelectableBagContent {
         // Topic names might be identical across bags, but cannot be identical in the same bag.
         // So store the bag directory as an additional identifier
         QString bagDir = "";

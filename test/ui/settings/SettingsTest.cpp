@@ -16,7 +16,7 @@
 #include "PublishSettings.hpp"
 #include "RecordBagSettings.hpp"
 #include "RGBSettings.hpp"
-#include "SelectableBagTopicSettings.hpp"
+#include "SelectableBagContentSettings.hpp"
 #include "SendTF2Settings.hpp"
 #include "TF2ToFileSettings.hpp"
 #include "VideoSettings.hpp"
@@ -159,30 +159,33 @@ TEST_CASE("Settings Testing", "[settings]") {
         }
     }
 
-    SECTION("Selectable Bag Topic Params Test") {
+    SECTION("Selectable Bag Content Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("play_bag");
             checkSettingsInvalidacy(qSettings, { "topics" });
             qSettings.endGroup();
         }
         SECTION("Write") {
-            Parameters::SelectableBagTopicParameters parameters;
-            SelectableBagTopicSettings settings(parameters, "selectable_bag_topic");
+            Parameters::SelectableBagContentParameters parameters;
+            SelectableBagContentSettings settings(parameters, "selectable_bag_content");
 
             parameters.topics.push_back({ { "topic" }, true });
             settings.write();
 
-            qSettings.beginGroup("selectable_bag_topic");
-            const auto size = qSettings.beginReadArray("topics");
-            REQUIRE(size == 1);
+            const auto verify = [&qSettings] (const QString& settingsName, const QString& name) {
+                const auto size = qSettings.beginReadArray(settingsName);
+                REQUIRE(size == 1);
 
-            for (auto i = 0; i < size; ++i) {
-                qSettings.setArrayIndex(i);
-                verifiySettingQString(qSettings, "name", "topic");
-                verifiySettingPrimitive(qSettings, "is_selected", true);
-            }
-            qSettings.endArray();
+                for (auto i = 0; i < size; ++i) {
+                    qSettings.setArrayIndex(i);
+                    verifiySettingQString(qSettings, "name", name);
+                    verifiySettingPrimitive(qSettings, "is_selected", true);
+                }
+                qSettings.endArray();
+            };
 
+            qSettings.beginGroup("selectable_bag_content");
+            verify("topics", "topic");
             qSettings.endGroup();
         }
     }

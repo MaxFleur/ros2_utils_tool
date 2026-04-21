@@ -12,7 +12,7 @@
 
 #include <filesystem>
 
-BasicBagWidget::BasicBagWidget(Parameters::SelectableBagTopicParameters& parameters,
+BasicBagWidget::BasicBagWidget(Parameters::SelectableBagContentParameters& parameters,
                                const QString& titleText, const QString& iconText, const QString& settingsText, const QString& unselectLabelText, QWidget *parent)
     : BasicInputWidget(titleText, iconText, parent), m_parameters(parameters),
     m_settings(parameters, settingsText), m_isPlayBag(settingsText == "play_bag")

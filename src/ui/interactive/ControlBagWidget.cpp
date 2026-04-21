@@ -11,7 +11,7 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-ControlBagWidget::ControlBagWidget(Parameters::SelectableBagTopicParameters& parameters,
+ControlBagWidget::ControlBagWidget(Parameters::SelectableBagContentParameters& parameters,
                                    const QString& headerText, const QString& headerPixmapLabelText, bool isRecorder, QWidget* parent)
     : StoppableWidget(parent), m_isRecorder(isRecorder)
 {

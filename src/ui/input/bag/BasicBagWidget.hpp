@@ -2,7 +2,7 @@
 
 #include "BasicInputWidget.hpp"
 #include "Parameters.hpp"
-#include "SelectableBagTopicSettings.hpp"
+#include "SelectableBagContentSettings.hpp"
 
 #include <QPointer>
 #include <QWidget>
@@ -18,12 +18,12 @@ class BasicBagWidget : public BasicInputWidget
     Q_OBJECT
 public:
     explicit
-    BasicBagWidget(Parameters::SelectableBagTopicParameters& parameters,
-                   const QString&                            titleText,
-                   const QString&                            iconText,
-                   const QString&                            settingsText,
-                   const QString&                            unselectLabelText,
-                   QWidget*                                  parent = 0);
+    BasicBagWidget(Parameters::SelectableBagContentParameters& parameters,
+                   const QString&                              titleText,
+                   const QString&                              iconText,
+                   const QString&                              settingsText,
+                   const QString&                              unselectLabelText,
+                   QWidget*                                    parent = 0);
 
 protected slots:
     void
@@ -56,9 +56,9 @@ protected:
     static constexpr int COL_TOPIC_TYPE = 2;
 
 private:
-    Parameters::SelectableBagTopicParameters& m_parameters;
+    Parameters::SelectableBagContentParameters& m_parameters;
 
-    SelectableBagTopicSettings m_settings;
+    SelectableBagContentSettings m_settings;
 
     bool m_isPlayBag;
 };
