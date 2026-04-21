@@ -1,4 +1,4 @@
-#include "RecordBagWidget.hpp"
+#include "ConfigureRecordBagWidget.hpp"
 
 #include "BagTreeWidget.hpp"
 #include "LowDiskSpaceWidget.hpp"
@@ -14,7 +14,7 @@
 #include <QSpinBox>
 #include <QVBoxLayout>
 
-RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QWidget *parent) :
+ConfigureRecordBagWidget::ConfigureRecordBagWidget(Parameters::RecordBagParameters& parameters, QWidget *parent) :
     BasicBagWidget(parameters, "Record Bag", ":/icons/tools/record_bag", "record_bag", "Unselect all Topics you don't want to record.", parent),
     m_parameters(parameters), m_settings(parameters, "record_bag")
 {
@@ -120,7 +120,7 @@ RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QW
     m_controlsLayout->addWidget(advancedOptionsWidget);
     m_controlsLayout->addStretch();
 
-    connect(m_refreshButton, &QPushButton::clicked, this, &RecordBagWidget::populateTreeWidget);
+    connect(m_refreshButton, &QPushButton::clicked, this, &ConfigureRecordBagWidget::populateTreeWidget);
     connect(advancedOptionsCheckBox, &QCheckBox::stateChanged, this, [this, advancedOptionsWidget] (int state) {
         writeParameterToSettings(m_parameters.showAdvancedOptions, state == Qt::Checked, m_settings);
         advancedOptionsWidget->setVisible(state == Qt::Checked);
@@ -144,14 +144,14 @@ RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QW
 
 
 void
-RecordBagWidget::handleTreeAfterSource()
+ConfigureRecordBagWidget::handleTreeAfterSource()
 {
     enableOkButton();
 }
 
 
 void
-RecordBagWidget::okButtonPressed() const
+ConfigureRecordBagWidget::okButtonPressed() const
 {
     if (!m_okButton->isEnabled()) {
         return;
@@ -165,7 +165,7 @@ RecordBagWidget::okButtonPressed() const
 
 
 void
-RecordBagWidget::populateTreeWidget()
+ConfigureRecordBagWidget::populateTreeWidget()
 {
     m_parameters.topics.clear();
     m_treeWidget->clear();
@@ -200,7 +200,7 @@ RecordBagWidget::populateTreeWidget()
 
 
 void
-RecordBagWidget::enableOkButton()
+ConfigureRecordBagWidget::enableOkButton()
 {
     const auto isAnyTopicEnabled = std::ranges::any_of(m_parameters.topics, [] (const auto& topic) {
         return topic.isSelected == true;

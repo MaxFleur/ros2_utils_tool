@@ -15,14 +15,14 @@ target_sources(rt_input_bag INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/ChangeCompressionWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/ConfigurePlayBagWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/ConfigurePlayBagWidget.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/ConfigureRecordBagWidget.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/ConfigureRecordBagWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/DummyBagWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/DummyBagWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/EditBagWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/EditBagWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/MergeBagsWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/MergeBagsWidget.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/RecordBagWidget.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RecordBagWidget.hpp
 )
 
 target_link_libraries(rt_input_bag
