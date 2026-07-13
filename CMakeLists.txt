@@ -9,6 +9,19 @@ add_compile_options(-Wall -Wextra -Wpedantic)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
+if($ENV{ROS_DISTRO} STREQUAL "lyrical")
+    # For Ubuntu 26.04, the VTK config seems to be broken and does not
+    # correctly create the jsoncpp target, which is a dependency.
+    # We have to fix it manually
+    find_package(jsoncpp REQUIRED)
+    # For Lyrical, ROS2 finally links with Qt6, otherwise still Qt5
+    find_package(QT NAMES Qt6 COMPONENTS Widgets REQUIRED)
+    find_package(Qt6 COMPONENTS Widgets REQUIRED)
+else()
+    find_package(QT NAMES Qt5 COMPONENTS Widgets REQUIRED)
+    find_package(Qt5 COMPONENTS Widgets REQUIRED)
+endif()
+
 find_package(ament_cmake REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(geometry_msgs REQUIRED)
@@ -19,14 +32,6 @@ find_package(rosbag2_transport REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(tf2_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
-
-if(${Qt6_FOUND})
-    find_package(QT NAMES Qt6 COMPONENTS Widgets REQUIRED)
-    find_package(Qt6 COMPONENTS Widgets REQUIRED)
-else()
-    find_package(QT NAMES Qt5 COMPONENTS Widgets REQUIRED)
-    find_package(Qt5 COMPONENTS Widgets REQUIRED)
-endif()
 
 add_subdirectory(src)
 add_subdirectory(test)

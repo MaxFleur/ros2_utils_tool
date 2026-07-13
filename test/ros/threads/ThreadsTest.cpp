@@ -364,6 +364,9 @@ TEST_CASE("Threads Testing", "[threads]") {
         auto* const thread = new BagToVideoThread(parameters, false);
         QObject::connect(thread, &BagToVideoThread::finished, thread, &QObject::deleteLater);
 
+        // OpenCV VideoCapture codecs changed between kilted and lyrical release, we need to differentiate
+        const auto distroEnvName = std::string(std::getenv("ROS_DISTRO"));
+
         const auto performVideoCheck = [] (const std::string& fileExtension, int codec, int fps, int blueValue, int greenValue, int redValue, bool useColorRange = false) {
             auto videoCapture = cv::VideoCapture("./video" + fileExtension);
             REQUIRE(videoCapture.get(cv::CAP_PROP_FRAME_COUNT) == 100);
@@ -394,7 +397,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             thread->wait();
 
             // Codec number represents mp4v
-            performVideoCheck(".mp4", 1983148141, 30, 252, 0, 1);
+            performVideoCheck(".mp4", distroEnvName == "lyrical" ? 877677894 : 1983148141, 30, 252, 0, 1);
         }
         SECTION("Modified Parameter Values") {
             parameters.fps = 60;
@@ -403,7 +406,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             thread->start();
             thread->wait();
 
-            performVideoCheck(".mp4", 1983148141, 60, 0, 0, 252);
+            performVideoCheck(".mp4", distroEnvName == "lyrical" ? 877677894 : 1983148141, 60, 0, 0, 252);
         }
         SECTION("MKV BW Values") {
             parameters.targetDirectory = "./video.mkv";
@@ -420,7 +423,7 @@ TEST_CASE("Threads Testing", "[threads]") {
 
             thread->start();
             thread->wait();
-            performVideoCheck(".avi", 1094862674, 30, 255, 0, 3);
+            performVideoCheck(".avi", distroEnvName == "lyrical" ? 0 : 1094862674, 30, 255, 0, 3);
         }
         SECTION("Compressed Image Values") {
             parameters.sourceDirectory = "./compressed_image_bag";
@@ -433,7 +436,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             thread->start();
             thread->wait();
 
-            performVideoCheck(".mp4", 1983148141, 30, 0, 0, 252, true);
+            performVideoCheck(".mp4", distroEnvName == "lyrical" ? 877677894 : 1983148141, 30, 0, 0, 252, true);
         }
         std::filesystem::remove("./video.avi");
     }

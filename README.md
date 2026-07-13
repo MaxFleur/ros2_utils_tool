@@ -6,8 +6,11 @@
   <img src="https://img.shields.io/badge/License-EUPLv1.2-blue.svg"/>
   <img src="https://img.shields.io/badge/C++-20-blue.svg"/>
   <img src="https://img.shields.io/badge/Release-v0.15.1-blue.svg"/>
+</p>
+<p align="center">
   <img src="https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/jazzy.yml/badge.svg?event=push"/>
   <img src="https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/kilted.yml/badge.svg?event=push"/>
+  <img src="https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/lyrical.yml/badge.svg?event=push"/>
   <img src="https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/rolling.yml/badge.svg?event=push"/>
 </p>
 
@@ -167,13 +170,13 @@ The most important information can be found here:
 
 ### Prerequisites
 
-A working ROS2 distribution is required. As of now, **jazzy**, **kilted** and **rolling** are supported. Make sure that your ROS distro is properly sourced:
+A working ROS2 distribution is required. As of now, **jazzy**, **kilted**, **lyrical** and **rolling** are supported. Make sure that your ROS distro is properly sourced:
 ```
 source /opt/ros/distro_name/setup.bash
 ```
 
 > [!Note]  
-> As of version 0.14.0, **humble** is no longer supported and won't receive any more feature updates. However, critical bugfixes will still be included (see the `humble` branch).
+> As of version 0.15.0, **humble** is no longer supported and won't receive any more feature updates. However, critical bugfixes will still be included (see the `humble` branch).
 
 ### Dependencies
 
