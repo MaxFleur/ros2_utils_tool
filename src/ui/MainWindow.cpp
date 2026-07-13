@@ -119,9 +119,6 @@ MainWindow::setInputWidget(Utils::UI::TOOL_ID mode)
                                              m_dialogParameters.warnROS2NameConvention, false);
         break;
     case Utils::UI::TOOL_ID::SEND_TF2:
-        // There might be an active progress widget with a tf2 thread, which contains a ROS node.
-        // We have to destroy this node before creating a new SendTF2Widget to avoid having two nodes at the same time
-        delete centralWidget();
         basicInputWidget = new SendTF2Widget(m_parametersSendTF2);
         break;
     case Utils::UI::TOOL_ID::TOPICS_SERVICES_INFO:
