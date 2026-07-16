@@ -15,16 +15,22 @@ volatile sig_atomic_t signalStatus = 0;
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run ros2_utils_tool tool_tf2_to_file path/to/bag path/to/output/file\n\n";
-    std::cout << "Accepted file formats are json or yaml.\n\n";
-    std::cout << "Additional parameters:\n";
-    std::cout << "-t or --topic_name: tf2 topic inside the bag. If no topic name is specified, the first found tf2 topic in the bag is taken.\n\n";
-    std::cout << "-k or --keep_timestamps: Keep the message's timestamp in the output file.\n";
-    std::cout << "-i or --indent (json only): Indent the output file.\n\n";
-    std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_tf2_to_file [-h] [bag_path] [output_file_path.{json,yaml}] [-t] [-k] [-i] [-s]\n\n";
+    std::cout << "Convert bag transformations to file.\n\n";
+    std::cout << "positional arguments:\n";
+    std::cout << "  bag_path              Source bag file.\n";
+    std::cout << "  output_file_path.{json,yaml}\n";
+    std::cout << "                        The file containing the transformation(s). Accepted file formats are json or yaml.\n\n";
+    std::cout << "options:\n";
+    std::cout << "  -h, --help            Show this help message and exit.\n";
+    std::cout << "  -t, --topic_name TOPIC\n";
+    std::cout << "                        Bag tf2 topic to convert. If no topic name is specified, the first found topic with type tf2 is taken.\n";
+    std::cout << "  -k, --keep_timestamps\n";
+    std::cout << "                        Keep the message's timestamp in the output file.\n";
+    std::cout << "  -i, --indent          Indent the output file. json only.\n";
+    std::cout << "  -s, --suppress        Suppress any warnings.\n\n";
     std::cout << "Example usage:\n";
-    std::cout << "ros2 run ros2_utils_tool tool_tf2_to_file /home/usr/input_bag /home/usr/output_file.json -k -i\n\n";
-    std::cout << "-h or --help: Show this help.\n";
+    std::cout << "ros2 run ros2_utils_tool tool_tf2_to_file /home/usr/input_bag /home/usr/output_file.json -k -i" << std::endl;
 }
 
 

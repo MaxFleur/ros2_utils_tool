@@ -16,16 +16,26 @@ volatile sig_atomic_t signalStatus = 0;
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run ros2_utils_tool tool_merge_bags path/to/first/bag path/to/second/bag -t1 (...) -t2 (...) path/to/target/bag\n\n";
-    std::cout << "Topic names after '-t1' are those contained in the first bag file, names after '-t2' in the second file.\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_merge_bags [-h] [bag_path_first] [bag_path_second] [-t1 Topic [Topic...]]\n";
+    std::cout << "                                                [-t2 Topic [Topic...]] [output_merged_bag] [-th NUMBER_OF_THREADS] [-d] [-s]\n\n";
+    std::cout << "Merge topics from two bag files into a new bag file.\n";
     std::cout << "Note that duplicate specified topics (equal topics contained in both bags) will be merged to one.\n\n";
-    std::cout << "Additional parameters:\n";
-    std::cout << "-th or --threads: Number of threads. Minimum is 1, maximum is " << std::thread::hardware_concurrency() << ", default is 1.\n\n";
-    std::cout << "-d or --delete: Delete the source bag files.\n\n";
-    std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "positional arguments:\n";
+    std::cout << "  bag_path_first        First bag file to merge.\n";
+    std::cout << "  bag_path_second       Second bag file to merge.\n";
+    std::cout << "  [-t1 Topic [Topic...]]\n";
+    std::cout << "                        List of topics from the first bag file to be merged.\n";
+    std::cout << "  [-t2 Topic [Topic...]]\n";
+    std::cout << "                        List of topics from the second bag file to be merged.\n";
+    std::cout << "  output_merged_bag     Output merged bag file.\n\n";
+    std::cout << "options:\n";
+    std::cout << "  -h, --help            Show this help message and exit.\n";
+    std::cout << "  -th NUMBER_OF_THREADS, --threads NUMBER_OF_THREADS\n";
+    std::cout << "                        Number of threads used to merge. Minimum is 1, maximum is " << std::thread::hardware_concurrency() << ", defaults to 1.\n";
+    std::cout << "  -d, --delete          Delete the source files after completion.\n";
+    std::cout << "  -s, --suppress        Suppress any warnings.\n\n";
     std::cout << "Example usage:\n";
-    std::cout << "ros2 run ros2_utils_tool tool_merge_bags /home/usr/first_bag /home/usr/second_bag -t1 /lidar -t2 /video /sensor /home/usr/target_bag -th 4\n\n";
-    std::cout << "-h or --help: Show this help.\n";
+    std::cout << "ros2 run ros2_utils_tool tool_merge_bags /home/usr/first_bag /home/usr/second_bag -t1 /lidar -t2 /video /sensor /home/usr/target_bag -th 4" << std::endl;
 }
 
 

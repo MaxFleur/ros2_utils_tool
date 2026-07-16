@@ -14,20 +14,29 @@ volatile sig_atomic_t signalStatus = 0;
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run ros2_utils_tool tool_bag_to_images path/to/bag path/to/images\n\n";
-    std::cout << "Additional parameters:\n";
-    std::cout << "-f or --format: Must be jpg, png or bmp, default is jpg.\n";
-    std::cout << "-t or --topic_name: Video topic inside the bag. If no topic name is specified, the first found video topic in the bag is taken.\n";
-    std::cout << "-th or --threads: Number of threads. Minimum is 1, maximum is " << std::thread::hardware_concurrency() << ", default is 1.\n\n";
-    std::cout << "-c or --colorless: Encode images without color.\n";
-    std::cout << "-e or --exchange: Exchange red and blue values.\n";
-    std::cout << "-b or --binary (png only): Write images with only black and white pixels.\n";
-    std::cout << "-o or --optimize (jpg only): Optimize jpg file size.\n";
-    std::cout << "-q or --quality (jpg and png only): Image quality. Minimum is 0, maximum is 9, default is 8.\n\n";
-    std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_bag_to_images [-h] [bag_path] [output_files_path] [-f {jpg,png,bmp}] [-t TOPIC_NAME]\n";
+    std::cout << "                                                   [-th NUMBER_OF_THREADS] [-c] [-e] [-b] [-o] [-q QUALITY] [-s]\n\n";
+    std::cout << "Convert bag image messages to a list of files\n\n";
+    std::cout << "positional arguments:\n";
+    std::cout << "  bag_path              Source bag file.\n";
+    std::cout << "  output_files_path     Directory containing the output image files.\n\n";
+    std::cout << "options:\n";
+    std::cout << "  -h, --help            Show this help message and exit.\n";
+    std::cout << "  -f {jpg,png,bmp}, --format {jpg,png,bmp}\n";
+    std::cout << "                        File format, defaults to jpg.\n";
+    std::cout << "  -t TOPIC_NAME, --topic_name TOPIC_NAME\n";
+    std::cout << "                        Bag image topic to convert. If no topic name is specified, the first found image topic is taken.\n";
+    std::cout << "  -th NUMBER_OF_THREADS, --threads NUMBER_OF_THREADS\n";
+    std::cout << "                        Number of threads used for writing. Minimum is 1, maximum is " << std::thread::hardware_concurrency() << ", defaults to 1.\n";
+    std::cout << "  -c, --colorless       Encode images without color.\n";
+    std::cout << "  -e, --exchange        Exchange red and blue values.\n";
+    std::cout << "  -b, --binary          Write images with only black and white pixels, png only.\n";
+    std::cout << "  -o, --optimize        Optimize jpg file size, jpg only.\n";
+    std::cout << "  -q QUALITY, --quality QUALITY\n";
+    std::cout << "                        Image quality. Minimum is 0, maximum is 9, defaults to 8. jpg and png only.\n";
+    std::cout << "  -s, --suppress        Suppress any warnings.\n\n";
     std::cout << "Example usage:\n";
-    std::cout << "ros2 run ros2_utils_tool tool_bag_to_images /home/usr/input_bag /home/usr/images_dir -t /endoscope_video -f png -q 8 -th 4 -e\n\n";
-    std::cout << "-h or --help: Show this help.\n";
+    std::cout << "ros2 run ros2_utils_tool tool_bag_to_images /home/usr/input_bag /home/usr/images_dir -t /endoscope_video -f png -q 8 -th 4 -e" << std::endl;
 }
 
 
