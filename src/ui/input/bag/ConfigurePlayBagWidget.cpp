@@ -32,8 +32,13 @@ ConfigurePlayBagWidget::ConfigurePlayBagWidget(Parameters::PlayBagParameters& pa
 
     m_rateSpinBox = new QDoubleSpinBox;
     m_rateSpinBox->setDecimals(NUMBER_OF_DECIMALS);
-    m_rateSpinBox->setRange(SPINBOX_LOWER_RANGE, SPINBOX_UPPER_RANGE);
+    m_rateSpinBox->setRange(SPINBOX_LOWER_RANGE_RATE, SPINBOX_UPPER_RANGE_RATE);
     m_rateSpinBox->setValue(m_parameters.rate);
+
+    m_offsetSpinBox = new QDoubleSpinBox;
+    m_offsetSpinBox->setDecimals(NUMBER_OF_DECIMALS);
+    m_offsetSpinBox->setRange(SPINBOX_LOWER_RANGE_OFFSET, SPINBOX_UPPER_RANGE_OFFSET);
+    m_offsetSpinBox->setValue(m_parameters.offset);
 
     m_loopCheckBox = new QCheckBox;
     m_loopCheckBox->setTristate(false);
@@ -50,6 +55,9 @@ ConfigurePlayBagWidget::ConfigurePlayBagWidget(Parameters::PlayBagParameters& pa
 
     connect(m_rateSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this] (double value) {
         writeParameterToSettings(m_parameters.rate, value, m_settings);
+    });
+    connect(m_offsetSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this] (double value) {
+        writeParameterToSettings(m_parameters.offset, value, m_settings);
     });
     connect(m_loopCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.loop, state == Qt::Checked, m_settings);
@@ -117,6 +125,7 @@ ConfigurePlayBagWidget::populateTreeWidget()
     }
 
     m_lowerOptionsLayout->addRow("Rate:", m_rateSpinBox);
+    m_lowerOptionsLayout->addRow("Start Offset:", m_offsetSpinBox);
     m_lowerOptionsLayout->addRow("Loop File:", m_loopCheckBox);
     m_rowsAdded = true;
 }

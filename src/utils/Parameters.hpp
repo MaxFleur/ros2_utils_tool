@@ -48,6 +48,7 @@ struct SelectableBagContentParameters : BasicParameters {
 };
 struct PlayBagParameters : SelectableBagContentParameters {
     double rate = 1.0;
+    double offset = 0.0;
     bool   loop = false;
 };
 struct RecordBagParameters : SelectableBagContentParameters {

@@ -194,7 +194,7 @@ TEST_CASE("Settings Testing", "[settings]") {
     SECTION("Play Bag Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("play_bag");
-            checkSettingsInvalidacy(qSettings, { "topics", "rate", "loop" });
+            checkSettingsInvalidacy(qSettings, { "topics", "rate", "offset", "loop" });
             qSettings.endGroup();
         }
         SECTION("Write") {
@@ -203,11 +203,13 @@ TEST_CASE("Settings Testing", "[settings]") {
 
             parameters.topics.push_back({ { "topic" }, true });
             parameters.rate = 4.2;
+            parameters.offset = 4.2;
             parameters.loop = true;
             settings.write();
 
             qSettings.beginGroup("play_bag");
             verifiySettingPrimitive(qSettings, "rate", 4.2);
+            verifiySettingPrimitive(qSettings, "offset", 4.2);
             verifiySettingPrimitive(qSettings, "loop", true);
 
             qSettings.endGroup();
