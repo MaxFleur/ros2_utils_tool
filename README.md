@@ -5,7 +5,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/License-EUPLv1.2-blue.svg"/>
   <img src="https://img.shields.io/badge/C++-20-blue.svg"/>
-  <img src="https://img.shields.io/badge/Release-v0.15.1-blue.svg"/>
+  <img src="https://img.shields.io/badge/Release-v0.16.0-blue.svg"/>
 </p>
 <p align="center">
   <img src="https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/jazzy.yml/badge.svg?event=push"/>
@@ -102,8 +102,8 @@ The most important information can be found here:
       <td align="center">X</td>
     </tr>
     <tr>
-      <td><b>Bag Recordings</b></td>
-      <td>Record a ROS bag, UI based. Supports topic selection, compression, bag splitting and including hidden/unpublished topics.</td>
+      <td><b>Record Bag</b></td>
+      <td>Record a ROS bag, UI based. Supports topic and service selection, compression, bag splitting and including hidden/unpublished topics.</td>
       <td align="center">X (<code>ros2 bag record</code>)</td>
     </tr>
     <tr>
@@ -122,8 +122,8 @@ The most important information can be found here:
       <td align="center">X</td>
     </tr>
     <tr>
-      <td><b>Bag Playing</b></td>
-      <td>Play a bag file, UI based. Supports topic selection and interactive commands such as stopping/resuming, rate adjustion and message skipping..</td>
+      <td><b>Play Bag</b></td>
+      <td>Play a bag file, UI based. Supports topic and service selection and interactive commands such as stopping/resuming, rate adjustion and message skipping.</td>
       <td align="center">X (<code>ros2 bag play</code>)</td>
     </tr>
     <tr>
@@ -285,7 +285,7 @@ ros2 run ros2_utils_tool tool_merge_bags path/to/first_bag path/to/second_bag -t
 ```
 ros2 run ros2_utils_tool tool_dummy_bag path/to/bag topic_type_1 topic_name_1 ... message_count
 ```
-(Topic type needs to be `String`, `Integer`, `Image` or `PointCloud`, up to four topics can be written, `message_count` needs to be a value from 1 to 1000).
+(Topic type needs to be `Integer`, `Image` or `PointCloud`, `String` or `TF2`, up to five topics can be written, `message_count` needs to be a value from 1 to 1000).
 
 **Compress-Bag-Tool**:
 ```
