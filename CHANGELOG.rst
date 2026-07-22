@@ -1,6 +1,26 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Changelog for the ros2_utils_tool
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+0.16.0 (2026-07-26)
+-------------------
+**New:**
+
+* Support for Lyrical.
+* Compressed image message support for the bag to images, bag to video and video to bag tool.
+* UI - The record bag tool now offers a play/pause command while recording, while also showing controls information. Additionally, it now shows the recorded bag file size and remaining disk space.
+* UI - A "Start offset" spin box for the play bag tool.
+* UI - The bag info tool now also shows the serialization format for each tool.
+
+**Changed/Improved:**
+
+* CLI - All help messages were redesigned to more closely resemble standard ROS2 help messages.
+
+**Fixed:**
+
+* UI - The play bag tool not correctly storing/recognizing selected topics.
+* UI - The play bag tool lower layout missing after reloading the widget.
+* UI - Possible duplicate UI elements in the play bag tool when loading bag files multiple times.
+
 0.15.1 (2026-03-04)
 -------------------
 **Changed/Improved:**
