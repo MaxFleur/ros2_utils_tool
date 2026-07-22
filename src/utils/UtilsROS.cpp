@@ -1,7 +1,6 @@
 #include "UtilsROS.hpp"
 
-#include <QRegularExpression>
-
+#include "rcl/validate_topic_name.h"
 #include "rosbag2_storage/metadata_io.hpp"
 #include "tf2_ros/static_transform_broadcaster.h"
 
@@ -247,29 +246,21 @@ getBagTopicNames(const QString& bagDirectory, const QString& topicType)
 bool
 isTopicNameROS2Conform(const QString& topicName)
 {
-    // Only may contain A-z, a-z, 0-9, _ and /
-    QRegularExpression regularExpression("[^A-Za-z0-9/_{}~]");
-    if (topicName.contains(regularExpression)) {
+    // ROS2 offers functions to validate topic names, but strangely, these do not take all restrictions into concern,
+    // for example double slashes/underscores or tilde positioning... so we have to do it ourselfes
+    if (topicName.contains("//") || topicName.contains("__")) {
         return false;
     }
-    // Must not end with /, must not contain __ and //
-    if (topicName.endsWith('/') || topicName.contains("//") || topicName.contains("__")) {
+    // Tilde after the string's beginning has to be checked manually as well
+    if (topicName.lastIndexOf('~') > 0) {
         return false;
     }
-    // First character must not contain a number
-    const auto firstCharacter = QString(topicName.front());
-    regularExpression.setPattern("[0-9]");
-    if (firstCharacter.contains(regularExpression)) {
-        return false;
-    }
-    // If a ~ is contained, the next character must be a /
-    for (auto i = 0; i < topicName.length() - 1; i++) {
-        if (topicName.at(i) == '~' && topicName.at(i + 1) != '/') {
-            return false;
-        }
-    }
-    // Must have balanced curly braces
-    return topicName.count(QLatin1Char('{')) == topicName.count(QLatin1Char('}'));
+
+    // For everything else, we can use ROS2
+    auto validationResult = RCL_TOPIC_NAME_VALID;
+    const auto ret = rcl_validate_topic_name(topicName.toUtf8().constData(), &validationResult, nullptr);
+
+    return ret == RCL_RET_OK && validationResult == RCL_TOPIC_NAME_VALID;
 }
 
 
