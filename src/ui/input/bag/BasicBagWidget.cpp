@@ -12,16 +12,11 @@
 
 #include <filesystem>
 
-BasicBagWidget::BasicBagWidget(Parameters::SelectableBagTopicParameters& parameters,
+BasicBagWidget::BasicBagWidget(Parameters::SelectableBagContentParameters& parameters,
                                const QString& titleText, const QString& iconText, const QString& settingsText, const QString& unselectLabelText, QWidget *parent)
     : BasicInputWidget(titleText, iconText, parent), m_parameters(parameters),
     m_settings(parameters, settingsText), m_isPlayBag(settingsText == "play_bag")
 {
-    if (!std::filesystem::exists(m_parameters.sourceDirectory.toStdString()) ||
-        !Utils::ROS::doesDirectoryContainBagFile(m_parameters.sourceDirectory)) {
-        m_parameters.sourceDirectory = QString();
-        writeParameterToSettings(m_parameters.sourceDirectory, QString(), m_settings);
-    }
     m_sourceLineEdit->setText(m_parameters.sourceDirectory);
 
     m_unselectLabel = new QLabel(unselectLabelText);
@@ -77,8 +72,17 @@ BasicBagWidget::itemCheckStateChanged(QTreeWidgetItem* item, int column)
         return;
     }
 
-    const auto rowIndex = m_treeWidget->indexOfTopLevelItem(item);
-    writeParameterToSettings(m_parameters.topics[rowIndex].isSelected, item->checkState(COL_CHECKBOXES) == Qt::Checked, m_settings);
+    auto* labelName = qobject_cast<QLabel*>(m_treeWidget->itemWidget(item, COL_TOPIC_NAME));
+    auto* labelType = qobject_cast<QLabel*>(m_treeWidget->itemWidget(item, COL_TOPIC_TYPE));
+    // Need to know which vector we have to adjust
+    auto& vector = labelType->text().contains("/msg/") ? m_parameters.topics : m_parameters.services;
+    // Find the right index
+    auto it = std::find_if(vector.begin(), vector.end(), [labelName] (const auto& element) {
+        return QString::compare(element.name, labelName->text()) == 0;
+    });
+    const auto vectorIndex = std::distance(std::begin(vector), it);
+
+    writeParameterToSettings(vector[vectorIndex].isSelected, item->checkState(COL_CHECKBOXES) == Qt::Checked, m_settings);
     enableOkButton();
 }
 

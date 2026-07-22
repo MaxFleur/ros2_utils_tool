@@ -9,6 +9,8 @@ target_include_directories (rt_ros
 target_sources(rt_ros INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/BagPlayer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BagPlayer.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/BagRecorder.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/BagRecorder.hpp
 )
 
 target_link_libraries(rt_ros

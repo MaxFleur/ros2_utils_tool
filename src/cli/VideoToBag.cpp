@@ -14,17 +14,26 @@ volatile sig_atomic_t signalStatus = 0;
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run ros2_utils_tool tool_video_to_bag path/to/video path/to/bag\n\n";
-    std::cout << "The video must have an ending of .mp4 or .mkv.\n";
-    std::cout << "Additional parameters:\n";
-    std::cout << "-r or --rate: Framerate for the image stream. Minimum is 10, maximum is 60, default is original video's rate.\n";
-    std::cout << "-t or --topic_name: Topic name. If this is empty, the name '/topic_video' will be taken.\n\n";
-    std::cout << "-a or --accelerate: Use hardware acceleration.\n";
-    std::cout << "-e or --exchange: Exchange red and blue values.\n\n";
-    std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_video_to_bag [-h] [video_path.{mp4,mkv}] [output_bag_path] [-r RATE]\n";
+    std::cout << "                                                  [-t TOPIC_NAME] [-a] [-c] [-e] [-l] [-f {jpg,png}] [-s]\n\n";
+    std::cout << "Convert a video to a ROS bag.\n\n";
+    std::cout << "positional arguments:\n";
+    std::cout << "  video_path.{mp4,mkv}  Source video file.\n";
+    std::cout << "  output_bag_path       Output bag file.\n\n";
+    std::cout << "options:\n";
+    std::cout << "  -h, --help            Show this help message and exit.\n";
+    std::cout << "  -r RATE, --rate RATE  Framerate for the encoded video. Minimum is 10, maximum is 60, default is 30.\n";
+    std::cout << "  -t TOPIC_NAME, --topic_name TOPIC_NAME\n";
+    std::cout << "                        Bag image topic to convert. If no topic name is specified, the first found topic with type image is taken.\n";
+    std::cout << "  -a, --accelerate      Use hardware acceleration.\n";
+    std::cout << "  -c, --compress        Compress the video frames, using compressed image messages.\n";
+    std::cout << "  -e, --exchange        Exchange red and blue values.\n";
+    std::cout << "  -l, --lossless        Use lossless images. mkv only.\n";
+    std::cout << "  -f {jpg,png}, --format {jpg,png}\n";
+    std::cout << "                        Compressed image message format, defaults to jpg.\n";
+    std::cout << "  -s, --suppress        Suppress any warnings.\n\n";
     std::cout << "Example usage:\n";
-    std::cout << "ros2 run ros2_utils_tool tool_video_to_bag /home/usr/video.mkv /home/usr/output_bag -t /example_topic -r 20 -a -s\n\n";
-    std::cout << "-h or --help: Show this help.\n";
+    std::cout << "ros2 run ros2_utils_tool tool_video_to_bag /home/usr/video.mkv /home/usr/output_bag -t /example_topic -r 20 -a -s" << std::endl;
 }
 
 
@@ -40,7 +49,8 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    const QVector<QString> checkList{ "-r", "-t", "-a", "-e", "-s", "--rate", "--topic_name", "--accelerate", "--exchange", "--suppress" };
+    const QVector<QString> checkList{ "-r", "-t", "-a", "-c", "-e", "-f", "-s",
+                                      "--rate", "--topic_name", "--accelerate", "--compress", "--exchange", "--format", "--suppress" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
@@ -75,6 +85,12 @@ main(int argc, char* argv[])
         }
         // Hardware acceleration
         useHardwareAcceleration = Utils::CLI::containsArguments(arguments, "-a", "--accelerate");
+        // Compression enabled/disabled
+        parameters.useCompression = Utils::CLI::containsArguments(arguments, "-c", "--compression");
+        // Compression format
+        if (Utils::CLI::containsArguments(arguments, "-f", "--format")) {
+            parameters.isCompressionJPEG = arguments.at(Utils::CLI::getFormatIndex(arguments, { "jpg", "png" })) == "jpg";
+        }
         // Exchange red and blue values
         parameters.exchangeRedBlueValues = Utils::CLI::containsArguments(arguments, "-e", "--exchange");
     }

@@ -14,14 +14,22 @@ volatile sig_atomic_t signalStatus = 0;
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run ros2_utils_tool tool_bag_to_pcds path/to/bag path/to/pcds\n\n";
-    std::cout << "Additional parameters:\n";
-    std::cout << "-t or --topic_name: Point cloud topic inside the bag. If no topic name is specified, the first found point cloud topic in the bag is taken.\n";
-    std::cout << "-th or --threads: Number of threads. Minimum is 1, maximum is " << std::thread::hardware_concurrency() << ", default is 1.\n\n";
-    std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_bag_to_pcds [-h] [bag_path] [output_files_path] [-t TOPIC_NAME]\n";
+    std::cout << "                                                 [-th NUMBER_OF_THREADS] [-s]\n\n";
+    std::cout << "Convert bag point cloud messages to a list of files\n\n";
+    std::cout << "positional arguments:\n";
+    std::cout << "  bag_path              Source bag file.\n";
+    std::cout << "  output_files_path     Directory containing the output image files.\n\n";
+    std::cout << "options:\n";
+    std::cout << "  -h, --help            Show this help message and exit.\n";
+    std::cout << "  -t TOPIC_NAME, --topic_name TOPIC_NAME\n";
+    std::cout << "                        Bag point cloud topic to convert.\n";
+    std::cout << "                        If no topic name is specified, the first found topic with type point cloud is taken.\n";
+    std::cout << "  -th NUMBER_OF_THREADS, --threads NUMBER_OF_THREADS\n";
+    std::cout << "                        Number of threads used for writing. Minimum is 1, maximum is " << std::thread::hardware_concurrency() << ", defaults to 1.\n";
+    std::cout << "  -s, --suppress        Suppress any warnings.\n\n";
     std::cout << "Example usage:\n";
-    std::cout << "ros2 run ros2_utils_tool tool_bag_to_pcds /home/usr/input_bag /home/usr/pcd_dir -th 4\n\n";
-    std::cout << "-h or --help: Show this help.\n";
+    std::cout << "ros2 run ros2_utils_tool tool_bag_to_pcds /home/usr/input_bag /home/usr/pcd_dir -th 4" << std::endl;
 }
 
 
@@ -57,7 +65,7 @@ main(int argc, char* argv[])
     // Check for optional arguments
     if (arguments.size() > 3) {
         // Topic name
-        Utils::CLI::checkTopicNameValidity(arguments, parameters.sourceDirectory, "sensor_msgs/msg/PointCloud2", parameters.topicName);
+        Utils::CLI::checkTopicNameValidity(arguments, parameters.sourceDirectory, { "sensor_msgs/msg/PointCloud2" }, parameters.topicName);
     }
 
     // Thread count
@@ -68,7 +76,7 @@ main(int argc, char* argv[])
 
     // Search for topic name in bag file if not specified
     if (parameters.topicName.isEmpty()) {
-        Utils::CLI::checkForTargetTopic(parameters.sourceDirectory, parameters.topicName, "sensor_msgs/msg/PointCloud2");
+        Utils::CLI::checkForTargetTopic(parameters.sourceDirectory, parameters.topicName, { "sensor_msgs/msg/PointCloud2" });
     }
 
     if (!Utils::CLI::continueExistingTargetLowDiskSpace(arguments, parameters.targetDirectory)) {

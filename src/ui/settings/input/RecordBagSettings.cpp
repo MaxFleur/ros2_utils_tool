@@ -1,7 +1,7 @@
 #include "RecordBagSettings.hpp"
 
 RecordBagSettings::RecordBagSettings(Parameters::RecordBagParameters& parameters, const QString& groupName) :
-    SelectableBagTopicSettings(parameters, groupName), m_parameters(parameters)
+    SelectableBagContentSettings(parameters, groupName), m_parameters(parameters)
 {
     read();
 }
@@ -10,7 +10,7 @@ RecordBagSettings::RecordBagSettings(Parameters::RecordBagParameters& parameters
 bool
 RecordBagSettings::write()
 {
-    if (!SelectableBagTopicSettings::write()) {
+    if (!SelectableBagContentSettings::write()) {
         return false;
     }
 
@@ -31,7 +31,7 @@ RecordBagSettings::write()
 bool
 RecordBagSettings::read()
 {
-    if (!SelectableBagTopicSettings::read()) {
+    if (!SelectableBagContentSettings::read()) {
         return false;
     }
 

@@ -12,7 +12,6 @@
 #include "PCDsToBagThread.hpp"
 #include "PublishImagesThread.hpp"
 #include "PublishVideoThread.hpp"
-#include "RecordBagThread.hpp"
 #include "SendTF2Thread.hpp"
 #include "BagTF2ToFileThread.hpp"
 #include "VideoToBagThread.hpp"
@@ -27,7 +26,7 @@
 
 ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::BasicParameters& parameters,
                                const Utils::UI::TOOL_ID threadTypeId, QWidget *parent) :
-    QWidget(parent)
+    StoppableWidget(parent)
 {
     // Create thread
     switch (threadTypeId) {
@@ -60,9 +59,6 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
     case Utils::UI::TOOL_ID::MERGE_BAGS:
         m_thread = new MergeBagsThread(dynamic_cast<Parameters::MergeBagsParameters&>(parameters),
                                        DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
-        break;
-    case Utils::UI::TOOL_ID::RECORD_BAG:
-        m_thread = new RecordBagThread(dynamic_cast<Parameters::RecordBagParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_ID::DUMMY_BAG:
         m_thread = new DummyBagThread(dynamic_cast<Parameters::DummyBagParameters&>(parameters),
@@ -146,10 +142,6 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
         progressLabel->setText("Decompressing and writing new Bag File...");
         setMovie(":/gifs/decompressing", 55, 120);
         break;
-    case Utils::UI::TOOL_ID::RECORD_BAG:
-        progressLabel->setText("Recording Bag File...");
-        setMovie(":/gifs/recording", 120, 70);
-        break;
     case Utils::UI::TOOL_ID::PUBLISH_VIDEO:
     case Utils::UI::TOOL_ID::PUBLISH_IMAGES:
         setMovie(":/gifs/publishing", 120, 100);
@@ -197,7 +189,7 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
             m_thread->requestInterruption();
             m_thread->wait();
         }
-        emit progressStopped();
+        emit stopped();
     });
     connect(finishedButton, &QPushButton::clicked, this, [this] {
         emit finished();
@@ -224,7 +216,7 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
                                                  "The file processing failed. Please make sure that all input parameters are set correctly, "
                                                  "that the input data is valid and disable the hardware acceleration, if necessary.");
         messageBox->exec();
-        emit progressStopped();
+        emit stopped();
     });
 }
 

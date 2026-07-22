@@ -2,17 +2,17 @@
 
 #include "BasicThread.hpp"
 #include "Parameters.hpp"
+#include "StoppableWidget.hpp"
 #include "UtilsUI.hpp"
 
 #include <QPointer>
-#include <QWidget>
 
 class QMovie;
 
 // Base widget showing overall progress
 // The progress widget will access the main thread used to perform the corresponding operation.
 // If the user presses the Cancel button, the thread will be cancelled and the input widget will be shown again.
-class ProgressWidget : public QWidget
+class ProgressWidget : public StoppableWidget
 {
     Q_OBJECT
 
@@ -31,9 +31,6 @@ public:
     }
 
 signals:
-    void
-    progressStopped();
-
     void
     finished();
 

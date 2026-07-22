@@ -16,18 +16,22 @@ volatile sig_atomic_t signalStatus = 0;
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run ros2_utils_tool tool_publish_images path/to/images\n\n";
-    std::cout << "The images must have format jpg, png or bmp.\n\n";
-    std::cout << "Additional parameters:\n";
-    std::cout << "-sc width height or --scale width height: Scale the video to a new resolution. width must be in the range of 1 to 3840, height of 1 to 2160.\n";
-    std::cout << "-r or --rate: Framerate for the published video. Minimum is 1, maximum is 60, default is 30.\n";
-    std::cout << "-t or --topic_name: Topic name. If no topic name is specified, the name '/topic_video' will be taken.\n\n";
-    std::cout << "-e or --exchange: Exchange red and blue values.\n";
-    std::cout << "-l or --loop: Loop the video.\n\n";
-    std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_publish_images [-h] [images_dir] [-sc WIDTH HEIGHT] [-r RATE] [-t TOPIC_NAME] [-e] [-l] [-s]\n\n";
+    std::cout << "Publish a set of images as a ROS2 image messages stream. The images must have format jpg, png or bmp.\n\n";
+    std::cout << "positional arguments:\n";
+    std::cout << "  files_dir             Source files directory.\n";
+    std::cout << "options:\n";
+    std::cout << "  -h, --help            Show this help message and exit.\n";
+    std::cout << "  -sc WIDTH HEIGHT, --scale WIDTH HEIGHT\n";
+    std::cout << "                        Scale the video to a new resolution. WIDTH must be in the range of 1 to 3840, HEIGHT of 1 to 2160.\n";
+    std::cout << "  -r RATE, --rate RATE  Number of messages per second. Minimum is 1, maximum is 60, defaults to 30.\n";
+    std::cout << "  -t TOPIC_NAME, --topic_name TOPIC_NAME\n";
+    std::cout << "                        Image messages topic name, defaults to '/topic_video'.\n";
+    std::cout << "  -e, --exchange        Exchange red and blue values.\n";
+    std::cout << "  -l, --loop            Loop the video.\n";
+    std::cout << "  -s, --suppress        Suppress any warnings.\n\n";
     std::cout << "Example usage:\n";
-    std::cout << "ros2 run ros2_utils_tool tool_publish_images /home/usr/images_dir -sc 1280 720 -t /images_scaled -r 25 -l\n\n";
-    std::cout << "-h or --help: Show this help.\n";
+    std::cout << "ros2 run ros2_utils_tool tool_publish_images /home/usr/images_dir -sc 1280 720 -t /images_scaled -r 25 -l" << std::endl;
 }
 
 

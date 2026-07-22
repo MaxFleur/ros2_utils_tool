@@ -32,6 +32,10 @@ getArgumentsIndex(const QStringList& argumentsList,
                   const QString&     shortArg,
                   const QString&     longArg);
 
+int
+getFormatIndex(const QStringList& argumentsList,
+               const QStringList& formats);
+
 // Check if an argument to be set with a value is correctly called
 bool
 checkArgumentValidity(const QStringList& argumentsList,
@@ -49,10 +53,10 @@ checkTopicParameterPosition(const QStringList& argumentsList);
 
 // If a topic name is existent and the corresponding topic in the according format
 void
-checkTopicNameValidity(const QStringList& argumentsList,
-                       const QString&     bagDirectory,
-                       const QString&     topicType,
-                       QString&           topicNameToSet);
+checkTopicNameValidity(const QStringList&      argumentsList,
+                       const QString&          bagDirectory,
+                       const QVector<QString>& topicType,
+                       QString&                topicNameToSet);
 
 // Checks if a source bag directory exists and contains a valid bag file
 void
@@ -66,9 +70,9 @@ checkParentDirectory(const QString& directory,
 // Checks for existing topics in a bag directory and writes the
 // first found topic to a parameter topic name, if found
 void
-checkForTargetTopic(const QString& directory,
-                    QString&       parameterTopicName,
-                    const QString& topicType);
+checkForTargetTopic(const QString&          directory,
+                    QString&                parameterTopicName,
+                    const QVector<QString>& topicTypes);
 
 // Ask if the tool should continue for cases of invalidacies
 bool

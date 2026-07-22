@@ -16,12 +16,6 @@ void
 setWidgetFontSize(QWidget* widget,
                   bool     isButton = false);
 
-// Add topics contained in a ROS bag to a QComboBox
-[[maybe_unused]] bool
-fillComboBoxWithTopics(QPointer<QComboBox> comboBox,
-                       const QString&      bagDirectory,
-                       const QString&      topicType);
-
 // Create and set a checkbox aling with its value and tooltip
 [[nodiscard]] QCheckBox*
 createCheckBox(const QString& toolTipText,

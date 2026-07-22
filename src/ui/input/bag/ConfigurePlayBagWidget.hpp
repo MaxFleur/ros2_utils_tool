@@ -34,13 +34,18 @@ private:
     QPointer<QFormLayout> m_lowerOptionsLayout;
     QPointer<QCheckBox> m_loopCheckBox;
     QPointer<QDoubleSpinBox> m_rateSpinBox;
+    QPointer<QDoubleSpinBox> m_offsetSpinBox;
 
     Parameters::PlayBagParameters& m_parameters;
 
     PlayBagSettings m_settings;
 
-    static constexpr double SPINBOX_LOWER_RANGE = 0.0;
-    static constexpr double SPINBOX_UPPER_RANGE = 100.0;
+    bool m_rowsAdded{ false };
+
+    static constexpr double SPINBOX_LOWER_RANGE_RATE = 1.0;
+    static constexpr double SPINBOX_LOWER_RANGE_OFFSET = .0;
+    static constexpr double SPINBOX_UPPER_RANGE_RATE = 100.0;
+    static constexpr double SPINBOX_UPPER_RANGE_OFFSET = 10000.0;
 
     static constexpr int NUMBER_OF_DECIMALS = 1;
 };

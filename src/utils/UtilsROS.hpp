@@ -13,10 +13,6 @@
 
 #include <string>
 
-template<typename T, typename U>
-concept WriteMessageParameter = (std::same_as<T, std_msgs::msg::String> && std::same_as<U, std::string&>) ||
-                                (std::same_as<T, std_msgs::msg::Int32> && std::same_as<U, int>);
-
 // ROS related util functions
 namespace Utils::ROS
 {
@@ -91,4 +87,8 @@ getBagTopicNames(const QString& bagDirectory,
 // Returns if a topic name follows the ROS2 naming convention
 [[nodiscard]] bool
 isTopicNameROS2Conform(const QString& topicName);
+
+// Returns the current ROS time. Does not require a node.
+QString
+getCurrentROSTimeAsString(rclcpp::Node* node = nullptr);
 }

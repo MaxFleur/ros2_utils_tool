@@ -33,6 +33,29 @@ getArgumentsIndex(const QStringList& argumentsList, const QString& shortArg, con
 }
 
 
+int
+getFormatIndex(const QStringList& arguments, const QStringList& formats)
+{
+    const auto formatIndex = Utils::CLI::getArgumentsIndex(arguments, "-f", "--format");
+    if (arguments.at(formatIndex) != arguments.last() && formats.contains(arguments.at(formatIndex + 1))) {
+        return formatIndex + 1;
+    }
+
+    QString acceptedFormatsString = "";
+    for (auto i = 0; i < formats.size() - 1; ++i) {
+        acceptedFormatsString += formats.at(i);
+        if (i >= formats.size() - 2) {
+            continue;
+        }
+
+        acceptedFormatsString += ", ";
+    }
+    acceptedFormatsString += " and " + formats.back();
+
+    throw std::runtime_error("Invalid format detected. Accepted formats are: " + acceptedFormatsString.toStdString() + ".");
+}
+
+
 bool
 checkArgumentValidity(const QStringList& argumentsList, const QString& shortArg, const QString& longArg,
                       int& parameter, int lowerRange, int higherRange, int argumentListOffset)
@@ -68,20 +91,22 @@ checkTopicParameterPosition(const QStringList& argumentsList)
 
 
 void
-checkTopicNameValidity(const QStringList& argumentsList, const QString& bagDirectory, const QString& topicType, QString& topicNameToSet)
+checkTopicNameValidity(const QStringList& argumentsList, const QString& bagDirectory, const QVector<QString>& topicTypes, QString& topicNameToSet)
 {
-    if (containsArguments(argumentsList, "-t", "--topic_name")) {
-        checkTopicParameterPosition(argumentsList);
-
-        const auto& topicName = argumentsList.at(getArgumentsIndex(argumentsList, "-t", "--topic_name") + 1);
-        if (!Utils::ROS::doesBagContainTopicName(bagDirectory, topicName)) {
-            throw std::runtime_error("Topic '" + topicName.toStdString() + "' has not been found in the bag file!");
-        }
-        if (Utils::ROS::getTopicType(bagDirectory, topicName) != topicType) {
-            throw std::runtime_error("Topic '" + topicName.toStdString() + "' doesn't have the correct type!");
-        }
-        topicNameToSet = topicName;
+    if (!containsArguments(argumentsList, "-t", "--topic_name")) {
+        return;
     }
+
+    checkTopicParameterPosition(argumentsList);
+
+    const auto& topicName = argumentsList.at(getArgumentsIndex(argumentsList, "-t", "--topic_name") + 1);
+    if (!Utils::ROS::doesBagContainTopicName(bagDirectory, topicName)) {
+        throw std::runtime_error("Topic '" + topicName.toStdString() + "' has not been found in the bag file!");
+    }
+    if (const auto actualType = Utils::ROS::getTopicType(bagDirectory, topicName); !topicTypes.contains(*actualType)) {
+        throw std::runtime_error("Topic '" + topicName.toStdString() + "' doesn't have the correct type!");
+    }
+    topicNameToSet = topicName;
 }
 
 
@@ -111,14 +136,24 @@ checkParentDirectory(const QString& directory, bool isTarget)
 
 
 void
-checkForTargetTopic(const QString& directory, QString& parameterTopicName, const QString& topicType)
+checkForTargetTopic(const QString& directory, QString& parameterTopicName, const QVector<QString>& topicTypes)
 {
-    const auto targetTopicName = Utils::ROS::getFirstTopicWithCertainTypeName(directory, topicType);
-    if (targetTopicName == std::nullopt) {
-        throw std::runtime_error("The bag file does not contain any topics of type '" + topicType.toStdString() + "'!");
+    for (const auto& type : topicTypes) {
+        if (const auto targetTopicName = Utils::ROS::getFirstTopicWithCertainTypeName(directory, type); targetTopicName != std::nullopt) {
+            parameterTopicName = *targetTopicName;
+            return;
+        }
     }
 
-    parameterTopicName = *targetTopicName;
+    QString topicTypesErrorString = "";
+    for (auto i = 0; i < topicTypes.size(); ++i) {
+        topicTypesErrorString += "'" + topicTypes.at(i) + "'";
+
+        if (i != topicTypes.size() - 1) {
+            topicTypesErrorString += ", ";
+        }
+    }
+    throw std::runtime_error("The bag file does not contain any topics of type " + topicTypesErrorString.toStdString() + "!");
 }
 
 

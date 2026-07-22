@@ -6,14 +6,16 @@
 #include "BagToVideoWidget.hpp"
 #include "ChangeCompressionWidget.hpp"
 #include "ConfigurePlayBagWidget.hpp"
+#include "ConfigureRecordBagWidget.hpp"
+#include "ControlBagWidget.hpp"
 #include "ControlPlayBagWidget.hpp"
+#include "ControlRecordBagWidget.hpp"
 #include "DummyBagWidget.hpp"
 #include "EditBagWidget.hpp"
 #include "MergeBagsWidget.hpp"
 #include "PCDsToBagWidget.hpp"
 #include "ProgressWidget.hpp"
 #include "PublishWidget.hpp"
-#include "RecordBagWidget.hpp"
 #include "SendTF2Widget.hpp"
 #include "StartWidget.hpp"
 #include "BagTF2ToFileWidget.hpp"
@@ -94,7 +96,7 @@ MainWindow::setInputWidget(Utils::UI::TOOL_ID mode)
         basicInputWidget = new MergeBagsWidget(m_mergeBagsParameters);
         break;
     case Utils::UI::TOOL_ID::RECORD_BAG:
-        basicInputWidget = new RecordBagWidget(m_recordBagParameters);
+        basicInputWidget = new ConfigureRecordBagWidget(m_recordBagParameters);
         break;
     case Utils::UI::TOOL_ID::DUMMY_BAG:
         basicInputWidget = new DummyBagWidget(m_dummyBagParameters, m_dialogParameters.warnROS2NameConvention);
@@ -117,9 +119,6 @@ MainWindow::setInputWidget(Utils::UI::TOOL_ID mode)
                                              m_dialogParameters.warnROS2NameConvention, false);
         break;
     case Utils::UI::TOOL_ID::SEND_TF2:
-        // There might be an active progress widget with a tf2 thread, which contains a ROS node.
-        // We have to destroy this node before creating a new SendTF2Widget to avoid having two nodes at the same time
-        delete centralWidget();
         basicInputWidget = new SendTF2Widget(m_parametersSendTF2);
         break;
     case Utils::UI::TOOL_ID::TOPICS_SERVICES_INFO:
@@ -143,13 +142,18 @@ MainWindow::setInputWidget(Utils::UI::TOOL_ID mode)
 void
 MainWindow::setProcessingWidget(Utils::UI::TOOL_ID mode)
 {
-    // Doesn't make sense to show any progress when we want to actively control playing a bag
+    // Doesn't make sense to show any progress when we want to actively control things
     // So use a control widget instead
-    if (mode == Utils::UI::TOOL_ID::PLAY_BAG) {
-        auto* const controlPlayBagWidget = new ControlPlayBagWidget(m_playBagParameters);
-        setCentralWidget(controlPlayBagWidget);
+    if (mode == Utils::UI::TOOL_ID::PLAY_BAG || mode == Utils::UI::TOOL_ID::RECORD_BAG) {
+        QPointer<ControlBagWidget> controlBagWidget;
+        if (mode == Utils::UI::TOOL_ID::PLAY_BAG) {
+            controlBagWidget = new ControlPlayBagWidget(m_playBagParameters);
+        } else {
+            controlBagWidget = new ControlRecordBagWidget(m_recordBagParameters);
+        }
 
-        connect(controlPlayBagWidget, &ControlPlayBagWidget::stopped, this, [this, mode] {
+        setCentralWidget(controlBagWidget);
+        connect(controlBagWidget, &ControlBagWidget::stopped, this, [this, mode] {
             setInputWidget(mode);
         });
 
@@ -182,9 +186,6 @@ MainWindow::setProcessingWidget(Utils::UI::TOOL_ID mode)
     case Utils::UI::TOOL_ID::MERGE_BAGS:
         progressWidget = new ProgressWidget("Writing merged Bag File...", m_mergeBagsParameters, mode);
         break;
-    case Utils::UI::TOOL_ID::RECORD_BAG:
-        progressWidget = new ProgressWidget("Recording Bag File...", m_recordBagParameters, mode);
-        break;
     case Utils::UI::TOOL_ID::DUMMY_BAG:
         progressWidget = new ProgressWidget("Creating Bag...", m_dummyBagParameters, mode);
         break;
@@ -206,7 +207,6 @@ MainWindow::setProcessingWidget(Utils::UI::TOOL_ID mode)
         delete centralWidget();
         progressWidget = new ProgressWidget("Sending TF2...", m_parametersSendTF2, mode);
         break;
-    case Utils::UI::TOOL_ID::PLAY_BAG:
     default:
         break;
     }
@@ -216,7 +216,7 @@ MainWindow::setProcessingWidget(Utils::UI::TOOL_ID mode)
     });
     setCentralWidget(progressWidget);
 
-    connect(progressWidget, &ProgressWidget::progressStopped, this, [this, mode] {
+    connect(progressWidget, &ProgressWidget::stopped, this, [this, mode] {
         setInputWidget(mode);
     });
     connect(progressWidget, &ProgressWidget::finished, this, &MainWindow::setStartWidget);

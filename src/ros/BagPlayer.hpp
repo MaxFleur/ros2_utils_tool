@@ -13,7 +13,7 @@ public:
     ~BagPlayer();
 
     void
-    togglePlayerState(bool play)
+    toggleState(bool play)
     {
         play ? m_player->resume() : m_player->pause();
     }
@@ -28,12 +28,6 @@ public:
     playNextMessage()
     {
         m_player->play_next();
-    }
-
-    QString
-    getCurrentTimeAsString()
-    {
-        return QString::number(m_player->now().seconds(), 'f', 9);
     }
 
 private:

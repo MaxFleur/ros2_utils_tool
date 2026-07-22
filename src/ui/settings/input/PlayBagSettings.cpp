@@ -2,7 +2,7 @@
 
 PlayBagSettings::PlayBagSettings(Parameters::PlayBagParameters& parameters,
                                  const QString&                 groupName) :
-    SelectableBagTopicSettings(parameters, groupName), m_parameters(parameters)
+    SelectableBagContentSettings(parameters, groupName), m_parameters(parameters)
 {
     read();
 }
@@ -11,11 +11,12 @@ PlayBagSettings::PlayBagSettings(Parameters::PlayBagParameters& parameters,
 bool
 PlayBagSettings::write()
 {
-    if (!SelectableBagTopicSettings::write()) {
+    if (!SelectableBagContentSettings::write()) {
         return false;
     }
 
     writeParameter(m_groupName, "rate", m_parameters.rate);
+    writeParameter(m_groupName, "offset", m_parameters.offset);
     writeParameter(m_groupName, "loop", m_parameters.loop);
 
     return true;
@@ -25,11 +26,12 @@ PlayBagSettings::write()
 bool
 PlayBagSettings::read()
 {
-    if (!SelectableBagTopicSettings::read()) {
+    if (!SelectableBagContentSettings::read()) {
         return false;
     }
 
     m_parameters.rate = readParameter(m_groupName, "rate", 1.0);
+    m_parameters.offset = readParameter(m_groupName, "offset", 0.0);
     m_parameters.loop = readParameter(m_groupName, "loop", true);
 
     return true;

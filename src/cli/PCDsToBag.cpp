@@ -13,14 +13,19 @@ volatile sig_atomic_t signalStatus = 0;
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run ros2_utils_tool tool_pcds_to_bag path/to/pcds/dir path/to/bag\n\n";
-    std::cout << "Additional parameters:\n";
-    std::cout << "-t or --topic_name: Topic name in the bag file. If no topic name is specified, the name '/topic_point_cloud' will be used.\n";
-    std::cout << "-r or --rate: Number of messages per second. Minimum is 1, maximum is 30, default is 5.\n\n";
-    std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_pcds_to_bag [-h] [files_dir] [output_bag_dir] [-t TOPIC_NAME] [-r RATE] [-s]\n\n";
+    std::cout << "Convert a dir of pcd files to a bag file.\n\n";
+    std::cout << "positional arguments:\n";
+    std::cout << "  files_dir             Source files directory.\n";
+    std::cout << "  output_bag_dir        Output bag file.\n\n";
+    std::cout << "options:\n";
+    std::cout << "  -h, --help            Show this help message and exit.\n";
+    std::cout << "  -t TOPIC_NAME, --topic_name TOPIC_NAME\n";
+    std::cout << "                        Point cloud messages topic name, defaults to '/topic_point_cloud'.\n";
+    std::cout << "  -r RATE, --rate RATE  Number of messages per second. Minimum is 1, maximum is 30, defaults to 5.\n";
+    std::cout << "  -s, --suppress        Suppress any warnings.\n\n";
     std::cout << "Example usage:\n";
-    std::cout << "ros2 run ros2_utils_tool tool_pcds_to_bag /home/usr/pcd_dir /home/usr/output_bag -t /scanner_pcd -r 2\n\n";
-    std::cout << "-h or --help: Show this help.\n";
+    std::cout << "ros2 run ros2_utils_tool tool_pcds_to_bag /home/usr/pcd_files_dir /home/usr/output_bag -t /scanner_pcd -r 2" << std::endl;
 }
 
 

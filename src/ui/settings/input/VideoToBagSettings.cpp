@@ -15,7 +15,9 @@ VideoToBagSettings::write()
         return false;
     }
 
+    writeParameter(m_groupName, "use_compression", m_parameters.useCompression);
     writeParameter(m_groupName, "custom_fps", m_parameters.useCustomFPS);
+    writeParameter(m_groupName, "is_compression_jpeg", m_parameters.isCompressionJPEG);
 
     return true;
 }
@@ -28,7 +30,9 @@ VideoToBagSettings::read()
         return false;
     }
 
+    m_parameters.useCompression = readParameter(m_groupName, "use_compression", false);
     m_parameters.useCustomFPS = readParameter(m_groupName, "custom_fps", false);
+    m_parameters.isCompressionJPEG = readParameter(m_groupName, "is_compression_jpeg", true);
 
     return true;
 }

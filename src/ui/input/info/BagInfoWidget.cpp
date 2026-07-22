@@ -110,6 +110,9 @@ BagInfoWidget::populateTreeWidget()
         auto* const topicMessageCountItem = new QTreeWidgetItem(topicInformationItem);
         topicMessageCountItem->setText(COL_DESCRIPTION, "Message Count:");
         topicMessageCountItem->setText(COL_INFORMATION, QString::number(topicInformation.message_count));
+        auto* const serializationFormatItem = new QTreeWidgetItem(topicInformationItem);
+        serializationFormatItem->setText(COL_DESCRIPTION, "Serialization Format:");
+        serializationFormatItem->setText(COL_INFORMATION, QString::fromStdString(topicMetaData.serialization_format));
     }
 
     treeWidgetItems.append(topicMetaDataItem);

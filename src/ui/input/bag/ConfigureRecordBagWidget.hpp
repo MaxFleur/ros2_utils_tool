@@ -12,13 +12,13 @@ class BagTreeWidget;
 class QPushButton;
 
 // Widget used to manage recording a bag file
-class RecordBagWidget : public BasicBagWidget
+class ConfigureRecordBagWidget : public BasicBagWidget
 {
     Q_OBJECT
 
 public:
-    RecordBagWidget(Parameters::RecordBagParameters& parameters,
-                    QWidget*                         parent = 0);
+    ConfigureRecordBagWidget(Parameters::RecordBagParameters& parameters,
+                             QWidget*                         parent = 0);
 
 private slots:
     void

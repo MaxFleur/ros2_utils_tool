@@ -1,4 +1,4 @@
-#include "RecordBagWidget.hpp"
+#include "ConfigureRecordBagWidget.hpp"
 
 #include "BagTreeWidget.hpp"
 #include "LowDiskSpaceWidget.hpp"
@@ -14,7 +14,7 @@
 #include <QSpinBox>
 #include <QVBoxLayout>
 
-RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QWidget *parent) :
+ConfigureRecordBagWidget::ConfigureRecordBagWidget(Parameters::RecordBagParameters& parameters, QWidget *parent) :
     BasicBagWidget(parameters, "Record Bag", ":/icons/tools/record_bag", "record_bag", "Unselect all Topics you don't want to record.", parent),
     m_parameters(parameters), m_settings(parameters, "record_bag")
 {
@@ -120,7 +120,7 @@ RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QW
     m_controlsLayout->addWidget(advancedOptionsWidget);
     m_controlsLayout->addStretch();
 
-    connect(m_refreshButton, &QPushButton::clicked, this, &RecordBagWidget::populateTreeWidget);
+    connect(m_refreshButton, &QPushButton::clicked, this, &ConfigureRecordBagWidget::populateTreeWidget);
     connect(advancedOptionsCheckBox, &QCheckBox::stateChanged, this, [this, advancedOptionsWidget] (int state) {
         writeParameterToSettings(m_parameters.showAdvancedOptions, state == Qt::Checked, m_settings);
         advancedOptionsWidget->setVisible(state == Qt::Checked);
@@ -144,14 +144,14 @@ RecordBagWidget::RecordBagWidget(Parameters::RecordBagParameters& parameters, QW
 
 
 void
-RecordBagWidget::handleTreeAfterSource()
+ConfigureRecordBagWidget::handleTreeAfterSource()
 {
     enableOkButton();
 }
 
 
 void
-RecordBagWidget::okButtonPressed() const
+ConfigureRecordBagWidget::okButtonPressed() const
 {
     if (!m_okButton->isEnabled()) {
         return;
@@ -165,22 +165,46 @@ RecordBagWidget::okButtonPressed() const
 
 
 void
-RecordBagWidget::populateTreeWidget()
+ConfigureRecordBagWidget::populateTreeWidget()
 {
+    m_parameters.services.clear();
     m_parameters.topics.clear();
     m_treeWidget->clear();
     m_treeWidget->blockSignals(true);
 
+    // Topics
     const auto& currentTopicsAndTypes = Utils::ROS::getTopicInformation();
     for (const auto& topic : currentTopicsAndTypes) {
         // Ignore ROS's own topics
         if (QString::fromStdString(topic.first) == "/parameter_events" || QString::fromStdString(topic.first) == "/rosout" ||
-            QString::fromStdString(topic.first) == "/events/read_split") {
+            QString::fromStdString(topic.first) == "/events/read_split" || QString::fromStdString(topic.first) == "/events/write_split" ||
+            topic.first.ends_with("/_service_event")) {
             continue;
         }
 
         m_treeWidget->createItemWithTopicNameAndType(QString::fromStdString(topic.first), QString::fromStdString(topic.second.at(0)), true);
         m_parameters.topics.push_back({ { QString::fromStdString(topic.first) }, true });
+    }
+    // Services
+    const auto& currentServices = Utils::ROS::getServiceNamesAndTypes();
+    // ROS will automatically create services with these appendices, but they are not important for us, so exclude them
+    const std::vector<std::string> exclusionList { "/describe_parameters", "/get_parameter_types", "/get_parameters", "/get_type_description",
+                                                   "/list_parameters", "/set_parameters", "/set_parameters_atomically" };
+    for (const auto& service : currentServices) {
+        // Also ignore these services
+        if (service.first.starts_with("/services_node") || service.first.starts_with("/rosbag2_player") ||
+            service.first.starts_with("/rosbag2_recorder")) {
+            continue;
+        }
+        const auto foundExclusionAppendix = std::ranges::any_of(exclusionList, [&service] (const std::string& exclusionAppendix) {
+            return service.first.ends_with(exclusionAppendix);
+        });
+        if (foundExclusionAppendix) {
+            continue;
+        }
+
+        m_treeWidget->createItemWithTopicNameAndType(QString::fromStdString(service.first), QString::fromStdString(service.second.at(0)), true);
+        m_parameters.services.push_back({ { QString::fromStdString(service.first) }, true });
     }
     m_settings.write();
 
@@ -200,10 +224,13 @@ RecordBagWidget::populateTreeWidget()
 
 
 void
-RecordBagWidget::enableOkButton()
+ConfigureRecordBagWidget::enableOkButton()
 {
     const auto isAnyTopicEnabled = std::ranges::any_of(m_parameters.topics, [] (const auto& topic) {
         return topic.isSelected == true;
     });
-    m_okButton->setEnabled(isAnyTopicEnabled && !m_sourceLineEdit->text().isEmpty());
+    const auto isAnyServiceEnabled = std::ranges::any_of(m_parameters.services, [] (const auto& service) {
+        return service.isSelected == true;
+    });
+    m_okButton->setEnabled((isAnyTopicEnabled || isAnyServiceEnabled) && !m_sourceLineEdit->text().isEmpty());
 }

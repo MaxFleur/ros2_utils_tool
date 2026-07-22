@@ -17,21 +17,31 @@ disableROSLogging()
 
 
 void
-spinNode(std::shared_ptr<rclcpp::Node> node)
+waitForNodeContent(std::shared_ptr<rclcpp::Node> node, bool isTopic)
 {
-    // This implementation is based is based on ros2cli:
-    // https://github.com/ros2/ros2cli/blob/rolling/ros2cli/ros2cli/node/direct.py#L25
     auto executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
     executor->add_node(node);
 
-    rclcpp::Rate rate(50);
-    auto isFinished = false;
+    rclcpp::Rate rate(20);
+    size_t lastSize = 0;
+    auto unchanged = 0;
 
-    auto timer = rclcpp::create_timer(node, node->get_clock(), rclcpp::Duration::from_seconds(0.1), [&isFinished] {
-        isFinished = true;
-    });
-    while (!isFinished) {
-        executor->spin_once();
+    for (auto i = 0; i < 100; ++i) {
+        executor->spin_some();
+
+        // Check if there were new updates since the last iteration
+        const auto currentSize = isTopic ? node->get_topic_names_and_types().size() : node->get_service_names_and_types().size();
+        if (currentSize == lastSize) {
+            unchanged++;
+        } else {
+            unchanged = 0;
+            lastSize = currentSize;
+        }
+
+        // Stop if there were no new topics/services for some iterations
+        if (i >= 10 && unchanged >= 10) {
+            break;
+        }
         rate.sleep();
     }
 }
@@ -62,7 +72,22 @@ sendStaticTransformation(const std::array<double, 3>& translation,
     transformStamped.transform.rotation.w = rotation[3];
 
     broadcaster->sendTransform(transformStamped);
-    spinNode(node);
+
+    // This implementation is based is based on ros2cli:
+    // https://github.com/ros2/ros2cli/blob/rolling/ros2cli/ros2cli/node/direct.py#L25
+    auto executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
+    executor->add_node(node);
+
+    rclcpp::Rate rate(50);
+    auto isFinished = false;
+
+    auto timer = rclcpp::create_timer(node, node->get_clock(), rclcpp::Duration::from_seconds(0.1), [&isFinished] {
+        isFinished = true;
+    });
+    while (!isFinished) {
+        executor->spin_once();
+        rate.sleep();
+    }
 }
 
 
@@ -99,7 +124,7 @@ std::vector<std::pair<std::string, std::array<std::string, 3> > >
 getTopicInformation()
 {
     auto node = std::make_shared<rclcpp::Node>("topics_node");
-    spinNode(node);
+    waitForNodeContent(node, true);
 
     std::vector<std::pair<std::string, std::array<std::string, 3> > > topicInformation;
     const auto& currentTopicNamesAndTypes = node->get_topic_names_and_types();
@@ -124,7 +149,7 @@ getServiceNamesAndTypes()
 {
     auto node = std::make_shared<rclcpp::Node>("services_node");
     // Spin to get available services and topics
-    spinNode(node);
+    waitForNodeContent(node, false);
 
     return node->get_service_names_and_types();
 }
@@ -245,5 +270,17 @@ isTopicNameROS2Conform(const QString& topicName)
     }
     // Must have balanced curly braces
     return topicName.count(QLatin1Char('{')) == topicName.count(QLatin1Char('}'));
+}
+
+
+QString
+getCurrentROSTimeAsString(rclcpp::Node* node)
+{
+    if (node) {
+        return "[" + QString::number(node->now().seconds(), 'f', 9) + "]";
+    }
+
+    rclcpp::Clock clock(RCL_ROS_TIME);  // or RCL_ROS_TIME
+    return "[" + QString::number(clock.now().seconds(), 'f', 9) + "]";
 }
 }

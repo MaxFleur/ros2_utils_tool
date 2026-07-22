@@ -15,15 +15,23 @@ volatile sig_atomic_t signalStatus = 0;
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run ros2_utils_tool tool_compress_bag path/to/uncompressed/source/bag /path/to/compressed/target/bag \n\n";
-    std::cout << "Additional parameters:\n";
-    std::cout << "-m or --mode (file/message): Compress per file (file) or per message (message), file is default.\n";
-    std::cout << "-th or --threads: Number of threads. Minimum is 1, maximum is " << std::thread::hardware_concurrency() << ", default is 1.\n\n";
-    std::cout << "-d or --delete: Delete the source file after completion.\n\n";
-    std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_compress_bag [-h] [bag_path] [output_compressed_bag_path] [-m {file,message}]\n";
+    std::cout << "                                                  [-th NUMBER_OF_THREADS] [-d] [-s]\n\n";
+    std::cout << "Compress a bag file.\n\n";
+    std::cout << "positional arguments:\n";
+    std::cout << "  bag_path              Source bag file.\n";
+    std::cout << "  output_compressed_bag_path\n";
+    std::cout << "                        Compressed bag file directory.\n\n";
+    std::cout << "options:\n";
+    std::cout << "  -h, --help            Show this help message and exit.\n";
+    std::cout << "  -m {file,message}, --mode {file,message}\n";
+    std::cout << "                        Compress per file or per message, defaults to file.\n";
+    std::cout << "  -th NUMBER_OF_THREADS, --threads NUMBER_OF_THREADS\n";
+    std::cout << "                        Number of threads used for compression. Minimum is 1, maximum is " << std::thread::hardware_concurrency() << ", defaults to 1.\n";
+    std::cout << "  -d, --delete          Delete the source file after completion.\n";
+    std::cout << "  -s, --suppress        Suppress any warnings.\n\n";
     std::cout << "Example usage:\n";
-    std::cout << "ros2 run ros2_utils_tool tool_decompress_bag /home/usr/uncompressed /home/usr/compressed -th 4\n\n";
-    std::cout << "-h or --help: Show this help.\n";
+    std::cout << "ros2 run ros2_utils_tool tool_decompress_bag /home/usr/uncompressed /home/usr/compressed -th 4" << std::endl;
 }
 
 

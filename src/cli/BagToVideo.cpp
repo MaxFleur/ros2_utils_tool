@@ -14,19 +14,25 @@ volatile sig_atomic_t signalStatus = 0;
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run ros2_utils_tool tool_bag_to_video path/to/bag path/to/video\n\n";
-    std::cout << "Accepted video formats are mp4, mkv or avi.\n\n";
-    std::cout << "Additional parameters:\n";
-    std::cout << "-r or --rate: Framerate for the encoded video. Minimum is 10, maximum is 60, default is 30.\n";
-    std::cout << "-t or --topic_name: Video topic inside the bag. If no topic name is specified, the first found video topic in the bag is taken.\n\n";
-    std::cout << "-a or --accelerate: Use hardware acceleration.\n";
-    std::cout << "-c or --colorless: Use colorless images.\n";
-    std::cout << "-e or --exchange: Exchange red and blue values.\n";
-    std::cout << "-l or --lossless (mkv only): Use lossless images.\n\n";
-    std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_bag_to_video [-h] [bag_path] [output_video_path.{mp4,mkv,avi}] [-r RATE]\n";
+    std::cout << "                                                  [-t TOPIC_NAME] [-a] [-c] [-e] [-l] [-s]\n\n";
+    std::cout << "Convert bag image messages to a video.\n\n";
+    std::cout << "positional arguments:\n";
+    std::cout << "  bag_path              Source bag file.\n";
+    std::cout << "  output_video_path.{mp4,mkv,avi}\n";
+    std::cout << "                        Output video file.\n\n";
+    std::cout << "options:\n";
+    std::cout << "  -h, --help            Show this help message and exit.\n";
+    std::cout << "  -r RATE, --rate RATE  Framerate for the encoded video. Minimum is 10, maximum is 60, default is 30.\n";
+    std::cout << "  -t TOPIC_NAME, --topic_name TOPIC_NAME\n";
+    std::cout << "                        Bag image topic to convert. If no topic name is specified, the first found topic with type image is taken.\n";
+    std::cout << "  -a, --accelerate      Use hardware acceleration.\n";
+    std::cout << "  -c, --colorless       Encode images without color.\n";
+    std::cout << "  -e, --exchange        Exchange red and blue values.\n";
+    std::cout << "  -l, --lossless        Use lossless images. mkv only.\n";
+    std::cout << "  -s, --suppress        Suppress any warnings.\n\n";
     std::cout << "Example usage:\n";
-    std::cout << "ros2 run ros2_utils_tool tool_bag_to_video /home/usr/input_bag /home/usr/target_video -t /endoscope_video -r 20 -a -c -l\n\n";
-    std::cout << "-h or --help: Show this help.\n";
+    std::cout << "ros2 run ros2_utils_tool tool_bag_to_video /home/usr/input_bag /home/usr/target_video.mkv -t /endoscope_video -r 20 -a -c -l" << std::endl;
 }
 
 
@@ -68,7 +74,7 @@ main(int argc, char* argv[])
 
     if (arguments.size() > 3) {
         // Topic name
-        Utils::CLI::checkTopicNameValidity(arguments, parameters.sourceDirectory, "sensor_msgs/msg/Image", parameters.topicName);
+        Utils::CLI::checkTopicNameValidity(arguments, parameters.sourceDirectory, { "sensor_msgs/msg/Image", "sensor_msgs/msg/CompressedImage" }, parameters.topicName);
         // Framerate
         if (!Utils::CLI::checkArgumentValidity(arguments, "-r", "--rate", parameters.fps, 10, 60)) {
             throw std::runtime_error("Please enter a framerate in the range of 10 to 60!");
@@ -86,7 +92,7 @@ main(int argc, char* argv[])
 
     // Search for topic name in bag file if not specified
     if (parameters.topicName.isEmpty()) {
-        Utils::CLI::checkForTargetTopic(parameters.sourceDirectory, parameters.topicName, "sensor_msgs/msg/Image");
+        Utils::CLI::checkForTargetTopic(parameters.sourceDirectory, parameters.topicName, { "sensor_msgs/msg/Image", "sensor_msgs/msg/CompressedImage" });
     }
 
     if (!Utils::CLI::continueExistingTargetLowDiskSpace(arguments, parameters.targetDirectory)) {

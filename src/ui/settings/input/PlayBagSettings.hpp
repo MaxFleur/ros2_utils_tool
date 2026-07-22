@@ -1,9 +1,9 @@
 #pragma once
 
-#include "SelectableBagTopicSettings.hpp"
+#include "SelectableBagContentSettings.hpp"
 
 // Store play bag parameters
-class PlayBagSettings : public SelectableBagTopicSettings {
+class PlayBagSettings : public SelectableBagContentSettings {
 public:
     PlayBagSettings(Parameters::PlayBagParameters& parameters,
                     const QString&                 groupName);

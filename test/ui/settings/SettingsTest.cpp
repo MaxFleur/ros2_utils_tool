@@ -16,7 +16,7 @@
 #include "PublishSettings.hpp"
 #include "RecordBagSettings.hpp"
 #include "RGBSettings.hpp"
-#include "SelectableBagTopicSettings.hpp"
+#include "SelectableBagContentSettings.hpp"
 #include "SendTF2Settings.hpp"
 #include "TF2ToFileSettings.hpp"
 #include "VideoSettings.hpp"
@@ -159,37 +159,42 @@ TEST_CASE("Settings Testing", "[settings]") {
         }
     }
 
-    SECTION("Selectable Bag Topic Params Test") {
+    SECTION("Selectable Bag Content Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("play_bag");
-            checkSettingsInvalidacy(qSettings, { "topics" });
+            checkSettingsInvalidacy(qSettings, { "topics", "services" });
             qSettings.endGroup();
         }
         SECTION("Write") {
-            Parameters::SelectableBagTopicParameters parameters;
-            SelectableBagTopicSettings settings(parameters, "selectable_bag_topic");
+            Parameters::SelectableBagContentParameters parameters;
+            SelectableBagContentSettings settings(parameters, "selectable_bag_content");
 
+            parameters.services.push_back({ { "service" }, true });
             parameters.topics.push_back({ { "topic" }, true });
             settings.write();
 
-            qSettings.beginGroup("selectable_bag_topic");
-            const auto size = qSettings.beginReadArray("topics");
-            REQUIRE(size == 1);
+            const auto verify = [&qSettings] (const QString& settingsName, const QString& name) {
+                const auto size = qSettings.beginReadArray(settingsName);
+                REQUIRE(size == 1);
 
-            for (auto i = 0; i < size; ++i) {
-                qSettings.setArrayIndex(i);
-                verifiySettingQString(qSettings, "name", "topic");
-                verifiySettingPrimitive(qSettings, "is_selected", true);
-            }
-            qSettings.endArray();
+                for (auto i = 0; i < size; ++i) {
+                    qSettings.setArrayIndex(i);
+                    verifiySettingQString(qSettings, "name", name);
+                    verifiySettingPrimitive(qSettings, "is_selected", true);
+                }
+                qSettings.endArray();
+            };
 
+            qSettings.beginGroup("selectable_bag_content");
+            verify("services", "service");
+            verify("topics", "topic");
             qSettings.endGroup();
         }
     }
     SECTION("Play Bag Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("play_bag");
-            checkSettingsInvalidacy(qSettings, { "topics", "rate", "loop" });
+            checkSettingsInvalidacy(qSettings, { "topics", "rate", "offset", "loop" });
             qSettings.endGroup();
         }
         SECTION("Write") {
@@ -198,11 +203,13 @@ TEST_CASE("Settings Testing", "[settings]") {
 
             parameters.topics.push_back({ { "topic" }, true });
             parameters.rate = 4.2;
+            parameters.offset = 4.2;
             parameters.loop = true;
             settings.write();
 
             qSettings.beginGroup("play_bag");
             verifiySettingPrimitive(qSettings, "rate", 4.2);
+            verifiySettingPrimitive(qSettings, "offset", 4.2);
             verifiySettingPrimitive(qSettings, "loop", true);
 
             qSettings.endGroup();
@@ -496,18 +503,22 @@ TEST_CASE("Settings Testing", "[settings]") {
     SECTION("Video to Bag Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("bag");
-            checkSettingsInvalidacy(qSettings, { "custom_fps" });
+            checkSettingsInvalidacy(qSettings, { "use_compression", "custom_fps", "is_compression_jpeg" });
             qSettings.endGroup();
         }
         SECTION("Write") {
             Parameters::VideoToBagParameters parameters;
             VideoToBagSettings settings(parameters, "bag");
 
+            parameters.useCompression = true;
             parameters.useCustomFPS = true;
+            parameters.isCompressionJPEG = true;
             settings.write();
 
             qSettings.beginGroup("bag");
+            verifiySettingPrimitive(qSettings, "use_compression", true);
             verifiySettingPrimitive(qSettings, "custom_fps", true);
+            verifiySettingPrimitive(qSettings, "is_compression_jpeg", true);
             qSettings.endGroup();
         }
     }

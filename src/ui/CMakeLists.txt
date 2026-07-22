@@ -17,6 +17,7 @@ target_sources(rt_ui INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/SettingsDialog.hpp
     ${CMAKE_CURRENT_LIST_DIR}/StartWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/StartWidget.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/StoppableWidget.hpp
 )
 
 target_link_libraries(rt_ui

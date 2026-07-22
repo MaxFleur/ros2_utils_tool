@@ -16,17 +16,25 @@ volatile sig_atomic_t signalStatus = 0;
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run ros2_utils_tool tool_dummy_bag path/to/bag topic_name_1 topic_type_1 (...)\n\n";
-    std::cout << "Topic type is either 'String', 'Integer', 'Image', 'PointCloud' or 'TF2'.\n";
-    std::cout << "You can write up to five topics.\n\n";
-    std::cout << "Additional parameters:\n";
-    std::cout << "-m or --message-count: Number of messages in the bag file. Minimum is 1, maximum is 1000, default is 100.\n";
-    std::cout << "-r or --rate: Number of messages per second. Minimum is 1, maximum is 100, default is 10.\n";
-    std::cout << "-th or --threads: Number of threads. Minimum is 1, maximum is " << std::thread::hardware_concurrency() << ", default is 1.\n\n";
-    std::cout << "-s or --suppress: Suppress any warnings.\n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_dummy_bag [-h] [bag_path] [topic_name_1]\n";
+    std::cout << "                                               [topic_type_1 {String,Integer,Image,PointCloud,TF2}] ...\n";
+    std::cout << "                                               [-m MESSAGE_COUNT] [-r RATE] [-th NUMBER_OF_THREADS] [-s]\n\n";
+    std::cout << "Write a dummy bag file. Up to five topics are allowed.\n\n";
+    std::cout << "positional arguments:\n";
+    std::cout << "  bag_path              Dummy bag file to be written.\n";
+    std::cout << "  topic_name            Name for a certain topic.\n";
+    std::cout << "  topic_type {String,Image,Integer,PointCloud,TF2}\n";
+    std::cout << "                        Topic type for the corresponding topic name.\n\n";
+    std::cout << "options:\n";
+    std::cout << "  -h, --help            Show this help message and exit.\n";
+    std::cout << "  -m MESSAGE_COUNT, --message-count MESSAGE_COUNT\n";
+    std::cout << "                        Number of messages in the bag file. Minimum is 1, maximum is 1000, defaults to 100.\n";
+    std::cout << "  -r RATE, --rate RATE  Number of messages per second. Minimum is 1, maximum is 100, defaults to 10.\n";
+    std::cout << "  -th NUMBER_OF_THREADS, --threads NUMBER_OF_THREADS\n";
+    std::cout << "                        Number of threads used to write. Minimum is 1, maximum is " << std::thread::hardware_concurrency() << ", defaults to 1.\n";
+    std::cout << "  -s, --suppress        Suppress any warnings.\n\n";
     std::cout << "Example usage:\n";
-    std::cout << "ros2 run ros2_utils_tool tool_dummy_bag /home/usr/target_bag /images Image /tf2 TF2 /int Integer\n\n";
-    std::cout << "-h or --help: Show this help.\n";
+    std::cout << "ros2 run ros2_utils_tool tool_dummy_bag /home/usr/target_dummy_bag /images Image /tf2 TF2 /int Integer -r 20" << std::endl;
 }
 
 
