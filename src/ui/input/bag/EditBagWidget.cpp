@@ -169,7 +169,9 @@ EditBagWidget::okButtonPressed() const
             auto *const msgBox = new QMessageBox(QMessageBox::Critical, "Message count invalid!",
                                                  "Please make sure that the lower message count is actually lower than the higher message count!",
                                                  QMessageBox::Ok);
+            msgBox->setAttribute(Qt::WA_DeleteOnClose);
             msgBox->exec();
+
             return;
         }
         if (!topic.renamedName.isEmpty() && m_warnROS2NameConvention &&

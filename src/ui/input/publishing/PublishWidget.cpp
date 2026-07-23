@@ -120,7 +120,9 @@ PublishWidget::searchButtonPressed()
     if (m_publishVideo) {
         if (fileInfo.suffix().toLower() != "mp4" && fileInfo.suffix().toLower() != "mkv") {
             auto *const msgBox = new QMessageBox(QMessageBox::Critical, "Wrong format!", "The video must be in mp4 or mkv format!", QMessageBox::Ok);
+            msgBox->setAttribute(Qt::WA_DeleteOnClose);
             msgBox->exec();
+
             return;
         }
         // For images: jpg, png or bmp
@@ -135,6 +137,8 @@ PublishWidget::searchButtonPressed()
         if (!containsImageFiles) {
             auto *const msgBox = new QMessageBox(QMessageBox::Critical, "No images!", "The directory does not contain any images!", QMessageBox::Ok);
             msgBox->exec();
+            msgBox->setAttribute(Qt::WA_DeleteOnClose);
+
             return;
         }
     }

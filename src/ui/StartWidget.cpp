@@ -316,6 +316,7 @@ void
 StartWidget::openSettingsDialog()
 {
     auto* const settingsDialog = new SettingsDialog(m_dialogParameters);
+    settingsDialog->setAttribute(Qt::WA_DeleteOnClose);
     settingsDialog->exec();
 }
 

@@ -116,5 +116,7 @@ SettingsDialog::storeParametersCheckStateChanged()
     auto* const msgBox = new QMessageBox();
     msgBox->setIcon(QMessageBox::Information);
     msgBox->setText("Changes will take effect after restarting the application.");
+    msgBox->setAttribute(Qt::WA_DeleteOnClose);
+
     msgBox->exec();
 }
