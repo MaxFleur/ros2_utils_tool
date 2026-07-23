@@ -84,9 +84,10 @@ void
 checkTopicParameterPosition(const QStringList& argumentsList)
 {
     if (const auto topicNameIndex = getArgumentsIndex(argumentsList, "-t", "--topic_name");
-        argumentsList.at(topicNameIndex) == argumentsList.last()) {
-        throw std::runtime_error("Please enter a valid topic name!");
+        argumentsList.at(topicNameIndex) != argumentsList.last()) {
+        return;
     }
+    throw std::runtime_error("Please enter a valid topic name!");
 }
 
 
