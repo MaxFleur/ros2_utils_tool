@@ -22,9 +22,6 @@ BagInfoWidget::BagInfoWidget(QWidget *parent) :
     // Don't need it here
     m_dialogButtonBox->setVisible(false);
 
-    auto* const bagLineEdit = new QLineEdit;
-    bagLineEdit->setToolTip("The source bag file directory.");
-
     auto* const formLayout = new QFormLayout;
     formLayout->addRow("Bag File:", m_findSourceLayout);
 
