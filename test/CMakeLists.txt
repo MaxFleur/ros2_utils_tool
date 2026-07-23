@@ -11,10 +11,12 @@ add_executable(tool_tests
     ${CMAKE_CURRENT_LIST_DIR}/ui/input/bag/BagTreeWidgetTest.cpp
 
     ${CMAKE_CURRENT_LIST_DIR}/utils/UtilsCLITest.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/utils/UtilsGeneralTest.cpp
     ${CMAKE_CURRENT_LIST_DIR}/utils/UtilsIOTest.cpp
     ${CMAKE_CURRENT_LIST_DIR}/utils/UtilsROSTest.cpp
     ${CMAKE_CURRENT_LIST_DIR}/utils/UtilsThreadsTest.cpp
     ${CMAKE_CURRENT_LIST_DIR}/utils/UtilsUITest.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/utils/VideoEncoderTest.cpp
 )
 
 target_link_libraries(tool_tests

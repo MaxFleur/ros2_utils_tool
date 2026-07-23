@@ -16,10 +16,16 @@ public:
                    bool               useHardwareAcceleration,
                    bool               useBWImages);
 
-    inline void
+    void
     writeImageToVideo(const cv::Mat& mat)
     {
         m_videoWriter.write(mat);
+    }
+
+    void
+    release()
+    {
+        m_videoWriter.release();
     }
 
 private:
