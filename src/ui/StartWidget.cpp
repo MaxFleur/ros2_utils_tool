@@ -181,9 +181,8 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     backButtonLayout->addWidget(m_backButton);
     backButtonLayout->addStretch();
 
-    m_versionLabel = new QLabel("v0.16.0");
-    m_versionLabel->setToolTip("Support for lyrical, compressed image messages for conversion tools\n"
-                               "and major overhauls for UI bag recording and playing, including service support.");
+    m_versionLabel = new QLabel("v0.16.1");
+    m_versionLabel->setToolTip("Memory leak fixes and layout update improvements.");
 
     auto* const versionLayout = new QHBoxLayout;
     versionLayout->addStretch();
