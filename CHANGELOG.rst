@@ -1,7 +1,19 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Changelog for the ros2_utils_tool
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-0.16.0 (2026-07-26)
+0.16.1 (2026-07-24)
+-------------------
+**Changed/Improved:**
+
+* ROS2 topic name validations are now more robust.
+* Increased test coverage.
+* UI - Layout resizing when switching between widgets.
+
+**Fixed:**
+
+* UI - Memory leaks for not correctly destroyed message boxes.
+
+0.16.0 (2026-07-22)
 -------------------
 **New:**
 

@@ -71,6 +71,8 @@ PCDsToBagWidget::findSourceButtonPressed()
     if (!containsPCDFiles) {
         auto *const msgBox = new QMessageBox(QMessageBox::Critical, "No pcd files!", "The directory does not contain pcd files!", QMessageBox::Ok);
         msgBox->exec();
+        msgBox->setAttribute(Qt::WA_DeleteOnClose);
+
         return;
     }
 

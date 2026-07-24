@@ -26,7 +26,6 @@
 
 #include <QCloseEvent>
 #include <QScrollArea>
-#include <QTimer>
 
 #include <csignal>
 
@@ -55,12 +54,8 @@ MainWindow::setStartWidget()
     palette.setColor(QPalette::Base, Qt::transparent);
     scrollArea->setPalette(palette);
 
-    // Resize event is not called inside the function, so use a delay
-    QTimer::singleShot(1, [this] {
-        resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-    });
-    setCentralWidget(scrollArea);
     connect(startWidget, &StartWidget::toolRequested, this, &MainWindow::setInputWidget);
+    resizeToDefault(scrollArea);
 }
 
 
@@ -129,13 +124,12 @@ MainWindow::setInputWidget(Utils::UI::TOOL_ID mode)
         break;
     }
 
-    resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-    setCentralWidget(basicInputWidget);
-
     connect(basicInputWidget, &BasicInputWidget::back, this, &MainWindow::setStartWidget);
     connect(basicInputWidget, &BasicInputWidget::okPressed, this, [this, mode] {
         setProcessingWidget(mode);
     });
+
+    resizeToDefault(basicInputWidget);
 }
 
 
@@ -152,7 +146,7 @@ MainWindow::setProcessingWidget(Utils::UI::TOOL_ID mode)
             controlBagWidget = new ControlRecordBagWidget(m_recordBagParameters);
         }
 
-        setCentralWidget(controlBagWidget);
+        resizeToDefault(controlBagWidget);
         connect(controlBagWidget, &ControlBagWidget::stopped, this, [this, mode] {
             setInputWidget(mode);
         });
@@ -210,18 +204,26 @@ MainWindow::setProcessingWidget(Utils::UI::TOOL_ID mode)
     default:
         break;
     }
-    // Resize event is executed a moment after this function is finished, so use a delay
-    QTimer::singleShot(1, [this] {
-        resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-    });
-    setCentralWidget(progressWidget);
 
     connect(progressWidget, &ProgressWidget::stopped, this, [this, mode] {
         setInputWidget(mode);
     });
     connect(progressWidget, &ProgressWidget::finished, this, &MainWindow::setStartWidget);
 
+    resizeToDefault(progressWidget);
     progressWidget->startThread();
+}
+
+
+void
+MainWindow::resizeToDefault(QWidget* widget)
+{
+    static constexpr int DEFAULT_WIDTH = 450;
+    static constexpr int DEFAULT_HEIGHT = 600;
+
+    setCentralWidget(widget);
+    layout()->activate();
+    resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 }
 
 

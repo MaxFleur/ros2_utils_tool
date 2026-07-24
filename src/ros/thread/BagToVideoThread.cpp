@@ -89,6 +89,7 @@ BagToVideoThread::run()
                              (static_cast<float>(iterationCount) / static_cast<float>(*messageCount) * 100));
     }
 
+    videoEncoder->release();
     reader->close();
     emit finished();
 }

@@ -215,6 +215,7 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
         auto* const messageBox = new QMessageBox(QMessageBox::Warning, "Failed processing files!",
                                                  "The file processing failed. Please make sure that all input parameters are set correctly, "
                                                  "that the input data is valid and disable the hardware acceleration, if necessary.");
+        messageBox->setAttribute(Qt::WA_DeleteOnClose);
         messageBox->exec();
         emit stopped();
     });

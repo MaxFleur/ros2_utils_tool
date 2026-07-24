@@ -104,6 +104,7 @@ BasicInputWidget::showLowDiskSpaceMessageBox() const
                                              QMessageBox::Yes | QMessageBox::No);
 
         auto* const checkBox = Utils::UI::createMessageBoxCheckBox("warn_low_disk_space");
+        msgBox->setAttribute(Qt::WA_DeleteOnClose);
         msgBox->setCheckBox(checkBox);
 
         if (const auto ret = msgBox->exec(); ret == QMessageBox::No) {

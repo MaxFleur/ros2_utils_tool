@@ -28,11 +28,6 @@ DummyBagWidget::DummyBagWidget(Parameters::DummyBagParameters& parameters, bool 
                                                                   "the current time will be used.", m_parameters.useCustomRate);
     useCustomRateCheckBox->setChecked(m_parameters.useCustomRate);
 
-    auto* const rateSpinBox = new QSpinBox;
-    rateSpinBox->setRange(1, 100);
-    rateSpinBox->setToolTip("How many messages per second are stored.");
-    rateSpinBox->setValue(m_parameters.rate);
-
     m_formLayout = new QFormLayout;
     m_formLayout->addRow("Target Bag Location:", m_findSourceLayout);
     m_formLayout->addRow("", m_topicButtonLayout);

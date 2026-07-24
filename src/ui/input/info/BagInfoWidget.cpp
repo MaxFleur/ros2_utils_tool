@@ -22,9 +22,6 @@ BagInfoWidget::BagInfoWidget(QWidget *parent) :
     // Don't need it here
     m_dialogButtonBox->setVisible(false);
 
-    auto* const bagLineEdit = new QLineEdit;
-    bagLineEdit->setToolTip("The source bag file directory.");
-
     auto* const formLayout = new QFormLayout;
     formLayout->addRow("Bag File:", m_findSourceLayout);
 
@@ -61,7 +58,9 @@ BagInfoWidget::populateTreeWidget()
     if (!Utils::ROS::doesDirectoryContainBagFile(bagDirectory)) {
         auto *const msgBox = new QMessageBox(QMessageBox::Critical, "No ROS bag detected!",
                                              "The specified directory contains no ROS bag file!", QMessageBox::Ok);
+        msgBox->setAttribute(Qt::WA_DeleteOnClose);
         msgBox->exec();
+
         return;
     }
 

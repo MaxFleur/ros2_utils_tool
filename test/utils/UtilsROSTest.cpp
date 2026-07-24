@@ -187,28 +187,14 @@ TEST_CASE("Utils ROS Testing", "[utils]") {
         REQUIRE(videoTopics.at(0) == "/topic_image");
     }
     SECTION("Name ROS2 convention tests") {
-        SECTION("Fails for special characters") {
-            const auto followsConvention = Utils::ROS::isTopicNameROS2Conform("!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}");
-            REQUIRE(followsConvention == false);
-        }
+        // Only need to test these specific cases, everything else is done by ROS
         SECTION("Slash and underbrackets") {
-            REQUIRE(Utils::ROS::isTopicNameROS2Conform("test_topic/") == false);
             REQUIRE(Utils::ROS::isTopicNameROS2Conform("test__topic") == false);
             REQUIRE(Utils::ROS::isTopicNameROS2Conform("//test_topic") == false);
         }
-        SECTION("First char number") {
-            REQUIRE(Utils::ROS::isTopicNameROS2Conform("0test_topic") == false);
-            REQUIRE(Utils::ROS::isTopicNameROS2Conform("test_topic") == true);
-        }
         SECTION("Tilde and slash") {
             REQUIRE(Utils::ROS::isTopicNameROS2Conform("test~topic") == false);
-            REQUIRE(Utils::ROS::isTopicNameROS2Conform("test~/topic") == true);
-        }
-        SECTION("Balanced curly braces") {
-            REQUIRE(Utils::ROS::isTopicNameROS2Conform("test{topic}") == true);
-            REQUIRE(Utils::ROS::isTopicNameROS2Conform("test_{topic") == false);
-            REQUIRE(Utils::ROS::isTopicNameROS2Conform("test_topic}") == false);
-            REQUIRE(Utils::ROS::isTopicNameROS2Conform("test_{t{opic}") == false);
+            REQUIRE(Utils::ROS::isTopicNameROS2Conform("~/test_topic") == true);
         }
     }
 

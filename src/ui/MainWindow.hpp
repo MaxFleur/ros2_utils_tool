@@ -30,6 +30,10 @@ private slots:
     setProcessingWidget(Utils::UI::TOOL_ID mode);
 
 private:
+    // Resize to default width and height after resetting central widgets
+    void
+    resizeToDefault(QWidget* widget);
+
     void
     closeEvent(QCloseEvent *event) override;
 
@@ -56,7 +60,4 @@ private:
     Parameters::SendTF2Parameters m_parametersSendTF2;
     // Parameters for settings dialog
     Parameters::DialogParameters m_dialogParameters;
-
-    static constexpr int DEFAULT_WIDTH = 450;
-    static constexpr int DEFAULT_HEIGHT = 600;
 };

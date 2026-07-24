@@ -80,14 +80,18 @@ AdvancedBagWidget::areIOParametersValid(int topicSize, int topicSizeWithOutDupli
         auto *const msgBox = new QMessageBox(QMessageBox::Critical, "Equal files!",
                                              "Source and target dir have the same path. Please enter a different name for the target file!",
                                              QMessageBox::Ok);
+        msgBox->setAttribute(Qt::WA_DeleteOnClose);
         msgBox->exec();
+
         return false;
     }
 
     if (m_targetLineEdit->text().isEmpty()) {
         auto *const msgBox = new QMessageBox(QMessageBox::Critical, "No target specified!", "Please make sure that a target file has been entered!",
                                              QMessageBox::Ok);
+        msgBox->setAttribute(Qt::WA_DeleteOnClose);
         msgBox->exec();
+
         return false;
     }
 
@@ -102,6 +106,8 @@ AdvancedBagWidget::areIOParametersValid(int topicSize, int topicSizeWithOutDupli
                                              "Duplicate topic names were selected, which is not allowed in ROS bag files. These would be merged into one topic.\n"
                                              "Are you sure you want to continue? ",
                                              QMessageBox::Yes | QMessageBox::No);
+        msgBox->setAttribute(Qt::WA_DeleteOnClose);
+
         if (const auto ret = msgBox->exec(); ret == QMessageBox::No) {
             return false;
         }

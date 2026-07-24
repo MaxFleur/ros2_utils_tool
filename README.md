@@ -5,7 +5,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/License-EUPLv1.2-blue.svg"/>
   <img src="https://img.shields.io/badge/C++-20-blue.svg"/>
-  <img src="https://img.shields.io/badge/Release-v0.16.0-blue.svg"/>
+  <img src="https://img.shields.io/badge/Release-v0.16.1-blue.svg"/>
 </p>
 <p align="center">
   <img src="https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/jazzy.yml/badge.svg?event=push"/>

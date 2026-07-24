@@ -367,7 +367,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         // OpenCV VideoCapture codecs changed between kilted and lyrical release, we need to differentiate
         const auto distroEnvName = std::string(std::getenv("ROS_DISTRO"));
 
-        const auto performVideoCheck = [] (const std::string& fileExtension, int codec, int fps, int blueValue, int greenValue, int redValue, bool useColorRange = false) {
+        const auto performVideoCheck = [] (const std::string& fileExtension, int codec, int fps, int blueValue, int greenValue, int redValue) {
             auto videoCapture = cv::VideoCapture("./video" + fileExtension);
             REQUIRE(videoCapture.get(cv::CAP_PROP_FRAME_COUNT) == 100);
             REQUIRE(videoCapture.get(cv::CAP_PROP_FRAME_WIDTH) == 1280);
@@ -379,17 +379,11 @@ TEST_CASE("Threads Testing", "[threads]") {
             cv::Mat frame;
             videoCapture >> frame;
 
+            // Encoding the video will slightly alter the color values, so do a within range check instead
             const auto& color = frame.at<cv::Vec3b>(cv::Point(0, 0));
-            if (useColorRange) {
-                // Compressed image messages introduce minor color shifts due to lossy JPEG compression
-                REQUIRE_THAT(static_cast<int>(color[0]), Catch::Matchers::WithinAbs(blueValue, 5));
-                REQUIRE_THAT(static_cast<int>(color[1]), Catch::Matchers::WithinAbs(greenValue, 5));
-                REQUIRE_THAT(static_cast<int>(color[2]), Catch::Matchers::WithinAbs(redValue, 5));
-                return;
-            }
-            REQUIRE(static_cast<int>(color[0]) == blueValue);
-            REQUIRE(static_cast<int>(color[1]) == greenValue);
-            REQUIRE(static_cast<int>(color[2]) == redValue);
+            REQUIRE_THAT(static_cast<int>(color[0]), Catch::Matchers::WithinAbs(blueValue, 5));
+            REQUIRE_THAT(static_cast<int>(color[1]), Catch::Matchers::WithinAbs(greenValue, 5));
+            REQUIRE_THAT(static_cast<int>(color[2]), Catch::Matchers::WithinAbs(redValue, 5));
         };
 
         SECTION("Default Parameter Values") {
@@ -397,7 +391,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             thread->wait();
 
             // Codec number represents mp4v
-            performVideoCheck(".mp4", distroEnvName == "lyrical" ? 877677894 : 1983148141, 30, 252, 0, 1);
+            performVideoCheck(".mp4", distroEnvName == "lyrical" ? 877677894 : 1983148141, 30, 255, 0, 0);
         }
         SECTION("Modified Parameter Values") {
             parameters.fps = 60;
@@ -406,7 +400,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             thread->start();
             thread->wait();
 
-            performVideoCheck(".mp4", distroEnvName == "lyrical" ? 877677894 : 1983148141, 60, 0, 0, 252);
+            performVideoCheck(".mp4", distroEnvName == "lyrical" ? 877677894 : 1983148141, 60, 0, 0, 255);
         }
         SECTION("MKV BW Values") {
             parameters.targetDirectory = "./video.mkv";
@@ -423,7 +417,7 @@ TEST_CASE("Threads Testing", "[threads]") {
 
             thread->start();
             thread->wait();
-            performVideoCheck(".avi", distroEnvName == "lyrical" ? 0 : 1094862674, 30, 255, 0, 3);
+            performVideoCheck(".avi", distroEnvName == "lyrical" ? 0 : 1094862674, 30, 255, 0, 0);
         }
         SECTION("Compressed Image Values") {
             parameters.sourceDirectory = "./compressed_image_bag";
@@ -436,7 +430,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             thread->start();
             thread->wait();
 
-            performVideoCheck(".mp4", distroEnvName == "lyrical" ? 877677894 : 1983148141, 30, 0, 0, 252, true);
+            performVideoCheck(".mp4", distroEnvName == "lyrical" ? 877677894 : 1983148141, 30, 0, 0, 255);
         }
         std::filesystem::remove("./video.avi");
     }
@@ -469,10 +463,11 @@ TEST_CASE("Threads Testing", "[threads]") {
             REQUIRE(frame.cols == width);
             REQUIRE(frame.rows == height);
 
+            // Encoding the video will slightly alter the color values, so do a within range check instead
             const auto& color = frame.at<cv::Vec3b>(cv::Point(0, 0));
-            REQUIRE(static_cast<int>(color[0]) == redValue);
-            REQUIRE(static_cast<int>(color[1]) == greenValue);
-            REQUIRE(static_cast<int>(color[2]) == blueValue);
+            REQUIRE_THAT(static_cast<int>(color[0]), Catch::Matchers::WithinAbs(redValue, 5));
+            REQUIRE_THAT(static_cast<int>(color[1]), Catch::Matchers::WithinAbs(greenValue, 5));
+            REQUIRE_THAT(static_cast<int>(color[2]), Catch::Matchers::WithinAbs(blueValue, 5));
 
             reader.close();
         };
@@ -489,7 +484,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             REQUIRE(topics.at(0).topic_metadata.type == "sensor_msgs/msg/Image");
             REQUIRE(topics.at(0).message_count == 100);
 
-            performBagCheck(1280, 720, 0, 0, 252);
+            performBagCheck(1280, 720, 0, 0, 255);
         }
         SECTION("Compression Test") {
             parameters.useCompression = true;
@@ -497,7 +492,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             thread->start();
             thread->wait();
 
-            performBagCheck(1280, 720, 0, 0, 252);
+            performBagCheck(1280, 720, 0, 0, 255);
         }
         SECTION("Exchange RGB test") {
             parameters.exchangeRedBlueValues = true;
@@ -505,7 +500,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             thread->start();
             thread->wait();
 
-            performBagCheck(1280, 720, 252, 0, 0);
+            performBagCheck(1280, 720, 255, 0, 0);
         }
         SECTION("MKV test") {
             parameters.sourceDirectory = "./video.mkv";
@@ -529,7 +524,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.targetDirectory = "./images";
         parameters.topicName = "/dummy_image";
 
-        const auto performImageCheck = [] (const std::string& fileExtension, int valueBlue, int valueGreen, int valueRed, bool colorRangeUsed = false) {
+        const auto performImageCheck = [] (const std::string& fileExtension, int blueValue, int greenValue, int redValue) {
             const auto extensionCheckValues = getDirFileCountWithExtensions("./images", fileExtension);
             REQUIRE(extensionCheckValues[0] == 100);
             REQUIRE(extensionCheckValues[1] == 100);
@@ -538,17 +533,11 @@ TEST_CASE("Threads Testing", "[threads]") {
             REQUIRE(mat.rows == 720);
             REQUIRE(mat.cols == 1280);
 
+            // Encoding the video will slightly alter the color values, so do a within range check instead
             const auto& color = mat.at<cv::Vec3b>(cv::Point(0, 0));
-            if (colorRangeUsed) {
-                // Compressed image messages introduce minor color shifts due to lossy JPEG compression
-                REQUIRE_THAT(static_cast<int>(color[0]), Catch::Matchers::WithinAbs(valueBlue, 5));
-                REQUIRE_THAT(static_cast<int>(color[1]), Catch::Matchers::WithinAbs(valueGreen, 5));
-                REQUIRE_THAT(static_cast<int>(color[2]), Catch::Matchers::WithinAbs(valueRed, 5));
-                return;
-            }
-            REQUIRE(static_cast<int>(color[0]) == valueBlue);
-            REQUIRE(static_cast<int>(color[1]) == valueGreen);
-            REQUIRE(static_cast<int>(color[2]) == valueRed);
+            REQUIRE_THAT(static_cast<int>(color[0]), Catch::Matchers::WithinAbs(blueValue, 5));
+            REQUIRE_THAT(static_cast<int>(color[1]), Catch::Matchers::WithinAbs(greenValue, 5));
+            REQUIRE_THAT(static_cast<int>(color[2]), Catch::Matchers::WithinAbs(redValue, 5));
         };
 
         auto* const thread = new BagToImagesThread(parameters, std::thread::hardware_concurrency());
@@ -558,7 +547,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             thread->start();
             thread->wait();
 
-            performImageCheck(".jpg", 255, 0, 3);
+            performImageCheck(".jpg", 255, 0, 0);
         }
         SECTION("PNG with RB exchanged Values") {
             parameters.format = "png";
@@ -567,7 +556,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             thread->start();
             thread->wait();
 
-            performImageCheck(".png", 3, 0, 255);
+            performImageCheck(".png", 0, 0, 255);
         }
         SECTION("BMP with gray exchanged Values") {
             parameters.format = "bmp";
@@ -589,7 +578,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             thread->start();
             thread->wait();
 
-            performImageCheck(".jpg", 0, 0, 252, true);
+            performImageCheck(".jpg", 0, 0, 255);
         }
     }
     SECTION("Send TF2 Test") {

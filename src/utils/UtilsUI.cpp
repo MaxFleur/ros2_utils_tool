@@ -60,6 +60,7 @@ continueWithInvalidROS2Names()
     auto *const msgBox = new QMessageBox(QMessageBox::Warning, headerText, mainText, QMessageBox::Yes | QMessageBox::No);
 
     auto* const checkBox = createMessageBoxCheckBox("warn_ros2_name_convention");
+    msgBox->setAttribute(Qt::WA_DeleteOnClose);
     msgBox->setCheckBox(checkBox);
 
     return msgBox->exec() == QMessageBox::Yes;
@@ -82,6 +83,7 @@ continueForExistingTarget(const QString& targetDirectory, const QString& headerT
                                              QMessageBox::Yes | QMessageBox::No);
         // Do not show again check box
         auto* const checkBox = createMessageBoxCheckBox("warn_target_overwrite");
+        msgBox->setAttribute(Qt::WA_DeleteOnClose);
         msgBox->setCheckBox(checkBox);
 
         if (const auto ret = msgBox->exec(); ret == QMessageBox::No) {
@@ -110,6 +112,7 @@ void
 createCriticalMessageBox(const QString& headerText, const QString& mainText)
 {
     auto *const msgBox = new QMessageBox(QMessageBox::Critical, headerText, mainText, QMessageBox::Ok);
+    msgBox->setAttribute(Qt::WA_DeleteOnClose);
     msgBox->exec();
 }
 

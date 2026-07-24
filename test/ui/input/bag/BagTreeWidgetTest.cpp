@@ -7,6 +7,14 @@
 TEST_CASE("Bag Tree Widget Testing", "[bag_tree_widget]") {
     auto* const bagTreeWidget = new BagTreeWidget;
 
+    // Ctor tests
+    REQUIRE(bagTreeWidget->columnCount() == 3);
+    REQUIRE(bagTreeWidget->headerItem()->text(0) == "");
+    REQUIRE(bagTreeWidget->headerItem()->text(1) == "Topic Name:");
+    REQUIRE(bagTreeWidget->headerItem()->text(2) == "Topic Type:");
+    REQUIRE(bagTreeWidget->isHidden() == true);
+    REQUIRE(bagTreeWidget->rootIsDecorated() == false);
+
     for (auto i = 0; i < 3; ++i) {
         bagTreeWidget->blockSignals(true);
         bagTreeWidget->createItemWithTopicNameAndType("name_" + QString::number(i), "topic_" + QString::number(i), true);
@@ -24,10 +32,17 @@ TEST_CASE("Bag Tree Widget Testing", "[bag_tree_widget]") {
     }
 
     auto* const lastItem = bagTreeWidget->topLevelItem(2);
-    lastItem->setCheckState(0, Qt::Unchecked);
+    REQUIRE(!(lastItem->flags() & Qt::ItemIsSelectable));
 
     auto* const lastNameLabel = static_cast<QLabel*>(bagTreeWidget->itemWidget(lastItem, 1));
     auto* const lastTopicLabel = static_cast<QLabel*>(bagTreeWidget->itemWidget(lastItem, 2));
+    REQUIRE(lastTopicLabel->font().italic() == true);
+
+    REQUIRE(lastItem->checkState(0) == Qt::Checked);
+    REQUIRE(lastNameLabel->isEnabled());
+    REQUIRE(lastTopicLabel->isEnabled());
+
+    lastItem->setCheckState(0, Qt::Unchecked);
     REQUIRE(!lastNameLabel->isEnabled());
     REQUIRE(!lastTopicLabel->isEnabled());
 
