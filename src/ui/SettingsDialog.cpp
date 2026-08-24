@@ -9,6 +9,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QSpinBox>
 #include <QVBoxLayout>
 
@@ -54,7 +55,10 @@ SettingsDialog::SettingsDialog(Parameters::DialogParameters& parameters, QWidget
                                                                             m_parameters.usePredefinedTopicNames);
     usePredefinedTopicNamesCheckBox->setText("Use Predefined Topic Names");
 
+    auto* const resetToDefaultButton = new QPushButton("Reset to Defaults");
+
     auto* const buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    buttonBox->addButton(resetToDefaultButton, QDialogButtonBox::ActionRole);
 
     auto* const systemLayout = new QVBoxLayout;
     systemLayout->addLayout(threadsLayout);
@@ -89,6 +93,18 @@ SettingsDialog::SettingsDialog(Parameters::DialogParameters& parameters, QWidget
     mainLayout->addWidget(buttonBox);
     setLayout(mainLayout);
 
+    connect(resetToDefaultButton, &QPushButton::clicked, this, [maxNumberOfThreadsSpinBox, useHardwareAccCheckBox,
+                                                                storeParametersCheckBox, usePredefinedTopicNamesCheckBox,
+                                                                warnROS2NamesConventionCheckBox, warnOverwriteTargetCheckBox,
+                                                                warnLowDiskspaceCheckBox] {
+        maxNumberOfThreadsSpinBox->setValue(std::thread::hardware_concurrency());
+        useHardwareAccCheckBox->setCheckState(Qt::Unchecked);
+        storeParametersCheckBox->setCheckState(Qt::Unchecked);
+        usePredefinedTopicNamesCheckBox->setCheckState(Qt::Checked);
+        warnROS2NamesConventionCheckBox->setCheckState(Qt::Unchecked);
+        warnOverwriteTargetCheckBox->setCheckState(Qt::Checked);
+        warnLowDiskspaceCheckBox->setCheckState(Qt::Checked);
+    });
     connect(buttonBox, &QDialogButtonBox::accepted, this, [this, maxNumberOfThreadsSpinBox, useHardwareAccCheckBox,
                                                            storeParametersCheckBox, usePredefinedTopicNamesCheckBox,
                                                            warnROS2NamesConventionCheckBox, warnOverwriteTargetCheckBox,
