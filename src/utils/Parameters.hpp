@@ -50,6 +50,7 @@ struct PlayBagParameters : SelectableBagContentParameters {
     double rate = 1.0;
     double offset = 0.0;
     bool   loop = false;
+    bool   publishServiceRequests = false;
 };
 struct RecordBagParameters : SelectableBagContentParameters {
     int  maxSizeInMB = 1024;
