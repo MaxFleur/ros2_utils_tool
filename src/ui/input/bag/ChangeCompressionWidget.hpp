@@ -1,7 +1,7 @@
 #pragma once
 
 #include "AdvancedInputWidget.hpp"
-#include "CompressBagSettings.hpp"
+#include "DeleteSourceSettings.hpp"
 #include "Parameters.hpp"
 
 // The widget used to manage compressing a bag file
@@ -10,9 +10,9 @@ class ChangeCompressionWidget : public AdvancedInputWidget
     Q_OBJECT
 
 public:
-    ChangeCompressionWidget(Parameters::CompressBagParameters& parameters,
-                            bool                               compress,
-                            QWidget*                           parent = 0);
+    ChangeCompressionWidget(Parameters::DeleteSourceParameters& parameters,
+                            bool                                compress,
+                            QWidget*                            parent = 0);
 
 private slots:
     void
@@ -26,9 +26,9 @@ private:
     isBagFileValid(const QString& bagDirectory) const;
 
 private:
-    Parameters::CompressBagParameters& m_parameters;
+    Parameters::DeleteSourceParameters& m_parameters;
 
-    CompressBagSettings m_settings;
+    DeleteSourceSettings m_settings;
 
     bool m_compress;
 };

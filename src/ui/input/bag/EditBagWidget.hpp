@@ -7,9 +7,6 @@
 #include <QPointer>
 #include <QWidget>
 
-class QCheckBox;
-class QLabel;
-
 // Widget for editing a bag file
 class EditBagWidget : public AdvancedBagWidget
 {

@@ -5,6 +5,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rosbag2_cpp/reader.hpp"
 #include "rosbag2_cpp/writer.hpp"
+#include "rosbag2_transport/reader_writer_factory.hpp"
 
 #include <filesystem>
 
@@ -35,8 +36,28 @@ EditBagThread::run()
         std::filesystem::remove_all(targetDirectoryStd);
     }
 
-    auto writer = std::make_shared<rosbag2_cpp::Writer>();
-    writer->open(targetDirectoryStd);
+    // Prepare parameters
+    rosbag2_storage::StorageOptions storageOptions;
+    storageOptions.uri = targetDirectoryStd;
+
+    std::shared_ptr<rosbag2_cpp::Writer> writer;
+
+    if (m_parameters.compressTarget) {
+        rosbag2_transport::RecordOptions recordOptions;
+        recordOptions.rmw_serialization_format = "cdr";
+        recordOptions.compression_format = "zstd";
+        recordOptions.compression_mode = m_parameters.compressPerMessage ? "message" : "file";
+        recordOptions.compression_threads = m_numberOfThreads;
+        // Need to set this to prevent message dropping
+        recordOptions.compression_queue_size = 0;
+
+        writer = rosbag2_transport::ReaderWriterFactory::make_writer(recordOptions);
+    } else {
+        writer = std::make_shared<rosbag2_cpp::Writer>();
+    }
+
+    // The factory returns a writer with a compression-enabled implementation
+    writer->open(storageOptions);
 
     // Store selected topics in queue so they can be accessed in parallel
     std::deque<Parameters::EditBagParameters::EditBagTopic> queue;
@@ -51,6 +72,14 @@ EditBagThread::run()
     auto node = std::make_shared<rclcpp::Node>("edit_bag");
     std::atomic<int> instanceCount = 1;
     std::mutex mutex;
+
+    // Our input might be compressed. In this case, ROS2 generates a sequential compression reader,
+    // which generates a decompressed bag file. If we had multiple of these, every reader would generate
+    // the decompressed file again while the writer is still running, possibly interrupting it for this topic.
+    // A safer way here is to disable the parallel approach for compressed files.
+    if (Utils::ROS::doesDirectoryContainCompressedBagFile(m_parameters.sourceDirectory)) {
+        m_numberOfThreads = 1;
+    }
 
     // Move to own lambda for multithreading
     const auto writeTopicToBag = [this, &queue, &instanceCount, &mutex, writer, node, totalInstances] {
@@ -68,33 +97,39 @@ EditBagThread::run()
 
             const auto nameStd = topic.name.toStdString();
             const auto& metadata = Utils::ROS::getBagMetadata(m_parameters.sourceDirectory);
+
             // Create a new topic using either the original or new name
             for (const auto &topicMetaData : metadata.topics_with_message_count) {
-                if (topicMetaData.topic_metadata.name == nameStd) {
-                    auto topicToBeModified = topicMetaData.topic_metadata;
-
-                    if (!topic.renamedName.isEmpty()) {
-                        topicToBeModified.name = topic.renamedName.toStdString();
-                    }
-                    writer->create_topic(topicToBeModified);
-                    break;
+                if (topicMetaData.topic_metadata.name != nameStd) {
+                    continue;
                 }
+
+                auto topicToBeModified = topicMetaData.topic_metadata;
+                if (!topic.renamedName.isEmpty()) {
+                    topicToBeModified.name = topic.renamedName.toStdString();
+                }
+
+                writer->create_topic(topicToBeModified);
+                break;
             }
 
-            rosbag2_cpp::Reader reader;
-            reader.open(m_sourceDirectory);
+            rosbag2_storage::StorageOptions inputStorageOptions;
+            inputStorageOptions.uri = m_sourceDirectory;
+
+            auto reader = rosbag2_transport::ReaderWriterFactory::make_reader(inputStorageOptions);
+            reader->open(inputStorageOptions);
             mutex.unlock();
 
             rosbag2_storage::SerializedBagMessageSharedPtr message;
             size_t boundaryCounter = 0;
 
-            while (reader.has_next()) {
+            while (reader->has_next()) {
                 if (isInterruptionRequested()) {
-                    reader.close();
+                    reader->close();
                     return;
                 }
                 // Read the original message
-                message = reader.read_next();
+                message = reader->read_next();
                 if (message->topic_name != nameStd) {
                     continue;
                 }
@@ -122,7 +157,7 @@ EditBagThread::run()
                 instanceCount++;
             }
 
-            reader.close();
+            reader->close();
         }
     };
 

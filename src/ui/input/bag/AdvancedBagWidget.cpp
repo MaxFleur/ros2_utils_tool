@@ -5,7 +5,9 @@
 #include "UtilsUI.hpp"
 
 #include <QCheckBox>
+#include <QComboBox>
 #include <QFormLayout>
+#include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QTreeWidget>
@@ -39,6 +41,21 @@ AdvancedBagWidget::AdvancedBagWidget(Parameters::DeleteSourceParameters& paramet
     m_deleteSourceCheckBox = new QCheckBox("Delete Source Bag File(s) after Completion");
     m_deleteSourceCheckBox->setTristate(false);
     m_deleteSourceCheckBox->setChecked(m_parameters.deleteSource);
+
+    m_compressionLabel = new QLabel("Compression Mode:");
+    m_compressionLabel->setVisible(false);
+
+    m_compressionModeComboBox = new QComboBox;
+    m_compressionModeComboBox->addItem("None");
+    m_compressionModeComboBox->addItem("By File");
+    m_compressionModeComboBox->addItem("Per Message");
+    m_compressionModeComboBox->setCurrentIndex(COMPRESSION_NONE);
+    m_compressionModeComboBox->setVisible(false);
+
+    m_compressionLayout = new QHBoxLayout;
+    m_compressionLayout->addWidget(m_compressionLabel);
+    m_compressionLayout->addWidget(m_compressionModeComboBox);
+    m_compressionLayout->addStretch();
 
     m_treeWidget = new BagTreeWidget;
 

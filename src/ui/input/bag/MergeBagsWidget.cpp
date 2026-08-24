@@ -40,12 +40,17 @@ MergeBagsWidget::MergeBagsWidget(Parameters::MergeBagsParameters& parameters, QW
 
     m_deleteSourceCheckBox->setVisible(false);
 
+    if (m_parameters.compressTarget) {
+        m_compressionModeComboBox->setCurrentIndex(m_parameters.compressPerMessage ? COMPRESSION_MESSAGE : COMPRESSION_FILE);
+    }
+
     m_controlsLayout->addWidget(m_treeWidget);
     m_controlsLayout->addWidget(m_findTargetWidget);
     m_controlsLayout->addWidget(m_lowDiskSpaceWidget);
     m_controlsLayout->addSpacing(10);
     m_controlsLayout->addWidget(m_sufficientSpaceLabel);
     m_controlsLayout->addWidget(m_deleteSourceCheckBox);
+    m_controlsLayout->addLayout(m_compressionLayout);
     // Give it a more "squishy" look
     m_controlsLayout->setContentsMargins(30, 30, 30, 30);
     m_controlsLayout->addStretch();
@@ -54,6 +59,10 @@ MergeBagsWidget::MergeBagsWidget(Parameters::MergeBagsParameters& parameters, QW
         m_secondSourceButtonClicked = true;
         findSourceButtonPressed();
         m_secondSourceButtonClicked = false;
+    });
+    connect(m_compressionModeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this] (int index) {
+        writeParameterToSettings(m_parameters.compressTarget, index != COMPRESSION_NONE, m_settings);
+        writeParameterToSettings(m_parameters.compressPerMessage, index == COMPRESSION_MESSAGE, m_settings);
     });
 
     if (!m_sourceLineEdit->text().isEmpty() && !m_secondSourceLineEdit->text().isEmpty()) {
@@ -150,6 +159,8 @@ MergeBagsWidget::createTopicTree(bool resetTopicsParameter)
     m_findTargetWidget->setVisible(true);
     m_sufficientSpaceLabel->setVisible(true);
     m_deleteSourceCheckBox->setVisible(true);
+    m_compressionLabel->setVisible(true);
+    m_compressionModeComboBox->setVisible(true);
     m_okButton->setVisible(true);
 }
 

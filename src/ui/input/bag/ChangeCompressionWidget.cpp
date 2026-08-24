@@ -10,7 +10,7 @@
 #include <QRadioButton>
 #include <QVBoxLayout>
 
-ChangeCompressionWidget::ChangeCompressionWidget(Parameters::CompressBagParameters& parameters, bool compress,
+ChangeCompressionWidget::ChangeCompressionWidget(Parameters::DeleteSourceParameters& parameters, bool compress,
                                                  QWidget *parent) :
     AdvancedInputWidget(parameters, compress ? "Compress Bag" : "Decompress Bag",
                         compress ? ":/icons/tools/compress_bag" : ":/icons/tools/decompress_bag",

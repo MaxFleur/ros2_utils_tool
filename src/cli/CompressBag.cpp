@@ -56,7 +56,7 @@ main(int argc, char* argv[])
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
     }
 
-    Parameters::CompressBagParameters parameters;
+    Parameters::DeleteSourceParameters parameters;
 
     // Uncompressed source bag directory
     parameters.sourceDirectory = arguments.at(1);

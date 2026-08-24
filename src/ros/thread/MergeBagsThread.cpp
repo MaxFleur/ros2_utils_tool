@@ -27,20 +27,28 @@ MergeBagsThread::run()
     inputStorageSecondBag.uri = m_parameters.secondSourceDirectory.toStdString();
 
     // Output parameters
-    rosbag2_storage::StorageOptions outputStorage;
-    outputStorage.uri = targetDirectoryStd;
+    rosbag2_storage::StorageOptions storageOptions;
+    storageOptions.uri = targetDirectoryStd;
 
-    rosbag2_transport::RecordOptions outputRecord;
+    rosbag2_transport::RecordOptions recordOptions;
     for (const auto& topic : m_parameters.topics) {
         if (!topic.isSelected) {
             continue;
         }
 
-        outputRecord.topics.push_back(topic.name.toStdString());
+        recordOptions.topics.push_back(topic.name.toStdString());
+    }
+    if (m_parameters.compressTarget) {
+        recordOptions.rmw_serialization_format = "cdr";
+        recordOptions.compression_format = "zstd";
+        recordOptions.compression_mode = m_parameters.compressPerMessage ? "message" : "file";
+        recordOptions.compression_threads = m_numberOfThreads;
+        // Need to set this to prevent message dropping
+        recordOptions.compression_queue_size = 0;
     }
 
     std::vector<std::pair<rosbag2_storage::StorageOptions, rosbag2_transport::RecordOptions> > outputBags;
-    outputBags.push_back({ outputStorage, outputRecord });
+    outputBags.push_back({ storageOptions, recordOptions });
 
     emit processing();
     // Merge

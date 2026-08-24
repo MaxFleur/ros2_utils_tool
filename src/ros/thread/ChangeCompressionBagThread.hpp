@@ -9,16 +9,16 @@ class ChangeCompressionBagThread : public BasicThread {
     Q_OBJECT
 public:
     explicit
-    ChangeCompressionBagThread(const Parameters::CompressBagParameters& parameters,
-                               int                                      numberOfThreads,
-                               bool                                     compress,
-                               QObject*                                 parent = nullptr);
+    ChangeCompressionBagThread(const Parameters::DeleteSourceParameters& parameters,
+                               int                                       numberOfThreads,
+                               bool                                      compress,
+                               QObject*                                  parent = nullptr);
 
     void
     run() override;
 
 private:
-    const Parameters::CompressBagParameters& m_parameters;
+    const Parameters::DeleteSourceParameters& m_parameters;
 
     int m_numberOfThreads;
     bool m_compress;

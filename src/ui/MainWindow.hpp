@@ -50,8 +50,8 @@ private:
     Parameters::MergeBagsParameters m_mergeBagsParameters;
     Parameters::RecordBagParameters m_recordBagParameters;
     Parameters::DummyBagParameters m_dummyBagParameters;
-    Parameters::CompressBagParameters m_compressBagParameters;
-    Parameters::CompressBagParameters m_decompressBagParameters;
+    Parameters::DeleteSourceParameters m_compressBagParameters;
+    Parameters::DeleteSourceParameters m_decompressBagParameters;
     Parameters::PlayBagParameters m_playBagParameters;
 
     Parameters::PublishParameters m_publishVideoParameters;

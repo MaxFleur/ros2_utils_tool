@@ -80,6 +80,7 @@ struct TF2ToFileParameters : AdvancedParameters {
 
 struct DeleteSourceParameters : AdvancedParameters {
     bool deleteSource = false;
+    bool compressPerMessage = false;
 };
 struct EditBagParameters : DeleteSourceParameters {
     struct EditBagTopic : SelectableBagContent {
@@ -90,6 +91,7 @@ struct EditBagParameters : DeleteSourceParameters {
 
     QVector<EditBagTopic> topics = {};
     bool                  updateTimestamps = false;
+    bool                  compressTarget = false;
 };
 struct MergeBagsParameters : DeleteSourceParameters {
     struct MergeBagTopic : SelectableBagContent {
@@ -100,9 +102,7 @@ struct MergeBagsParameters : DeleteSourceParameters {
 
     QVector<MergeBagTopic> topics = {};
     QString                secondSourceDirectory = "";
-};
-struct CompressBagParameters : DeleteSourceParameters {
-    bool compressPerMessage = false;
+    bool                   compressTarget = false;
 };
 
 struct RGBParameters : AdvancedParameters {
