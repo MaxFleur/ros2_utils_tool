@@ -86,8 +86,8 @@ main(int argc, char* argv[])
         const auto isJson = Utils::General::getFileExtension(filePath) == "json";
         const auto readSuccessful = isJson ? Utils::IO::readTF2FromJson(filePath, parameters) : Utils::IO::readTF2FromYAML(filePath, parameters);
         if (!readSuccessful) {
-            throw std::runtime_error(isJson ? "Invalid json input file! Please make sure to save a valid file first using '-s'."
-                                            : "Invalid yaml input file! Please make sure to save a valid file first using '-s'.");
+            const std::string format = isJson ? "json" : "yaml";
+            throw std::runtime_error("Invalid " + format + " input file! Please make sure to save a valid file first using '-s'.");
         }
     } else {
         // A char array means something like 0.12345. We have to convert this to a double value
