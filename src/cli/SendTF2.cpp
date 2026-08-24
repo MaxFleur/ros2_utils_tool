@@ -16,7 +16,7 @@ void
 showHelp()
 {
     std::cout << "Usage: ros2 run ros2_utils_tool tool_send_tf2 [-h] [-ro \"VALUE,VALUE,VALUE,VALUE\"] [-t \"VALUE,VALUE,VALUE\"]\n";
-    std::cout << "                                              [-f FILE_NAME.{json,yaml}] [-s FILE_NAME.{json,yaml}] [-r RATE]\n\n";
+    std::cout << "                                              [-i FILE_NAME.{json,yaml}] [-s FILE_NAME.{json,yaml}] [-r RATE]\n\n";
     std::cout << "Publish a static or nonstatic transformation as a tf2 message.\n\n";
     std::cout << "options:\n";
     std::cout << "  -h, --help            Show this help message and exit.\n";
@@ -26,14 +26,14 @@ showHelp()
     std::cout << "                        Rotation, defaults to \"0.0,0.0,0.0,1.0\".\n";
     std::cout << "  -t \"VALUE,VALUE,VALUE\", --translation \"VALUE,VALUE,VALUE\"\n";
     std::cout << "                        Translation, defaults to \"0.0,0.0,0.0\".\n";
-    std::cout << "  -f FILE_NAME.{json,yaml}, --file FILE_NAME.{json,yaml}\n";
+    std::cout << "  -i FILE_NAME.{json,yaml}, --input FILE_NAME.{json,yaml}\n";
     std::cout << "                        Provide an input file containing transformation data. Cannot be used together with -s.\n";
     std::cout << "  -s FILE_NAME.{json,yaml}, --save FILE_NAME.{json,yaml}\n";
-    std::cout << "                        Save the input translation to a json or yaml file. Cannot be used together with -f.\n";
+    std::cout << "                        Save the input translation to a json or yaml file. Cannot be used together with -i.\n";
     std::cout << "  -r RATE, --rate RATE  Number of transformations per second. Minimum is 1, maximum is 100. TF is static if unspecified.\n\n";
     std::cout << "Example usage:\n";
     std::cout << "ros2 run ros2_utils_tool tool_send_tf2 -c base_link -t \"0.1,0.2,0.3\" -ro \"1.0,2.0,3.0,1.5\" -s save_for_later.json\n";
-    std::cout << "ros2 run ros2_utils_tool tool_send_tf2 -f save_for_later.json" << std::endl;
+    std::cout << "ros2 run ros2_utils_tool tool_send_tf2 -i save_for_later.json" << std::endl;
 }
 
 
@@ -72,16 +72,16 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    const QVector<QString> checkList{ "-c", "-ro", "-t", "-f", "-s", "-r",
-                                      "--child_frame_name", "--rotation", "--translation", "--file", "--save", "--rate" };
+    const QVector<QString> checkList{ "-c", "-ro", "-t", "-i", "-s", "-r",
+                                      "--child_frame_name", "--rotation", "--translation", "--input", "--save", "--rate" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
     }
 
     Parameters::SendTF2Parameters parameters;
-    if (Utils::CLI::containsArguments(arguments, "-f", "--file")) {
-        const auto filePath = arguments.at(Utils::CLI::getArgumentsIndex(arguments, "-f", "--file") + 1);
+    if (Utils::CLI::containsArguments(arguments, "-i", "--input")) {
+        const auto filePath = arguments.at(Utils::CLI::getArgumentsIndex(arguments, "-i", "--input") + 1);
 
         const auto isJson = Utils::General::getFileExtension(filePath) == "json";
         const auto readSuccessful = isJson ? Utils::IO::readTF2FromJson(filePath, parameters) : Utils::IO::readTF2FromYAML(filePath, parameters);
