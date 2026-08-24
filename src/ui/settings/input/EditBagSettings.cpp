@@ -31,6 +31,7 @@ EditBagSettings::write()
     settings.endGroup();
 
     writeParameter(m_groupName, "update_timestamps", m_parameters.updateTimestamps);
+    writeParameter(m_groupName, "compress_target", m_parameters.compressTarget);
 
     return true;
 }
@@ -60,6 +61,7 @@ EditBagSettings::read()
     settings.endGroup();
 
     m_parameters.updateTimestamps = readParameter(m_groupName, "update_timestamps", false);
+    m_parameters.compressTarget = readParameter(m_groupName, "compress_target", false);
 
     return true;
 }

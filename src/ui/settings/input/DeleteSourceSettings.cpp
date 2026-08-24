@@ -16,6 +16,7 @@ DeleteSourceSettings::write()
     }
 
     writeParameter(m_groupName, "delete_source", m_parameters.deleteSource);
+    writeParameter(m_groupName, "compress_per_message", m_parameters.compressPerMessage);
 
     return true;
 }
@@ -29,6 +30,7 @@ DeleteSourceSettings::read()
     }
 
     m_parameters.deleteSource = readParameter(m_groupName, "delete_source", m_isDefaultValueTrue);
+    m_parameters.compressPerMessage = readParameter(m_groupName, "compress_per_message", false);
 
     return true;
 }

@@ -35,6 +35,10 @@ EditBagWidget::EditBagWidget(Parameters::EditBagParameters& parameters, bool war
 
     m_deleteSourceCheckBox->setVisible(false);
 
+    if (m_parameters.compressTarget) {
+        m_compressionModeComboBox->setCurrentIndex(m_parameters.compressPerMessage ? COMPRESSION_MESSAGE : COMPRESSION_FILE);
+    }
+
     m_updateTimestampsCheckBox = new QCheckBox("Update Timestamps to current Time");
     m_updateTimestampsCheckBox->setToolTip("Whether to keep the old bag's timestamp or use the current time<br>when the edited bag is written.");
     m_updateTimestampsCheckBox->setTristate(false);
@@ -49,10 +53,15 @@ EditBagWidget::EditBagWidget(Parameters::EditBagParameters& parameters, bool war
     m_controlsLayout->addWidget(m_differentDirsLabel);
     m_controlsLayout->addWidget(m_deleteSourceCheckBox);
     m_controlsLayout->addWidget(m_updateTimestampsCheckBox);
+    m_controlsLayout->addLayout(m_compressionLayout);
     m_controlsLayout->addStretch();
 
     connect(m_updateTimestampsCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.updateTimestamps, state == Qt::Checked, m_settings);
+    });
+    connect(m_compressionModeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this] (int index) {
+        writeParameterToSettings(m_parameters.compressTarget, index != COMPRESSION_NONE, m_settings);
+        writeParameterToSettings(m_parameters.compressPerMessage, index == COMPRESSION_MESSAGE, m_settings);
     });
 
     if (!m_sourceLineEdit->text().isEmpty()) {
@@ -135,12 +144,14 @@ EditBagWidget::createTopicTree()
     const auto height = m_treeWidget->visualItemRect(item).height();
     m_treeWidget->setFixedHeight((height * m_treeWidget->topLevelItemCount()) + HEIGHT_OFFSET);
 
-    m_editLabel->setVisible(true);
     m_treeWidget->setVisible(true);
-    m_differentDirsLabel->setVisible(true);
     m_findTargetWidget->setVisible(true);
+    m_editLabel->setVisible(true);
+    m_differentDirsLabel->setVisible(true);
+    m_compressionLabel->setVisible(true);
     m_deleteSourceCheckBox->setVisible(true);
     m_updateTimestampsCheckBox->setVisible(true);
+    m_compressionModeComboBox->setVisible(true);
     m_okButton->setVisible(true);
 }
 

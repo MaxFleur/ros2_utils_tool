@@ -10,7 +10,9 @@
 class BagTreeWidget;
 
 class QCheckBox;
+class QComboBox;
 class QHBoxLayout;
+class QLabel;
 class QTreeWidgetItem;
 
 // Widget for displaying bag contents for manipulation
@@ -42,13 +44,22 @@ protected:
 
     QPointer<QCheckBox> m_deleteSourceCheckBox;
 
+    QPointer<QLabel> m_compressionLabel;
+
+    QPointer<QComboBox> m_compressionModeComboBox;
+
     QPointer<QHBoxLayout> m_diskSpaceLayout;
+    QPointer<QHBoxLayout> m_compressionLayout;
 
     QPointer<QWidget> m_findTargetWidget;
 
     static constexpr int COL_CHECKBOXES = 0;
     static constexpr int COL_TOPIC_NAME = 1;
     static constexpr int COL_TOPIC_TYPE = 2;
+
+    static constexpr int COMPRESSION_NONE = 0;
+    static constexpr int COMPRESSION_FILE = 1;
+    static constexpr int COMPRESSION_MESSAGE = 2;
 
 private:
     Parameters::DeleteSourceParameters& m_parameters;

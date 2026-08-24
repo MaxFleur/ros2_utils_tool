@@ -29,6 +29,7 @@ MergeBagsSettings::write()
     settings.endGroup();
 
     writeParameter(m_groupName, "second_source", m_parameters.secondSourceDirectory);
+    writeParameter(m_groupName, "compress_target", m_parameters.compressTarget);
 
     return true;
 }
@@ -55,6 +56,7 @@ MergeBagsSettings::read()
     settings.endGroup();
 
     m_parameters.secondSourceDirectory = readParameter(m_groupName, "second_source", QString(""));
+    m_parameters.compressTarget = readParameter(m_groupName, "compress_target", false);
 
     return true;
 }

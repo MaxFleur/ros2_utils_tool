@@ -65,12 +65,12 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
                                       DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
         break;
     case Utils::UI::TOOL_ID::COMPRESS_BAG:
-        m_thread = new ChangeCompressionBagThread(dynamic_cast<Parameters::CompressBagParameters&>(parameters),
+        m_thread = new ChangeCompressionBagThread(dynamic_cast<Parameters::DeleteSourceParameters&>(parameters),
                                                   DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()),
                                                   true, this);
         break;
     case Utils::UI::TOOL_ID::DECOMPRESS_BAG:
-        m_thread = new ChangeCompressionBagThread(dynamic_cast<Parameters::CompressBagParameters&>(parameters),
+        m_thread = new ChangeCompressionBagThread(dynamic_cast<Parameters::DeleteSourceParameters&>(parameters),
                                                   DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()),
                                                   false, this);
         break;
