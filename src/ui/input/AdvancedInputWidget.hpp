@@ -29,6 +29,9 @@ protected slots:
     void
     findTargetButtonPressed();
 
+    void
+    enableAdvancedOkButton();
+
     virtual void
     okButtonPressed() const;
 

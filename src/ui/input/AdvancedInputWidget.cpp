@@ -66,9 +66,7 @@ AdvancedInputWidget::findSourceButtonPressed()
     writeParameterToSettings(m_parameters.sourceDirectory, bagDirectory, m_settings);
     fillTargetLineEdit();
 
-    enableOkButton(!m_parameters.sourceDirectory.isEmpty() &&
-                   !m_parameters.topicName.isEmpty() && !m_parameters.targetDirectory.isEmpty());
-
+    enableAdvancedOkButton();
     fillTopicComboBox();
 }
 
@@ -103,9 +101,20 @@ AdvancedInputWidget::findTargetButtonPressed()
     writeParameterToSettings(m_parameters.targetDirectory, fileName, m_settings);
     m_targetLineEdit->setText(fileName);
 
-    enableOkButton(!m_parameters.sourceDirectory.isEmpty() &&
-                   !m_parameters.topicName.isEmpty() && !m_parameters.targetDirectory.isEmpty());
+    enableAdvancedOkButton();
     setLowDiskSpaceWidgetVisibility(m_targetLineEdit->text());
+}
+
+
+void
+AdvancedInputWidget::enableAdvancedOkButton()
+{
+    if (m_outputFormat == OUTPUT_BAG_EDITED || m_outputFormat == OUTPUT_BAG_MERGED || m_outputFormat == OUTPUT_BAG_COMPRESSED || m_outputFormat == OUTPUT_BAG_DECOMPRESSED) {
+        enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.targetDirectory.isEmpty());
+        return;
+    }
+
+    enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.topicName.isEmpty() && !m_parameters.targetDirectory.isEmpty());
 }
 
 
