@@ -151,7 +151,7 @@ EditBagThread::run()
                 }
                 writer->write(message);
 
-                emit progressChanged("Writing message " + QString::number(instanceCount) + " of " + QString::number(totalInstances) + "...",
+                emit progressChanged("Writing Message " + QString::number(instanceCount) + " of " + QString::number(totalInstances) + "...",
                                      (static_cast<float>(instanceCount) / static_cast<float>(totalInstances)) * 100);
                 boundaryCounter++;
                 instanceCount++;

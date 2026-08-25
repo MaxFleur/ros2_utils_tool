@@ -86,7 +86,7 @@ BagToImagesThread::run()
 
             // Inform of progress update
             iterationCount++;
-            emit progressChanged("Writing image " + QString::number(iterationCount) + " of " + QString::number(*messageCount) + "...",
+            emit progressChanged("Writing Image " + QString::number(iterationCount) + " of " + QString::number(*messageCount) + "...",
                                  (static_cast<float>(iterationCount) / static_cast<float>(*messageCount) * 100));
 
             // Have to create this as extra string to keep it atomic inside the mutex

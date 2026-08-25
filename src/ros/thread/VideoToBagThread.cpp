@@ -92,7 +92,7 @@ VideoToBagThread::run()
             writer->write(imageMessage, m_topicName, timeStamp);
         }
 
-        emit progressChanged("Writing message " + QString::number(iterationCount) + " of " + QString::number(frameCount) + "...",
+        emit progressChanged("Writing Message " + QString::number(iterationCount) + " of " + QString::number(frameCount) + "...",
                              (static_cast<float>(iterationCount) / static_cast<float>(frameCount) * 100));
     }
 

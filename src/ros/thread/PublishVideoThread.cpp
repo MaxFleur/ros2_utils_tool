@@ -69,7 +69,7 @@ PublishVideoThread::run()
 
         m_publisher->publish(message);
 
-        emit progressChanged("Publishing image " + QString::number(iterator + 1) + " of " + QString::number(frameCount) + "...", PROGRESS);
+        emit progressChanged("Publishing Image " + QString::number(iterator + 1) + " of " + QString::number(frameCount) + "...", PROGRESS);
         iterator++;
     });
 
