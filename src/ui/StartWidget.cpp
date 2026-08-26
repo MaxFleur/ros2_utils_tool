@@ -326,7 +326,6 @@ StartWidget::replaceWidgets(QWidget* fromWidget, QWidget* toWidget, int widgetId
 {
     // If the back button is visible, the other elements should be hidden and vice versa
     m_backButton->setVisible(!otherItemVisibility);
-    m_settingsButton->setVisible(otherItemVisibility);
     m_versionLabel->setVisible(otherItemVisibility);
     m_widgetOnInstantiation = widgetIdentifier;
 
