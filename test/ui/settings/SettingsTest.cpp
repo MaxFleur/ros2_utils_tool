@@ -3,6 +3,7 @@
 #include "AdvancedSettings.hpp"
 #include "BagToImagesSettings.hpp"
 #include "BagToVideoSettings.hpp"
+#include "BagToYamlSettings.hpp"
 #include "BasicSettings.hpp"
 #include "DialogSettings.hpp"
 #include "DeleteSourceSettings.hpp"
@@ -312,6 +313,24 @@ TEST_CASE("Settings Testing", "[settings]") {
             qSettings.beginGroup("tf2_to_file");
             verifiySettingPrimitive(qSettings, "keep_timestamps", true);
             verifiySettingPrimitive(qSettings, "compact_output", true);
+            qSettings.endGroup();
+        }
+    }
+    SECTION("Bag to Yaml Params Test") {
+        SECTION("Read") {
+            qSettings.beginGroup("bag_to_yaml");
+            checkSettingsInvalidacy(qSettings, { "write_single_output_file" });
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Parameters::BagToYamlParameters parameters;
+            BagToYamlSettings settings(parameters, "bag_to_yaml");
+
+            parameters.writeSingleOutputFile = true;
+            settings.write();
+
+            qSettings.beginGroup("bag_to_yaml");
+            verifiySettingPrimitive(qSettings, "write_single_output_file", true);
             qSettings.endGroup();
         }
     }

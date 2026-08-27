@@ -49,8 +49,18 @@ TopicComboBoxWidget::mainFillOperation()
 
     m_topicNameComboBox->clear();
 
-    const auto fillComboBoxWithTopics = [this] (const QString& topicType) {
-        const auto topics = Utils::ROS::getBagTopicNames(m_sourceLineEdit->text(), topicType);
+    const auto fillComboBoxWithTopics = [this] (const QString& topicType, bool isYaml = false) {
+        QVector<QString> topics;
+
+        if (isYaml) {
+            const auto& metadata = Utils::ROS::getBagMetadata(m_sourceLineEdit->text());
+            for (const auto& topic : metadata.topics_with_message_count) {
+                topics.push_back(QString::fromStdString(topic.topic_metadata.name));
+            }
+        } else {
+            topics = Utils::ROS::getBagTopicNames(m_sourceLineEdit->text(), topicType);
+        }
+
         if (topics.empty()) {
             return;
         }
@@ -71,6 +81,9 @@ TopicComboBoxWidget::mainFillOperation()
         break;
     case OUTPUT_TF_TO_FILE:
         fillComboBoxWithTopics("tf2_msgs/msg/TFMessage");
+        break;
+    case OUTPUT_YAML:
+        fillComboBoxWithTopics("tf2_msgs/msg/TFMessage", true);
         break;
     default:
         break;

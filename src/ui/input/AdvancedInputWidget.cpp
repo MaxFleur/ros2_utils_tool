@@ -86,6 +86,9 @@ AdvancedInputWidget::findTargetButtonPressed()
     case OUTPUT_TF_TO_FILE:
         fileName = QFileDialog::getSaveFileName(this, "Save File", "", m_fileFormat + " files (*." + m_fileFormat + ")");
         break;
+    case OUTPUT_YAML:
+        fileName = QFileDialog::getSaveFileName(this, "Save File(s)");
+        break;
     case OUTPUT_BAG:
     case OUTPUT_BAG_EDITED:
     case OUTPUT_BAG_MERGED:
@@ -109,12 +112,18 @@ AdvancedInputWidget::findTargetButtonPressed()
 void
 AdvancedInputWidget::enableAdvancedOkButton()
 {
-    if (m_outputFormat == OUTPUT_BAG_EDITED || m_outputFormat == OUTPUT_BAG_MERGED || m_outputFormat == OUTPUT_BAG_COMPRESSED || m_outputFormat == OUTPUT_BAG_DECOMPRESSED) {
+    switch (m_outputFormat) {
+    case OUTPUT_BAG_EDITED:
+    case OUTPUT_BAG_MERGED:
+    case OUTPUT_BAG_COMPRESSED:
+    case OUTPUT_BAG_DECOMPRESSED:
+    case OUTPUT_YAML:
         enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.targetDirectory.isEmpty());
-        return;
+        break;
+    default:
+        enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.topicName.isEmpty() && !m_parameters.targetDirectory.isEmpty());
+        break;
     }
-
-    enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.topicName.isEmpty() && !m_parameters.targetDirectory.isEmpty());
 }
 
 
@@ -159,6 +168,9 @@ AdvancedInputWidget::fillTargetLineEdit()
         break;
     case OUTPUT_TF_TO_FILE:
         autoTargetDir = "/bag_transforms." + m_fileFormat;
+        break;
+    case OUTPUT_YAML:
+        autoTargetDir = "/topics";
         break;
     case OUTPUT_BAG_EDITED:
         autoTargetDir = "/edited_bag";

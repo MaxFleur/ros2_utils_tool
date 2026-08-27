@@ -46,6 +46,7 @@ private:
     Parameters::PCDsToBagParameters m_PCDsToBagParameters;
     Parameters::BagToImagesParameters m_bagToImagesParameters;
     Parameters::TF2ToFileParameters m_TF2ToFileParameters;
+    Parameters::BagToYamlParameters m_bagToYamlParameters;
     Parameters::EditBagParameters m_editBagParameters;
     Parameters::MergeBagsParameters m_mergeBagsParameters;
     Parameters::RecordBagParameters m_recordBagParameters;
