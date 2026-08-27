@@ -3,6 +3,7 @@
 #include "BagToImagesThread.hpp"
 #include "BagToPCDsThread.hpp"
 #include "BagToVideoThread.hpp"
+#include "BagToYamlThread.hpp"
 #include "BasicThread.hpp"
 #include "DialogSettings.hpp"
 #include "ChangeCompressionBagThread.hpp"
@@ -51,6 +52,9 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
         break;
     case Utils::UI::TOOL_ID::TF2_TO_FILE:
         m_thread = new BagTF2ToFileThread(dynamic_cast<Parameters::TF2ToFileParameters&>(parameters), this);
+        break;
+    case Utils::UI::TOOL_ID::BAG_TO_YAML:
+        m_thread = new BagToYamlThread(dynamic_cast<Parameters::BagToYamlParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_ID::EDIT_BAG:
         m_thread = new EditBagThread(dynamic_cast<Parameters::EditBagParameters&>(parameters),

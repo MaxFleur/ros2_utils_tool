@@ -13,6 +13,8 @@ target_sources(rt_all_threads INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/BagToPCDsThread.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToVideoThread.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToVideoThread.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/BagToYamlThread.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/BagToYamlThread.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BasicThread.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BasicThread.hpp
     ${CMAKE_CURRENT_LIST_DIR}/ChangeCompressionBagThread.cpp
@@ -58,6 +60,7 @@ target_link_libraries(rt_basic_thread
 add_library (rt_bag_to_images_thread INTERFACE)
 add_library (rt_bag_to_pcds_thread INTERFACE)
 add_library (rt_bag_to_video_thread INTERFACE)
+add_library (rt_bag_to_yaml_thread INTERFACE)
 add_library (rt_change_compression_thread INTERFACE)
 add_library (rt_dummy_bag_thread INTERFACE)
 add_library (rt_merge_bags_thread INTERFACE)
@@ -79,6 +82,10 @@ target_sources(rt_bag_to_pcds_thread INTERFACE
 target_sources(rt_bag_to_video_thread INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/BagToVideoThread.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToVideoThread.hpp
+)
+target_sources(rt_bag_to_yaml_thread INTERFACE
+    ${CMAKE_CURRENT_LIST_DIR}/BagToYamlThread.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/BagToYamlThread.hpp
 )
 target_sources(rt_change_compression_thread INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/ChangeCompressionBagThread.cpp
@@ -124,6 +131,9 @@ target_link_libraries(rt_bag_to_pcds_thread
     INTERFACE rt_basic_thread rt_utils
 )
 target_link_libraries(rt_bag_to_video_thread
+    INTERFACE rt_basic_thread rt_utils
+)
+target_link_libraries(rt_bag_to_yaml_thread
     INTERFACE rt_basic_thread rt_utils
 )
 target_link_libraries(rt_change_compression_thread

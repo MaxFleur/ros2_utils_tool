@@ -11,6 +11,8 @@ target_sources(rt_input_conversion INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/BagToPCDsWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToVideoWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToVideoWidget.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/BagToYamlWidget.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/BagToYamlWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/PCDsToBagWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/PCDsToBagWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BagTF2ToFileWidget.cpp

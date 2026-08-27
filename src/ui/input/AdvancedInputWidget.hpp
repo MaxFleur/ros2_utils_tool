@@ -66,11 +66,12 @@ protected:
     static constexpr int OUTPUT_IMAGES = 1;
     static constexpr int OUTPUT_PCDS = 2;
     static constexpr int OUTPUT_TF_TO_FILE = 3;
-    static constexpr int OUTPUT_BAG = 4;
-    static constexpr int OUTPUT_BAG_EDITED = 5;
-    static constexpr int OUTPUT_BAG_MERGED = 6;
-    static constexpr int OUTPUT_BAG_COMPRESSED = 7;
-    static constexpr int OUTPUT_BAG_DECOMPRESSED = 8;
+    static constexpr int OUTPUT_YAML = 4;
+    static constexpr int OUTPUT_BAG = 5;
+    static constexpr int OUTPUT_BAG_EDITED = 6;
+    static constexpr int OUTPUT_BAG_MERGED = 7;
+    static constexpr int OUTPUT_BAG_COMPRESSED = 8;
+    static constexpr int OUTPUT_BAG_DECOMPRESSED = 9;
 
 private:
     QString m_fileFormat;

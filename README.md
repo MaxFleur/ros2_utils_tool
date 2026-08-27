@@ -86,6 +86,11 @@ The most important information can be found here:
       <td align="center">X</td>
     </tr>
     <tr>
+      <td><b>Bag to YAML</b></td>
+      <td>Export bag topic messages to one or multiple yaml files.</td>
+      <td align="center">X</td>
+    </tr>
+    <tr>
       <th colspan="3"></th>
     </tr>
     <tr>
@@ -275,6 +280,12 @@ ros2 run ros2_utils_tool tool_bag_to_images /path/to/bag /path/to/images
 ros2 run ros2_utils_tool tool_tf2_to_file /path/to/bag /path/to/output
 ```
 (Accepted file formats are json or yaml. Note that a topic can be specified optionally. If no topic is specified, the first available tf2 topic is used).
+
+**Bag-to-YAML-Tool**:
+```
+ros2 run ros2_utils_tool tool_message_to_yaml /path/to/bag /path/to/yaml_dir
+```
+(Note that a topic can be specified optionally. If no topic is specified, the first available topic is used).
 
 **Merge-Bags-Tool**:
 ```

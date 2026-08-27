@@ -104,8 +104,11 @@ checkTopicNameValidity(const QStringList& argumentsList, const QString& bagDirec
     if (!Utils::ROS::doesBagContainTopicName(bagDirectory, topicName)) {
         throw std::runtime_error("Topic '" + topicName.toStdString() + "' has not been found in the bag file!");
     }
-    if (const auto actualType = Utils::ROS::getTopicType(bagDirectory, topicName); !topicTypes.contains(*actualType)) {
-        throw std::runtime_error("Topic '" + topicName.toStdString() + "' doesn't have the correct type!");
+    // Possibly we want to ignore the topic type, so we allow an empty vector to skip the type check
+    if (!topicTypes.isEmpty()) {
+        if (const auto actualType = Utils::ROS::getTopicType(bagDirectory, topicName); !topicTypes.contains(*actualType)) {
+            throw std::runtime_error("Topic '" + topicName.toStdString() + "' doesn't have the correct type!");
+        }
     }
     topicNameToSet = topicName;
 }

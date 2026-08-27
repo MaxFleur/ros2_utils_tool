@@ -17,6 +17,9 @@
   <depend>tf2_msgs</depend>
   <depend>tf2_ros</depend>
 
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>rosidl_runtime_py</exec_depend>
+
   <test_depend>catch_ros2</test_depend>
 
   <buildtool_depend>ament_cmake</buildtool_depend>

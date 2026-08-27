@@ -4,6 +4,7 @@
 #include "BagToImagesThread.hpp"
 #include "BagToPCDsThread.hpp"
 #include "BagToVideoThread.hpp"
+#include "BagToYamlThread.hpp"
 #include "ChangeCompressionBagThread.hpp"
 #include "DummyBagThread.hpp"
 #include "EditBagThread.hpp"
@@ -805,6 +806,51 @@ TEST_CASE("Threads Testing", "[threads]") {
 
         std::filesystem::remove_all("./bag_pcd");
         std::filesystem::remove_all("./pcds");
+    }
+    SECTION("Bag to Yaml Thread Test") {
+        Parameters::BagToYamlParameters parameters;
+        parameters.sourceDirectory = "./dummy_bag";
+        parameters.targetDirectory = "./yaml_files";
+        parameters.topicName = "/dummy_string";
+
+        std::filesystem::remove_all("./yaml_files");
+
+        auto* const thread = new BagToYamlThread(parameters);
+        QObject::connect(thread, &BagToYamlThread::finished, thread, &QObject::deleteLater);
+
+        const auto verifyNode = [] (const YAML::Node& node, const int i) {
+            REQUIRE(node.IsMap());
+            REQUIRE(node.size() == 1);
+            REQUIRE(node["data"].as<std::string>() == "Message " + std::to_string(i + 1));
+        };
+
+        SECTION("Single output file") {
+            thread->start();
+            thread->wait();
+
+            const auto& singleFileNode = YAML::LoadFile("./yaml_files/topic.yaml");
+            REQUIRE(singleFileNode.size() == 100);
+
+            for (auto i = 0; i < 100; ++i) {
+                verifyNode(singleFileNode[std::to_string(i)], i);
+            }
+        }
+        SECTION("Multiple output files") {
+            parameters.writeSingleOutputFile = false;
+
+            thread->start();
+            thread->wait();
+
+            const auto extensionCheckValues = getDirFileCountWithExtensions("./yaml_files", ".yaml");
+            REQUIRE(extensionCheckValues[0] == 100);
+            REQUIRE(extensionCheckValues[1] == 100);
+
+            for (auto i = 0; i < 100; ++i) {
+                verifyNode(YAML::LoadFile("./yaml_files/" + parameters.topicName.toStdString() + "_" + std::to_string(i) + ".yaml"), i);
+            }
+        }
+
+        std::filesystem::remove_all("./yaml_files");
     }
     SECTION("Video as ROS Topic Test") {
         Parameters::PublishParameters parameters;
