@@ -8,6 +8,7 @@
 
 #include "BagToYamlThread.hpp"
 
+#include "UtilsGeneral.hpp"
 #include "UtilsROS.hpp"
 
 #include <rosbag2_cpp/reader.hpp>
@@ -15,7 +16,6 @@
 
 #include "yaml-cpp/yaml.h"
 
-#include <filesystem>
 #include <fstream>
 
 namespace
@@ -162,16 +162,7 @@ void
 BagToYamlThread::run()
 {
     const auto targetDirectoryStd = m_parameters.targetDirectory.toStdString();
-
-    if (!std::filesystem::exists(targetDirectoryStd)) {
-        std::filesystem::create_directory(targetDirectoryStd);
-    }
-    if (!std::filesystem::is_empty(targetDirectoryStd)) {
-        // Remove all files currently present
-        for (const auto& entry : std::filesystem::directory_iterator(targetDirectoryStd)) {
-            std::filesystem::remove_all(entry.path());
-        }
-    }
+    Utils::General::createAndClearDirectory(targetDirectoryStd);
 
     const auto topicTypeStdString = Utils::ROS::getTopicType(m_parameters.sourceDirectory, m_parameters.topicName)->toStdString();
     const auto& topicNameStdString = m_parameters.topicName.toStdString();

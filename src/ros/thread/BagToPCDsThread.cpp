@@ -1,5 +1,6 @@
 #include "BagToPCDsThread.hpp"
 
+#include "UtilsGeneral.hpp"
 #include "UtilsROS.hpp"
 
 #include <pcl_conversions/pcl_conversions.h>
@@ -7,8 +8,6 @@
 #include "rosbag2_cpp/reader.hpp"
 
 #include "sensor_msgs/msg/point_cloud2.hpp"
-
-#include <filesystem>
 
 BagToPCDsThread::BagToPCDsThread(const Parameters::AdvancedParameters& parameters,
                                  unsigned int numberOfThreads, QObject* parent) :
@@ -22,15 +21,7 @@ void
 BagToPCDsThread::run()
 {
     const auto targetDirectoryStd = m_parameters.targetDirectory.toStdString();
-
-    if (!std::filesystem::exists(targetDirectoryStd)) {
-        std::filesystem::create_directory(targetDirectoryStd);
-    }
-    if (!std::filesystem::is_empty(targetDirectoryStd)) {
-        for (const auto& entry : std::filesystem::directory_iterator(targetDirectoryStd)) {
-            std::filesystem::remove_all(entry.path());
-        }
-    }
+    Utils::General::createAndClearDirectory(targetDirectoryStd);
 
     // Prepare parameters
     const auto messageCount = Utils::ROS::getTopicMessageCount(m_sourceDirectory, m_topicName);

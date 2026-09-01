@@ -1,5 +1,6 @@
 #include "BagToImagesThread.hpp"
 
+#include "UtilsGeneral.hpp"
 #include "UtilsROS.hpp"
 #include "UtilsThreads.hpp"
 
@@ -8,7 +9,6 @@
 #include "rosbag2_cpp/reader.hpp"
 
 #include <cmath>
-#include <filesystem>
 
 BagToImagesThread::BagToImagesThread(const Parameters::BagToImagesParameters& parameters,
                                      unsigned int numberOfThreads, QObject* parent) :
@@ -24,15 +24,7 @@ BagToImagesThread::run()
     const auto targetDirectoryStd = m_parameters.targetDirectory.toStdString();
     const auto isCompressed = *Utils::ROS::getTopicType(m_parameters.sourceDirectory, m_parameters.topicName) == "sensor_msgs/msg/CompressedImage";
 
-    if (!std::filesystem::exists(targetDirectoryStd)) {
-        std::filesystem::create_directory(targetDirectoryStd);
-    }
-    if (!std::filesystem::is_empty(targetDirectoryStd)) {
-        // Remove all images currently present
-        for (const auto& entry : std::filesystem::directory_iterator(targetDirectoryStd)) {
-            std::filesystem::remove_all(entry.path());
-        }
-    }
+    Utils::General::createAndClearDirectory(targetDirectoryStd);
 
     // Prepare parameters
     const auto messageCount = Utils::ROS::getTopicMessageCount(m_sourceDirectory, m_topicName);
