@@ -7,8 +7,8 @@
 
 TopicComboBoxWidget::TopicComboBoxWidget(Parameters::AdvancedParameters& parameters, const QString& headerText,
                                          const QString& iconPath, const QString& sourceFormLayoutName, const QString& targetFormLayoutName,
-                                         const QString& settingsIdentifier, int outputFormat, QWidget *parent) :
-    AdvancedInputWidget(parameters, headerText, iconPath, sourceFormLayoutName, targetFormLayoutName, settingsIdentifier, outputFormat, parent)
+                                         const QString& settingsIdentifier, OUTPUT_TYPE outputType, QWidget *parent) :
+    AdvancedInputWidget(parameters, headerText, iconPath, sourceFormLayoutName, targetFormLayoutName, settingsIdentifier, outputType, parent)
 {
     m_topicNameComboBox = new QComboBox;
     m_topicNameComboBox->setMinimumWidth(200);
@@ -70,19 +70,19 @@ TopicComboBoxWidget::mainFillOperation()
         }
     };
 
-    switch (m_outputFormat) {
-    case OUTPUT_VIDEO:
-    case OUTPUT_IMAGES:
+    switch (m_outputType) {
+    case OUTPUT_TYPE::OUTPUT_VIDEO:
+    case OUTPUT_TYPE::OUTPUT_IMAGES:
         fillComboBoxWithTopics("sensor_msgs/msg/Image");
         fillComboBoxWithTopics("sensor_msgs/msg/CompressedImage");
         break;
-    case OUTPUT_PCDS:
+    case OUTPUT_TYPE::OUTPUT_PCDS:
         fillComboBoxWithTopics("sensor_msgs/msg/PointCloud2");
         break;
-    case OUTPUT_TF_TO_FILE:
+    case OUTPUT_TYPE::OUTPUT_TF_TO_FILE:
         fillComboBoxWithTopics("tf2_msgs/msg/TFMessage");
         break;
-    case OUTPUT_YAML:
+    case OUTPUT_TYPE::OUTPUT_YAML:
         fillComboBoxWithTopics("tf2_msgs/msg/TFMessage", true);
         break;
     default:

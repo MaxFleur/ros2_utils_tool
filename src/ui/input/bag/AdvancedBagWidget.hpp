@@ -25,7 +25,7 @@ public:
                       const QString&                      titleText,
                       const QString&                      iconText,
                       const QString&                      settingsIdentifierText,
-                      const int                           outputFormat,
+                      const OUTPUT_TYPE                   outputType,
                       QWidget*                            parent = 0);
 
 protected slots:

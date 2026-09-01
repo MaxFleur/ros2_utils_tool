@@ -16,7 +16,7 @@ public:
                         const QString&                  sourceFormLayoutName,
                         const QString&                  targetFormLayoutName,
                         const QString&                  settingsIdentifier,
-                        int                             outputFormat,
+                        OUTPUT_TYPE                     outputType,
                         QWidget*                        parent = 0);
 
 protected slots:

@@ -7,7 +7,7 @@
 #include <QRadioButton>
 
 BagToYamlWidget::BagToYamlWidget(Parameters::BagToYamlParameters& parameters, QWidget *parent) :
-    TopicComboBoxWidget(parameters, "Bag To File", ":/icons/tools/bag_to_yaml", "Bag File:", "File(s) Location:", "bag_to_yaml", OUTPUT_YAML, parent),
+    TopicComboBoxWidget(parameters, "Bag To File", ":/icons/tools/bag_to_yaml", "Bag File:", "File(s) Location:", "bag_to_yaml", OUTPUT_TYPE::OUTPUT_YAML, parent),
     m_parameters(parameters), m_settings(parameters, "bag_to_yaml")
 {
     m_sourceLineEdit->setToolTip("The source bag file directory.");
