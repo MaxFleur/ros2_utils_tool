@@ -22,6 +22,7 @@
 #include "VideoSettings.hpp"
 #include "VideoToBagSettings.hpp"
 
+#include <QFile>
 #include <QSettings>
 
 void
@@ -625,4 +626,6 @@ TEST_CASE("Settings Testing", "[settings]") {
     }
 
     qSettings.clear();
+    qSettings.sync();
+    QFile::remove(qSettings.fileName());
 }
