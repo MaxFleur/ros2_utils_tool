@@ -12,6 +12,20 @@ class AdvancedInputWidget : public BasicInputWidget
 {
     Q_OBJECT
 
+protected:
+    enum class OUTPUT_TYPE {
+        OUTPUT_VIDEO,
+        OUTPUT_IMAGES,
+        OUTPUT_PCDS,
+        OUTPUT_TF_TO_FILE,
+        OUTPUT_YAML,
+        OUTPUT_BAG,
+        OUTPUT_BAG_EDITED,
+        OUTPUT_BAG_MERGED,
+        OUTPUT_BAG_COMPRESSED,
+        OUTPUT_BAG_DECOMPRESSED
+    };
+
 public:
     AdvancedInputWidget(Parameters::AdvancedParameters& parameters,
                         const QString&                  headerText,
@@ -19,7 +33,7 @@ public:
                         const QString&                  sourceFormLayoutName,
                         const QString&                  targetFormLayoutName,
                         const QString&                  settingsIdentifier,
-                        int                             outputFormat,
+                        const OUTPUT_TYPE               outputType,
                         QWidget*                        parent = 0);
 
 protected slots:
@@ -60,18 +74,7 @@ protected:
 
     AdvancedSettings m_settings;
 
-    const int m_outputFormat;
-
-    static constexpr int OUTPUT_VIDEO = 0;
-    static constexpr int OUTPUT_IMAGES = 1;
-    static constexpr int OUTPUT_PCDS = 2;
-    static constexpr int OUTPUT_TF_TO_FILE = 3;
-    static constexpr int OUTPUT_YAML = 4;
-    static constexpr int OUTPUT_BAG = 5;
-    static constexpr int OUTPUT_BAG_EDITED = 6;
-    static constexpr int OUTPUT_BAG_MERGED = 7;
-    static constexpr int OUTPUT_BAG_COMPRESSED = 8;
-    static constexpr int OUTPUT_BAG_DECOMPRESSED = 9;
+    const OUTPUT_TYPE m_outputType;
 
 private:
     QString m_fileFormat;

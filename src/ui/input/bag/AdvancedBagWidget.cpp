@@ -15,9 +15,9 @@
 #include <filesystem>
 
 AdvancedBagWidget::AdvancedBagWidget(Parameters::DeleteSourceParameters& parameters,
-                                     const QString& titleText, const QString& iconText, const QString& settingsIdentifierText, const int outputFormat,
+                                     const QString& titleText, const QString& iconText, const QString& settingsIdentifierText, const OUTPUT_TYPE outputType,
                                      QWidget *parent) :
-    AdvancedInputWidget(parameters, titleText, iconText, "Source Bag:", "Target Bag:", settingsIdentifierText, outputFormat, parent),
+    AdvancedInputWidget(parameters, titleText, iconText, "Source Bag:", "Target Bag:", settingsIdentifierText, outputType, parent),
     m_parameters(parameters), m_settings(parameters, settingsIdentifierText)
 {
     // Take the source and target form layout for manipulation

@@ -7,8 +7,8 @@
 
 TopicComboBoxWidget::TopicComboBoxWidget(Parameters::AdvancedParameters& parameters, const QString& headerText,
                                          const QString& iconPath, const QString& sourceFormLayoutName, const QString& targetFormLayoutName,
-                                         const QString& settingsIdentifier, int outputFormat, QWidget *parent) :
-    AdvancedInputWidget(parameters, headerText, iconPath, sourceFormLayoutName, targetFormLayoutName, settingsIdentifier, outputFormat, parent)
+                                         const QString& settingsIdentifier, const OUTPUT_TYPE outputType, QWidget *parent) :
+    AdvancedInputWidget(parameters, headerText, iconPath, sourceFormLayoutName, targetFormLayoutName, settingsIdentifier, outputType, parent)
 {
     m_topicNameComboBox = new QComboBox;
     m_topicNameComboBox->setMinimumWidth(200);
