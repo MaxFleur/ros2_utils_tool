@@ -13,14 +13,14 @@ volatile sig_atomic_t signalStatus = 0;
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run ros2_utils_tool tool_pcds_to_bag [-h] [files_dir] [output_bag_dir] [-t TOPIC_NAME] [-r RATE] [-s]\n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_pcds_to_bag [-h] [files_dir] [output_bag_dir] [-t TOPIC] [-r RATE] [-s]\n\n";
     std::cout << "Convert a dir of pcd files to a bag file.\n\n";
     std::cout << "positional arguments:\n";
     std::cout << "  files_dir             Source files directory.\n";
     std::cout << "  output_bag_dir        Output bag file.\n\n";
     std::cout << "options:\n";
     std::cout << "  -h, --help            Show this help message and exit.\n";
-    std::cout << "  -t TOPIC_NAME, --topic_name TOPIC_NAME\n";
+    std::cout << "  -t TOPIC, --topic TOPIC\n";
     std::cout << "                        Point cloud messages topic name, defaults to '/topic_point_cloud'.\n";
     std::cout << "  -r RATE, --rate RATE  Number of messages per second. Minimum is 1, maximum is 30, defaults to 5.\n";
     std::cout << "  -s, --suppress        Suppress any warnings.\n\n";
@@ -36,12 +36,12 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto& arguments = app.arguments();
-    if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
+    if (arguments.size() < 3 || Utils::CLI::containsArguments(arguments, "-h", "--help")) {
         showHelp();
         return 0;
     }
 
-    const QVector<QString> checkList{ "-t", "-r", "-s", "--topic_name", "--rate", "--suppress" };
+    const QVector<QString> checkList{ "-t", "-r", "-s", "--topic", "--rate", "--suppress" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");

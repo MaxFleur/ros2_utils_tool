@@ -15,19 +15,20 @@ volatile sig_atomic_t signalStatus = 0;
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run ros2_utils_tool tool_message_to_yaml [-h] [bag_path] [output_files_path] [-t TOPIC_NAME] [-m] [-s]\n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_message_to_yaml [-h] [bag_path] [output_files_path] [-t TOPIC] [-m] [-s]\n\n";
     std::cout << "Convert bag topic messages to one or multiple yaml files.\n\n";
     std::cout << "positional arguments:\n";
     std::cout << "  bag_path              Source bag file.\n";
     std::cout << "  output_files_path     Directory containing the output yaml file(s).\n\n";
     std::cout << "options:\n";
     std::cout << "  -h, --help            Show this help message and exit.\n";
-    std::cout << "  -t TOPIC_NAME, --topic_name TOPIC_NAME\n";
+    std::cout << "  -t TOPIC, --topic TOPIC\n";
     std::cout << "                        Bag topic to convert. If no topic name is specified, the first topic is taken.\n";
-    std::cout << "  -m, --multiple        Use multiple files (stores each message's yaml output in a separate file.\n";
+    std::cout << "  --multiple-output-files\n";
+    std::cout << "                        Use multiple files (stores each message's yaml output in a separate file.\n";
     std::cout << "  -s, --suppress        Suppress any warnings.\n\n";
     std::cout << "Example usage:\n";
-    std::cout << "ros2 run ros2_utils_tool tool_message_to_yaml /home/usr/input_bag /home/usr/yaml_dir -m" << std::endl;
+    std::cout << "ros2 run ros2_utils_tool tool_message_to_yaml /home/usr/input_bag /home/usr/yaml_dir --multiple-output-files" << std::endl;
 }
 
 
@@ -38,12 +39,12 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto& arguments = app.arguments();
-    if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
+    if (arguments.size() < 3 || Utils::CLI::containsArguments(arguments, "-h", "--help")) {
         showHelp();
         return 0;
     }
 
-    const QVector<QString> checkList{ "-t", "-m", "-s", "--topic_name", "--multiple", "--suppress" };
+    const QVector<QString> checkList{ "-t", "-s", "--topic", "--suppress", "--multiple-output-files" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList);
         argument != std::nullopt) {
         showHelp();
@@ -63,11 +64,11 @@ main(int argc, char* argv[])
     // Check for optional arguments
     if (arguments.size() > 3) {
         // Topic name
-        if (Utils::CLI::containsArguments(arguments, "-t", "--topic_name")) {
+        if (Utils::CLI::containsArguments(arguments, "-t", "--topic")) {
             Utils::CLI::checkTopicNameValidity(arguments, parameters.sourceDirectory, {}, parameters.topicName);
         }
         // Multiple files
-        parameters.writeSingleOutputFile = !Utils::CLI::containsArguments(arguments, "-m", "--multiple");
+        parameters.writeSingleOutputFile = !arguments.contains("--multiple-output-files");
     }
 
     // Search for topic name in bag file if not specified

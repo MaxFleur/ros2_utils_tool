@@ -18,7 +18,8 @@ showHelp()
 {
     std::cout << "Usage: ros2 run ros2_utils_tool tool_dummy_bag [-h] [bag_path] [topic_name_1]\n";
     std::cout << "                                               [topic_type_1 {String,Integer,Image,PointCloud,TF2}] ...\n";
-    std::cout << "                                               [-m MESSAGE_COUNT] [-r RATE] [-th NUMBER_OF_THREADS] [-s]\n\n";
+    std::cout << "                                               [--message-count MESSAGE_COUNT] [-r RATE]\n";
+    std::cout << "                                               [--thread-count THREAD_COUNT] [-s]\n\n";
     std::cout << "Write a dummy bag file. Up to five topics are allowed.\n\n";
     std::cout << "positional arguments:\n";
     std::cout << "  bag_path              Dummy bag file to be written.\n";
@@ -27,10 +28,10 @@ showHelp()
     std::cout << "                        Topic type for the corresponding topic name.\n\n";
     std::cout << "options:\n";
     std::cout << "  -h, --help            Show this help message and exit.\n";
-    std::cout << "  -m MESSAGE_COUNT, --message-count MESSAGE_COUNT\n";
+    std::cout << "  --message-count MESSAGE_COUNT\n";
     std::cout << "                        Number of messages in the bag file. Minimum is 1, maximum is 1000, defaults to 100.\n";
     std::cout << "  -r RATE, --rate RATE  Number of messages per second. Minimum is 1, maximum is 100, defaults to 10.\n";
-    std::cout << "  -th NUMBER_OF_THREADS, --threads NUMBER_OF_THREADS\n";
+    std::cout << "  --thread-count THREAD_COUNT\n";
     std::cout << "                        Number of threads used to write. Minimum is 1, maximum is " << std::thread::hardware_concurrency() << ", defaults to 1.\n";
     std::cout << "  -s, --suppress        Suppress any warnings.\n\n";
     std::cout << "Example usage:\n";
@@ -46,12 +47,12 @@ main(int argc, char* argv[])
 
     const auto& arguments = app.arguments();
     // 20 means all five topics plus every possible flag
-    if (arguments.size() < 4 || arguments.size() > 20 || arguments.contains("--help") || arguments.contains("-h")) {
+    if (arguments.size() < 4 || arguments.size() > 20 || Utils::CLI::containsArguments(arguments, "-h", "--help")) {
         showHelp();
         return 0;
     }
 
-    const QVector<QString> checkList{ "-m", "-r", "-th", "-s", "--message-count", "--rate", "--threads", "--suppress" };
+    const QVector<QString> checkList{ "-r", "-s", "--rate", "--suppress", "--message-count", "--thread-count" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
@@ -65,7 +66,7 @@ main(int argc, char* argv[])
 
     // Message count
     parameters.messageCount = 100;
-    if (!Utils::CLI::checkArgumentValidity(arguments, "-m", "--message-count", parameters.messageCount, 1, 1000)) {
+    if (!Utils::CLI::checkArgumentValidity(arguments, "", "--message-count", parameters.messageCount, 1, 1000)) {
         throw std::runtime_error("Please enter a message count in the range of 1 to 1000!");
     }
     // Rate
@@ -113,7 +114,7 @@ main(int argc, char* argv[])
 
     // Thread count
     auto numberOfThreads = 1;
-    if (!Utils::CLI::checkArgumentValidity(arguments, "-th", "--threads", numberOfThreads, 1, std::thread::hardware_concurrency())) {
+    if (!Utils::CLI::checkArgumentValidity(arguments, "", "--thread-count", numberOfThreads, 1, std::thread::hardware_concurrency())) {
         throw std::runtime_error("Please enter a thread count value in the range of 1 to " + std::to_string(std::thread::hardware_concurrency()) + "!");
     }
 
