@@ -22,7 +22,8 @@ SettingsDialog::SettingsDialog(Parameters::DialogParameters& parameters, QWidget
 
     auto* const maxNumberOfThreadsSpinBox = new QSpinBox;
     maxNumberOfThreadsSpinBox->setRange(1, std::thread::hardware_concurrency());
-    maxNumberOfThreadsSpinBox->setToolTip("The maximum number of threads used for some tools.\n"
+    maxNumberOfThreadsSpinBox->setToolTip("The maximum number of threads used by some tools to execute\n"
+                                          "tasks (encoding/writing images, compressing etc) in parallel.\n"
                                           "A higher number of threads will increase tool performance,\n"
                                           "but might make the system more laggy.");
     maxNumberOfThreadsSpinBox->setValue(m_parameters.maxNumberOfThreads);
