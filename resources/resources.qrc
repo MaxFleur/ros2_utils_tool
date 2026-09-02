@@ -6,10 +6,12 @@
         <file>gifs/decompressing_white.gif</file>
         <file>gifs/merging_black.gif</file>
         <file>gifs/merging_white.gif</file>
+        <file>gifs/playing_bag_black.gif</file>
+        <file>gifs/playing_bag_white.gif</file>
         <file>gifs/publishing_black.gif</file>
         <file>gifs/publishing_white.gif</file>
-        <file>gifs/recording_black.gif</file>
-        <file>gifs/recording_white.gif</file>
+        <file>gifs/recording_bag_black.gif</file>
+        <file>gifs/recording_bag_white.gif</file>
         <file>gifs/sending_tf2_black.gif</file>
         <file>gifs/sending_tf2_white.gif</file>
 
