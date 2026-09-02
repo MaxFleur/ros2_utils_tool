@@ -221,7 +221,7 @@ TEST_CASE("Settings Testing", "[settings]") {
     SECTION("Record Bag Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("record");
-            checkSettingsInvalidacy(qSettings, { "size", "duration", "show_advanced",
+            checkSettingsInvalidacy(qSettings, { "size", "duration", "include_ros_topics", "show_advanced",
                                                  "include_hidden_topics", "include_unpublished_topics",
                                                  "use_custom_size", "use_custom_duration",
                                                  "use_compression", "is_compression_file" });
@@ -233,6 +233,7 @@ TEST_CASE("Settings Testing", "[settings]") {
 
             parameters.maxSizeInMB = 2048;
             parameters.maxDurationInSeconds = 120;
+            parameters.includeROSTopics = true;
             parameters.showAdvancedOptions = true;
             parameters.includeHiddenTopics = true;
             parameters.includeUnpublishedTopics = true;
@@ -245,6 +246,7 @@ TEST_CASE("Settings Testing", "[settings]") {
             qSettings.beginGroup("record");
             verifiySettingPrimitive(qSettings, "size", 2048);
             verifiySettingPrimitive(qSettings, "duration", 120);
+            verifiySettingPrimitive(qSettings, "include_ros_topics", true);
             verifiySettingPrimitive(qSettings, "show_advanced", true);
             verifiySettingPrimitive(qSettings, "include_hidden_topics", true);
             verifiySettingPrimitive(qSettings, "include_unpublished_topics", true);

@@ -56,6 +56,7 @@ struct RecordBagParameters : SelectableBagContentParameters {
     int  maxSizeInMB = 1024;
     int  maxDurationInSeconds = 60;
 
+    bool includeROSTopics = false;
     bool showAdvancedOptions = false;
     bool includeHiddenTopics = false;
     bool includeUnpublishedTopics = false;

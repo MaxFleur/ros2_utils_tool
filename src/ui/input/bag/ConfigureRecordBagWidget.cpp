@@ -18,6 +18,10 @@ ConfigureRecordBagWidget::ConfigureRecordBagWidget(Parameters::RecordBagParamete
     BasicBagWidget(parameters, "Record Bag", ":/icons/tools/record_bag", "record_bag", "Unselect all Topics you don't want to record.", parent),
     m_parameters(parameters), m_settings(parameters, "record_bag")
 {
+    auto* const includeROSTopicsCheckBox = new QCheckBox("Include ROS Topics");
+    includeROSTopicsCheckBox->setCheckState(m_parameters.includeROSTopics ? Qt::Checked : Qt::Unchecked);
+    includeROSTopicsCheckBox->setToolTip("Includes topics associated with ROS, for example '/parameter_events'.");
+
     m_refreshButton = new QPushButton("Refresh List");
     m_refreshButton->setVisible(false);
 
@@ -25,8 +29,9 @@ ConfigureRecordBagWidget::ConfigureRecordBagWidget(Parameters::RecordBagParamete
     sourceFormLayout->addRow("Bag Location:", m_findSourceLayout);
 
     auto* const refreshButtonLayout = new QHBoxLayout;
+    refreshButtonLayout->addWidget(includeROSTopicsCheckBox);
+    refreshButtonLayout->addStretch();
     refreshButtonLayout->addWidget(m_refreshButton);
-    refreshButtonLayout->setAlignment(m_refreshButton, Qt::AlignRight);
 
     m_lowDiskSpaceWidget = new LowDiskSpaceWidget;
 
@@ -120,6 +125,9 @@ ConfigureRecordBagWidget::ConfigureRecordBagWidget(Parameters::RecordBagParamete
     m_controlsLayout->addWidget(advancedOptionsWidget);
     m_controlsLayout->addStretch();
 
+    connect(includeROSTopicsCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
+        writeParameterToSettings(m_parameters.includeROSTopics, state == Qt::Checked, m_settings);
+    });
     connect(m_refreshButton, &QPushButton::clicked, this, &ConfigureRecordBagWidget::populateTreeWidget);
     connect(advancedOptionsCheckBox, &QCheckBox::stateChanged, this, [this, advancedOptionsWidget] (int state) {
         writeParameterToSettings(m_parameters.showAdvancedOptions, state == Qt::Checked, m_settings);
@@ -176,9 +184,9 @@ ConfigureRecordBagWidget::populateTreeWidget()
     const auto& currentTopicsAndTypes = Utils::ROS::getTopicInformation();
     for (const auto& topic : currentTopicsAndTypes) {
         // Ignore ROS's own topics
-        if (QString::fromStdString(topic.first) == "/parameter_events" || QString::fromStdString(topic.first) == "/rosout" ||
-            QString::fromStdString(topic.first) == "/events/read_split" || QString::fromStdString(topic.first) == "/events/write_split" ||
-            topic.first.ends_with("/_service_event")) {
+        if ((QString::fromStdString(topic.first) == "/parameter_events" || QString::fromStdString(topic.first) == "/rosout" ||
+             QString::fromStdString(topic.first) == "/events/read_split" || QString::fromStdString(topic.first) == "/events/write_split" ||
+             topic.first.ends_with("/_service_event")) && !m_parameters.includeROSTopics) {
             continue;
         }
 
