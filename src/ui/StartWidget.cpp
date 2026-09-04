@@ -61,7 +61,7 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     m_PCDsToBagPushButton = createToolButton("PCD Files\nto Bag", "Convert a set of pcd files to a ROS bag.");
     m_bagToImagesPushButton = createToolButton("Bag to Images", "Convert images in a ROS bag video topic to a set of image files.");
     m_tf2ToFilePushButton = createToolButton("Bag TF2\nto File", "Convert transformations in a ROS bag tf2 topic to file.");
-    m_bagToYamlPushButton = createToolButton("Bag \nto Yaml", "Convert bag topics to Yaml files.");
+    m_bagToYamlPushButton = createToolButton("Bag \nto Yaml", "Convert bag topic messages to Yaml files.");
 
     auto* const conversionToolsLayout_1 = new QHBoxLayout;
     conversionToolsLayout_1->addStretch();
@@ -188,8 +188,10 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     backButtonLayout->addWidget(m_backButton);
     backButtonLayout->addStretch();
 
-    m_versionLabel = new QLabel("v0.16.1");
-    m_versionLabel->setToolTip("Memory leak fixes and layout update improvements.");
+    m_versionLabel = new QLabel("v1.0.0");
+    m_versionLabel->setToolTip("We're finally there! Now with a bag to yaml tool,\n"
+                               "compression support for the edit and merge bag tools\n"
+                               "and additional CLI flag improvements!");
 
     auto* const versionLayout = new QHBoxLayout;
     versionLayout->addStretch();
