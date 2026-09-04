@@ -5,7 +5,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/License-EUPLv1.2-blue.svg"/>
   <img src="https://img.shields.io/badge/C++-20-blue.svg"/>
-  <img src="https://img.shields.io/badge/Release-v0.16.1-blue.svg"/>
+  <img src="https://img.shields.io/badge/Release-v1.0.0-blue.svg"/>
 </p>
 <p align="center">
   <img src="https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/jazzy.yml/badge.svg?event=push"/>
@@ -38,7 +38,7 @@ The most important information can be found here:
 ## Provided tools
 
 > [!Note]  
-> This package is still under active development, so more tools might be added later in the future. Additionally, already existing tools might expand and change constantly.
+> This package still is in active development. More tools might be added later in the future, while already existing ones might expand and change constantly.
 
 <table>
   <thead>
@@ -53,40 +53,40 @@ The most important information can be found here:
       <th colspan="3"></th>
     </tr>
     <tr>
-      <th colspan="3" align="left">Conversion tools</th>
+      <th colspan="3" align="left">Conversion Tools</th>
     </tr>
     <tr>
-      <td><b>Bag to Video</b></td>
+      <td><i>Bag to Video</i></td>
       <td>Export a ROS bag video topic to a video. Supports mp4, mkv and avi.</td>
       <td align="center">X</td>
     </tr>
     <tr>
-      <td><b>Video to Bag</b></td>
+      <td><i>Video to Bag</i></td>
       <td>Port a video file to a ROS bag. Supports mp4, mkv and avi.</td>
       <td align="center">X</td>
     </tr>
     <tr>
-      <td><b>Bag to PCDs</b></td>
+      <td><i>Bag to PCDs</i></td>
       <td>Export a ROS bag point cloud topic to a set of pcd files.</td>
       <td align="center">X</td>
     </tr>
     <tr>
-      <td><b>PCDs to Bag</b></td>
+      <td><i>PCDs to Bag</i></td>
       <td>Port a set of PCD files to a ROS bag.</td>
       <td align="center">X</td>
     </tr>
     <tr>
-      <td><b>Bag to Images</b></td>
+      <td><i>Bag to Images</i></td>
       <td>Export a ROS bag video topic to an image sequence. Images can be in jpg, png or bmp.</td>
       <td align="center">X</td>
     </tr>
     <tr>
-      <td><b>Bag TF2 to File</b></td>
+      <td><i>Bag TF2 to File</i></td>
       <td>Export a ROS bag tf2 topic to a json or yaml file.</td>
       <td align="center">X</td>
     </tr>
     <tr>
-      <td><b>Bag to YAML</b></td>
+      <td><i>Bag to YAML</i></td>
       <td>Export bag topic messages to one or multiple yaml files.</td>
       <td align="center">X</td>
     </tr>
@@ -94,40 +94,40 @@ The most important information can be found here:
       <th colspan="3"></th>
     </tr>
     <tr>
-      <th colspan="3" align="left">Bag tools</th>
+      <th colspan="3" align="left">Bag Tools</th>
     </tr>
     <tr>
-      <td><b>Edit Bag</b></td>
+      <td><i>Edit Bag</i></td>
       <td>Create a bag file out of an existing one via renaming, removing or cropping topics.</td>
       <td align="center"></td>
     </tr>
     <tr>
-      <td><b>Merge Bags</b></td>
+      <td><i>Merge Bags</i></td>
       <td>Merge selected topics of two bags into a new bag file.</td>
       <td align="center">X</td>
     </tr>
     <tr>
-      <td><b>Record Bag</b></td>
+      <td><i>Record Bag</i></td>
       <td>Record a ROS bag, UI based. Supports topic and service selection, compression, bag splitting and including hidden/unpublished topics.</td>
       <td align="center">X (<code>ros2 bag record</code>)</td>
     </tr>
     <tr>
-      <td><b>Dummy Bag</b></td>
+      <td><i>Dummy Bag</i></td>
       <td>Create a ROS bag with dummy message data. Supported message types are images, strings, integers, point clouds and tf2.</td>
       <td align="center">X</td>
     </tr>
     <tr>
-      <td><b>Compress Bag</b></td>
+      <td><i>Compress Bag</i></td>
       <td>Compress a bag file.</td>
       <td align="center">X</td>
     </tr>
     <tr>
-      <td><b>Decompress Bag</b></td>
+      <td><i>Decompress Bag</i></td>
       <td>Decompress a compressed bag file.</td>
       <td align="center">X</td>
     </tr>
     <tr>
-      <td><b>Play Bag</b></td>
+      <td><i>Play Bag</i></td>
       <td>Play a bag file, UI based. Supports topic and service selection and interactive commands such as stopping/resuming, rate adjustion and message skipping.</td>
       <td align="center">X (<code>ros2 bag play</code>)</td>
     </tr>
@@ -135,20 +135,20 @@ The most important information can be found here:
       <th colspan="3"></th>
     </tr>
     <tr>
-      <th colspan="3" align="left">Publishing tools</th>
+      <th colspan="3" align="left">Publishing Tools</th>
     </tr>
     <tr>
-      <td><b>Video as ROS Topic</b></td>
+      <td><i>Video as ROS Topic</i></td>
       <td>Publish a video file to a ROS image message topic.</td>
       <td align="center">X</td>
     </tr>
     <tr>
-      <td><b>Video as ROS Topic</b></td>
+      <td><i>Video as ROS Topic</i></td>
       <td>Publish a set of images to a ROS image message topic.</td>
       <td align="center">X</td>
     </tr>
     <tr>
-      <td><b>Send TF2</b></td>
+      <td><i>Send TF2</i></td>
       <td>Send a static or non-static ROS transformation (tf2).</td>
       <td align="center">X</td>
     </tr>
@@ -156,15 +156,15 @@ The most important information can be found here:
       <th colspan="3"></th>
     </tr>
     <tr>
-      <th colspan="3" align="left">Info tools</th>
+      <th colspan="3" align="left">Info Tools</th>
     </tr>
     <tr>
-      <td><b>Topic/Service information</b></td>
+      <td><i>Topic/Service Information</i></td>
       <td>UI based, show current topics and services with name and type, including publishers and subscribers.</td>
       <td align="center">X (<code>ros2 topic list</code>/<code>ros2 service list</code>)</td>
     </tr>
     <tr>
-      <td><b>Bag Info</b></td>
+      <td><i>Bag Info</i></td>
       <td>UI based bag info vis.</td>
       <td align="center">X (<code>ros2 bag info</code>)</td>
     </tr>
