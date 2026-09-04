@@ -50,11 +50,13 @@ struct PlayBagParameters : SelectableBagContentParameters {
     double rate = 1.0;
     double offset = 0.0;
     bool   loop = false;
+    bool   publishServiceRequests = false;
 };
 struct RecordBagParameters : SelectableBagContentParameters {
     int  maxSizeInMB = 1024;
     int  maxDurationInSeconds = 60;
 
+    bool includeROSTopics = false;
     bool showAdvancedOptions = false;
     bool includeHiddenTopics = false;
     bool includeUnpublishedTopics = false;
@@ -76,9 +78,13 @@ struct TF2ToFileParameters : AdvancedParameters {
     bool keepTimestamps = false;
     bool compactOutput = true;
 };
+struct BagToYamlParameters : AdvancedParameters {
+    bool writeSingleOutputFile = true;
+};
 
 struct DeleteSourceParameters : AdvancedParameters {
     bool deleteSource = false;
+    bool compressPerMessage = false;
 };
 struct EditBagParameters : DeleteSourceParameters {
     struct EditBagTopic : SelectableBagContent {
@@ -89,6 +95,7 @@ struct EditBagParameters : DeleteSourceParameters {
 
     QVector<EditBagTopic> topics = {};
     bool                  updateTimestamps = false;
+    bool                  compressTarget = false;
 };
 struct MergeBagsParameters : DeleteSourceParameters {
     struct MergeBagTopic : SelectableBagContent {
@@ -99,9 +106,7 @@ struct MergeBagsParameters : DeleteSourceParameters {
 
     QVector<MergeBagTopic> topics = {};
     QString                secondSourceDirectory = "";
-};
-struct CompressBagParameters : DeleteSourceParameters {
-    bool compressPerMessage = false;
+    bool                   compressTarget = false;
 };
 
 struct RGBParameters : AdvancedParameters {

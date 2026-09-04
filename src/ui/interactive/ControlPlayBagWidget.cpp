@@ -8,7 +8,7 @@
 #include <QToolButton>
 
 ControlPlayBagWidget::ControlPlayBagWidget(Parameters::PlayBagParameters& parameters, QWidget* parent)
-    : ControlBagWidget(parameters, "Started playing Bag File\n", ":/icons/tools/play_bag_", false, parent), m_currentRate(parameters.rate)
+    : ControlBagWidget(parameters, "Started playing Bag File\n", ":/gifs/playing_bag", false, parent), m_currentRate(parameters.rate)
 {
     auto* const emptyWidget = new QWidget;
     emptyWidget->setFixedSize(QSize(TOOLBUTTON_SIZE, TOOLBUTTON_SIZE));
@@ -27,6 +27,9 @@ ControlPlayBagWidget::ControlPlayBagWidget(Parameters::PlayBagParameters& parame
     m_controlsLayout->addWidget(increaseRateButton);
     m_controlsLayout->addWidget(playNextMessageButton);
     m_controlsLayout->addStretch();
+
+    m_upperLayout->insertSpacing(6, 20);
+    m_upperLayout->insertWidget(7, m_loggerListWidget);
 
     auto* const decreaseRateShortcut = new QShortcut(QKeySequence(Qt::Key_Down), this);
     auto* const increaseRateShortcut = new QShortcut(QKeySequence(Qt::Key_Up), this);

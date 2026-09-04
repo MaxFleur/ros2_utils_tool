@@ -18,5 +18,5 @@ public:
 private:
     const Parameters::EditBagParameters& m_parameters;
 
-    const unsigned int m_numberOfThreads;
+    unsigned int m_numberOfThreads;
 };

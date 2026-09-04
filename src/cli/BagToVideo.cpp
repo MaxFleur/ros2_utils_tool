@@ -15,7 +15,7 @@ void
 showHelp()
 {
     std::cout << "Usage: ros2 run ros2_utils_tool tool_bag_to_video [-h] [bag_path] [output_video_path.{mp4,mkv,avi}] [-r RATE]\n";
-    std::cout << "                                                  [-t TOPIC_NAME] [-a] [-c] [-e] [-l] [-s]\n\n";
+    std::cout << "                                                  [-t TOPIC] [-a] [-c] [-e] [-l] [-s]\n\n";
     std::cout << "Convert bag image messages to a video.\n\n";
     std::cout << "positional arguments:\n";
     std::cout << "  bag_path              Source bag file.\n";
@@ -24,7 +24,7 @@ showHelp()
     std::cout << "options:\n";
     std::cout << "  -h, --help            Show this help message and exit.\n";
     std::cout << "  -r RATE, --rate RATE  Framerate for the encoded video. Minimum is 10, maximum is 60, default is 30.\n";
-    std::cout << "  -t TOPIC_NAME, --topic_name TOPIC_NAME\n";
+    std::cout << "  -t TOPIC, --topic TOPIC\n";
     std::cout << "                        Bag image topic to convert. If no topic name is specified, the first found topic with type image is taken.\n";
     std::cout << "  -a, --accelerate      Use hardware acceleration.\n";
     std::cout << "  -c, --colorless       Encode images without color.\n";
@@ -43,13 +43,13 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto& arguments = app.arguments();
-    if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
+    if (arguments.size() < 3 || Utils::CLI::containsArguments(arguments, "-h", "--help")) {
         showHelp();
         return 0;
     }
 
     const QVector<QString> checkList{ "-r", "-t", "-a", "-c", "-e", "-l", "-s",
-                                      "--rate", "--topic_name", "--accelerate", "--colorless", "--exchange", "--lossless", "--suppress" };
+                                      "--rate", "--topic", "--accelerate", "--colorless", "--exchange", "--lossless", "--suppress" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");

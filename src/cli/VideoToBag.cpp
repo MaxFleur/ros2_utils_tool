@@ -15,7 +15,7 @@ void
 showHelp()
 {
     std::cout << "Usage: ros2 run ros2_utils_tool tool_video_to_bag [-h] [video_path.{mp4,mkv}] [output_bag_path] [-r RATE]\n";
-    std::cout << "                                                  [-t TOPIC_NAME] [-a] [-c] [-e] [-l] [-f {jpg,png}] [-s]\n\n";
+    std::cout << "                                                  [-t TOPIC] [-a] [-c] [-e] [-l] [-f {jpg,png}] [-s]\n\n";
     std::cout << "Convert a video to a ROS bag.\n\n";
     std::cout << "positional arguments:\n";
     std::cout << "  video_path.{mp4,mkv}  Source video file.\n";
@@ -23,7 +23,7 @@ showHelp()
     std::cout << "options:\n";
     std::cout << "  -h, --help            Show this help message and exit.\n";
     std::cout << "  -r RATE, --rate RATE  Framerate for the encoded video. Minimum is 10, maximum is 60, default is 30.\n";
-    std::cout << "  -t TOPIC_NAME, --topic_name TOPIC_NAME\n";
+    std::cout << "  -t TOPIC, --topic TOPIC\n";
     std::cout << "                        Bag image topic to convert. If no topic name is specified, the first found topic with type image is taken.\n";
     std::cout << "  -a, --accelerate      Use hardware acceleration.\n";
     std::cout << "  -c, --compress        Compress the video frames, using compressed image messages.\n";
@@ -44,13 +44,13 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto& arguments = app.arguments();
-    if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
+    if (arguments.size() < 3 || Utils::CLI::containsArguments(arguments, "-h", "--help")) {
         showHelp();
         return 0;
     }
 
     const QVector<QString> checkList{ "-r", "-t", "-a", "-c", "-e", "-f", "-s",
-                                      "--rate", "--topic_name", "--accelerate", "--compress", "--exchange", "--format", "--suppress" };
+                                      "--rate", "--topic", "--accelerate", "--compress", "--exchange", "--format", "--suppress" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");

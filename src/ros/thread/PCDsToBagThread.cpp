@@ -62,7 +62,7 @@ PCDsToBagThread::run()
         writer->write(message, m_topicName, timeStamp);
 
         sortedPCDsSet.erase(sortedPCDsSet.begin());
-        emit progressChanged("Writing pcd file " + QString::number(iterationCount) + " of " + QString::number(frameCount) + "...",
+        emit progressChanged("Writing PCD File " + QString::number(iterationCount) + " of " + QString::number(frameCount) + "...",
                              (static_cast<float>(iterationCount) / static_cast<float>(frameCount) * 100));
         iterationCount++;
     }

@@ -6,7 +6,6 @@
 
 #include <QPointer>
 
-class QLabel;
 class QLineEdit;
 
 // Widget for merging bag files to a new file

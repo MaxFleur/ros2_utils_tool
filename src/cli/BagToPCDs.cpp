@@ -14,22 +14,22 @@ volatile sig_atomic_t signalStatus = 0;
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run ros2_utils_tool tool_bag_to_pcds [-h] [bag_path] [output_files_path] [-t TOPIC_NAME]\n";
-    std::cout << "                                                 [-th NUMBER_OF_THREADS] [-s]\n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_bag_to_pcds [-h] [bag_path] [output_files_path] [-t TOPIC]\n";
+    std::cout << "                                                 [--thread-count THREAD_COUNT] [-s]\n\n";
     std::cout << "Convert bag point cloud messages to a list of files\n\n";
     std::cout << "positional arguments:\n";
     std::cout << "  bag_path              Source bag file.\n";
     std::cout << "  output_files_path     Directory containing the output image files.\n\n";
     std::cout << "options:\n";
     std::cout << "  -h, --help            Show this help message and exit.\n";
-    std::cout << "  -t TOPIC_NAME, --topic_name TOPIC_NAME\n";
+    std::cout << "  -t TOPIC, --topic TOPIC\n";
     std::cout << "                        Bag point cloud topic to convert.\n";
     std::cout << "                        If no topic name is specified, the first found topic with type point cloud is taken.\n";
-    std::cout << "  -th NUMBER_OF_THREADS, --threads NUMBER_OF_THREADS\n";
+    std::cout << "  --thread-count THREAD_COUNT\n";
     std::cout << "                        Number of threads used for writing. Minimum is 1, maximum is " << std::thread::hardware_concurrency() << ", defaults to 1.\n";
     std::cout << "  -s, --suppress        Suppress any warnings.\n\n";
     std::cout << "Example usage:\n";
-    std::cout << "ros2 run ros2_utils_tool tool_bag_to_pcds /home/usr/input_bag /home/usr/pcd_dir -th 4" << std::endl;
+    std::cout << "ros2 run ros2_utils_tool tool_bag_to_pcds /home/usr/input_bag /home/usr/pcd_dir --thread-count 4" << std::endl;
 }
 
 
@@ -40,12 +40,12 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto& arguments = app.arguments();
-    if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
+    if (arguments.size() < 3 || Utils::CLI::containsArguments(arguments, "-h", "--help")) {
         showHelp();
         return 0;
     }
 
-    const QVector<QString> checkList{ "-t", "-th", "-s", "--topic_name", "--threads", "--suppress" };
+    const QVector<QString> checkList{ "-t", "-s", "--topic", "--suppress", "--thread-count" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList);
         argument != std::nullopt) {
         showHelp();
@@ -70,7 +70,7 @@ main(int argc, char* argv[])
 
     // Thread count
     auto numberOfThreads = 1;
-    if (!Utils::CLI::checkArgumentValidity(arguments, "-th", "--threads", numberOfThreads, 1, std::thread::hardware_concurrency())) {
+    if (!Utils::CLI::checkArgumentValidity(arguments, "", "--thread-count", numberOfThreads, 1, std::thread::hardware_concurrency())) {
         throw std::runtime_error("Please enter a thread count value in the range of 1 to " + std::to_string(std::thread::hardware_concurrency()) + "!");
     }
 

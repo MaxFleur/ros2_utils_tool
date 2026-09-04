@@ -4,6 +4,7 @@
 #include "BagToImagesThread.hpp"
 #include "BagToPCDsThread.hpp"
 #include "BagToVideoThread.hpp"
+#include "BagToYamlThread.hpp"
 #include "ChangeCompressionBagThread.hpp"
 #include "DummyBagThread.hpp"
 #include "EditBagThread.hpp"
@@ -227,6 +228,29 @@ TEST_CASE("Threads Testing", "[threads]") {
 
         rclcpp::Serialization<std_msgs::msg::String> serializationString;
         verifyMessages("./edited_bag", "/renamed_string", serializationString, 25);
+
+        SECTION("Compressed test") {
+            parameters.targetDirectory = "./edited_bag_compressed";
+            parameters.topics.clear();
+            parameters.topics.push_back({ { { "/dummy_integer" }, true }, "", 0, 99 });
+            parameters.compressTarget = true;
+            parameters.compressPerMessage = false;
+
+            thread->start();
+            thread->wait();
+
+            const auto& metadata = Utils::ROS::getBagMetadata("./edited_bag_compressed");
+            REQUIRE(metadata.message_count == 100);
+
+            const auto& topics = metadata.topics_with_message_count;
+            REQUIRE(topics.size() == 1);
+            REQUIRE(getTopicIndex(topics, "/dummy_integer") == 0);
+            REQUIRE(topics.at(0).message_count == 100);
+            REQUIRE(metadata.compression_format == "zstd");
+            REQUIRE(metadata.compression_mode == "FILE");
+
+            std::filesystem::remove_all("./edited_bag_compressed");
+        }
     }
     // Merge edited and dummy bag
     SECTION("Merge Bags Thread Test") {
@@ -290,15 +314,45 @@ TEST_CASE("Threads Testing", "[threads]") {
             rclcpp::Serialization<std_msgs::msg::String> serializationString;
             verifyMessages("./merged_bag", "/renamed_string", serializationString, 25);
         }
+        SECTION("Compressed test") {
+            parameters.targetDirectory = "./merged_bag_compressed";
+            parameters.topics.clear();
+            parameters.topics.push_back({ { { "/dummy_integer" }, true }, "./dummy_bag" });
+            parameters.topics.push_back({ { { "/renamed_string" }, true }, "./edited_bag" });
+            parameters.compressTarget = true;
+            parameters.compressPerMessage = false;
+
+            thread->start();
+            thread->wait();
+
+            const auto& metadata = Utils::ROS::getBagMetadata("./merged_bag_compressed");
+            REQUIRE(metadata.message_count == 150);
+            const auto& topics = metadata.topics_with_message_count;
+            REQUIRE(topics.size() == 2);
+
+            auto topicIndex = getTopicIndex(topics, "/dummy_integer");
+            REQUIRE(topicIndex < 2);
+            REQUIRE(topics.at(topicIndex).topic_metadata.type == "std_msgs/msg/Int32");
+            REQUIRE(topics.at(topicIndex).message_count == 100);
+            topicIndex = getTopicIndex(topics, "/renamed_string");
+            REQUIRE(topicIndex < 2);
+            REQUIRE(topics.at(topicIndex).topic_metadata.type == "std_msgs/msg/String");
+            REQUIRE(topics.at(topicIndex).message_count == 50);
+
+            REQUIRE(metadata.compression_format == "zstd");
+            REQUIRE(metadata.compression_mode == "FILE");
+
+            std::filesystem::remove_all("./merged_bag_compressed");
+        }
 
         std::filesystem::remove_all("./merged_bag");
     }
     // Compress/Decompress Dummy Bag
     SECTION("Compression/Decompression Tests") {
-        Parameters::CompressBagParameters parametersCompression;
+        Parameters::DeleteSourceParameters parametersCompression;
         parametersCompression.sourceDirectory = "./dummy_bag";
         parametersCompression.targetDirectory = "./compressed_bag";
-        Parameters::CompressBagParameters parametersDecompression;
+        Parameters::DeleteSourceParameters parametersDecompression;
         parametersDecompression.sourceDirectory = "./compressed_bag";
         parametersDecompression.targetDirectory = "./decompressed_bag";
 
@@ -752,6 +806,51 @@ TEST_CASE("Threads Testing", "[threads]") {
 
         std::filesystem::remove_all("./bag_pcd");
         std::filesystem::remove_all("./pcds");
+    }
+    SECTION("Bag to Yaml Thread Test") {
+        Parameters::BagToYamlParameters parameters;
+        parameters.sourceDirectory = "./dummy_bag";
+        parameters.targetDirectory = "./yaml_files";
+        parameters.topicName = "/dummy_string";
+
+        std::filesystem::remove_all("./yaml_files");
+
+        auto* const thread = new BagToYamlThread(parameters);
+        QObject::connect(thread, &BagToYamlThread::finished, thread, &QObject::deleteLater);
+
+        const auto verifyNode = [] (const YAML::Node& node, const int i) {
+            REQUIRE(node.IsMap());
+            REQUIRE(node.size() == 1);
+            REQUIRE(node["data"].as<std::string>() == "Message " + std::to_string(i + 1));
+        };
+
+        SECTION("Single output file") {
+            thread->start();
+            thread->wait();
+
+            const auto& singleFileNode = YAML::LoadFile("./yaml_files/topic.yaml");
+            REQUIRE(singleFileNode.size() == 100);
+
+            for (auto i = 0; i < 100; ++i) {
+                verifyNode(singleFileNode[std::to_string(i)], i);
+            }
+        }
+        SECTION("Multiple output files") {
+            parameters.writeSingleOutputFile = false;
+
+            thread->start();
+            thread->wait();
+
+            const auto extensionCheckValues = getDirFileCountWithExtensions("./yaml_files", ".yaml");
+            REQUIRE(extensionCheckValues[0] == 100);
+            REQUIRE(extensionCheckValues[1] == 100);
+
+            for (auto i = 0; i < 100; ++i) {
+                verifyNode(YAML::LoadFile("./yaml_files/" + parameters.topicName.toStdString() + "_" + std::to_string(i) + ".yaml"), i);
+            }
+        }
+
+        std::filesystem::remove_all("./yaml_files");
     }
     SECTION("Video as ROS Topic Test") {
         Parameters::PublishParameters parameters;

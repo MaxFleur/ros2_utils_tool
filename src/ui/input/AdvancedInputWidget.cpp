@@ -17,9 +17,9 @@
 
 AdvancedInputWidget::AdvancedInputWidget(Parameters::AdvancedParameters& parameters, const QString& headerText,
                                          const QString& iconPath, const QString& sourceFormLayoutName, const QString& targetFormLayoutName,
-                                         const QString& settingsIdentifier, int outputFormat, QWidget *parent) :
+                                         const QString& settingsIdentifier, const OUTPUT_TYPE outputType, QWidget *parent) :
     BasicInputWidget(headerText, iconPath, parent),
-    m_parameters(parameters), m_settings(parameters, settingsIdentifier), m_outputFormat(outputFormat)
+    m_parameters(parameters), m_settings(parameters, settingsIdentifier), m_outputType(outputType)
 {
     if (!std::filesystem::exists(m_parameters.sourceDirectory.toStdString())) {
         m_parameters.sourceDirectory = QString();
@@ -66,9 +66,7 @@ AdvancedInputWidget::findSourceButtonPressed()
     writeParameterToSettings(m_parameters.sourceDirectory, bagDirectory, m_settings);
     fillTargetLineEdit();
 
-    enableOkButton(!m_parameters.sourceDirectory.isEmpty() &&
-                   !m_parameters.topicName.isEmpty() && !m_parameters.targetDirectory.isEmpty());
-
+    enableAdvancedOkButton();
     fillTopicComboBox();
 }
 
@@ -77,22 +75,25 @@ void
 AdvancedInputWidget::findTargetButtonPressed()
 {
     QString fileName;
-    switch (m_outputFormat) {
-    case OUTPUT_VIDEO:
+    switch (m_outputType) {
+    case OUTPUT_TYPE::OUTPUT_VIDEO:
         fileName = QFileDialog::getSaveFileName(this, "Save Video", "", m_fileFormat + " files (*." + m_fileFormat + ")");
         break;
-    case OUTPUT_IMAGES:
-    case OUTPUT_PCDS:
+    case OUTPUT_TYPE::OUTPUT_IMAGES:
+    case OUTPUT_TYPE::OUTPUT_PCDS:
         fileName = QFileDialog::getExistingDirectory(this, "Save Files", "", QFileDialog::ShowDirsOnly);
         break;
-    case OUTPUT_TF_TO_FILE:
+    case OUTPUT_TYPE::OUTPUT_TF_TO_FILE:
         fileName = QFileDialog::getSaveFileName(this, "Save File", "", m_fileFormat + " files (*." + m_fileFormat + ")");
         break;
-    case OUTPUT_BAG:
-    case OUTPUT_BAG_EDITED:
-    case OUTPUT_BAG_MERGED:
-    case OUTPUT_BAG_COMPRESSED:
-    case OUTPUT_BAG_DECOMPRESSED:
+    case OUTPUT_TYPE::OUTPUT_YAML:
+        fileName = QFileDialog::getSaveFileName(this, "Save File(s)");
+        break;
+    case OUTPUT_TYPE::OUTPUT_BAG:
+    case OUTPUT_TYPE::OUTPUT_BAG_EDITED:
+    case OUTPUT_TYPE::OUTPUT_BAG_MERGED:
+    case OUTPUT_TYPE::OUTPUT_BAG_COMPRESSED:
+    case OUTPUT_TYPE::OUTPUT_BAG_DECOMPRESSED:
         fileName = QFileDialog::getSaveFileName(this, "Save Bag");
         break;
     }
@@ -103,9 +104,27 @@ AdvancedInputWidget::findTargetButtonPressed()
     writeParameterToSettings(m_parameters.targetDirectory, fileName, m_settings);
     m_targetLineEdit->setText(fileName);
 
-    enableOkButton(!m_parameters.sourceDirectory.isEmpty() &&
-                   !m_parameters.topicName.isEmpty() && !m_parameters.targetDirectory.isEmpty());
+    enableAdvancedOkButton();
     setLowDiskSpaceWidgetVisibility(m_targetLineEdit->text());
+}
+
+
+void
+AdvancedInputWidget::enableAdvancedOkButton()
+{
+    switch (m_outputType) {
+    // No specific topic name is used for these tools, so just rely on the source and target dir parameter
+    case OUTPUT_TYPE::OUTPUT_BAG_EDITED:
+    case OUTPUT_TYPE::OUTPUT_BAG_MERGED:
+    case OUTPUT_TYPE::OUTPUT_BAG_COMPRESSED:
+    case OUTPUT_TYPE::OUTPUT_BAG_DECOMPRESSED:
+    case OUTPUT_TYPE::OUTPUT_YAML:
+        enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.targetDirectory.isEmpty());
+        break;
+    default:
+        enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.topicName.isEmpty() && !m_parameters.targetDirectory.isEmpty());
+        break;
+    }
 }
 
 
@@ -124,8 +143,8 @@ AdvancedInputWidget::okButtonPressed() const
         return;
     }
     if (!Utils::UI::continueForExistingTarget(m_parameters.targetDirectory,
-                                              m_outputFormat == OUTPUT_VIDEO ? "Video" : "Directory",
-                                              m_outputFormat == OUTPUT_VIDEO ? "video" : "directory")) {
+                                              m_outputType == OUTPUT_TYPE::OUTPUT_VIDEO ? "Video" : "Directory",
+                                              m_outputType == OUTPUT_TYPE::OUTPUT_VIDEO ? "video" : "directory")) {
         return;
     }
 
@@ -138,29 +157,32 @@ AdvancedInputWidget::fillTargetLineEdit()
 {
     QString autoTargetDir;
 
-    switch (m_outputFormat) {
-    case OUTPUT_VIDEO:
+    switch (m_outputType) {
+    case OUTPUT_TYPE::OUTPUT_VIDEO:
         autoTargetDir = "/bag_video." + m_fileFormat;
         break;
-    case OUTPUT_IMAGES:
+    case OUTPUT_TYPE::OUTPUT_IMAGES:
         autoTargetDir = "/image_files";
         break;
-    case OUTPUT_PCDS:
+    case OUTPUT_TYPE::OUTPUT_PCDS:
         autoTargetDir = "/pcd_files";
         break;
-    case OUTPUT_TF_TO_FILE:
+    case OUTPUT_TYPE::OUTPUT_TF_TO_FILE:
         autoTargetDir = "/bag_transforms." + m_fileFormat;
         break;
-    case OUTPUT_BAG_EDITED:
+    case OUTPUT_TYPE::OUTPUT_YAML:
+        autoTargetDir = "/topics";
+        break;
+    case OUTPUT_TYPE::OUTPUT_BAG_EDITED:
         autoTargetDir = "/edited_bag";
         break;
-    case OUTPUT_BAG_MERGED:
+    case OUTPUT_TYPE::OUTPUT_BAG_MERGED:
         autoTargetDir = "/merged_bag";
         break;
-    case OUTPUT_BAG_COMPRESSED:
+    case OUTPUT_TYPE::OUTPUT_BAG_COMPRESSED:
         autoTargetDir = "/compressed_bag";
         break;
-    case OUTPUT_BAG_DECOMPRESSED:
+    case OUTPUT_TYPE::OUTPUT_BAG_DECOMPRESSED:
         autoTargetDir = "/decompressed_bag";
         break;
     default:

@@ -16,22 +16,22 @@ volatile sig_atomic_t signalStatus = 0;
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run ros2_utils_tool tool_publish_images [-h] [images_dir] [-sc WIDTH HEIGHT] [-r RATE] [-t TOPIC_NAME] [-e] [-l] [-s]\n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_publish_images [-h] [images_dir] [--scale WIDTH HEIGHT] [-r RATE] [-t TOPIC] [-e] [-l] [-s]\n\n";
     std::cout << "Publish a set of images as a ROS2 image messages stream. The images must have format jpg, png or bmp.\n\n";
     std::cout << "positional arguments:\n";
     std::cout << "  files_dir             Source files directory.\n";
     std::cout << "options:\n";
     std::cout << "  -h, --help            Show this help message and exit.\n";
-    std::cout << "  -sc WIDTH HEIGHT, --scale WIDTH HEIGHT\n";
+    std::cout << "  --scale WIDTH HEIGHT\n";
     std::cout << "                        Scale the video to a new resolution. WIDTH must be in the range of 1 to 3840, HEIGHT of 1 to 2160.\n";
     std::cout << "  -r RATE, --rate RATE  Number of messages per second. Minimum is 1, maximum is 60, defaults to 30.\n";
-    std::cout << "  -t TOPIC_NAME, --topic_name TOPIC_NAME\n";
+    std::cout << "  -t TOPIC, --topic TOPIC\n";
     std::cout << "                        Image messages topic name, defaults to '/topic_video'.\n";
     std::cout << "  -e, --exchange        Exchange red and blue values.\n";
     std::cout << "  -l, --loop            Loop the video.\n";
     std::cout << "  -s, --suppress        Suppress any warnings.\n\n";
     std::cout << "Example usage:\n";
-    std::cout << "ros2 run ros2_utils_tool tool_publish_images /home/usr/images_dir -sc 1280 720 -t /images_scaled -r 25 -l" << std::endl;
+    std::cout << "ros2 run ros2_utils_tool tool_publish_images /home/usr/images_dir --scale 1280 720 -t /images_scaled -r 25 -l" << std::endl;
 }
 
 
@@ -43,12 +43,12 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto& arguments = app.arguments();
-    if (arguments.size() < 2 || arguments.contains("--help") || arguments.contains("-h")) {
+    if (arguments.size() < 2 || Utils::CLI::containsArguments(arguments, "-h", "--help")) {
         showHelp();
         return 0;
     }
 
-    const QVector<QString> checkList{ "-sc", "-r", "-t", "-e", "-l", "-s", "--scale", "--rate", "--topic_name", "--exchange", "--loop", "--suppress" };
+    const QVector<QString> checkList{ "-r", "-t", "-e", "-l", "-s", "--rate", "--topic", "--exchange", "--loop", "--suppress", "--scale" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
@@ -83,11 +83,11 @@ main(int argc, char* argv[])
             throw std::runtime_error("Please enter a framerate in the range of 1 to 60!");
         }
         // Scale
-        parameters.scale = Utils::CLI::containsArguments(arguments, "-sc", "--scale");
-        if (!Utils::CLI::checkArgumentValidity(arguments, "-sc", "--scale", parameters.width, 1, 3840)) {
+        parameters.scale = arguments.contains("--scale");
+        if (!Utils::CLI::checkArgumentValidity(arguments, "", "--scale", parameters.width, 1, 3840)) {
             throw std::runtime_error("Please enter a width value between 1 and 3840!");
         }
-        if (!Utils::CLI::checkArgumentValidity(arguments, "-sc", "--scale", parameters.height, 1, 2160, 2)) {
+        if (!Utils::CLI::checkArgumentValidity(arguments, "", "--scale", parameters.height, 1, 2160, 2)) {
             throw std::runtime_error("Please enter a height value between 1 and 2160!");
         }
         parameters.scale = true;

@@ -22,4 +22,18 @@ getFileExtension(const QString& path)
     QFileInfo fileInfo(path);
     return fileInfo.suffix();
 }
+
+
+void
+createAndClearDirectory(const std::string& directory)
+{
+    if (!std::filesystem::exists(directory)) {
+        std::filesystem::create_directory(directory);
+    }
+    if (!std::filesystem::is_empty(directory)) {
+        for (const auto& entry : std::filesystem::directory_iterator(directory)) {
+            std::filesystem::remove_all(entry.path());
+        }
+    }
+}
 }

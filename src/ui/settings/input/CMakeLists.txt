@@ -11,10 +11,10 @@ target_sources(rt_settings_input INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/BagToImagesSettings.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToVideoSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToVideoSettings.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/BagToYamlSettings.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/BagToYamlSettings.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BasicSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BasicSettings.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/CompressBagSettings.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/CompressBagSettings.hpp
     ${CMAKE_CURRENT_LIST_DIR}/DeleteSourceSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/DeleteSourceSettings.hpp
     ${CMAKE_CURRENT_LIST_DIR}/DummyBagSettings.cpp

@@ -61,30 +61,37 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     m_PCDsToBagPushButton = createToolButton("PCD Files\nto Bag", "Convert a set of pcd files to a ROS bag.");
     m_bagToImagesPushButton = createToolButton("Bag to Images", "Convert images in a ROS bag video topic to a set of image files.");
     m_tf2ToFilePushButton = createToolButton("Bag TF2\nto File", "Convert transformations in a ROS bag tf2 topic to file.");
+    m_bagToYamlPushButton = createToolButton("Bag \nto Yaml", "Convert bag topic messages to Yaml files.");
 
-    auto* const conversionToolsUpperLayout = new QHBoxLayout;
-    conversionToolsUpperLayout->addStretch();
-    conversionToolsUpperLayout->addWidget(m_bagToVideoPushButton);
-    conversionToolsUpperLayout->addWidget(m_videoToBagPushButton);
-    conversionToolsUpperLayout->addStretch();
+    auto* const conversionToolsLayout_1 = new QHBoxLayout;
+    conversionToolsLayout_1->addStretch();
+    conversionToolsLayout_1->addWidget(m_bagToVideoPushButton);
+    conversionToolsLayout_1->addWidget(m_videoToBagPushButton);
+    conversionToolsLayout_1->addStretch();
 
-    auto* const conversionToolsCenterLayout = new QHBoxLayout;
-    conversionToolsCenterLayout->addStretch();
-    conversionToolsCenterLayout->addWidget(m_bagToPCDsPushButton);
-    conversionToolsCenterLayout->addWidget(m_PCDsToBagPushButton);
-    conversionToolsCenterLayout->addStretch();
+    auto* const conversionToolsLayout_2 = new QHBoxLayout;
+    conversionToolsLayout_2->addStretch();
+    conversionToolsLayout_2->addWidget(m_bagToPCDsPushButton);
+    conversionToolsLayout_2->addWidget(m_PCDsToBagPushButton);
+    conversionToolsLayout_2->addStretch();
 
-    auto* const conversionToolsLowerLayout = new QHBoxLayout;
-    conversionToolsLowerLayout->addStretch();
-    conversionToolsLowerLayout->addWidget(m_bagToImagesPushButton);
-    conversionToolsLowerLayout->addWidget(m_tf2ToFilePushButton);
-    conversionToolsLowerLayout->addStretch();
+    auto* const conversionToolsLayout_3 = new QHBoxLayout;
+    conversionToolsLayout_3->addStretch();
+    conversionToolsLayout_3->addWidget(m_bagToImagesPushButton);
+    conversionToolsLayout_3->addWidget(m_tf2ToFilePushButton);
+    conversionToolsLayout_3->addStretch();
+
+    auto* const conversionToolsLayout_4 = new QHBoxLayout;
+    conversionToolsLayout_4->addStretch();
+    conversionToolsLayout_4->addWidget(m_bagToYamlPushButton);
+    conversionToolsLayout_4->addStretch();
 
     auto* const conversionToolsMainLayout = new QVBoxLayout;
     conversionToolsMainLayout->addStretch();
-    conversionToolsMainLayout->addLayout(conversionToolsUpperLayout);
-    conversionToolsMainLayout->addLayout(conversionToolsCenterLayout);
-    conversionToolsMainLayout->addLayout(conversionToolsLowerLayout);
+    conversionToolsMainLayout->addLayout(conversionToolsLayout_1);
+    conversionToolsMainLayout->addLayout(conversionToolsLayout_2);
+    conversionToolsMainLayout->addLayout(conversionToolsLayout_3);
+    conversionToolsMainLayout->addLayout(conversionToolsLayout_4);
     conversionToolsMainLayout->addStretch();
 
     auto* const conversionToolsWidget = new QWidget;
@@ -181,8 +188,10 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     backButtonLayout->addWidget(m_backButton);
     backButtonLayout->addStretch();
 
-    m_versionLabel = new QLabel("v0.16.1");
-    m_versionLabel->setToolTip("Memory leak fixes and layout update improvements.");
+    m_versionLabel = new QLabel("v1.0.0");
+    m_versionLabel->setToolTip("We're finally there! Now with a bag to yaml tool,\n"
+                               "compression support for the edit and merge bag tools\n"
+                               "and additional CLI flag improvements!");
 
     auto* const versionLayout = new QHBoxLayout;
     versionLayout->addStretch();
@@ -255,6 +264,9 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     connect(m_tf2ToFilePushButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_ID::TF2_TO_FILE);
     });
+    connect(m_bagToYamlPushButton, &QPushButton::clicked, this, [this] {
+        emit toolRequested(Utils::UI::TOOL_ID::BAG_TO_YAML);
+    });
     connect(m_editBagButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_ID::EDIT_BAG);
     });
@@ -326,7 +338,6 @@ StartWidget::replaceWidgets(QWidget* fromWidget, QWidget* toWidget, int widgetId
 {
     // If the back button is visible, the other elements should be hidden and vice versa
     m_backButton->setVisible(!otherItemVisibility);
-    m_settingsButton->setVisible(otherItemVisibility);
     m_versionLabel->setVisible(otherItemVisibility);
     m_widgetOnInstantiation = widgetIdentifier;
 
@@ -389,6 +400,7 @@ StartWidget::setButtonIcons()
     m_PCDsToBagPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/pcd_to_bag_white.svg" : ":/icons/tools/pcd_to_bag_black.svg"));
     m_bagToImagesPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_to_images_white.svg" : ":/icons/tools/bag_to_images_black.svg"));
     m_tf2ToFilePushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/tf2_to_file_white.svg" : ":/icons/tools/tf2_to_file_black.svg"));
+    m_bagToYamlPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_to_yaml_white.svg" : ":/icons/tools/bag_to_yaml_black.svg"));
 
     m_editBagButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/edit_bag_white.svg" : ":/icons/tools/edit_bag_black.svg"));
     m_mergeBagsButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/merge_bags_white.svg" : ":/icons/tools/merge_bags_black.svg"));

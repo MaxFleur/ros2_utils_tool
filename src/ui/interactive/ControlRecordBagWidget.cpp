@@ -10,7 +10,7 @@
 #include <filesystem>
 
 ControlRecordBagWidget::ControlRecordBagWidget(Parameters::RecordBagParameters& parameters, QWidget* parent)
-    : ControlBagWidget(parameters, "Started recording Bag File\n", ":/icons/tools/record_bag_", true, parent), m_parameters(parameters)
+    : ControlBagWidget(parameters, "Started Recording Bag File\n", ":/gifs/recording_bag", true, parent), m_parameters(parameters)
 {
     m_controlsLayout->addWidget(m_playPauseButton);
     m_controlsLayout->addStretch();
@@ -23,9 +23,11 @@ ControlRecordBagWidget::ControlRecordBagWidget(Parameters::RecordBagParameters& 
     m_bagSizeLabel->setFont(font);
     m_availableDiskSpaceLabel->setFont(font);
 
-    m_upperLayout->insertSpacing(7, 20);
+    m_upperLayout->insertSpacing(7, 10);
     m_upperLayout->insertWidget(8, m_bagSizeLabel);
     m_upperLayout->insertWidget(9, m_availableDiskSpaceLabel);
+    m_upperLayout->insertSpacing(10, 10);
+    m_upperLayout->insertWidget(11, m_loggerListWidget);
     m_upperLayout->setAlignment(m_bagSizeLabel, Qt::AlignHCenter);
     m_upperLayout->setAlignment(m_availableDiskSpaceLabel, Qt::AlignHCenter);
 

@@ -17,7 +17,9 @@ void
 showHelp()
 {
     std::cout << "Usage: ros2 run ros2_utils_tool tool_merge_bags [-h] [bag_path_first] [bag_path_second] [-t1 Topic [Topic...]]\n";
-    std::cout << "                                                [-t2 Topic [Topic...]] [output_merged_bag] [-th NUMBER_OF_THREADS] [-d] [-s]\n\n";
+    std::cout << "                                                [-t2 Topic [Topic...]] [output_merged_bag]\n";
+    std::cout << "                                                [--thread-count THREAD_COUNT] [-d]\n";
+    std::cout << "                                                [--compression-mode {file,message}] [-s]\n\n";
     std::cout << "Merge topics from two bag files into a new bag file.\n";
     std::cout << "Note that duplicate specified topics (equal topics contained in both bags) will be merged to one.\n\n";
     std::cout << "positional arguments:\n";
@@ -30,12 +32,14 @@ showHelp()
     std::cout << "  output_merged_bag     Output merged bag file.\n\n";
     std::cout << "options:\n";
     std::cout << "  -h, --help            Show this help message and exit.\n";
-    std::cout << "  -th NUMBER_OF_THREADS, --threads NUMBER_OF_THREADS\n";
+    std::cout << "  --thread-count THREAD_COUNT\n";
     std::cout << "                        Number of threads used to merge. Minimum is 1, maximum is " << std::thread::hardware_concurrency() << ", defaults to 1.\n";
     std::cout << "  -d, --delete          Delete the source files after completion.\n";
+    std::cout << "  --compression-mode {file,message}\n";
+    std::cout << "                        Choose the compression mode for the generated output file, defaults to None.\n";
     std::cout << "  -s, --suppress        Suppress any warnings.\n\n";
     std::cout << "Example usage:\n";
-    std::cout << "ros2 run ros2_utils_tool tool_merge_bags /home/usr/first_bag /home/usr/second_bag -t1 /lidar -t2 /video /sensor /home/usr/target_bag -th 4" << std::endl;
+    std::cout << "ros2 run ros2_utils_tool tool_merge_bags /home/usr/first_bag /home/usr/second_bag -t1 /lidar -t2 /video /sensor /home/usr/target_bag --thread-count 4" << std::endl;
 }
 
 
@@ -48,12 +52,12 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto& arguments = app.arguments();
-    if (arguments.size() < 8 || arguments.contains("--help") || arguments.contains("-h")) {
+    if (arguments.size() < 8 || Utils::CLI::containsArguments(arguments, "-h", "--help")) {
         showHelp();
         return 0;
     }
 
-    const QVector<QString> checkList{ "-t1", "-t2", "-th", "-d", "-s", "--threads", "--delete", "--suppress" };
+    const QVector<QString> checkList{ "-t1", "-t2", "-d", "-s", "--delete", "--suppress", "--thread-count", "--compression-mode" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
@@ -108,8 +112,19 @@ main(int argc, char* argv[])
 
     // Thread count
     auto numberOfThreads = 1;
-    if (!Utils::CLI::checkArgumentValidity(arguments, "-th", "--threads", numberOfThreads, 1, std::thread::hardware_concurrency())) {
+    if (!Utils::CLI::checkArgumentValidity(arguments, "", "--thread-count", numberOfThreads, 1, std::thread::hardware_concurrency())) {
         throw std::runtime_error("Please enter a thread count value in the range of 1 to " + std::to_string(std::thread::hardware_concurrency()) + "!");
+    }
+
+    // Compression mode
+    if (arguments.contains("--compression-mode")) {
+        const auto modeIndex = arguments.indexOf("--compression-mode");
+        if (arguments.at(modeIndex) == arguments.last() || (arguments.at(modeIndex + 1) != "file" && arguments.at(modeIndex + 1) != "message")) {
+            throw std::runtime_error("Please enter either 'file' or 'message' for the compression mode!");
+        }
+
+        parameters.compressTarget = true;
+        parameters.compressPerMessage = arguments.at(modeIndex + 1) == "message";
     }
 
     // Boundary used to check for the second bags topics (parameters usually come after those)
@@ -120,7 +135,10 @@ main(int argc, char* argv[])
     if (Utils::CLI::containsArguments(arguments, "-s", "--suppress")) {
         boundary--;
     }
-    if (Utils::CLI::containsArguments(arguments, "-th", "--threads")) {
+    if (arguments.contains("--thread-count")) {
+        boundary -= 2;
+    }
+    if (arguments.contains("--compression-mode")) {
         boundary -= 2;
     }
 

@@ -104,15 +104,19 @@ TEST_CASE("Utils CLI Testing", "[utils]") {
         arguments.append("-t");
         CHECK_THROWS_WITH(Utils::CLI::checkTopicNameValidity(arguments, "test_bag_file", { "sensor_msgs/msg/Image" }, topicName),
                           "Please enter a valid topic name!");
+
         arguments.append("/random_topic");
         CHECK_THROWS_WITH(Utils::CLI::checkTopicNameValidity(arguments, "test_bag_file", { "sensor_msgs/msg/Image" }, topicName),
                           "Topic '/random_topic' has not been found in the bag file!");
         arguments.pop_back();
+
         arguments.append("/topic_image");
         CHECK_THROWS_WITH(Utils::CLI::checkTopicNameValidity(arguments, "test_bag_file", { "sensor_msgs/msg/PointCloud2" }, topicName),
                           "Topic '/topic_image' doesn't have the correct type!");
         REQUIRE_NOTHROW(Utils::CLI::checkTopicNameValidity(arguments, "test_bag_file", { "sensor_msgs/msg/Image" }, topicName));
         REQUIRE_NOTHROW(Utils::CLI::checkTopicNameValidity(arguments, "test_bag_file", { "sensor_msgs/msg/CompressedImage", "sensor_msgs/msg/Image" }, topicName));
+
+        REQUIRE_NOTHROW(Utils::CLI::checkTopicNameValidity(arguments, "test_bag_file", {}, topicName));
 
         std::filesystem::remove_all(bagDirectory);
     }
