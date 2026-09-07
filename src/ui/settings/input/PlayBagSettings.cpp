@@ -18,6 +18,7 @@ PlayBagSettings::write()
     writeParameter(m_groupName, "rate", m_parameters.rate);
     writeParameter(m_groupName, "offset", m_parameters.offset);
     writeParameter(m_groupName, "loop", m_parameters.loop);
+    writeParameter(m_groupName, "publish_service_requests", m_parameters.publishServiceRequests);
 
     return true;
 }
@@ -32,7 +33,8 @@ PlayBagSettings::read()
 
     m_parameters.rate = readParameter(m_groupName, "rate", 1.0);
     m_parameters.offset = readParameter(m_groupName, "offset", 0.0);
-    m_parameters.loop = readParameter(m_groupName, "loop", true);
+    m_parameters.loop = readParameter(m_groupName, "loop", false);
+    m_parameters.loop = readParameter(m_groupName, "publish_service_requests", false);
 
     return true;
 }

@@ -33,6 +33,7 @@ private slots:
 private:
     QPointer<QFormLayout> m_lowerOptionsLayout;
     QPointer<QCheckBox> m_loopCheckBox;
+    QPointer<QCheckBox> m_publishServiceRequestCheckBox;
     QPointer<QDoubleSpinBox> m_rateSpinBox;
     QPointer<QDoubleSpinBox> m_offsetSpinBox;
 

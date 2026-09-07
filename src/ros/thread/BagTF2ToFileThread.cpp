@@ -72,7 +72,7 @@ BagTF2ToFileThread::run()
         isFormatJson ? writeMessageToJsonArray() : writeMessageToYamlNode();
 
         iterationCount++;
-        emit progressChanged("Writing message " + QString::number(iterationCount) + " of " + QString::number(*messageCount) + "...",
+        emit progressChanged("Writing Message " + QString::number(iterationCount) + " of " + QString::number(*messageCount) + "...",
                              (static_cast<float>(iterationCount) / static_cast<float>(*messageCount) * 100));
     }
 

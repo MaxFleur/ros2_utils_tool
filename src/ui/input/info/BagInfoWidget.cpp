@@ -85,9 +85,9 @@ BagInfoWidget::populateTreeWidget()
     treeWidgetItems.append(new QTreeWidgetItem({ "Size (Message Count):", QString::number(bagMetaData.message_count) }));
     treeWidgetItems.append(new QTreeWidgetItem({ "Storage Identifier:", QString::fromStdString(bagMetaData.storage_identifier) }));
     treeWidgetItems.append(new QTreeWidgetItem({ "Compression Format:",
-                                                 bagMetaData.compression_mode == "" ? "None": QString::fromStdString(bagMetaData.compression_mode) }));
-    treeWidgetItems.append(new QTreeWidgetItem({ "Compression Mode:",
                                                  bagMetaData.compression_format == "" ? "None": QString::fromStdString(bagMetaData.compression_format) }));
+    treeWidgetItems.append(new QTreeWidgetItem({ "Compression Mode:",
+                                                 bagMetaData.compression_mode == "" ? "None": QString::fromStdString(bagMetaData.compression_mode) }));
     if (!bagMetaData.ros_distro.empty()) {
         treeWidgetItems.append(new QTreeWidgetItem({ "ROS Distro:", QString::fromStdString(bagMetaData.ros_distro) }));
     }

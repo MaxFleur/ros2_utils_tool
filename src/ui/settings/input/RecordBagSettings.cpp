@@ -16,6 +16,7 @@ RecordBagSettings::write()
 
     writeParameter(m_groupName, "size", m_parameters.maxSizeInMB);
     writeParameter(m_groupName, "duration", m_parameters.maxDurationInSeconds);
+    writeParameter(m_groupName, "include_ros_topics", m_parameters.includeROSTopics);
     writeParameter(m_groupName, "show_advanced", m_parameters.showAdvancedOptions);
     writeParameter(m_groupName, "include_hidden_topics", m_parameters.includeHiddenTopics);
     writeParameter(m_groupName, "include_unpublished_topics", m_parameters.includeUnpublishedTopics);
@@ -37,6 +38,7 @@ RecordBagSettings::read()
 
     m_parameters.maxSizeInMB = readParameter(m_groupName, "size", 1024);
     m_parameters.maxDurationInSeconds = readParameter(m_groupName, "duration", 60);
+    m_parameters.includeROSTopics = readParameter(m_groupName, "include_ros_topics", false);
     m_parameters.showAdvancedOptions = readParameter(m_groupName, "show_advanced", false);
     m_parameters.includeHiddenTopics = readParameter(m_groupName, "include_hidden_topics", false);
     m_parameters.includeUnpublishedTopics = readParameter(m_groupName, "include_unpublished_topics", false);

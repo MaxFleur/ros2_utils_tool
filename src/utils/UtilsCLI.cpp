@@ -83,7 +83,7 @@ checkArgumentValidity(const QStringList& argumentsList, const QString& shortArg,
 void
 checkTopicParameterPosition(const QStringList& argumentsList)
 {
-    if (const auto topicNameIndex = getArgumentsIndex(argumentsList, "-t", "--topic_name");
+    if (const auto topicNameIndex = getArgumentsIndex(argumentsList, "-t", "--topic");
         argumentsList.at(topicNameIndex) != argumentsList.last()) {
         return;
     }
@@ -94,18 +94,21 @@ checkTopicParameterPosition(const QStringList& argumentsList)
 void
 checkTopicNameValidity(const QStringList& argumentsList, const QString& bagDirectory, const QVector<QString>& topicTypes, QString& topicNameToSet)
 {
-    if (!containsArguments(argumentsList, "-t", "--topic_name")) {
+    if (!containsArguments(argumentsList, "-t", "--topic")) {
         return;
     }
 
     checkTopicParameterPosition(argumentsList);
 
-    const auto& topicName = argumentsList.at(getArgumentsIndex(argumentsList, "-t", "--topic_name") + 1);
+    const auto& topicName = argumentsList.at(getArgumentsIndex(argumentsList, "-t", "--topic") + 1);
     if (!Utils::ROS::doesBagContainTopicName(bagDirectory, topicName)) {
         throw std::runtime_error("Topic '" + topicName.toStdString() + "' has not been found in the bag file!");
     }
-    if (const auto actualType = Utils::ROS::getTopicType(bagDirectory, topicName); !topicTypes.contains(*actualType)) {
-        throw std::runtime_error("Topic '" + topicName.toStdString() + "' doesn't have the correct type!");
+    // Possibly we want to ignore the topic type, so we allow an empty vector to skip the type check
+    if (!topicTypes.isEmpty()) {
+        if (const auto actualType = Utils::ROS::getTopicType(bagDirectory, topicName); !topicTypes.contains(*actualType)) {
+            throw std::runtime_error("Topic '" + topicName.toStdString() + "' doesn't have the correct type!");
+        }
     }
     topicNameToSet = topicName;
 }
@@ -181,12 +184,12 @@ shouldContinue(const std::string& message)
 bool
 continueWithInvalidROS2Name(const QStringList& arguments, QString& parameterTopicName)
 {
-    if (!containsArguments(arguments, "-t", "--topic_name")) {
+    if (!containsArguments(arguments, "-t", "--topic")) {
         return true;
     }
 
     checkTopicParameterPosition(arguments);
-    const auto& topicName = arguments.at(getArgumentsIndex(arguments, "-t", "--topic_name") + 1);
+    const auto& topicName = arguments.at(getArgumentsIndex(arguments, "-t", "--topic") + 1);
 
     if (containsArguments(arguments, "-s", "--suppress")) {
         parameterTopicName = topicName;

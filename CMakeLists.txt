@@ -22,6 +22,11 @@ else()
     find_package(Qt5 COMPONENTS Widgets REQUIRED)
 endif()
 
+if(NOT DEFINED Python3_EXECUTABLE AND EXISTS /usr/bin/python3)
+    set(Python3_EXECUTABLE /usr/bin/python3)
+endif()
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+
 find_package(ament_cmake REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(geometry_msgs REQUIRED)
@@ -63,6 +68,9 @@ add_executable(tool_dummy_bag
 add_executable(tool_merge_bags
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/MergeBags.cpp
 )
+add_executable(tool_message_to_yaml
+    ${CMAKE_CURRENT_LIST_DIR}/src/cli/MessageToYaml.cpp
+)
 add_executable(tool_pcds_to_bag
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/PCDsToBag.cpp
 )
@@ -82,7 +90,7 @@ add_executable(tool_video_to_bag
 target_link_libraries(tool_ui
     rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp rosbag2_transport::rosbag2_transport cv_bridge::cv_bridge
     ${geometry_msgs_TARGETS} ${sensor_msgs_TARGETS} ${tf2_msgs_TARGETS}
-    Qt::Widgets rt_ui
+    Python3::Python Qt::Widgets rt_ui
 )
 target_link_libraries(tool_bag_tf2_to_file
     rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp ${geometry_msgs_TARGETS} ${std_msgs_TARGETS} ${tf2_msgs_TARGETS}
@@ -115,6 +123,10 @@ target_link_libraries(tool_dummy_bag
 target_link_libraries(tool_merge_bags
     rosbag2_cpp::rosbag2_cpp rosbag2_transport::rosbag2_transport ${sensor_msgs_TARGETS}
     Qt::Widgets rt_merge_bags_thread rt_utils
+)
+target_link_libraries(tool_message_to_yaml
+    rosbag2_cpp::rosbag2_cpp Python3::Python
+    Qt::Widgets rt_bag_to_yaml_thread rt_utils
 )
 target_link_libraries(tool_pcds_to_bag
     rosbag2_cpp::rosbag2_cpp ${sensor_msgs_TARGETS}
@@ -167,6 +179,7 @@ install(TARGETS
     tool_decompress_bag
     tool_dummy_bag
     tool_merge_bags
+    tool_message_to_yaml
     tool_pcds_to_bag
     tool_publish_images
     tool_publish_video

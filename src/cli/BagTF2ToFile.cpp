@@ -15,7 +15,7 @@ volatile sig_atomic_t signalStatus = 0;
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run ros2_utils_tool tool_tf2_to_file [-h] [bag_path] [output_file_path.{json,yaml}] [-t] [-k] [-i] [-s]\n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_tf2_to_file [-h] [bag_path] [output_file_path.{json,yaml}] [-t TOPIC] [--keep-timestamps] [-i] [-s]\n\n";
     std::cout << "Convert bag transformations to file.\n\n";
     std::cout << "positional arguments:\n";
     std::cout << "  bag_path              Source bag file.\n";
@@ -23,14 +23,14 @@ showHelp()
     std::cout << "                        The file containing the transformation(s). Accepted file formats are json or yaml.\n\n";
     std::cout << "options:\n";
     std::cout << "  -h, --help            Show this help message and exit.\n";
-    std::cout << "  -t, --topic_name TOPIC\n";
+    std::cout << "  -t TOPIC, --topic TOPIC\n";
     std::cout << "                        Bag tf2 topic to convert. If no topic name is specified, the first found topic with type tf2 is taken.\n";
-    std::cout << "  -k, --keep_timestamps\n";
+    std::cout << "  --keep-timestamps\n";
     std::cout << "                        Keep the message's timestamp in the output file.\n";
     std::cout << "  -i, --indent          Indent the output file. json only.\n";
     std::cout << "  -s, --suppress        Suppress any warnings.\n\n";
     std::cout << "Example usage:\n";
-    std::cout << "ros2 run ros2_utils_tool tool_tf2_to_file /home/usr/input_bag /home/usr/output_file.json -k -i" << std::endl;
+    std::cout << "ros2 run ros2_utils_tool tool_tf2_to_file /home/usr/input_bag /home/usr/output_file.json --keep-timestamps -i" << std::endl;
 }
 
 
@@ -41,12 +41,12 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto& arguments = app.arguments();
-    if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
+    if (arguments.size() < 3 || Utils::CLI::containsArguments(arguments, "-h", "--help")) {
         showHelp();
         return 0;
     }
 
-    const QVector<QString> checkList{ "-t", "-i", "-k", "-s", "--topic_name", "--indent", "--keep_timestamps", "--suppress" };
+    const QVector<QString> checkList{ "-t", "-i", "-s", "--topic", "--indent", "--suppress", "--keep-timestamps" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
@@ -69,7 +69,7 @@ main(int argc, char* argv[])
         // Topic name
         Utils::CLI::checkTopicNameValidity(arguments, parameters.sourceDirectory, { "tf2_msgs/msg/TFMessage" }, parameters.topicName);
         // Timestamps
-        parameters.keepTimestamps = Utils::CLI::containsArguments(arguments, "-k", "--keep_timestamps");
+        parameters.keepTimestamps = arguments.contains("--keep-timestamps");
         // Indenting
         parameters.compactOutput = !Utils::CLI::containsArguments(arguments, "-i", "--indent");
     }

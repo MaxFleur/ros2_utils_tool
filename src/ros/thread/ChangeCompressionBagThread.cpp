@@ -4,7 +4,7 @@
 
 #include <filesystem>
 
-ChangeCompressionBagThread::ChangeCompressionBagThread(const Parameters::CompressBagParameters& parameters,
+ChangeCompressionBagThread::ChangeCompressionBagThread(const Parameters::DeleteSourceParameters& parameters,
                                                        int numberOfThreads, bool compress, QObject* parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),
     m_parameters(parameters), m_numberOfThreads(numberOfThreads), m_compress(compress)

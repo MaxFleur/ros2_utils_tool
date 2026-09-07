@@ -9,6 +9,7 @@
 
 class QHBoxLayout;
 class QListWidget;
+class QMovie;
 class QVBoxLayout;
 
 // Widget used to control playing a bag file.
@@ -19,7 +20,7 @@ class ControlBagWidget : public StoppableWidget
 public:
     ControlBagWidget(Parameters::SelectableBagContentParameters& parameters,
                      const QString&                              headerText,
-                     const QString&                              headerPixmapLabelText,
+                     const QString&                              imagePath,
                      bool                                        isRecorder,
                      QWidget*                                    parent = 0);
 
@@ -47,6 +48,8 @@ protected:
     QPointer<QVBoxLayout> m_upperLayout;
     QPointer<QToolButton> m_playPauseButton;
     QPointer<QListWidget> m_loggerListWidget;
+
+    QPointer<QMovie> m_movie;
 
     bool m_isActive { true };
     bool m_isRecorder;

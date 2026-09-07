@@ -14,8 +14,8 @@ volatile sig_atomic_t signalStatus = 0;
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run ros2_utils_tool tool_bag_to_images [-h] [bag_path] [output_files_path] [-f {jpg,png,bmp}] [-t TOPIC_NAME]\n";
-    std::cout << "                                                   [-th NUMBER_OF_THREADS] [-c] [-e] [-b] [-o] [-q QUALITY] [-s]\n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_bag_to_images [-h] [bag_path] [output_files_path] [-f {jpg,png,bmp}] [-t TOPIC]\n";
+    std::cout << "                                                   [--thread-count THREAD_COUNT] [-c] [-e] [-b] [-o] [-q QUALITY] [-s]\n\n";
     std::cout << "Convert bag image messages to a list of files\n\n";
     std::cout << "positional arguments:\n";
     std::cout << "  bag_path              Source bag file.\n";
@@ -24,9 +24,9 @@ showHelp()
     std::cout << "  -h, --help            Show this help message and exit.\n";
     std::cout << "  -f {jpg,png,bmp}, --format {jpg,png,bmp}\n";
     std::cout << "                        File format, defaults to jpg.\n";
-    std::cout << "  -t TOPIC_NAME, --topic_name TOPIC_NAME\n";
+    std::cout << "  -t TOPIC, --topic TOPIC\n";
     std::cout << "                        Bag image topic to convert. If no topic name is specified, the first found image topic is taken.\n";
-    std::cout << "  -th NUMBER_OF_THREADS, --threads NUMBER_OF_THREADS\n";
+    std::cout << "  --thread-count THREAD_COUNT\n";
     std::cout << "                        Number of threads used for writing. Minimum is 1, maximum is " << std::thread::hardware_concurrency() << ", defaults to 1.\n";
     std::cout << "  -c, --colorless       Encode images without color.\n";
     std::cout << "  -e, --exchange        Exchange red and blue values.\n";
@@ -36,7 +36,7 @@ showHelp()
     std::cout << "                        Image quality. Minimum is 0, maximum is 9, defaults to 8. jpg and png only.\n";
     std::cout << "  -s, --suppress        Suppress any warnings.\n\n";
     std::cout << "Example usage:\n";
-    std::cout << "ros2 run ros2_utils_tool tool_bag_to_images /home/usr/input_bag /home/usr/images_dir -t /endoscope_video -f png -q 8 -th 4 -e" << std::endl;
+    std::cout << "ros2 run ros2_utils_tool tool_bag_to_images /home/usr/input_bag /home/usr/images_dir -t /endoscope_video -f png -q 8 --thread-count 4 -e" << std::endl;
 }
 
 
@@ -47,13 +47,13 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto& arguments = app.arguments();
-    if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
+    if (arguments.size() < 3 || Utils::CLI::containsArguments(arguments, "-h", "--help")) {
         showHelp();
         return 0;
     }
 
-    const QVector<QString> checkList{ "-f", "-t", "-th", "-c", "-e", "-b", "-o", "-q", "-s",
-                                      "--format", "--topic_name", "--threads", "--colorless", "--exchange", "--binary", "--optimize", "--quality", "--suppress" };
+    const QVector<QString> checkList{ "-f", "-t", "-c", "-e", "-b", "-o", "-q", "-s",
+                                      "--format", "--topic", "--colorless", "--exchange", "--binary", "--optimize", "--quality", "--suppress", "--thread-count" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
@@ -94,7 +94,7 @@ main(int argc, char* argv[])
 
     // Thread count
     auto numberOfThreads = 1;
-    if (!Utils::CLI::checkArgumentValidity(arguments, "-th", "--threads", numberOfThreads, 1, std::thread::hardware_concurrency())) {
+    if (!Utils::CLI::checkArgumentValidity(arguments, "", "--thread-count", numberOfThreads, 1, std::thread::hardware_concurrency())) {
         throw std::runtime_error("Please enter a thread count value in the range of 1 to " + std::to_string(std::thread::hardware_concurrency()) + "!");
     }
 

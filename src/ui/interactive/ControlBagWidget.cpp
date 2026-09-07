@@ -6,26 +6,36 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QListWidget>
+#include <QMovie>
 #include <QPushButton>
 #include <QShortcut>
 #include <QToolButton>
 #include <QVBoxLayout>
 
 ControlBagWidget::ControlBagWidget(Parameters::SelectableBagContentParameters& parameters,
-                                   const QString& headerText, const QString& headerPixmapLabelText, bool isRecorder, QWidget* parent)
+                                   const QString& headerText, const QString& moviePath, bool isRecorder, QWidget* parent)
     : StoppableWidget(parent), m_isRecorder(isRecorder)
 {
-    auto* const headerLabel = new QLabel(headerText + parameters.sourceDirectory);
+    // Potentially cropped string showing the target file to be recorded/played
+    auto targetFileString = parameters.sourceDirectory;
+    if (targetFileString.length() > 40) {
+        targetFileString = "..." + targetFileString.right(40);
+    }
+
+    auto* const headerLabel = new QLabel("<b>" + headerText + "</b><br>" + targetFileString);
     auto font = headerLabel->font();
-    font.setBold(true);
+    font.setPointSize(12);
     headerLabel->setFont(font);
     headerLabel->setAlignment(Qt::AlignHCenter);
 
-    auto* const headerPixmapLabel = new QLabel;
-    headerPixmapLabel->setAlignment(Qt::AlignHCenter);
-
     const auto isDarkMode = Utils::UI::isDarkMode();
-    headerPixmapLabel->setPixmap(QIcon(isDarkMode ? headerPixmapLabelText + "white.svg" : headerPixmapLabelText + "black.svg").pixmap(QSize(100, 45)));
+
+    m_movie = new QMovie(isDarkMode ? moviePath + "_white.gif" : moviePath + "_black.gif");
+    m_movie->setScaledSize(QSize(120, 70));
+
+    auto* const movieLabel = new QLabel;
+    movieLabel->setMovie(m_movie);
+    movieLabel->setAlignment(Qt::AlignHCenter);
 
     const QString activeString = m_isRecorder ? "Record" : "Play";
     m_playPauseButton = createButton(isDarkMode ? ":/icons/player/stop_white.svg" : ":/icons/player/stop_black.svg",
@@ -44,9 +54,9 @@ ControlBagWidget::ControlBagWidget(Parameters::SelectableBagContentParameters& p
 
     m_upperLayout = new QVBoxLayout;
     m_upperLayout->addStretch();
-    m_upperLayout->addWidget(headerPixmapLabel);
     m_upperLayout->addWidget(headerLabel);
-    m_upperLayout->addSpacing(40);
+    m_upperLayout->addSpacing(20);
+    m_upperLayout->addWidget(movieLabel);
     m_upperLayout->addLayout(m_controlsLayout);
     m_upperLayout->addSpacing(10);
     m_upperLayout->addWidget(m_loggerListWidget);
@@ -70,6 +80,8 @@ ControlBagWidget::ControlBagWidget(Parameters::SelectableBagContentParameters& p
     connect(stopPlayShortcut, &QShortcut::activated, this, [this] {
         emit stopped();
     });
+
+    m_movie->start();
 }
 
 
@@ -87,9 +99,11 @@ ControlBagWidget::setState()
     const auto isDarkMode = Utils::UI::isDarkMode();
     if (m_isActive) {
         m_playPauseButton->setIcon(QIcon(isDarkMode ? ":/icons/player/stop_white.svg" : ":/icons/player/stop_black.svg"));
+        m_movie->start();
         return;
     }
     m_playPauseButton->setIcon(QIcon(isDarkMode ? ":/icons/player/play_white.svg" : ":/icons/player/play_black.svg"));
+    m_movie->stop();
 }
 
 

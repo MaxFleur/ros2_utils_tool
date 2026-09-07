@@ -22,6 +22,7 @@ BagPlayer::BagPlayer(const Parameters::PlayBagParameters& parameters) : m_parame
     // Play options are stored as nanoseconds, so we need to multiply accordingly
     playOptions.start_offset = m_parameters.offset * 1e9;
     playOptions.loop = m_parameters.loop;
+    playOptions.publish_service_requests = m_parameters.publishServiceRequests;
 
     m_player = std::make_unique<rosbag2_transport::Player>(storageOptions, playOptions);
     m_player->play();

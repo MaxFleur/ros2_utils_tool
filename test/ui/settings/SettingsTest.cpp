@@ -3,9 +3,9 @@
 #include "AdvancedSettings.hpp"
 #include "BagToImagesSettings.hpp"
 #include "BagToVideoSettings.hpp"
+#include "BagToYamlSettings.hpp"
 #include "BasicSettings.hpp"
 #include "DialogSettings.hpp"
-#include "CompressBagSettings.hpp"
 #include "DeleteSourceSettings.hpp"
 #include "DummyBagSettings.hpp"
 #include "EditBagSettings.hpp"
@@ -22,6 +22,7 @@
 #include "VideoSettings.hpp"
 #include "VideoToBagSettings.hpp"
 
+#include <QFile>
 #include <QSettings>
 
 void
@@ -194,7 +195,7 @@ TEST_CASE("Settings Testing", "[settings]") {
     SECTION("Play Bag Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("play_bag");
-            checkSettingsInvalidacy(qSettings, { "topics", "rate", "offset", "loop" });
+            checkSettingsInvalidacy(qSettings, { "topics", "rate", "offset", "loop", "publish_service_requests" });
             qSettings.endGroup();
         }
         SECTION("Write") {
@@ -205,12 +206,14 @@ TEST_CASE("Settings Testing", "[settings]") {
             parameters.rate = 4.2;
             parameters.offset = 4.2;
             parameters.loop = true;
+            parameters.publishServiceRequests = true;
             settings.write();
 
             qSettings.beginGroup("play_bag");
             verifiySettingPrimitive(qSettings, "rate", 4.2);
             verifiySettingPrimitive(qSettings, "offset", 4.2);
             verifiySettingPrimitive(qSettings, "loop", true);
+            verifiySettingPrimitive(qSettings, "publish_service_requests", true);
 
             qSettings.endGroup();
         }
@@ -218,7 +221,7 @@ TEST_CASE("Settings Testing", "[settings]") {
     SECTION("Record Bag Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("record");
-            checkSettingsInvalidacy(qSettings, { "size", "duration", "show_advanced",
+            checkSettingsInvalidacy(qSettings, { "size", "duration", "include_ros_topics", "show_advanced",
                                                  "include_hidden_topics", "include_unpublished_topics",
                                                  "use_custom_size", "use_custom_duration",
                                                  "use_compression", "is_compression_file" });
@@ -230,6 +233,7 @@ TEST_CASE("Settings Testing", "[settings]") {
 
             parameters.maxSizeInMB = 2048;
             parameters.maxDurationInSeconds = 120;
+            parameters.includeROSTopics = true;
             parameters.showAdvancedOptions = true;
             parameters.includeHiddenTopics = true;
             parameters.includeUnpublishedTopics = true;
@@ -242,6 +246,7 @@ TEST_CASE("Settings Testing", "[settings]") {
             qSettings.beginGroup("record");
             verifiySettingPrimitive(qSettings, "size", 2048);
             verifiySettingPrimitive(qSettings, "duration", 120);
+            verifiySettingPrimitive(qSettings, "include_ros_topics", true);
             verifiySettingPrimitive(qSettings, "show_advanced", true);
             verifiySettingPrimitive(qSettings, "include_hidden_topics", true);
             verifiySettingPrimitive(qSettings, "include_unpublished_topics", true);
@@ -314,29 +319,49 @@ TEST_CASE("Settings Testing", "[settings]") {
             qSettings.endGroup();
         }
     }
+    SECTION("Bag to Yaml Params Test") {
+        SECTION("Read") {
+            qSettings.beginGroup("bag_to_yaml");
+            checkSettingsInvalidacy(qSettings, { "write_single_output_file" });
+            qSettings.endGroup();
+        }
+        SECTION("Write") {
+            Parameters::BagToYamlParameters parameters;
+            BagToYamlSettings settings(parameters, "bag_to_yaml");
+
+            parameters.writeSingleOutputFile = true;
+            settings.write();
+
+            qSettings.beginGroup("bag_to_yaml");
+            verifiySettingPrimitive(qSettings, "write_single_output_file", true);
+            qSettings.endGroup();
+        }
+    }
 
     SECTION("Delete Source Input Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("delete_source_param");
-            checkSettingsInvalidacy(qSettings, { "delete_source" });
+            checkSettingsInvalidacy(qSettings, { "delete_source", "compress_per_message" });
             qSettings.endGroup();
         }
         SECTION("Write") {
-            Parameters::EditBagParameters parameters;
-            EditBagSettings settings(parameters, "delete_source_param");
+            Parameters::DeleteSourceParameters parameters;
+            DeleteSourceSettings settings(parameters, "delete_source_param");
 
             parameters.deleteSource = true;
+            parameters.compressPerMessage = true;
             settings.write();
 
             qSettings.beginGroup("delete_source_param");
             verifiySettingPrimitive(qSettings, "delete_source", true);
+            verifiySettingPrimitive(qSettings, "compress_per_message", true);
             qSettings.endGroup();
         }
     }
     SECTION("Edit Bag Input Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("edit");
-            checkSettingsInvalidacy(qSettings, { "topics", "update_timestamps" });
+            checkSettingsInvalidacy(qSettings, { "topics", "update_timestamps", "compress_target" });
             qSettings.endGroup();
         }
         SECTION("Write") {
@@ -345,11 +370,13 @@ TEST_CASE("Settings Testing", "[settings]") {
 
             parameters.deleteSource = true;
             parameters.updateTimestamps = true;
+            parameters.compressTarget = true;
             parameters.topics.push_back({ { { "original_topic" }, true }, "renamed_topic", 42, 1337 });
             settings.write();
 
             qSettings.beginGroup("edit");
             verifiySettingPrimitive(qSettings, "update_timestamps", true);
+            verifiySettingPrimitive(qSettings, "compress_target", true);
 
             const auto size = qSettings.beginReadArray("topics");
             for (auto i = 0; i < size; ++i) {
@@ -369,7 +396,7 @@ TEST_CASE("Settings Testing", "[settings]") {
     SECTION("Merge Bags Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("merge");
-            checkSettingsInvalidacy(qSettings, { "topics", "second_source" });
+            checkSettingsInvalidacy(qSettings, { "topics", "second_source", "compress_target" });
             qSettings.endGroup();
         }
         SECTION("Write") {
@@ -377,11 +404,13 @@ TEST_CASE("Settings Testing", "[settings]") {
             MergeBagsSettings settings(parameters, "merge");
 
             parameters.secondSourceDirectory = "/path/to/other/bag";
+            parameters.compressTarget = true;
             parameters.topics.push_back({ { { "topic" }, true }, "/path/to/other/bag" });
             settings.write();
 
             qSettings.beginGroup("merge");
             verifiySettingQString(qSettings, "second_source", "/path/to/other/bag");
+            verifiySettingPrimitive(qSettings, "compress_target", true);
 
             const auto size = qSettings.beginReadArray("topics");
             for (auto i = 0; i < size; ++i) {
@@ -403,8 +432,8 @@ TEST_CASE("Settings Testing", "[settings]") {
             qSettings.endGroup();
         }
         SECTION("Write") {
-            Parameters::CompressBagParameters parameters;
-            CompressBagSettings settings(parameters, "compress_bag");
+            Parameters::DeleteSourceParameters parameters;
+            DeleteSourceSettings settings(parameters, "compress_bag");
 
             parameters.compressPerMessage = true;
             parameters.deleteSource = true;
@@ -599,4 +628,6 @@ TEST_CASE("Settings Testing", "[settings]") {
     }
 
     qSettings.clear();
+    qSettings.sync();
+    QFile::remove(qSettings.fileName());
 }

@@ -4,6 +4,7 @@
 #include "BagToPCDsWidget.hpp"
 #include "BagToImagesWidget.hpp"
 #include "BagToVideoWidget.hpp"
+#include "BagToYamlWidget.hpp"
 #include "ChangeCompressionWidget.hpp"
 #include "ConfigurePlayBagWidget.hpp"
 #include "ConfigureRecordBagWidget.hpp"
@@ -83,6 +84,9 @@ MainWindow::setInputWidget(Utils::UI::TOOL_ID mode)
         break;
     case Utils::UI::TOOL_ID::TF2_TO_FILE:
         basicInputWidget = new BagTF2ToFileWidget(m_TF2ToFileParameters);
+        break;
+    case Utils::UI::TOOL_ID::BAG_TO_YAML:
+        basicInputWidget = new BagToYamlWidget(m_bagToYamlParameters);
         break;
     case Utils::UI::TOOL_ID::EDIT_BAG:
         basicInputWidget = new EditBagWidget(m_editBagParameters, m_dialogParameters.warnROS2NameConvention);
@@ -173,6 +177,9 @@ MainWindow::setProcessingWidget(Utils::UI::TOOL_ID mode)
         break;
     case Utils::UI::TOOL_ID::TF2_TO_FILE:
         progressWidget = new ProgressWidget("Writing File(s)...", m_TF2ToFileParameters, mode);
+        break;
+    case Utils::UI::TOOL_ID::BAG_TO_YAML:
+        progressWidget = new ProgressWidget("Writing File(s)...", m_bagToYamlParameters, mode);
         break;
     case Utils::UI::TOOL_ID::EDIT_BAG:
         progressWidget = new ProgressWidget("Writing edited Bag File...", m_editBagParameters, mode);

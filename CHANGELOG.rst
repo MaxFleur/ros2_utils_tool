@@ -1,6 +1,24 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Changelog for the ros2_utils_tool
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1.0.0 (2026-09-04)
+-------------------
+**New:**
+* A Bag Topic To Yaml tool to convert messages of any bag topic to one or multiple yaml files.
+* Compressed target and input support for the Edit and Compress Bag Tool.
+* UI - Added an option to publish service requests for the Play Bag Tool.
+* UI - Added an option to include ROS topics for the Record Bag Tool.
+* UI - Added a "Reset to Defaults" button for the settings dialog.
+
+**Changed/Improved:**
+* UI - Gifs and layout overhauls for the Record and Play Bag Tool.
+* UI - The settings button is now accessible from the specific tool selection widgets as well.
+* CLI - Replaced multiple word argument underscores with dashes and rechanged a few more arguments to improve naming consistency with standard ROS2 tools. For further infos, type "-h" for the specific cli tools.
+
+**Fixed:**
+* UI - Entering a target bag file for the Edit, Compress, Decompress and Merge Bag Tool disabled the Ok button.
+* UI - Compression Mode and Format were switched up in the Bag Info Tool.
+
 0.16.1 (2026-07-24)
 -------------------
 **Changed/Improved:**

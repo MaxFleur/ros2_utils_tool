@@ -44,6 +44,10 @@ ConfigurePlayBagWidget::ConfigurePlayBagWidget(Parameters::PlayBagParameters& pa
     m_loopCheckBox->setTristate(false);
     m_loopCheckBox->setChecked(m_parameters.loop);
 
+    m_publishServiceRequestCheckBox = new QCheckBox;
+    m_publishServiceRequestCheckBox->setTristate(false);
+    m_publishServiceRequestCheckBox->setChecked(m_parameters.publishServiceRequests);
+
     m_controlsLayout->addSpacing(30);
     m_controlsLayout->addLayout(sourceFormLayout);
     m_controlsLayout->addSpacing(5);
@@ -61,6 +65,9 @@ ConfigurePlayBagWidget::ConfigurePlayBagWidget(Parameters::PlayBagParameters& pa
     });
     connect(m_loopCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.loop, state == Qt::Checked, m_settings);
+    });
+    connect(m_publishServiceRequestCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
+        writeParameterToSettings(m_parameters.publishServiceRequests, state == Qt::Checked, m_settings);
     });
 
     if (!m_sourceLineEdit->text().isEmpty()) {
@@ -127,6 +134,7 @@ ConfigurePlayBagWidget::populateTreeWidget()
     m_lowerOptionsLayout->addRow("Rate:", m_rateSpinBox);
     m_lowerOptionsLayout->addRow("Start Offset:", m_offsetSpinBox);
     m_lowerOptionsLayout->addRow("Loop File:", m_loopCheckBox);
+    m_lowerOptionsLayout->addRow("Publish Service Requests:", m_publishServiceRequestCheckBox);
     m_rowsAdded = true;
 }
 

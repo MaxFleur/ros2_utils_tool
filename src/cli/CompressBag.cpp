@@ -15,8 +15,8 @@ volatile sig_atomic_t signalStatus = 0;
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run ros2_utils_tool tool_compress_bag [-h] [bag_path] [output_compressed_bag_path] [-m {file,message}]\n";
-    std::cout << "                                                  [-th NUMBER_OF_THREADS] [-d] [-s]\n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_compress_bag [-h] [bag_path] [output_compressed_bag_path]\n";
+    std::cout << "                                                  [--compression-mode {file,message}] [--thread-count THREAD_COUNT] [-d] [-s]\n\n";
     std::cout << "Compress a bag file.\n\n";
     std::cout << "positional arguments:\n";
     std::cout << "  bag_path              Source bag file.\n";
@@ -24,14 +24,14 @@ showHelp()
     std::cout << "                        Compressed bag file directory.\n\n";
     std::cout << "options:\n";
     std::cout << "  -h, --help            Show this help message and exit.\n";
-    std::cout << "  -m {file,message}, --mode {file,message}\n";
+    std::cout << "  --compression-mode {file,message}\n";
     std::cout << "                        Compress per file or per message, defaults to file.\n";
-    std::cout << "  -th NUMBER_OF_THREADS, --threads NUMBER_OF_THREADS\n";
+    std::cout << "  --thread-count THREAD_COUNT\n";
     std::cout << "                        Number of threads used for compression. Minimum is 1, maximum is " << std::thread::hardware_concurrency() << ", defaults to 1.\n";
     std::cout << "  -d, --delete          Delete the source file after completion.\n";
     std::cout << "  -s, --suppress        Suppress any warnings.\n\n";
     std::cout << "Example usage:\n";
-    std::cout << "ros2 run ros2_utils_tool tool_decompress_bag /home/usr/uncompressed /home/usr/compressed -th 4" << std::endl;
+    std::cout << "ros2 run ros2_utils_tool tool_decompress_bag /home/usr/uncompressed /home/usr/compressed --thread-count 4" << std::endl;
 }
 
 
@@ -44,19 +44,19 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto& arguments = app.arguments();
-    if (arguments.size() < 3 || arguments.contains("--help") || arguments.contains("-h")) {
+    if (arguments.size() < 3 || Utils::CLI::containsArguments(arguments, "-h", "--help")) {
         showHelp();
         return 0;
     }
 
-    const QVector<QString> checkList { "-m", "-th", "-d", "-s", "--mode", "--threads", "--delete", "--suppress" };
+    const QVector<QString> checkList { "-d", "-s", "--delete", "--suppress", "--compression-mode", "--thread-count" };
     if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList);
         argument != std::nullopt) {
         showHelp();
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
     }
 
-    Parameters::CompressBagParameters parameters;
+    Parameters::DeleteSourceParameters parameters;
 
     // Uncompressed source bag directory
     parameters.sourceDirectory = arguments.at(1);
@@ -77,8 +77,8 @@ main(int argc, char* argv[])
     // Check for optional arguments
     if (arguments.size() > 3) {
         // Mode
-        if (Utils::CLI::containsArguments(arguments, "-m", "--mode")) {
-            const auto modeIndex = Utils::CLI::getArgumentsIndex(arguments, "-m", "--mode");
+        if (arguments.contains("--compression-mode")) {
+            const auto modeIndex = arguments.indexOf("--compression-mode");
             if (arguments.at(modeIndex) == arguments.last() || (arguments.at(modeIndex + 1) != "file" && arguments.at(modeIndex + 1) != "message")) {
                 throw std::runtime_error("Please enter either 'file' or 'message' for the mode!");
             }
@@ -91,7 +91,7 @@ main(int argc, char* argv[])
 
     // Thread count
     auto numberOfThreads = 1;
-    if (!Utils::CLI::checkArgumentValidity(arguments, "-th", "--threads", numberOfThreads, 1, std::thread::hardware_concurrency())) {
+    if (!Utils::CLI::checkArgumentValidity(arguments, "", "--thread-count", numberOfThreads, 1, std::thread::hardware_concurrency())) {
         throw std::runtime_error("Please enter a thread count value in the range of 1 to " + std::to_string(std::thread::hardware_concurrency()) + "!");
     }
 
