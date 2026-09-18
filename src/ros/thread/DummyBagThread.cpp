@@ -65,7 +65,7 @@ DummyBagThread::run()
             const auto rate = m_parameters.useCustomRate ? m_parameters.rate : 10;
             const auto duration = rclcpp::Duration::from_seconds(1.0f / static_cast<float>(rate));
 
-            for (auto i = 1; i <= m_parameters.messageCount; i++) {
+            for (auto i = 0; i < m_parameters.messageCount; i++) {
                 if (isInterruptionRequested()) {
                     break;
                 }

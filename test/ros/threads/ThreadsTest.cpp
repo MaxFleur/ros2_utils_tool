@@ -96,16 +96,16 @@ verifyMessages(const std::string& bagDirectory, const std::string& topicName,
         serialization.deserialize_message(&serializedMessage, rosMsg.get());
 
         if constexpr (std::is_same_v<T, std_msgs::msg::Int32>) {
-            REQUIRE(rosMsg->data == index + 1);
+            REQUIRE(rosMsg->data == index);
         } else if constexpr (std::is_same_v<T, std_msgs::msg::String>) {
-            REQUIRE(rosMsg->data == "Message " + std::to_string(index + 1));
+            REQUIRE(rosMsg->data == "Message " + std::to_string(index));
         } else if constexpr (std::is_same_v<T, sensor_msgs::msg::PointCloud2>) {
             pcl::PointCloud<pcl::PointXYZRGB>::Ptr fileCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
             pcl::PointCloud<pcl::PointXYZRGB>::Ptr messageCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
 
             pcl::fromROSMsg(*rosMsg, *messageCloud);
             std::stringstream formatedIterationCount;
-            formatedIterationCount << std::setw(3) << std::setfill('0') << index + 1;
+            formatedIterationCount << std::setw(3) << std::setfill('0') << index;
             pcl::io::loadPCDFile<pcl::PointXYZRGB>("./pcds/" + formatedIterationCount.str() + ".pcd", *fileCloud);
 
             REQUIRE_THAT(fileCloud->at(0).x, Catch::Matchers::WithinAbs(messageCloud->at(0).x, 0.001));
@@ -821,7 +821,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         const auto verifyNode = [] (const YAML::Node& node, const int i) {
             REQUIRE(node.IsMap());
             REQUIRE(node.size() == 1);
-            REQUIRE(node["data"].as<std::string>() == "Message " + std::to_string(i + 1));
+            REQUIRE(node["data"].as<std::string>() == "Message " + std::to_string(i));
         };
 
         SECTION("Single output file") {

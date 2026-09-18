@@ -84,7 +84,7 @@ BagToImagesThread::run()
             // Have to create this as extra string to keep it atomic inside the mutex
             std::stringstream formatedIterationCount;
             // Use leading zeroes
-            formatedIterationCount << std::setw(messageCountNumberOfDigits) << std::setfill('0') << iterationCount;
+            formatedIterationCount << std::setw(messageCountNumberOfDigits) << std::setfill('0') << iterationCount - 1;
             const auto targetString = targetDirectoryStd + "/" + formatedIterationCount.str() + "." + m_parameters.format.toStdString();
 
             mutex.unlock();
