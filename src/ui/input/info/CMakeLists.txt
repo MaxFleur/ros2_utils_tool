@@ -12,5 +12,5 @@ target_sources(rt_input_info INTERFACE
 )
 
 target_link_libraries(rt_input_info
-    INTERFACE Qt::Widgets rt_input rt_helper rt_settings_input rt_utils
+    INTERFACE Qt::Widgets rt_input rt_helper rt_settings_input rt_utils_general
 ) 

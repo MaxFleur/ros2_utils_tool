@@ -26,5 +26,5 @@ target_sources(rt_input_bag INTERFACE
 )
 
 target_link_libraries(rt_input_bag
-    INTERFACE Qt::Widgets rt_input rt_helper rt_settings_input rt_utils
+    INTERFACE Qt::Widgets rt_input rt_helper rt_settings_input rt_utils_general rt_utils_ui
 ) 

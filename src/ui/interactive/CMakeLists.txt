@@ -14,5 +14,5 @@ target_sources(rt_interactive INTERFACE
 )
 
 target_link_libraries(rt_interactive
-    INTERFACE Qt::Widgets rt_ros rt_utils
+    INTERFACE Qt::Widgets rt_ros rt_utils_general rt_utils_ui
 ) 

@@ -22,7 +22,7 @@ add_executable(tool_tests
 target_link_libraries(tool_tests
     rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp rosbag2_transport::rosbag2_transport
     cv_bridge::cv_bridge ${geometry_msgs_TARGETS} ${sensor_msgs_TARGETS} ${std_msgs_TARGETS} ${std_srvs_TARGETS} ${tf2_msgs_TARGETS} tf2_ros::tf2_ros
-    catch_ros2::catch_ros2_with_main Python3::Python Qt::Widgets rt_all_threads rt_input_bag rt_ros rt_settings_input rt_utils
+    catch_ros2::catch_ros2_with_main Python3::Python Qt::Widgets rt_all_threads rt_input_bag rt_ros rt_settings_input rt_utils_cli rt_utils_general rt_utils_ui
 )
 
 if($ENV{ROS_DISTRO} STREQUAL "jazzy")
