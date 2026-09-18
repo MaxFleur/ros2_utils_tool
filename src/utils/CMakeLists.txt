@@ -16,6 +16,7 @@ target_sources(rt_utils INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/UtilsIO.hpp
     ${CMAKE_CURRENT_LIST_DIR}/UtilsROS.cpp
     ${CMAKE_CURRENT_LIST_DIR}/UtilsROS.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/UtilsTF2.hpp
     ${CMAKE_CURRENT_LIST_DIR}/UtilsThreads.hpp
     ${CMAKE_CURRENT_LIST_DIR}/UtilsUI.cpp
     ${CMAKE_CURRENT_LIST_DIR}/UtilsUI.hpp
@@ -24,5 +25,5 @@ target_sources(rt_utils INTERFACE
 )
 
 target_link_libraries(rt_utils
-    INTERFACE ${OpenCV_LIBS} Qt::Widgets rt_settings tf2_ros::tf2_ros
+    INTERFACE ${OpenCV_LIBS} Qt::Widgets rt_settings
 )

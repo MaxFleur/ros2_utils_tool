@@ -3,7 +3,7 @@
 #include "UtilsCLI.hpp"
 #include "UtilsGeneral.hpp"
 #include "UtilsIO.hpp"
-#include "UtilsROS.hpp"
+#include "UtilsTF2.hpp"
 
 #include <QCoreApplication>
 #include <QObject>
@@ -156,7 +156,7 @@ main(int argc, char* argv[])
     auto nodeWrapper = std::make_shared<NodeWrapper>("ros2_utils_tool_tf_node");
     if (!Utils::CLI::containsArguments(arguments, "-r", "--rate")) {
         showInfo(parameters, true);
-        Utils::ROS::sendStaticTransformation(parameters.translation, parameters.rotation, nodeWrapper);
+        Utils::TF2::sendStaticTransformation(parameters.translation, parameters.rotation, nodeWrapper);
         std::cout << "\nTF sent!\n";
         return EXIT_SUCCESS;
     }

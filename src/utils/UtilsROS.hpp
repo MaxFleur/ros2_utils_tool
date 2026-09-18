@@ -1,7 +1,5 @@
 #pragma once
 
-#include "NodeWrapper.hpp"
-
 #include <QString>
 #include <QVector>
 
@@ -20,14 +18,6 @@ namespace Utils::ROS
 // the terminal contains no ROS log messages
 void
 disableROSLogging();
-
-// Sends a static transformation using tf broadcaster
-// @NOTE: For whatever reason, just creating and spinning a local node
-//        does not work here, we have to spin a global node
-void
-sendStaticTransformation(const std::array<double, 3>& translation,
-                         const std::array<double, 4>& rotation,
-                         std::shared_ptr<NodeWrapper> nodeWrapper);
 
 // If a directory contains a valid ROS bag
 [[nodiscard]] bool

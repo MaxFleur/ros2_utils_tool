@@ -117,7 +117,7 @@ target_link_libraries(tool_decompress_bag
     Qt::Widgets rt_change_compression_thread rt_utils
 )
 target_link_libraries(tool_dummy_bag
-    rosbag2_cpp::rosbag2_cpp cv_bridge::cv_bridge ${sensor_msgs_TARGETS} ${tf2_msgs_TARGETS}
+    rosbag2_cpp::rosbag2_cpp cv_bridge::cv_bridge ${geometry_msgs_TARGETS} ${sensor_msgs_TARGETS} ${tf2_msgs_TARGETS}
     Qt::Widgets rt_dummy_bag_thread rt_utils
 )
 target_link_libraries(tool_merge_bags
@@ -125,7 +125,7 @@ target_link_libraries(tool_merge_bags
     Qt::Widgets rt_merge_bags_thread rt_utils
 )
 target_link_libraries(tool_message_to_yaml
-    rosbag2_cpp::rosbag2_cpp Python3::Python
+    rosbag2_cpp::rosbag2_cpp Python3::Python ${std_msgs_TARGETS}
     Qt::Widgets rt_bag_to_yaml_thread rt_utils
 )
 target_link_libraries(tool_pcds_to_bag
@@ -141,7 +141,7 @@ target_link_libraries(tool_publish_video
     Qt::Widgets rt_publish_video_thread rt_utils
 )
 target_link_libraries(tool_send_tf2
-    rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp ${tf2_msgs_TARGETS}
+    rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp tf2_ros::tf2_ros ${tf2_msgs_TARGETS}
     Qt::Widgets rt_send_tf2_thread rt_utils
 )
 target_link_libraries(tool_video_to_bag
