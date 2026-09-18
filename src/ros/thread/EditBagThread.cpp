@@ -1,5 +1,6 @@
 #include "EditBagThread.hpp"
 
+#include "UtilsBag.hpp"
 #include "UtilsROS.hpp"
 
 #include "rclcpp/rclcpp.hpp"
@@ -44,12 +45,7 @@ EditBagThread::run()
 
     if (m_parameters.compressTarget) {
         rosbag2_transport::RecordOptions recordOptions;
-        recordOptions.rmw_serialization_format = "cdr";
-        recordOptions.compression_format = "zstd";
-        recordOptions.compression_mode = m_parameters.compressPerMessage ? "message" : "file";
-        recordOptions.compression_threads = m_numberOfThreads;
-        // Need to set this to prevent message dropping
-        recordOptions.compression_queue_size = 0;
+        Utils::Bag::setCompressionOptions(recordOptions, m_parameters.compressPerMessage, m_numberOfThreads);
 
         writer = rosbag2_transport::ReaderWriterFactory::make_writer(recordOptions);
     } else {

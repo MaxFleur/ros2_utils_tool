@@ -1,5 +1,7 @@
 #include "ChangeCompressionBagThread.hpp"
 
+#include "UtilsBag.hpp"
+
 #include "rosbag2_transport/bag_rewrite.hpp"
 
 #include <filesystem>
@@ -32,11 +34,7 @@ ChangeCompressionBagThread::run()
     outputRecord.all_topics = true;
 
     if (m_compress) {
-        outputRecord.compression_format = "zstd";
-        outputRecord.compression_mode = m_parameters.compressPerMessage ? "message" : "file";
-        outputRecord.compression_threads = m_numberOfThreads;
-        // Need to set this to prevent message dropping
-        outputRecord.compression_queue_size = 0;
+        Utils::Bag::setCompressionOptions(outputRecord, m_parameters.compressPerMessage, m_numberOfThreads);
     }
 
     std::vector<std::pair<rosbag2_storage::StorageOptions, rosbag2_transport::RecordOptions> > outputBags;
