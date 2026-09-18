@@ -40,7 +40,7 @@ target_sources(rt_all_threads INTERFACE
 )
 
 target_link_libraries(rt_all_threads
-    INTERFACE Qt::Widgets rt_utils tf2_ros::tf2_ros yaml-cpp
+    INTERFACE Qt::Widgets rt_utils_misc rt_utils_ui tf2_ros::tf2_ros yaml-cpp
 )
 
 # Libs for CLI tools
@@ -125,41 +125,41 @@ target_sources(rt_video_to_bag_thread INTERFACE
 )
 
 target_link_libraries(rt_bag_to_images_thread
-    INTERFACE rt_basic_thread rt_utils
+    INTERFACE rt_basic_thread rt_utils_misc
 )
 target_link_libraries(rt_bag_to_pcds_thread
-    INTERFACE rt_basic_thread rt_utils
+    INTERFACE rt_basic_thread rt_utils_misc
 )
 target_link_libraries(rt_bag_to_video_thread
-    INTERFACE rt_basic_thread rt_utils
+    INTERFACE rt_basic_thread rt_utils_misc
 )
 target_link_libraries(rt_bag_to_yaml_thread
-    INTERFACE rt_basic_thread rt_utils
+    INTERFACE rt_basic_thread rt_utils_misc
 )
 target_link_libraries(rt_change_compression_thread
-    INTERFACE rt_basic_thread rt_utils
+    INTERFACE rt_basic_thread rt_utils_misc
 )
 target_link_libraries(rt_dummy_bag_thread
-    INTERFACE rt_basic_thread rt_utils
+    INTERFACE rt_basic_thread rt_utils_misc
 )
 target_link_libraries(rt_merge_bags_thread
-    INTERFACE rt_basic_thread rt_utils
+    INTERFACE rt_basic_thread rt_utils_misc
 )
 target_link_libraries(rt_pcds_to_bag_thread
-    INTERFACE rt_basic_thread rt_utils
+    INTERFACE rt_basic_thread rt_utils_misc
 )
 target_link_libraries(rt_publish_images_thread
-    INTERFACE rt_basic_thread rt_utils
+    INTERFACE rt_basic_thread rt_utils_misc
 )
 target_link_libraries(rt_publish_video_thread
-    INTERFACE rt_basic_thread rt_utils
+    INTERFACE rt_basic_thread rt_utils_misc
 )
 target_link_libraries(rt_send_tf2_thread
-    INTERFACE rt_basic_thread rt_utils tf2_ros::tf2_ros
+    INTERFACE rt_basic_thread rt_utils_misc tf2_ros::tf2_ros
 )
 target_link_libraries(rt_tf2_to_file_thread
-    INTERFACE rt_basic_thread rt_utils yaml-cpp
+    INTERFACE rt_basic_thread rt_utils_misc yaml-cpp
 )
 target_link_libraries(rt_video_to_bag_thread
-    INTERFACE rt_basic_thread rt_utils
+    INTERFACE rt_basic_thread rt_utils_misc
 )
