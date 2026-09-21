@@ -13,9 +13,9 @@ public:
     SettingsDialog(Parameters::DialogParameters& parameters,
                    QWidget*                      parent = 0);
 
-private:
+private slots:
     void
-    storeParametersCheckStateChanged();
+    clearAllParameters();
 
 private:
     Parameters::DialogParameters& m_parameters;
