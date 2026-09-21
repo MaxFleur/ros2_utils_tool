@@ -2,6 +2,8 @@
 
 #include <QTreeWidget>
 
+#include <utility>
+
 class QTreeWidgetItem;
 
 // Widget for displaying bag contents in a tree
@@ -20,6 +22,15 @@ public:
 
     void
     resizeColumns();
+
+    // Returns the number of checked items and the total number of items with checkboxes
+    // Works recursively, all child items are included
+    [[nodiscard]] std::pair<int, int>
+    countSelectedAndTotalItems() const;
+
+public slots:
+    void
+    setTreeWidgetItemSelection(Qt::CheckState checkState);
 
 private slots:
     void

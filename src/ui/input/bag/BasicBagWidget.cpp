@@ -4,6 +4,7 @@
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
+#include <QCheckBox>
 #include <QFileDialog>
 #include <QLabel>
 #include <QPushButton>
@@ -25,6 +26,10 @@ BasicBagWidget::BasicBagWidget(Parameters::SelectableBagContentParameters& param
     labelFont.setBold(true);
     m_unselectLabel->setFont(labelFont);
 
+    m_selectAllCheckBox = new QCheckBox;
+    m_selectAllCheckBox->setText("(Un)select all");
+    m_selectAllCheckBox->setCheckState(Qt::Checked);
+
     m_treeWidget = new BagTreeWidget;
     m_treeWidget->setMinimumWidth(380);
 
@@ -33,6 +38,9 @@ BasicBagWidget::BasicBagWidget(Parameters::SelectableBagContentParameters& param
     auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
 
     connect(m_findSourceButton, &QPushButton::clicked, this, &BasicBagWidget::findSourceButtonPressed);
+    connect(m_selectAllCheckBox, &QCheckBox::stateChanged, this, [this] {
+        m_treeWidget->setTreeWidgetItemSelection(m_selectAllCheckBox->checkState());
+    });
     connect(m_treeWidget, &QTreeWidget::itemChanged, this, &BasicBagWidget::itemCheckStateChanged);
     connect(m_okButton, &QPushButton::clicked, this, &BasicBagWidget::okButtonPressed);
     connect(okShortCut, &QShortcut::activated, this, &BasicBagWidget::okButtonPressed);

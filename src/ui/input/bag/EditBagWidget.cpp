@@ -46,6 +46,7 @@ EditBagWidget::EditBagWidget(Parameters::EditBagParameters& parameters, bool war
     m_updateTimestampsCheckBox->setVisible(false);
 
     m_controlsLayout->addWidget(m_editLabel);
+    m_controlsLayout->addWidget(m_selectAllCheckBox);
     m_controlsLayout->addWidget(m_treeWidget);
     m_controlsLayout->addWidget(m_findTargetWidget);
     m_controlsLayout->addWidget(m_lowDiskSpaceWidget);
@@ -153,6 +154,8 @@ EditBagWidget::createTopicTree()
     m_updateTimestampsCheckBox->setVisible(true);
     m_compressionModeComboBox->setVisible(true);
     m_okButton->setVisible(true);
+
+    updateSelectAllState();
 }
 
 
@@ -168,6 +171,8 @@ EditBagWidget::itemCheckStateChanged(QTreeWidgetItem* item, int column)
 
     const auto rowIndex = m_treeWidget->indexOfTopLevelItem(item);
     writeParameterToSettings(m_parameters.topics[rowIndex].isSelected, item->checkState(COL_CHECKBOXES) == Qt::Checked, m_settings);
+
+    updateSelectAllState();
 }
 
 

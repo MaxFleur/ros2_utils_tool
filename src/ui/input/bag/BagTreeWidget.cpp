@@ -50,6 +50,61 @@ BagTreeWidget::resizeColumns()
 
 
 void
+BagTreeWidget::setTreeWidgetItemSelection(Qt::CheckState checkState)
+{
+    // Type has to be specified to avoid clang compiler errors
+    const auto selectItemAndChildren = [checkState] (auto&& selectItemAndChildren, QTreeWidgetItem* item) -> void {
+        // Merge bags widget tree has top items without checkboxes
+        if (!item->data(COL_CHECKBOXES, Qt::CheckStateRole).isNull()) {
+            item->setCheckState(COL_CHECKBOXES, checkState);
+        }
+        // Apply recursively to all child items as well
+        for (auto i = 0; i < item->childCount(); ++i) {
+            selectItemAndChildren(selectItemAndChildren, item->child(i));
+        }
+    };
+
+    for (auto i = 0; i < topLevelItemCount(); ++i) {
+        selectItemAndChildren(selectItemAndChildren, topLevelItem(i));
+    }
+}
+
+
+std::pair<int, int>
+BagTreeWidget::countSelectedAndTotalItems() const
+{
+    // Type has to be specified to avoid clang compiler errors
+    const auto countItemAndChildren = [] (auto&& countItemAndChildren, const QTreeWidgetItem* item) -> std::pair<int, int> {
+        auto selectedCount = 0;
+        auto checkBoxCount = 0;
+        // Merge bags widget tree has top items without checkboxes
+        if (!item->data(COL_CHECKBOXES, Qt::CheckStateRole).isNull()) {
+            checkBoxCount++;
+            selectedCount += item->checkState(COL_CHECKBOXES) == Qt::Checked;
+        }
+        // Count child items as well
+        for (auto i = 0; i < item->childCount(); ++i) {
+            const auto [childSelectedCount, childCheckBoxCount] = countItemAndChildren(countItemAndChildren, item->child(i));
+            selectedCount += childSelectedCount;
+            checkBoxCount += childCheckBoxCount;
+        }
+        return { selectedCount, checkBoxCount };
+    };
+
+    auto selectedCount = 0;
+    auto checkBoxCount = 0;
+
+    for (auto i = 0; i < topLevelItemCount(); ++i) {
+        const auto [selected, total] = countItemAndChildren(countItemAndChildren, topLevelItem(i));
+        selectedCount += selected;
+        checkBoxCount += total;
+    }
+
+    return { selectedCount, checkBoxCount };
+}
+
+
+void
 BagTreeWidget::itemCheckStateChanged(QTreeWidgetItem* item, int column)
 {
     if (column != COL_CHECKBOXES) {
