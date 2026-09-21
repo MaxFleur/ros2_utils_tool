@@ -18,6 +18,7 @@ SettingsDialog::SettingsDialog(Parameters::DialogParameters& parameters, QWidget
 {
     setWindowTitle("Options");
 
+    // System
     auto* const threadsLabel = new QLabel("Maximum Number of Threads:");
 
     auto* const maxNumberOfThreadsSpinBox = new QSpinBox;
@@ -35,6 +36,28 @@ SettingsDialog::SettingsDialog(Parameters::DialogParameters& parameters, QWidget
     auto* const useHardwareAccCheckBox = Utils::UI::createCheckBox("Use hardware acceleration for some tools.", m_parameters.useHardwareAcceleration);
     useHardwareAccCheckBox->setText("Use Hardware Acceleration");
 
+    auto* const systemLayout = new QVBoxLayout;
+    systemLayout->addLayout(threadsLayout);
+    systemLayout->addWidget(useHardwareAccCheckBox);
+
+    auto* const systemGroupBox = new QGroupBox("System");
+    systemGroupBox->setLayout(systemLayout);
+
+    // Settings
+    auto* const storeParametersCheckBox = Utils::UI::createCheckBox("If this is checked, all input parameters are saved\n"
+                                                                    "and reused if this application is launched another time.",
+                                                                    m_parameters.saveParameters);
+    storeParametersCheckBox->setText("Save Input Parameters");
+
+    auto* const settingsLayout = new QVBoxLayout;
+    settingsLayout->addWidget(storeParametersCheckBox);
+
+    auto* const settingsGroupBox = new QGroupBox("Settings");
+    settingsGroupBox->setLayout(settingsLayout);
+
+    // Warnings
+    auto* const showWarningsLabel = new QLabel("Show Warning Message Boxes for...");
+
     auto* const warnROS2NamesConventionCheckBox = Utils::UI::createCheckBox("If the tool should put out a warning\n"
                                                                             "if topic names are not following ROS2 conventions.",
                                                                             m_parameters.warnROS2NameConvention);
@@ -46,28 +69,6 @@ SettingsDialog::SettingsDialog(Parameters::DialogParameters& parameters, QWidget
                                                                      m_parameters.warnLowDiskSpace);
     warnLowDiskspaceCheckBox->setText("Low available Disk Space");
 
-    auto* const showWarningsLabel = new QLabel("Show Warning Message Boxes for...");
-
-    auto* const storeParametersCheckBox = Utils::UI::createCheckBox("If this is checked, all input parameters are saved\n"
-                                                                    "and reused if this application is launched another time.",
-                                                                    m_parameters.saveParameters);
-    storeParametersCheckBox->setText("Save Input Parameters");
-    auto* const usePredefinedTopicNamesCheckBox = Utils::UI::createCheckBox("Use some optional predefined topic names for the publishing and video to bag tools.",
-                                                                            m_parameters.usePredefinedTopicNames);
-    usePredefinedTopicNamesCheckBox->setText("Use Predefined Topic Names");
-
-    auto* const resetToDefaultButton = new QPushButton("Reset to Defaults");
-
-    auto* const buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    buttonBox->addButton(resetToDefaultButton, QDialogButtonBox::ActionRole);
-
-    auto* const systemLayout = new QVBoxLayout;
-    systemLayout->addLayout(threadsLayout);
-    systemLayout->addWidget(useHardwareAccCheckBox);
-
-    auto* const systemGroupBox = new QGroupBox("System");
-    systemGroupBox->setLayout(systemLayout);
-
     auto* const warnLayout = new QVBoxLayout;
     warnLayout->addWidget(showWarningsLabel, Qt::AlignLeft);
     warnLayout->addWidget(warnROS2NamesConventionCheckBox);
@@ -77,20 +78,42 @@ SettingsDialog::SettingsDialog(Parameters::DialogParameters& parameters, QWidget
     auto* const warnGroupBox = new QGroupBox("Warnings");
     warnGroupBox->setLayout(warnLayout);
 
+    // Misc
+    auto* const usePredefinedTopicNamesCheckBox = Utils::UI::createCheckBox("Use some optional predefined topic names for the publishing and video to bag tools.",
+                                                                            m_parameters.usePredefinedTopicNames);
+    usePredefinedTopicNamesCheckBox->setText("Use Predefined Topic Names");
+
     auto* const miscLayout = new QVBoxLayout;
-    miscLayout->addWidget(storeParametersCheckBox);
     miscLayout->addWidget(usePredefinedTopicNamesCheckBox);
 
     auto* const miscGroupBox = new QGroupBox("Miscellaneous");
     miscGroupBox->setLayout(miscLayout);
 
+    // Combine
+    auto* const leftGroupLayout = new QVBoxLayout;
+    leftGroupLayout->addWidget(systemGroupBox);
+    leftGroupLayout->addSpacing(5);
+    leftGroupLayout->addWidget(settingsGroupBox);
+
+    auto* const rightGroupLayout = new QVBoxLayout;
+    rightGroupLayout->addWidget(warnGroupBox);
+    rightGroupLayout->addSpacing(5);
+    rightGroupLayout->addWidget(miscGroupBox);
+
+    auto* const groupLayout = new QHBoxLayout;
+    groupLayout->addLayout(leftGroupLayout);
+    groupLayout->addSpacing(5);
+    groupLayout->addLayout(rightGroupLayout);
+
+    // Dialog box
+    auto* const resetToDefaultButton = new QPushButton("Reset to Defaults");
+
+    auto* const buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    buttonBox->addButton(resetToDefaultButton, QDialogButtonBox::ActionRole);
+
     // Set main layout
     auto* const mainLayout = new QVBoxLayout(this);
-    mainLayout->addWidget(systemGroupBox);
-    mainLayout->addSpacing(10);
-    mainLayout->addWidget(warnGroupBox);
-    mainLayout->addSpacing(10);
-    mainLayout->addWidget(miscGroupBox);
+    mainLayout->addLayout(groupLayout);
     mainLayout->addWidget(buttonBox);
     setLayout(mainLayout);
 
