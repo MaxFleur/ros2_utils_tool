@@ -50,6 +50,20 @@ BagTreeWidget::resizeColumns()
 
 
 void
+BagTreeWidget::setTreeWidgetItemSelection(Qt::CheckState checkState)
+{
+    for (auto i = 0; i < topLevelItemCount(); ++i) {
+        // Merge bags widget tree has top items without checkboxes
+        if (topLevelItem(i)->data(COL_CHECKBOXES, Qt::CheckStateRole).isNull()) {
+            continue;
+        }
+
+        topLevelItem(i)->setCheckState(COL_CHECKBOXES, checkState);
+    }
+}
+
+
+void
 BagTreeWidget::itemCheckStateChanged(QTreeWidgetItem* item, int column)
 {
     if (column != COL_CHECKBOXES) {
