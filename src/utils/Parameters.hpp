@@ -142,6 +142,7 @@ struct PublishParameters : VideoParameters {
 // Parameters related to options dialog
 struct DialogParameters {
     unsigned int maxNumberOfThreads = std::thread::hardware_concurrency();
+    unsigned int lowDiskspaceThreshold = 10;
     bool         useHardwareAcceleration = false;
     bool         saveParameters = false;
     bool         usePredefinedTopicNames = true;

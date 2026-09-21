@@ -1,5 +1,6 @@
 #include "LowDiskSpaceWidget.hpp"
 
+#include "DialogSettings.hpp"
 #include "UtilsGeneral.hpp"
 
 #include <QEvent>
@@ -37,7 +38,7 @@ void
 LowDiskSpaceWidget::setVisibility(const QString& path)
 {
     const auto diskSpace = Utils::General::getAvailableDriveSpace(path);
-    m_isDiskSpaceSufficient = diskSpace > Utils::General::MINIMUM_RECOMMENDED_DRIVE_SPACE;
+    m_isDiskSpaceSufficient = diskSpace > DialogSettings::getStaticParameter("low_diskspace_threshold", static_cast<unsigned int>(10));
 
     if (!m_isDiskSpaceSufficient) {
         m_diskSpaceLabel->setText("Free available space is only " + QString::number(diskSpace) + " GiB!");
