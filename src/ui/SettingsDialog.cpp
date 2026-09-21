@@ -10,6 +10,7 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QSettings>
 #include <QSpinBox>
 #include <QVBoxLayout>
 
@@ -49,8 +50,16 @@ SettingsDialog::SettingsDialog(Parameters::DialogParameters& parameters, QWidget
                                                                     m_parameters.saveParameters);
     storeParametersCheckBox->setText("Save Input Parameters");
 
+    auto* const clearInputParametersButton = new QPushButton("Clear all Parameters");
+    clearInputParametersButton->setToolTip("Clears all input parameters which are stored in the tool configurations.");
+
+    auto* const clearInputParametersButtonLayout = new QHBoxLayout;
+    clearInputParametersButtonLayout->addWidget(clearInputParametersButton);
+    clearInputParametersButtonLayout->addStretch();
+
     auto* const settingsLayout = new QVBoxLayout;
     settingsLayout->addWidget(storeParametersCheckBox);
+    settingsLayout->addLayout(clearInputParametersButtonLayout);
 
     auto* const settingsGroupBox = new QGroupBox("Settings");
     settingsGroupBox->setLayout(settingsLayout);
@@ -117,6 +126,7 @@ SettingsDialog::SettingsDialog(Parameters::DialogParameters& parameters, QWidget
     mainLayout->addWidget(buttonBox);
     setLayout(mainLayout);
 
+    connect(clearInputParametersButton, &QPushButton::clicked, this, &SettingsDialog::clearAllParameters);
     connect(resetToDefaultButton, &QPushButton::clicked, this, [maxNumberOfThreadsSpinBox, useHardwareAccCheckBox,
                                                                 storeParametersCheckBox, usePredefinedTopicNamesCheckBox,
                                                                 warnROS2NamesConventionCheckBox, warnOverwriteTargetCheckBox,
@@ -149,14 +159,37 @@ SettingsDialog::SettingsDialog(Parameters::DialogParameters& parameters, QWidget
 }
 
 
-// Need to restart for effects to take place
 void
-SettingsDialog::storeParametersCheckStateChanged()
+SettingsDialog::clearAllParameters()
 {
-    auto* const msgBox = new QMessageBox();
-    msgBox->setIcon(QMessageBox::Information);
-    msgBox->setText("Changes will take effect after restarting the application.");
+    auto* const msgBox = new QMessageBox(QMessageBox::Warning, "Do you want to continue?",
+                                         "This will clear ALL input parameters. Are you sure you want to continue?",
+                                         QMessageBox::Yes | QMessageBox::No);
     msgBox->setAttribute(Qt::WA_DeleteOnClose);
 
-    msgBox->exec();
+    if (const auto ret = msgBox->exec(); ret == QMessageBox::No) {
+        return;
+    }
+
+    // Backup the dialog settings so that only the stored input parameters are cleared
+    QSettings settings;
+    settings.beginGroup("dialog");
+
+    const auto& dialogKeys = settings.allKeys();
+    QMap<QString, QVariant> dialogParameters;
+    for (const auto& key : dialogKeys) {
+        dialogParameters.insert(key, settings.value(key));
+    }
+    settings.endGroup();
+
+    // Clear and readd all dialog entries
+    settings.clear();
+
+    settings.beginGroup("dialog");
+    for (auto it = dialogParameters.cbegin(); it != dialogParameters.cend(); ++it) {
+        settings.setValue(it.key(), it.value());
+    }
+    settings.endGroup();
+
+    settings.sync();
 }
