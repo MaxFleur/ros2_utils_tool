@@ -6,6 +6,7 @@
 
 #include <QCheckBox>
 #include <QComboBox>
+#include <QDebug>
 #include <QFormLayout>
 #include <QLabel>
 #include <QMessageBox>
@@ -38,6 +39,9 @@ AdvancedBagWidget::AdvancedBagWidget(Parameters::DeleteSourceParameters& paramet
         writeParameterToSettings(m_parameters.sourceDirectory, QString(), m_settings);
     }
 
+    m_selectAllCheckBox = new QCheckBox("(Un)select all");
+    m_selectAllCheckBox->setTristate(true);
+
     m_deleteSourceCheckBox = new QCheckBox("Delete Source Bag File(s) after Completion");
     m_deleteSourceCheckBox->setTristate(false);
     m_deleteSourceCheckBox->setChecked(m_parameters.deleteSource);
@@ -65,6 +69,7 @@ AdvancedBagWidget::AdvancedBagWidget(Parameters::DeleteSourceParameters& paramet
     m_okButton->setEnabled(true);
     m_okButton->setVisible(false);
 
+    connect(m_selectAllCheckBox, &QCheckBox::clicked, this, &AdvancedBagWidget::setTreeWidgetItemSelection);
     connect(m_treeWidget, &QTreeWidget::itemChanged, this, &AdvancedBagWidget::itemCheckStateChanged);
     connect(m_deleteSourceCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.deleteSource, state == Qt::Checked, m_settings);
@@ -130,4 +135,41 @@ AdvancedBagWidget::areIOParametersValid(int topicSize, int topicSizeWithOutDupli
         }
     }
     return true;
+}
+
+
+void
+AdvancedBagWidget::updateSelectAllState()
+{
+    auto selectedCount = 0;
+    auto checkBoxCount = 0;
+
+    for (auto i = 0; i < m_treeWidget->topLevelItemCount(); ++i) {
+        // Merge bags widget tree has top items without checkboxes
+        if (m_treeWidget->topLevelItem(i)->data(COL_CHECKBOXES, Qt::CheckStateRole).isNull()) {
+            continue;
+        }
+        checkBoxCount++;
+        selectedCount += m_treeWidget->topLevelItem(i)->checkState(COL_CHECKBOXES) == Qt::Checked;
+    }
+
+    auto newState = Qt::PartiallyChecked;
+    if (selectedCount == checkBoxCount) {
+        newState = Qt::Checked;
+    } else if (selectedCount == 0) {
+        newState = Qt::Unchecked;
+    }
+
+    m_selectAllCheckBox->blockSignals(true);
+    m_selectAllCheckBox->setCheckState(newState);
+    m_selectAllCheckBox->blockSignals(false);
+}
+
+
+void
+AdvancedBagWidget::setTreeWidgetItemSelection()
+{
+    const auto checkState = m_selectAllCheckBox->checkState() == Qt::Unchecked ? Qt::Unchecked : Qt::Checked;
+    m_selectAllCheckBox->setCheckState(checkState);
+    m_treeWidget->setTreeWidgetItemSelection(m_selectAllCheckBox->checkState());
 }

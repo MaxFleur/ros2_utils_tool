@@ -39,9 +39,13 @@ protected:
                          int            topicSizeWithoutDuplicates,
                          const QString& secondSourceParameter = QString()) const;
 
+    void
+    updateSelectAllState();
+
 protected:
     QPointer<BagTreeWidget> m_treeWidget;
 
+    QPointer<QCheckBox> m_selectAllCheckBox;
     QPointer<QCheckBox> m_deleteSourceCheckBox;
 
     QPointer<QLabel> m_compressionLabel;
@@ -60,6 +64,10 @@ protected:
     static constexpr int COMPRESSION_NONE = 0;
     static constexpr int COMPRESSION_FILE = 1;
     static constexpr int COMPRESSION_MESSAGE = 2;
+
+private:
+    void
+    setTreeWidgetItemSelection();
 
 private:
     Parameters::DeleteSourceParameters& m_parameters;

@@ -44,6 +44,7 @@ MergeBagsWidget::MergeBagsWidget(Parameters::MergeBagsParameters& parameters, QW
         m_compressionModeComboBox->setCurrentIndex(m_parameters.compressPerMessage ? COMPRESSION_MESSAGE : COMPRESSION_FILE);
     }
 
+    m_controlsLayout->addWidget(m_selectAllCheckBox);
     m_controlsLayout->addWidget(m_treeWidget);
     m_controlsLayout->addWidget(m_findTargetWidget);
     m_controlsLayout->addWidget(m_lowDiskSpaceWidget);
@@ -162,6 +163,8 @@ MergeBagsWidget::createTopicTree(bool resetTopicsParameter)
     m_compressionLabel->setVisible(true);
     m_compressionModeComboBox->setVisible(true);
     m_okButton->setVisible(true);
+
+    updateSelectAllState();
 }
 
 
@@ -185,6 +188,8 @@ MergeBagsWidget::itemCheckStateChanged(QTreeWidgetItem* item, int column)
         }
     }
     writeParameterToSettings(m_parameters.topics[rowIndex].isSelected, item->checkState(COL_CHECKBOXES) == Qt::Checked, m_settings);
+
+    updateSelectAllState();
 }
 
 

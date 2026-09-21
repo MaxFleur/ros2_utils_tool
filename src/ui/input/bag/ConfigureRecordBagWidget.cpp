@@ -113,6 +113,7 @@ ConfigureRecordBagWidget::ConfigureRecordBagWidget(Parameters::RecordBagParamete
 
     m_controlsLayout->addSpacing(30);
     m_controlsLayout->addWidget(m_unselectLabel);
+    m_controlsLayout->addWidget(m_selectAllCheckBox);
     m_controlsLayout->addWidget(m_treeWidget);
     m_controlsLayout->addLayout(refreshButtonLayout);
     m_controlsLayout->addSpacing(5);

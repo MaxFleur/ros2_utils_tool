@@ -52,6 +52,7 @@ ConfigurePlayBagWidget::ConfigurePlayBagWidget(Parameters::PlayBagParameters& pa
     m_controlsLayout->addLayout(sourceFormLayout);
     m_controlsLayout->addSpacing(5);
     m_controlsLayout->addWidget(m_unselectLabel);
+    m_controlsLayout->addWidget(m_selectAllCheckBox);
     m_controlsLayout->addWidget(m_treeWidget);
     m_controlsLayout->addSpacing(10);
     m_controlsLayout->addLayout(m_lowerOptionsLayout);

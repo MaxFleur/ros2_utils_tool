@@ -21,6 +21,10 @@ public:
     void
     resizeColumns();
 
+public slots:
+    void
+    setTreeWidgetItemSelection(Qt::CheckState checkState);
+
 private slots:
     void
     itemCheckStateChanged(QTreeWidgetItem* item,

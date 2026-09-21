@@ -9,6 +9,7 @@
 
 class BagTreeWidget;
 
+class QCheckBox;
 class QLabel;
 class QTreeWidgetItem;
 
@@ -49,6 +50,8 @@ protected slots:
 
 protected:
     QPointer<BagTreeWidget> m_treeWidget;
+
+    QPointer<QCheckBox> m_selectAllCheckBox;
     QPointer<QLabel> m_unselectLabel;
 
     static constexpr int COL_CHECKBOXES = 0;
