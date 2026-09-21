@@ -65,7 +65,7 @@ SettingsDialog::SettingsDialog(Parameters::DialogParameters& parameters, QWidget
     settingsGroupBox->setLayout(settingsLayout);
 
     // Warnings
-    auto* const showWarningsLabel = new QLabel("Show Warning Message Boxes for...");
+    auto* const showWarningsLabel = new QLabel("<i>Show Warning Message Boxes for...</i>");
 
     auto* const warnROS2NamesConventionCheckBox = Utils::UI::createCheckBox("If the tool should put out a warning\n"
                                                                             "if topic names are not following ROS2 conventions.",
@@ -78,11 +78,23 @@ SettingsDialog::SettingsDialog(Parameters::DialogParameters& parameters, QWidget
                                                                      m_parameters.warnLowDiskSpace);
     warnLowDiskspaceCheckBox->setText("Low available Disk Space");
 
+    auto* const lowDiskspaceThresholdSpinBox = new QSpinBox;
+    lowDiskspaceThresholdSpinBox->setRange(1, 999);
+    lowDiskspaceThresholdSpinBox->setToolTip("If available diskspace is below this value in GiB, a warning is thrown.");
+    lowDiskspaceThresholdSpinBox->setSuffix("GiB");
+    lowDiskspaceThresholdSpinBox->setValue(m_parameters.lowDiskspaceThreshold);
+    lowDiskspaceThresholdSpinBox->setVisible(m_parameters.warnLowDiskSpace);
+
+    auto* const lowDiskspaceLayout = new QHBoxLayout;
+    lowDiskspaceLayout->addWidget(warnLowDiskspaceCheckBox);
+    lowDiskspaceLayout->addStretch();
+    lowDiskspaceLayout->addWidget(lowDiskspaceThresholdSpinBox);
+
     auto* const warnLayout = new QVBoxLayout;
     warnLayout->addWidget(showWarningsLabel, Qt::AlignLeft);
     warnLayout->addWidget(warnROS2NamesConventionCheckBox);
     warnLayout->addWidget(warnOverwriteTargetCheckBox);
-    warnLayout->addWidget(warnLowDiskspaceCheckBox);
+    warnLayout->addLayout(lowDiskspaceLayout);
 
     auto* const warnGroupBox = new QGroupBox("Warnings");
     warnGroupBox->setLayout(warnLayout);
@@ -127,11 +139,15 @@ SettingsDialog::SettingsDialog(Parameters::DialogParameters& parameters, QWidget
     setLayout(mainLayout);
 
     connect(clearInputParametersButton, &QPushButton::clicked, this, &SettingsDialog::clearAllParameters);
+    connect(warnLowDiskspaceCheckBox, &QCheckBox::stateChanged, [lowDiskspaceThresholdSpinBox] (int state) {
+        lowDiskspaceThresholdSpinBox->setVisible(state == Qt::Checked);
+    });
     connect(resetToDefaultButton, &QPushButton::clicked, this, [maxNumberOfThreadsSpinBox, useHardwareAccCheckBox,
-                                                                storeParametersCheckBox, usePredefinedTopicNamesCheckBox,
-                                                                warnROS2NamesConventionCheckBox, warnOverwriteTargetCheckBox,
-                                                                warnLowDiskspaceCheckBox] {
+                                                                storeParametersCheckBox, lowDiskspaceThresholdSpinBox,
+                                                                usePredefinedTopicNamesCheckBox, warnROS2NamesConventionCheckBox,
+                                                                warnOverwriteTargetCheckBox, warnLowDiskspaceCheckBox] {
         maxNumberOfThreadsSpinBox->setValue(std::thread::hardware_concurrency());
+        lowDiskspaceThresholdSpinBox->setValue(10);
         useHardwareAccCheckBox->setCheckState(Qt::Unchecked);
         storeParametersCheckBox->setCheckState(Qt::Unchecked);
         usePredefinedTopicNamesCheckBox->setCheckState(Qt::Checked);
@@ -140,10 +156,11 @@ SettingsDialog::SettingsDialog(Parameters::DialogParameters& parameters, QWidget
         warnLowDiskspaceCheckBox->setCheckState(Qt::Checked);
     });
     connect(buttonBox, &QDialogButtonBox::accepted, this, [this, maxNumberOfThreadsSpinBox, useHardwareAccCheckBox,
-                                                           storeParametersCheckBox, usePredefinedTopicNamesCheckBox,
-                                                           warnROS2NamesConventionCheckBox, warnOverwriteTargetCheckBox,
-                                                           warnLowDiskspaceCheckBox] {
+                                                           storeParametersCheckBox, lowDiskspaceThresholdSpinBox,
+                                                           usePredefinedTopicNamesCheckBox, warnROS2NamesConventionCheckBox,
+                                                           warnOverwriteTargetCheckBox, warnLowDiskspaceCheckBox] {
         m_parameters.maxNumberOfThreads = maxNumberOfThreadsSpinBox->value();
+        m_parameters.lowDiskspaceThreshold = lowDiskspaceThresholdSpinBox->value();
         m_parameters.useHardwareAcceleration = useHardwareAccCheckBox->checkState() == Qt::Checked;
         m_parameters.saveParameters = storeParametersCheckBox->checkState() == Qt::Checked;
         m_parameters.usePredefinedTopicNames = usePredefinedTopicNamesCheckBox->checkState() == Qt::Checked;

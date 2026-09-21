@@ -582,7 +582,7 @@ TEST_CASE("Settings Testing", "[settings]") {
         SECTION("Class values") {
             SECTION("Read") {
                 qSettings.beginGroup("dialog");
-                checkSettingsInvalidacy(qSettings, { "max_threads", "hw_acc", "save_parameters", "predefined_topic_names",
+                checkSettingsInvalidacy(qSettings, { "max_threads", "low_diskspace_threshold", "hw_acc", "save_parameters", "predefined_topic_names",
                                                      "warn_ros2_name_convention", "warn_target_overwrite", "warn_low_disk_space" });
                 qSettings.endGroup();
             }
@@ -591,6 +591,7 @@ TEST_CASE("Settings Testing", "[settings]") {
                 DialogSettings settings(parameters, "dialog");
 
                 parameters.maxNumberOfThreads = 4;
+                parameters.lowDiskspaceThreshold = 20;
                 parameters.useHardwareAcceleration = true;
                 parameters.saveParameters = true;
                 parameters.usePredefinedTopicNames = true;
@@ -601,6 +602,7 @@ TEST_CASE("Settings Testing", "[settings]") {
 
                 qSettings.beginGroup("dialog");
                 verifiySettingPrimitive(qSettings, "max_threads", 4);
+                verifiySettingPrimitive(qSettings, "low_diskspace_threshold", 20);
                 verifiySettingPrimitive(qSettings, "hw_acc", true);
                 verifiySettingPrimitive(qSettings, "save_parameters", true);
                 verifiySettingPrimitive(qSettings, "predefined_topic_names", true);
