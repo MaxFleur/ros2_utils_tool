@@ -25,12 +25,17 @@ public slots:
     void
     setTreeWidgetItemSelection(Qt::CheckState checkState);
 
+public:
+    static constexpr int MAXIMUM_HEIGHT = 350;
+
 private slots:
     void
     itemCheckStateChanged(QTreeWidgetItem* item,
                           int              column);
 
 private:
+    static constexpr int MINIMUM_HEIGHT = 200;
+
     static constexpr int COL_CHECKBOXES = 0;
     static constexpr int COL_TOPIC_NAME = 1;
     static constexpr int COL_TOPIC_TYPE = 2;
