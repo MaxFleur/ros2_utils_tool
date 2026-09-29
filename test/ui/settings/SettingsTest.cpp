@@ -1,9 +1,9 @@
 #include "catch_ros2/catch_ros2.hpp"
 
 #include "AdvancedSettings.hpp"
+#include "BagMessageToFileSettings.hpp"
 #include "BagToImagesSettings.hpp"
 #include "BagToVideoSettings.hpp"
-#include "BagToYamlSettings.hpp"
 #include "BasicSettings.hpp"
 #include "DialogSettings.hpp"
 #include "DeleteSourceSettings.hpp"
@@ -142,7 +142,7 @@ TEST_CASE("Settings Testing", "[settings]") {
             parameters.rotation[3] = -4.321;
             parameters.childFrameName = "test";
             parameters.rate = 3;
-            parameters.isStatic = true;
+            parameters.isStatic = false;
             settings.write();
 
             qSettings.beginGroup("send_tf2");
@@ -155,7 +155,7 @@ TEST_CASE("Settings Testing", "[settings]") {
             verifiySettingPrimitive(qSettings, "rotation_w", -4.321);
             verifiySettingQString(qSettings, "name", "test");
             verifiySettingPrimitive(qSettings, "rate", 3);
-            verifiySettingPrimitive(qSettings, "is_static", true);
+            verifiySettingPrimitive(qSettings, "is_static", false);
             qSettings.endGroup();
         }
     }
@@ -310,30 +310,32 @@ TEST_CASE("Settings Testing", "[settings]") {
             TF2ToFileSettings settings(parameters, "tf2_to_file");
 
             parameters.compactOutput = true;
-            parameters.keepTimestamps = true;
+            parameters.keepTimestamps = false;
             settings.write();
 
             qSettings.beginGroup("tf2_to_file");
-            verifiySettingPrimitive(qSettings, "keep_timestamps", true);
+            verifiySettingPrimitive(qSettings, "keep_timestamps", false);
             verifiySettingPrimitive(qSettings, "compact_output", true);
             qSettings.endGroup();
         }
     }
-    SECTION("Bag to Yaml Params Test") {
+    SECTION("Bag Message to File Params Test") {
         SECTION("Read") {
-            qSettings.beginGroup("bag_to_yaml");
-            checkSettingsInvalidacy(qSettings, { "write_single_output_file" });
+            qSettings.beginGroup("bag_message_to_file");
+            checkSettingsInvalidacy(qSettings, { "write_single_output_file", "format" });
             qSettings.endGroup();
         }
         SECTION("Write") {
-            Parameters::BagToYamlParameters parameters;
-            BagToYamlSettings settings(parameters, "bag_to_yaml");
+            Parameters::BagMessageToFileParameters parameters;
+            BagMessageToFileSettings settings(parameters, "bag_message_to_file");
 
-            parameters.writeSingleOutputFile = true;
+            parameters.writeSingleOutputFile = false;
+            parameters.isYaml = false;
             settings.write();
 
-            qSettings.beginGroup("bag_to_yaml");
-            verifiySettingPrimitive(qSettings, "write_single_output_file", true);
+            qSettings.beginGroup("bag_message_to_file");
+            verifiySettingPrimitive(qSettings, "write_single_output_file", false);
+            verifiySettingPrimitive(qSettings, "is_yaml", false);
             qSettings.endGroup();
         }
     }
@@ -541,13 +543,13 @@ TEST_CASE("Settings Testing", "[settings]") {
 
             parameters.useCompression = true;
             parameters.useCustomFPS = true;
-            parameters.isCompressionJPEG = true;
+            parameters.isCompressionJPEG = false;
             settings.write();
 
             qSettings.beginGroup("bag");
             verifiySettingPrimitive(qSettings, "use_compression", true);
             verifiySettingPrimitive(qSettings, "custom_fps", true);
-            verifiySettingPrimitive(qSettings, "is_compression_jpeg", true);
+            verifiySettingPrimitive(qSettings, "is_compression_jpeg", false);
             qSettings.endGroup();
         }
     }
@@ -594,10 +596,10 @@ TEST_CASE("Settings Testing", "[settings]") {
                 parameters.lowDiskspaceThreshold = 20;
                 parameters.useHardwareAcceleration = true;
                 parameters.saveParameters = true;
-                parameters.usePredefinedTopicNames = true;
+                parameters.usePredefinedTopicNames = false;
                 parameters.warnROS2NameConvention = true;
-                parameters.warnTargetOverwrite = true;
-                parameters.warnLowDiskSpace = true;
+                parameters.warnTargetOverwrite = false;
+                parameters.warnLowDiskSpace = false;
                 settings.write();
 
                 qSettings.beginGroup("dialog");
@@ -605,10 +607,10 @@ TEST_CASE("Settings Testing", "[settings]") {
                 verifiySettingPrimitive(qSettings, "low_diskspace_threshold", 20);
                 verifiySettingPrimitive(qSettings, "hw_acc", true);
                 verifiySettingPrimitive(qSettings, "save_parameters", true);
-                verifiySettingPrimitive(qSettings, "predefined_topic_names", true);
+                verifiySettingPrimitive(qSettings, "predefined_topic_names", false);
                 verifiySettingPrimitive(qSettings, "warn_ros2_name_convention", true);
-                verifiySettingPrimitive(qSettings, "warn_target_overwrite", true);
-                verifiySettingPrimitive(qSettings, "warn_low_disk_space", true);
+                verifiySettingPrimitive(qSettings, "warn_target_overwrite", false);
+                verifiySettingPrimitive(qSettings, "warn_low_disk_space", false);
                 qSettings.endGroup();
             }
         }

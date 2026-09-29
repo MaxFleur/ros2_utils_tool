@@ -78,8 +78,9 @@ struct TF2ToFileParameters : AdvancedParameters {
     bool keepTimestamps = false;
     bool compactOutput = true;
 };
-struct BagToYamlParameters : AdvancedParameters {
+struct BagMessageToFileParameters : AdvancedParameters {
     bool writeSingleOutputFile = true;
+    bool isYaml = true;
 };
 
 struct DeleteSourceParameters : AdvancedParameters {
