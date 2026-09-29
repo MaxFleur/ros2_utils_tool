@@ -6,6 +6,9 @@
 BagTreeWidget::BagTreeWidget(QWidget *parent) : QTreeWidget(parent)
 {
     setColumnCount(3);
+    setMinimumHeight(MINIMUM_HEIGHT);
+    setMaximumHeight(MAXIMUM_HEIGHT);
+
     headerItem()->setText(COL_CHECKBOXES, "");
     headerItem()->setText(COL_TOPIC_NAME, "Topic Name:");
     headerItem()->setText(COL_TOPIC_TYPE, "Topic Type:");

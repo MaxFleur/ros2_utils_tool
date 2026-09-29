@@ -142,8 +142,9 @@ EditBagWidget::createTopicTree()
     m_treeWidget->blockSignals(false);
     // Just take a random item to get its height
     auto* item = m_treeWidget->topLevelItem(m_treeWidget->topLevelItemCount() - 1);
-    const auto height = m_treeWidget->visualItemRect(item).height();
-    m_treeWidget->setFixedHeight((height * m_treeWidget->topLevelItemCount()) + HEIGHT_OFFSET);
+    const auto itemHeight = m_treeWidget->visualItemRect(item).height();
+    const auto treeWidgetHeight = (itemHeight * m_treeWidget->topLevelItemCount()) + HEIGHT_OFFSET;
+    m_treeWidget->setFixedHeight(std::min(treeWidgetHeight, m_treeWidget->MAXIMUM_HEIGHT));
 
     m_treeWidget->setVisible(true);
     m_findTargetWidget->setVisible(true);
