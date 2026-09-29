@@ -44,6 +44,9 @@ add_subdirectory(test)
 add_executable(tool_ui
     ${CMAKE_CURRENT_LIST_DIR}/src/main.cpp resources/resources.qrc
 )
+add_executable(tool_bag_message_to_file
+    ${CMAKE_CURRENT_LIST_DIR}/src/cli/BagMessageToFile.cpp
+)
 add_executable(tool_bag_tf2_to_file
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/BagTF2ToFile.cpp
 )
@@ -68,9 +71,6 @@ add_executable(tool_dummy_bag
 add_executable(tool_merge_bags
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/MergeBags.cpp
 )
-add_executable(tool_message_to_yaml
-    ${CMAKE_CURRENT_LIST_DIR}/src/cli/MessageToYaml.cpp
-)
 add_executable(tool_pcds_to_bag
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/PCDsToBag.cpp
 )
@@ -91,6 +91,10 @@ target_link_libraries(tool_ui
     rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp rosbag2_transport::rosbag2_transport cv_bridge::cv_bridge
     ${geometry_msgs_TARGETS} ${sensor_msgs_TARGETS} ${tf2_msgs_TARGETS}
     Python3::Python Qt::Widgets rt_ui
+)
+target_link_libraries(tool_bag_message_to_file
+    rosbag2_cpp::rosbag2_cpp Python3::Python ${std_msgs_TARGETS}
+    Qt::Widgets rt_bag_message_to_file_thread rt_utils_cli rt_utils_misc
 )
 target_link_libraries(tool_bag_tf2_to_file
     rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp ${geometry_msgs_TARGETS} ${std_msgs_TARGETS} ${tf2_msgs_TARGETS}
@@ -123,10 +127,6 @@ target_link_libraries(tool_dummy_bag
 target_link_libraries(tool_merge_bags
     rosbag2_cpp::rosbag2_cpp rosbag2_transport::rosbag2_transport ${sensor_msgs_TARGETS}
     Qt::Widgets rt_merge_bags_thread rt_utils_cli rt_utils_misc
-)
-target_link_libraries(tool_message_to_yaml
-    rosbag2_cpp::rosbag2_cpp Python3::Python ${std_msgs_TARGETS}
-    Qt::Widgets rt_bag_to_yaml_thread rt_utils_cli rt_utils_misc
 )
 target_link_libraries(tool_pcds_to_bag
     rosbag2_cpp::rosbag2_cpp ${sensor_msgs_TARGETS}
@@ -171,6 +171,7 @@ endif()
 
 install(TARGETS
     tool_ui
+    tool_bag_message_to_file
     tool_bag_tf2_to_file
     tool_bag_to_images
     tool_bag_to_pcds
@@ -179,7 +180,6 @@ install(TARGETS
     tool_decompress_bag
     tool_dummy_bag
     tool_merge_bags
-    tool_message_to_yaml
     tool_pcds_to_bag
     tool_publish_images
     tool_publish_video

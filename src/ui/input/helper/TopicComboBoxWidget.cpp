@@ -72,7 +72,7 @@ TopicComboBoxWidget::mainFillOperation()
     case OUTPUT_TYPE::OUTPUT_TF_TO_FILE:
         fillComboBoxWithTopicType("tf2_msgs/msg/TFMessage");
         break;
-    case OUTPUT_TYPE::OUTPUT_YAML:
+    case OUTPUT_TYPE::OUTPUT_MESSAGE_TO_FILE:
     {
         // Just fill it with every topic inside the bag
         const auto& metadata = Utils::ROS::getBagMetadata(m_sourceLineEdit->text());

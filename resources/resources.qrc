@@ -28,14 +28,14 @@
 
         <file>icons/tools/bag_info_black.svg</file>
         <file>icons/tools/bag_info_white.svg</file>
+        <file>icons/tools/bag_message_to_file_black.svg</file>
+        <file>icons/tools/bag_message_to_file_white.svg</file>
         <file>icons/tools/bag_to_pcd_black.svg</file>
         <file>icons/tools/bag_to_pcd_white.svg</file>
         <file>icons/tools/bag_to_images_black.svg</file>
         <file>icons/tools/bag_to_images_white.svg</file>
         <file>icons/tools/bag_to_video_black.svg</file>
         <file>icons/tools/bag_to_video_white.svg</file>
-        <file>icons/tools/bag_to_yaml_black.svg</file>
-        <file>icons/tools/bag_to_yaml_white.svg</file>
         <file>icons/tools/bag_tools_black.svg</file>
         <file>icons/tools/bag_tools_white.svg</file>
         <file>icons/tools/compress_bag_black.svg</file>

@@ -1,10 +1,10 @@
 #include "catch_ros2/catch_ros2.hpp"
 
+#include "BagMessageToFileThread.hpp"
 #include "BagTF2ToFileThread.hpp"
 #include "BagToImagesThread.hpp"
 #include "BagToPCDsThread.hpp"
 #include "BagToVideoThread.hpp"
-#include "BagToYamlThread.hpp"
 #include "ChangeCompressionBagThread.hpp"
 #include "DummyBagThread.hpp"
 #include "EditBagThread.hpp"
@@ -23,6 +23,7 @@
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QJsonObject>
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_cloud.h>
@@ -808,23 +809,35 @@ TEST_CASE("Threads Testing", "[threads]") {
         std::filesystem::remove_all("./pcds");
     }
     SECTION("Bag to Yaml Thread Test") {
-        Parameters::BagToYamlParameters parameters;
+        Parameters::BagMessageToFileParameters parameters;
         parameters.sourceDirectory = "./dummy_bag";
         parameters.targetDirectory = "./yaml_files";
         parameters.topicName = "/dummy_string";
 
         std::filesystem::remove_all("./yaml_files");
 
-        auto* const thread = new BagToYamlThread(parameters);
-        QObject::connect(thread, &BagToYamlThread::finished, thread, &QObject::deleteLater);
+        auto* const thread = new BagMessageToFileThread(parameters);
+        QObject::connect(thread, &BagMessageToFileThread::finished, thread, &QObject::deleteLater);
 
         const auto verifyNode = [] (const YAML::Node& node, const int i) {
             REQUIRE(node.IsMap());
             REQUIRE(node.size() == 1);
             REQUIRE(node["data"].as<std::string>() == "Message " + std::to_string(i));
         };
+        const auto verifyJsonObject = [] (const QJsonObject& object, const int i) {
+            REQUIRE(object.size() == 1);
+            REQUIRE(object["data"].toString() == "Message " + QString::number(i));
+        };
+        const auto readJsonFile = [] (const std::string& filePath) {
+            QFile file(QString::fromStdString(filePath));
+            REQUIRE(file.open(QIODevice::ReadOnly));
 
-        SECTION("Single output file") {
+            const auto& document = QJsonDocument::fromJson(file.readAll());
+            file.close();
+            return document;
+        };
+
+        SECTION("Single output file - yaml") {
             thread->start();
             thread->wait();
 
@@ -835,7 +848,7 @@ TEST_CASE("Threads Testing", "[threads]") {
                 verifyNode(singleFileNode[std::to_string(i)], i);
             }
         }
-        SECTION("Multiple output files") {
+        SECTION("Multiple output files - yaml") {
             parameters.writeSingleOutputFile = false;
 
             thread->start();
@@ -847,6 +860,36 @@ TEST_CASE("Threads Testing", "[threads]") {
 
             for (auto i = 0; i < 100; ++i) {
                 verifyNode(YAML::LoadFile("./yaml_files/" + parameters.topicName.toStdString() + "_" + std::to_string(i) + ".yaml"), i);
+            }
+        }
+        SECTION("Single output file - json") {
+            parameters.isYaml = false;
+
+            thread->start();
+            thread->wait();
+
+            const auto& singleFileDocument = readJsonFile("./yaml_files/topic.json");
+            const auto& messagesObject = singleFileDocument.object();
+            REQUIRE(singleFileDocument.isObject());
+            REQUIRE(messagesObject.size() == 100);
+
+            for (auto i = 0; i < 100; ++i) {
+                verifyJsonObject(messagesObject[QString::number(i)].toObject(), i);
+            }
+        }
+        SECTION("Multiple output files - json") {
+            parameters.isYaml = false;
+            parameters.writeSingleOutputFile = false;
+
+            thread->start();
+            thread->wait();
+
+            const auto extensionCheckValues = getDirFileCountWithExtensions("./yaml_files", ".json");
+            REQUIRE(extensionCheckValues[0] == 100);
+            REQUIRE(extensionCheckValues[1] == 100);
+
+            for (auto i = 0; i < 100; ++i) {
+                verifyJsonObject(readJsonFile("./yaml_files/" + parameters.topicName.toStdString() + "_" + std::to_string(i) + ".json").object(), i);
             }
         }
 
