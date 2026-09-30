@@ -314,12 +314,12 @@ TEST_CASE("Settings Testing", "[settings]") {
             settings.write();
 
             qSettings.beginGroup("tf2_to_file");
-            verifiySettingPrimitive(qSettings, "keep_timestamps", false);
+            verifiySettingPrimitive(qSettings, "keep_timestamps", true);
             verifiySettingPrimitive(qSettings, "compact_output", true);
             qSettings.endGroup();
         }
     }
-    SECTION("Bag Message to File Params Test") {
+    SECTION("Bag to Yaml Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("bag_message_to_file");
             checkSettingsInvalidacy(qSettings, { "write_single_output_file", "format" });
@@ -329,13 +329,13 @@ TEST_CASE("Settings Testing", "[settings]") {
             Parameters::BagMessageToFileParameters parameters;
             BagMessageToFileSettings settings(parameters, "bag_message_to_file");
 
-            parameters.writeSingleOutputFile = false;
-            parameters.isYaml = false;
+            parameters.writeSingleOutputFile = true;
+            parameters.isYaml = true;
             settings.write();
 
             qSettings.beginGroup("bag_message_to_file");
-            verifiySettingPrimitive(qSettings, "write_single_output_file", false);
-            verifiySettingPrimitive(qSettings, "is_yaml", false);
+            verifiySettingPrimitive(qSettings, "write_single_output_file", true);
+            verifiySettingPrimitive(qSettings, "is_yaml", true);
             qSettings.endGroup();
         }
     }
@@ -543,13 +543,13 @@ TEST_CASE("Settings Testing", "[settings]") {
 
             parameters.useCompression = true;
             parameters.useCustomFPS = true;
-            parameters.isCompressionJPEG = false;
+            parameters.isCompressionJPEG = true;
             settings.write();
 
             qSettings.beginGroup("bag");
             verifiySettingPrimitive(qSettings, "use_compression", true);
             verifiySettingPrimitive(qSettings, "custom_fps", true);
-            verifiySettingPrimitive(qSettings, "is_compression_jpeg", false);
+            verifiySettingPrimitive(qSettings, "is_compression_jpeg", true);
             qSettings.endGroup();
         }
     }
