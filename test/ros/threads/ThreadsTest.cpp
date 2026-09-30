@@ -13,6 +13,7 @@
 #include "PublishImagesThread.hpp"
 #include "PublishVideoThread.hpp"
 #include "SendTF2Thread.hpp"
+#include "TopicsServicesThread.hpp"
 #include "UtilsROS.hpp"
 #include "UtilsThreads.hpp"
 #include "VideoToBagThread.hpp"
@@ -963,6 +964,38 @@ TEST_CASE("Threads Testing", "[threads]") {
 
             shouldDelete = true;
         }
+    }
+
+    SECTION("Topics Services Thread Test") {
+        auto* const thread = new TopicsServicesThread;
+        QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
+
+        thread->start();
+        thread->wait();
+
+        REQUIRE(thread->isFinished());
+
+        const auto& topicInformation = thread->getTopicInformation();
+        const auto& serviceNamesAndTypes = thread->getServiceNamesAndTypes();
+
+        const auto containsTopic = [] (const auto& currentTopicInformation, const std::string& topicName) {
+            return std::ranges::any_of(currentTopicInformation, [topicName] (const auto& topic) {
+                return topic.first == topicName;
+            });
+        };
+        const auto containsService = [] (const auto& currentServiceNamesAndTypes, const std::string& serviceName) {
+            return currentServiceNamesAndTypes.contains(serviceName);
+        };
+
+        REQUIRE(containsTopic(topicInformation, "/parameter_events"));
+        REQUIRE(containsTopic(topicInformation, "/rosout"));
+
+        REQUIRE(!serviceNamesAndTypes.empty());
+        REQUIRE(containsService(serviceNamesAndTypes, "/services_node/set_parameters_atomically"));
+        REQUIRE(containsService(serviceNamesAndTypes, "/services_node/get_parameters"));
+
+        const auto it = serviceNamesAndTypes.find("/services_node/get_parameters");
+        REQUIRE(std::ranges::find(it->second, "rcl_interfaces/srv/GetParameters") != it->second.end());
     }
 
     // This will be executed before EACH segment, so set true at the very end

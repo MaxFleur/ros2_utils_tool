@@ -9,6 +9,8 @@ target_include_directories (rt_all_threads
 target_sources(rt_all_threads INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/BagMessageToFileThread.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BagMessageToFileThread.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/BagTF2ToFileThread.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/BagTF2ToFileThread.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToImagesThread.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToImagesThread.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToPCDsThread.cpp
@@ -33,8 +35,7 @@ target_sources(rt_all_threads INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/PublishVideoThread.hpp
     ${CMAKE_CURRENT_LIST_DIR}/SendTF2Thread.cpp
     ${CMAKE_CURRENT_LIST_DIR}/SendTF2Thread.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/BagTF2ToFileThread.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/BagTF2ToFileThread.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/TopicsServicesThread.hpp
     ${CMAKE_CURRENT_LIST_DIR}/VideoToBagThread.cpp
     ${CMAKE_CURRENT_LIST_DIR}/VideoToBagThread.hpp
 )
