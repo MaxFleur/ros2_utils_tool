@@ -13,7 +13,7 @@
 #include <filesystem>
 #include <fstream>
 
-BagTF2ToFileThread::BagTF2ToFileThread(const Parameters::TF2ToFileParameters& parameters, QObject* parent) :
+BagTF2ToFileThread::BagTF2ToFileThread(const Parameters::BagTF2ToFileParameters& parameters, QObject* parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent), m_parameters(parameters)
 {
 }

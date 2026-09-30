@@ -45,7 +45,7 @@ private:
     Parameters::AdvancedParameters m_bagToPCDsParameters;
     Parameters::PCDsToBagParameters m_PCDsToBagParameters;
     Parameters::BagToImagesParameters m_bagToImagesParameters;
-    Parameters::TF2ToFileParameters m_TF2ToFileParameters;
+    Parameters::BagTF2ToFileParameters m_bagTF2ToFileParameters;
     Parameters::BagMessageToFileParameters m_bagMessageToFileParameters;
     Parameters::EditBagParameters m_editBagParameters;
     Parameters::MergeBagsParameters m_mergeBagsParameters;

@@ -262,7 +262,7 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
         emit toolRequested(Utils::UI::TOOL_ID::BAG_TO_IMAGES);
     });
     connect(m_tf2ToFilePushButton, &QPushButton::clicked, this, [this] {
-        emit toolRequested(Utils::UI::TOOL_ID::TF2_TO_FILE);
+        emit toolRequested(Utils::UI::TOOL_ID::BAG_TF2_TO_FILE);
     });
     connect(m_bagMessageToFilePushButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_ID::BAG_MESSAGE_TO_FILE);
@@ -399,7 +399,7 @@ StartWidget::setButtonIcons()
     m_bagToPCDsPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_to_pcd_white.svg" : ":/icons/tools/bag_to_pcd_black.svg"));
     m_PCDsToBagPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/pcd_to_bag_white.svg" : ":/icons/tools/pcd_to_bag_black.svg"));
     m_bagToImagesPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_to_images_white.svg" : ":/icons/tools/bag_to_images_black.svg"));
-    m_tf2ToFilePushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/tf2_to_file_white.svg" : ":/icons/tools/tf2_to_file_black.svg"));
+    m_tf2ToFilePushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_tf2_to_file_white.svg" : ":/icons/tools/bag_tf2_to_file_black.svg"));
     m_bagMessageToFilePushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_message_to_file_white.svg" : ":/icons/tools/bag_message_to_file_black.svg"));
 
     m_editBagButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/edit_bag_white.svg" : ":/icons/tools/edit_bag_black.svg"));

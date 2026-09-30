@@ -15,7 +15,7 @@ volatile sig_atomic_t signalStatus = 0;
 void
 showHelp()
 {
-    std::cout << "Usage: ros2 run ros2_utils_tool tool_tf2_to_file [-h] [bag_path] [output_file_path.{json,yaml}] [-t TOPIC] [--keep-timestamps] [-i] [-s]\n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_bag_tf2_to_file [-h] [bag_path] [output_file_path.{json,yaml}] [-t TOPIC] [--keep-timestamps] [-i] [-s]\n\n";
     std::cout << "Convert bag transformations to file.\n\n";
     std::cout << "positional arguments:\n";
     std::cout << "  bag_path              Source bag file.\n";
@@ -30,7 +30,7 @@ showHelp()
     std::cout << "  -i, --indent          Indent the output file. json only.\n";
     std::cout << "  -s, --suppress        Suppress any warnings.\n\n";
     std::cout << "Example usage:\n";
-    std::cout << "ros2 run ros2_utils_tool tool_tf2_to_file /home/usr/input_bag /home/usr/output_file.json --keep-timestamps -i" << std::endl;
+    std::cout << "ros2 run ros2_utils_tool tool_bag_tf2_to_file /home/usr/input_bag /home/usr/output_file.json --keep-timestamps -i" << std::endl;
 }
 
 
@@ -52,7 +52,7 @@ main(int argc, char* argv[])
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
     }
 
-    Parameters::TF2ToFileParameters parameters;
+    Parameters::BagTF2ToFileParameters parameters;
 
     // Source bag directory
     parameters.sourceDirectory = arguments.at(1);

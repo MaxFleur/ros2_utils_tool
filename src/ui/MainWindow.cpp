@@ -82,8 +82,8 @@ MainWindow::setInputWidget(Utils::UI::TOOL_ID mode)
     case Utils::UI::TOOL_ID::BAG_TO_IMAGES:
         basicInputWidget = new BagToImagesWidget(m_bagToImagesParameters);
         break;
-    case Utils::UI::TOOL_ID::TF2_TO_FILE:
-        basicInputWidget = new BagTF2ToFileWidget(m_TF2ToFileParameters);
+    case Utils::UI::TOOL_ID::BAG_TF2_TO_FILE:
+        basicInputWidget = new BagTF2ToFileWidget(m_bagTF2ToFileParameters);
         break;
     case Utils::UI::TOOL_ID::BAG_MESSAGE_TO_FILE:
         basicInputWidget = new BagMessageToFileWidget(m_bagMessageToFileParameters);
@@ -175,8 +175,8 @@ MainWindow::setProcessingWidget(Utils::UI::TOOL_ID mode)
     case Utils::UI::TOOL_ID::BAG_TO_IMAGES:
         progressWidget = new ProgressWidget("Writing Images...", m_bagToImagesParameters, mode);
         break;
-    case Utils::UI::TOOL_ID::TF2_TO_FILE:
-        progressWidget = new ProgressWidget("Writing File(s)...", m_TF2ToFileParameters, mode);
+    case Utils::UI::TOOL_ID::BAG_TF2_TO_FILE:
+        progressWidget = new ProgressWidget("Writing File(s)...", m_bagTF2ToFileParameters, mode);
         break;
     case Utils::UI::TOOL_ID::BAG_MESSAGE_TO_FILE:
         progressWidget = new ProgressWidget("Writing File(s)...", m_bagMessageToFileParameters, mode);
