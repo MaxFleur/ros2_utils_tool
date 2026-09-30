@@ -1,7 +1,7 @@
-#include "TF2ToFileSettings.hpp"
+#include "BagTF2ToFileSettings.hpp"
 
-TF2ToFileSettings::TF2ToFileSettings(Parameters::TF2ToFileParameters& parameters,
-                                     const QString&                   groupName) :
+BagTF2ToFileSettings::BagTF2ToFileSettings(Parameters::BagTF2ToFileParameters& parameters,
+                                           const QString&                      groupName) :
     AdvancedSettings(parameters, groupName), m_parameters(parameters)
 {
     read();
@@ -9,7 +9,7 @@ TF2ToFileSettings::TF2ToFileSettings(Parameters::TF2ToFileParameters& parameters
 
 
 bool
-TF2ToFileSettings::write()
+BagTF2ToFileSettings::write()
 {
     if (!AdvancedSettings::write()) {
         return false;
@@ -23,7 +23,7 @@ TF2ToFileSettings::write()
 
 
 bool
-TF2ToFileSettings::read()
+BagTF2ToFileSettings::read()
 {
     if (!AdvancedSettings::read()) {
         return false;

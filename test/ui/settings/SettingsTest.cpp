@@ -2,6 +2,7 @@
 
 #include "AdvancedSettings.hpp"
 #include "BagMessageToFileSettings.hpp"
+#include "BagTF2ToFileSettings.hpp"
 #include "BagToImagesSettings.hpp"
 #include "BagToVideoSettings.hpp"
 #include "BasicSettings.hpp"
@@ -18,7 +19,6 @@
 #include "RGBSettings.hpp"
 #include "SelectableBagContentSettings.hpp"
 #include "SendTF2Settings.hpp"
-#include "TF2ToFileSettings.hpp"
 #include "VideoSettings.hpp"
 #include "VideoToBagSettings.hpp"
 
@@ -299,21 +299,21 @@ TEST_CASE("Settings Testing", "[settings]") {
             qSettings.endGroup();
         }
     }
-    SECTION("TF2 to File Params Test") {
+    SECTION("Bag TF2 to File Params Test") {
         SECTION("Read") {
-            qSettings.beginGroup("tf2_to_file");
+            qSettings.beginGroup("bag_tf2_to_file");
             checkSettingsInvalidacy(qSettings, { "keep_timestamps", "compact_output" });
             qSettings.endGroup();
         }
         SECTION("Write") {
-            Parameters::TF2ToFileParameters parameters;
-            TF2ToFileSettings settings(parameters, "tf2_to_file");
+            Parameters::BagTF2ToFileParameters parameters;
+            BagTF2ToFileSettings settings(parameters, "bag_tf2_to_file");
 
             parameters.compactOutput = true;
             parameters.keepTimestamps = true;
             settings.write();
 
-            qSettings.beginGroup("tf2_to_file");
+            qSettings.beginGroup("bag_tf2_to_file");
             verifiySettingPrimitive(qSettings, "keep_timestamps", true);
             verifiySettingPrimitive(qSettings, "compact_output", true);
             qSettings.endGroup();

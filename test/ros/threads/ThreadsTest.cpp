@@ -672,7 +672,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         delete thread;
     }
     SECTION("TF2 to File Thread Test") {
-        Parameters::TF2ToFileParameters parameters;
+        Parameters::BagTF2ToFileParameters parameters;
         parameters.sourceDirectory = "./dummy_bag";
         parameters.targetDirectory = "./transforms.json";
         parameters.topicName = "/dummy_tf2";

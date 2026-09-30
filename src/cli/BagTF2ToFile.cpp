@@ -52,7 +52,7 @@ main(int argc, char* argv[])
         throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
     }
 
-    Parameters::TF2ToFileParameters parameters;
+    Parameters::BagTF2ToFileParameters parameters;
 
     // Source bag directory
     parameters.sourceDirectory = arguments.at(1);

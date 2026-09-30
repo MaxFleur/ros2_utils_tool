@@ -63,7 +63,7 @@ enum class TOOL_ID {
     BAG_TO_PCDS,
     PCDS_TO_BAG,
     BAG_TO_IMAGES,
-    TF2_TO_FILE,
+    BAG_TF2_TO_FILE,
     BAG_MESSAGE_TO_FILE,
     EDIT_BAG,
     MERGE_BAGS,

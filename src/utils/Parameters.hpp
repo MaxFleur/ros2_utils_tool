@@ -74,7 +74,7 @@ struct AdvancedParameters : BasicParameters {
 struct PCDsToBagParameters : AdvancedParameters {
     int rate = 5;
 };
-struct TF2ToFileParameters : AdvancedParameters {
+struct BagTF2ToFileParameters : AdvancedParameters {
     bool keepTimestamps = false;
     bool compactOutput = true;
 };
