@@ -5,6 +5,8 @@ target_include_directories (rt_helper
 )
 
 target_sources(rt_helper INTERFACE
+    ${CMAKE_CURRENT_LIST_DIR}/LoadingWidget.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/LoadingWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/LowDiskSpaceWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/LowDiskSpaceWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/TopicWidget.cpp
@@ -19,4 +21,4 @@ target_sources(rt_helper INTERFACE
 
 target_link_libraries(rt_helper
     INTERFACE Qt::Widgets rt_input
-) 
+)

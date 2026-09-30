@@ -1,7 +1,9 @@
 #include "ConfigureRecordBagWidget.hpp"
 
 #include "BagTreeWidget.hpp"
+#include "LoadingWidget.hpp"
 #include "LowDiskSpaceWidget.hpp"
+#include "TopicsServicesThread.hpp"
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
@@ -18,12 +20,17 @@ ConfigureRecordBagWidget::ConfigureRecordBagWidget(Parameters::RecordBagParamete
     BasicBagWidget(parameters, "Record Bag", ":/icons/tools/record_bag", "record_bag", "Unselect all Topics you don't want to record.", parent),
     m_parameters(parameters), m_settings(parameters, "record_bag")
 {
+    m_unselectLabel->setVisible(true);
+    m_treeWidget->setVisible(true);
+
     auto* const includeROSTopicsCheckBox = new QCheckBox("Include ROS Topics");
     includeROSTopicsCheckBox->setCheckState(m_parameters.includeROSTopics ? Qt::Checked : Qt::Unchecked);
     includeROSTopicsCheckBox->setToolTip("Includes topics associated with ROS, for example '/parameter_events'.");
 
     m_refreshButton = new QPushButton("Refresh List");
     m_refreshButton->setVisible(false);
+
+    m_loadingWidget = new LoadingWidget;
 
     auto* const sourceFormLayout = new QFormLayout;
     sourceFormLayout->addRow("Bag Location:", m_findSourceLayout);
@@ -32,6 +39,16 @@ ConfigureRecordBagWidget::ConfigureRecordBagWidget(Parameters::RecordBagParamete
     refreshButtonLayout->addWidget(includeROSTopicsCheckBox);
     refreshButtonLayout->addStretch();
     refreshButtonLayout->addWidget(m_refreshButton);
+
+    auto* const loadedInfoLayout = new QVBoxLayout;
+    loadedInfoLayout->addWidget(m_unselectLabel);
+    loadedInfoLayout->addWidget(m_selectAllCheckBox);
+    loadedInfoLayout->addWidget(m_treeWidget);
+    loadedInfoLayout->addLayout(refreshButtonLayout);
+    loadedInfoLayout->setContentsMargins(0, 0, 0, 0);
+
+    m_loadedInfoWidget = new QWidget;
+    m_loadedInfoWidget->setLayout(loadedInfoLayout);
 
     m_lowDiskSpaceWidget = new LowDiskSpaceWidget;
 
@@ -74,7 +91,6 @@ ConfigureRecordBagWidget::ConfigureRecordBagWidget(Parameters::RecordBagParamete
         return layout;
     };
 
-
     auto* const sizeLayout = createLayout("Split the bag file if a certain size is reached.", 102400, m_parameters.maxSizeInMB, m_parameters.useCustomSize);
     auto* const durationLayout = createLayout("Split the bag file if a certain time is reached.", 7200, m_parameters.maxDurationInSeconds, m_parameters.useCustomDuration);
 
@@ -112,10 +128,8 @@ ConfigureRecordBagWidget::ConfigureRecordBagWidget(Parameters::RecordBagParamete
     advancedOptionsWidget->setVisible(m_parameters.showAdvancedOptions);
 
     m_controlsLayout->addSpacing(30);
-    m_controlsLayout->addWidget(m_unselectLabel);
-    m_controlsLayout->addWidget(m_selectAllCheckBox);
-    m_controlsLayout->addWidget(m_treeWidget);
-    m_controlsLayout->addLayout(refreshButtonLayout);
+    m_controlsLayout->addWidget(m_loadedInfoWidget);
+    m_controlsLayout->addWidget(m_loadingWidget);
     m_controlsLayout->addSpacing(5);
     m_controlsLayout->addLayout(sourceFormLayout);
     m_controlsLayout->addSpacing(5);
@@ -129,7 +143,7 @@ ConfigureRecordBagWidget::ConfigureRecordBagWidget(Parameters::RecordBagParamete
     connect(includeROSTopicsCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.includeROSTopics, state == Qt::Checked, m_settings);
     });
-    connect(m_refreshButton, &QPushButton::clicked, this, &ConfigureRecordBagWidget::populateTreeWidget);
+    connect(m_refreshButton, &QPushButton::clicked, this, &ConfigureRecordBagWidget::startSearchingThread);
     connect(advancedOptionsCheckBox, &QCheckBox::stateChanged, this, [this, advancedOptionsWidget] (int state) {
         writeParameterToSettings(m_parameters.showAdvancedOptions, state == Qt::Checked, m_settings);
         advancedOptionsWidget->setVisible(state == Qt::Checked);
@@ -148,7 +162,7 @@ ConfigureRecordBagWidget::ConfigureRecordBagWidget(Parameters::RecordBagParamete
 
     setPixmapLabelIcon();
     setLowDiskSpaceWidgetVisibility(m_sourceLineEdit->text());
-    populateTreeWidget();
+    startSearchingThread();
 }
 
 
@@ -177,15 +191,37 @@ ConfigureRecordBagWidget::okButtonPressed() const
 
 
 void
-ConfigureRecordBagWidget::populateTreeWidget()
+ConfigureRecordBagWidget::startSearchingThread()
 {
+    if (m_thread && m_thread->isRunning()) {
+        return;
+    }
+
     m_parameters.services.clear();
     m_parameters.topics.clear();
+
     m_treeWidget->clear();
     m_treeWidget->blockSignals(true);
+    m_loadedInfoWidget->setVisible(false);
+    m_loadingWidget->startLoading();
+
+    m_thread = new TopicsServicesThread;
+    connect(m_thread, &QThread::finished, this, &ConfigureRecordBagWidget::populateTreeWidget);
+    connect(m_thread, &QThread::finished, m_thread, &QObject::deleteLater);
+    m_thread->start();
+}
+
+
+void
+ConfigureRecordBagWidget::populateTreeWidget()
+{
+    if (!m_thread) {
+        return;
+    }
+    const auto currentTopicsAndTypes = m_thread->getTopicInformation();
+    const auto currentServices = m_thread->getServiceNamesAndTypes();
 
     // Topics
-    const auto& currentTopicsAndTypes = Utils::ROS::getTopicInformation();
     for (const auto& topic : currentTopicsAndTypes) {
         // Ignore ROS's own topics
         if ((QString::fromStdString(topic.first) == "/parameter_events" || QString::fromStdString(topic.first) == "/rosout" ||
@@ -198,7 +234,6 @@ ConfigureRecordBagWidget::populateTreeWidget()
         m_parameters.topics.push_back({ { QString::fromStdString(topic.first) }, true });
     }
     // Services
-    const auto& currentServices = Utils::ROS::getServiceNamesAndTypes();
     // ROS will automatically create services with these appendices, but they are not important for us, so exclude them
     const std::vector<std::string> exclusionList { "/describe_parameters", "/get_parameter_types", "/get_parameters", "/get_type_description",
                                                    "/list_parameters", "/set_parameters", "/set_parameters_atomically" };
@@ -224,11 +259,11 @@ ConfigureRecordBagWidget::populateTreeWidget()
     // Just take a random item to get its height
     auto* item = m_treeWidget->topLevelItem(m_treeWidget->topLevelItemCount() - 1);
     const auto height = m_treeWidget->visualItemRect(item).height();
-    m_treeWidget->setMinimumHeight((height * m_treeWidget->topLevelItemCount()) + HEIGHT_OFFSET);
+    m_treeWidget->setMinimumHeight(std::min((height * m_treeWidget->topLevelItemCount()) + HEIGHT_OFFSET, m_treeWidget->MAXIMUM_HEIGHT));
     m_treeWidget->blockSignals(false);
 
-    m_unselectLabel->setVisible(true);
-    m_treeWidget->setVisible(true);
+    m_loadingWidget->stopLoading();
+    m_loadedInfoWidget->setVisible(true);
     m_refreshButton->setVisible(true);
 
     enableOkButton();
