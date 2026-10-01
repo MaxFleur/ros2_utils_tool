@@ -1,19 +1,29 @@
-#include "BagToYamlWidget.hpp"
+#include "BagMessageToFileWidget.hpp"
 
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
+#include <QComboBox>
 #include <QFormLayout>
 #include <QRadioButton>
 
-BagToYamlWidget::BagToYamlWidget(Parameters::BagToYamlParameters& parameters, QWidget *parent) :
-    TopicComboBoxWidget(parameters, "Bag To File", ":/icons/tools/bag_to_yaml", "Bag File:", "File(s) Location:", "bag_to_yaml", OUTPUT_TYPE::OUTPUT_YAML, parent),
-    m_parameters(parameters), m_settings(parameters, "bag_to_yaml")
+BagMessageToFileWidget::BagMessageToFileWidget(Parameters::BagMessageToFileParameters& parameters, QWidget *parent) :
+    TopicComboBoxWidget(parameters, "Bag Message To File", ":/icons/tools/bag_message_to_file", "Bag File:", "File(s) Location:",
+                        "bag_message_to_file", OUTPUT_TYPE::OUTPUT_MESSAGE_TO_FILE, parent),
+    m_parameters(parameters), m_settings(parameters, "bag_message_to_file")
 {
     m_sourceLineEdit->setToolTip("The source bag file directory.");
-    m_targetLineEdit->setToolTip("The target YAML file directory.");
+    m_targetLineEdit->setToolTip("The target yaml or json file directory.");
 
     m_basicOptionsFormLayout->insertRow(1, "Topic Name:", m_topicNameComboBox);
+
+    auto* const formatComboBox = new QComboBox;
+    formatComboBox->addItem("yaml", 0);
+    formatComboBox->addItem("json", 1);
+    formatComboBox->setToolTip("The format of the written message files.");
+    formatComboBox->setCurrentText(m_parameters.isYaml ? "yaml" : "json");
+
+    m_basicOptionsFormLayout->addRow("Format:", formatComboBox);
 
     auto* const singleFileRadioButton = new QRadioButton("Single File");
     singleFileRadioButton->setToolTip("Export all topics into a single file.");
@@ -42,6 +52,7 @@ BagToYamlWidget::BagToYamlWidget(Parameters::BagToYamlParameters& parameters, QW
         writeParameterToSettings(m_parameters.writeSingleOutputFile, !switched, m_settings);
         singleFileRadioButton->setChecked(false);
     });
-
-    setFileFormat("yaml");
+    connect(formatComboBox, &QComboBox::currentTextChanged, this, [this] (const QString& text) {
+        writeParameterToSettings(m_parameters.isYaml, text == "yaml", m_settings);
+    });
 }

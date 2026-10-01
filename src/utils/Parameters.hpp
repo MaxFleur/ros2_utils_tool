@@ -74,12 +74,13 @@ struct AdvancedParameters : BasicParameters {
 struct PCDsToBagParameters : AdvancedParameters {
     int rate = 5;
 };
-struct TF2ToFileParameters : AdvancedParameters {
+struct BagTF2ToFileParameters : AdvancedParameters {
     bool keepTimestamps = false;
     bool compactOutput = true;
 };
-struct BagToYamlParameters : AdvancedParameters {
+struct BagMessageToFileParameters : AdvancedParameters {
     bool writeSingleOutputFile = true;
+    bool isYaml = true;
 };
 
 struct DeleteSourceParameters : AdvancedParameters {
@@ -142,6 +143,7 @@ struct PublishParameters : VideoParameters {
 // Parameters related to options dialog
 struct DialogParameters {
     unsigned int maxNumberOfThreads = std::thread::hardware_concurrency();
+    unsigned int lowDiskspaceThreshold = 10;
     bool         useHardwareAcceleration = false;
     bool         saveParameters = false;
     bool         usePredefinedTopicNames = true;

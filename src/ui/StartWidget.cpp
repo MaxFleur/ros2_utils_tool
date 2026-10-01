@@ -61,7 +61,7 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     m_PCDsToBagPushButton = createToolButton("PCD Files\nto Bag", "Convert a set of pcd files to a ROS bag.");
     m_bagToImagesPushButton = createToolButton("Bag to Images", "Convert images in a ROS bag video topic to a set of image files.");
     m_tf2ToFilePushButton = createToolButton("Bag TF2\nto File", "Convert transformations in a ROS bag tf2 topic to file.");
-    m_bagToYamlPushButton = createToolButton("Bag \nto Yaml", "Convert bag topic messages to Yaml files.");
+    m_bagMessageToFilePushButton = createToolButton("Bag Message\nto File", "Convert bag topic messages to file.");
 
     auto* const conversionToolsLayout_1 = new QHBoxLayout;
     conversionToolsLayout_1->addStretch();
@@ -83,7 +83,7 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
 
     auto* const conversionToolsLayout_4 = new QHBoxLayout;
     conversionToolsLayout_4->addStretch();
-    conversionToolsLayout_4->addWidget(m_bagToYamlPushButton);
+    conversionToolsLayout_4->addWidget(m_bagMessageToFilePushButton);
     conversionToolsLayout_4->addStretch();
 
     auto* const conversionToolsMainLayout = new QVBoxLayout;
@@ -262,10 +262,10 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
         emit toolRequested(Utils::UI::TOOL_ID::BAG_TO_IMAGES);
     });
     connect(m_tf2ToFilePushButton, &QPushButton::clicked, this, [this] {
-        emit toolRequested(Utils::UI::TOOL_ID::TF2_TO_FILE);
+        emit toolRequested(Utils::UI::TOOL_ID::BAG_TF2_TO_FILE);
     });
-    connect(m_bagToYamlPushButton, &QPushButton::clicked, this, [this] {
-        emit toolRequested(Utils::UI::TOOL_ID::BAG_TO_YAML);
+    connect(m_bagMessageToFilePushButton, &QPushButton::clicked, this, [this] {
+        emit toolRequested(Utils::UI::TOOL_ID::BAG_MESSAGE_TO_FILE);
     });
     connect(m_editBagButton, &QPushButton::clicked, this, [this] {
         emit toolRequested(Utils::UI::TOOL_ID::EDIT_BAG);
@@ -399,8 +399,8 @@ StartWidget::setButtonIcons()
     m_bagToPCDsPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_to_pcd_white.svg" : ":/icons/tools/bag_to_pcd_black.svg"));
     m_PCDsToBagPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/pcd_to_bag_white.svg" : ":/icons/tools/pcd_to_bag_black.svg"));
     m_bagToImagesPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_to_images_white.svg" : ":/icons/tools/bag_to_images_black.svg"));
-    m_tf2ToFilePushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/tf2_to_file_white.svg" : ":/icons/tools/tf2_to_file_black.svg"));
-    m_bagToYamlPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_to_yaml_white.svg" : ":/icons/tools/bag_to_yaml_black.svg"));
+    m_tf2ToFilePushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_tf2_to_file_white.svg" : ":/icons/tools/bag_tf2_to_file_black.svg"));
+    m_bagMessageToFilePushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_message_to_file_white.svg" : ":/icons/tools/bag_message_to_file_black.svg"));
 
     m_editBagButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/edit_bag_white.svg" : ":/icons/tools/edit_bag_black.svg"));
     m_mergeBagsButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/merge_bags_white.svg" : ":/icons/tools/merge_bags_black.svg"));

@@ -1,13 +1,15 @@
 #include "TopicsServicesInfoWidget.hpp"
 
+#include "LoadingWidget.hpp"
+#include "TopicsServicesThread.hpp"
+#include "UtilsROS.hpp"
+
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QPushButton>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QVBoxLayout>
-
-#include "UtilsROS.hpp"
 
 TopicsServicesInfoWidget::TopicsServicesInfoWidget(QWidget *parent) :
     BasicInputWidget("Topics and\nServices Info", ":/icons/tools/topics_services_info", parent)
@@ -19,33 +21,58 @@ TopicsServicesInfoWidget::TopicsServicesInfoWidget(QWidget *parent) :
     m_treeWidget->setRootIsDecorated(false);
     m_treeWidget->setMinimumWidth(550);
     m_treeWidget->setMinimumHeight(300);
+    m_treeWidget->setVisible(false);
 
-    fillTree();
+    m_loadingWidget = new LoadingWidget;
+
+    startSearchingThread();
 
     m_controlsLayout->addStretch();
     m_controlsLayout->addWidget(m_headerPixmapLabel);
     m_controlsLayout->addWidget(m_headerLabel);
     m_controlsLayout->addSpacing(30);
     m_controlsLayout->addWidget(m_treeWidget);
+    m_controlsLayout->addWidget(m_loadingWidget);
     m_controlsLayout->addStretch();
 
     auto* const refreshButton = new QPushButton("Refresh");
     m_dialogButtonBox->addButton(refreshButton, QDialogButtonBox::AcceptRole);
     m_okButton->setVisible(false);
 
-    connect(refreshButton, &QPushButton::clicked, this, &TopicsServicesInfoWidget::fillTree);
+    connect(refreshButton, &QPushButton::clicked, this, &TopicsServicesInfoWidget::startSearchingThread);
 }
 
 
 void
-TopicsServicesInfoWidget::fillTree() const
+TopicsServicesInfoWidget::startSearchingThread()
 {
+    if (m_thread && m_thread->isRunning()) {
+        return;
+    }
+
     m_treeWidget->clear();
+    m_treeWidget->setVisible(false);
+    m_loadingWidget->startLoading();
+
+    m_thread = new TopicsServicesThread;
+    connect(m_thread, &QThread::finished, this, &TopicsServicesInfoWidget::handleTreeWidgetPopulation);
+    connect(m_thread, &QThread::finished, m_thread, &QObject::deleteLater);
+    m_thread->start();
+}
+
+
+void
+TopicsServicesInfoWidget::handleTreeWidgetPopulation()
+{
+    if (!m_thread) {
+        return;
+    }
+    const auto topicsData = m_thread->getTopicInformation();
+    const auto servicesData = m_thread->getServiceNamesAndTypes();
 
     // Fill tree with info data
     QList<QTreeWidgetItem*> treeWidgetItems;
 
-    const auto& topicsData = Utils::ROS::getTopicInformation();
     auto* const topicsItem = new QTreeWidgetItem({ "Current Topics:" });
 
     for (const auto& entry : topicsData) {
@@ -64,7 +91,6 @@ TopicsServicesInfoWidget::fillTree() const
     treeWidgetItems.append(topicsItem);
     treeWidgetItems.append(new QTreeWidgetItem({ "", "" }));
 
-    const auto& servicesData = Utils::ROS::getServiceNamesAndTypes();
     auto* const servicesItem = new QTreeWidgetItem({ "Current Services:" });
 
     for (const auto& entry : servicesData) {
@@ -83,4 +109,7 @@ TopicsServicesInfoWidget::fillTree() const
     m_treeWidget->addTopLevelItems(treeWidgetItems);
     m_treeWidget->expandAll();
     m_treeWidget->resizeColumnToContents(COL_NAME);
+
+    m_loadingWidget->stopLoading();
+    m_treeWidget->setVisible(true);
 }

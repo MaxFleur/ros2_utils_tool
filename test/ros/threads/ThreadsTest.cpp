@@ -1,10 +1,10 @@
 #include "catch_ros2/catch_ros2.hpp"
 
+#include "BagMessageToFileThread.hpp"
 #include "BagTF2ToFileThread.hpp"
 #include "BagToImagesThread.hpp"
 #include "BagToPCDsThread.hpp"
 #include "BagToVideoThread.hpp"
-#include "BagToYamlThread.hpp"
 #include "ChangeCompressionBagThread.hpp"
 #include "DummyBagThread.hpp"
 #include "EditBagThread.hpp"
@@ -13,6 +13,7 @@
 #include "PublishImagesThread.hpp"
 #include "PublishVideoThread.hpp"
 #include "SendTF2Thread.hpp"
+#include "TopicsServicesThread.hpp"
 #include "UtilsROS.hpp"
 #include "UtilsThreads.hpp"
 #include "VideoToBagThread.hpp"
@@ -23,6 +24,7 @@
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QJsonObject>
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_cloud.h>
@@ -96,16 +98,16 @@ verifyMessages(const std::string& bagDirectory, const std::string& topicName,
         serialization.deserialize_message(&serializedMessage, rosMsg.get());
 
         if constexpr (std::is_same_v<T, std_msgs::msg::Int32>) {
-            REQUIRE(rosMsg->data == index + 1);
+            REQUIRE(rosMsg->data == index);
         } else if constexpr (std::is_same_v<T, std_msgs::msg::String>) {
-            REQUIRE(rosMsg->data == "Message " + std::to_string(index + 1));
+            REQUIRE(rosMsg->data == "Message " + std::to_string(index));
         } else if constexpr (std::is_same_v<T, sensor_msgs::msg::PointCloud2>) {
             pcl::PointCloud<pcl::PointXYZRGB>::Ptr fileCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
             pcl::PointCloud<pcl::PointXYZRGB>::Ptr messageCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
 
             pcl::fromROSMsg(*rosMsg, *messageCloud);
             std::stringstream formatedIterationCount;
-            formatedIterationCount << std::setw(3) << std::setfill('0') << index + 1;
+            formatedIterationCount << std::setw(3) << std::setfill('0') << index;
             pcl::io::loadPCDFile<pcl::PointXYZRGB>("./pcds/" + formatedIterationCount.str() + ".pcd", *fileCloud);
 
             REQUIRE_THAT(fileCloud->at(0).x, Catch::Matchers::WithinAbs(messageCloud->at(0).x, 0.001));
@@ -671,7 +673,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         delete thread;
     }
     SECTION("TF2 to File Thread Test") {
-        Parameters::TF2ToFileParameters parameters;
+        Parameters::BagTF2ToFileParameters parameters;
         parameters.sourceDirectory = "./dummy_bag";
         parameters.targetDirectory = "./transforms.json";
         parameters.topicName = "/dummy_tf2";
@@ -808,23 +810,35 @@ TEST_CASE("Threads Testing", "[threads]") {
         std::filesystem::remove_all("./pcds");
     }
     SECTION("Bag to Yaml Thread Test") {
-        Parameters::BagToYamlParameters parameters;
+        Parameters::BagMessageToFileParameters parameters;
         parameters.sourceDirectory = "./dummy_bag";
         parameters.targetDirectory = "./yaml_files";
         parameters.topicName = "/dummy_string";
 
         std::filesystem::remove_all("./yaml_files");
 
-        auto* const thread = new BagToYamlThread(parameters);
-        QObject::connect(thread, &BagToYamlThread::finished, thread, &QObject::deleteLater);
+        auto* const thread = new BagMessageToFileThread(parameters);
+        QObject::connect(thread, &BagMessageToFileThread::finished, thread, &QObject::deleteLater);
 
         const auto verifyNode = [] (const YAML::Node& node, const int i) {
             REQUIRE(node.IsMap());
             REQUIRE(node.size() == 1);
-            REQUIRE(node["data"].as<std::string>() == "Message " + std::to_string(i + 1));
+            REQUIRE(node["data"].as<std::string>() == "Message " + std::to_string(i));
+        };
+        const auto verifyJsonObject = [] (const QJsonObject& object, const int i) {
+            REQUIRE(object.size() == 1);
+            REQUIRE(object["data"].toString() == "Message " + QString::number(i));
+        };
+        const auto readJsonFile = [] (const std::string& filePath) {
+            QFile file(QString::fromStdString(filePath));
+            REQUIRE(file.open(QIODevice::ReadOnly));
+
+            const auto& document = QJsonDocument::fromJson(file.readAll());
+            file.close();
+            return document;
         };
 
-        SECTION("Single output file") {
+        SECTION("Single output file - yaml") {
             thread->start();
             thread->wait();
 
@@ -835,7 +849,7 @@ TEST_CASE("Threads Testing", "[threads]") {
                 verifyNode(singleFileNode[std::to_string(i)], i);
             }
         }
-        SECTION("Multiple output files") {
+        SECTION("Multiple output files - yaml") {
             parameters.writeSingleOutputFile = false;
 
             thread->start();
@@ -847,6 +861,36 @@ TEST_CASE("Threads Testing", "[threads]") {
 
             for (auto i = 0; i < 100; ++i) {
                 verifyNode(YAML::LoadFile("./yaml_files/" + parameters.topicName.toStdString() + "_" + std::to_string(i) + ".yaml"), i);
+            }
+        }
+        SECTION("Single output file - json") {
+            parameters.isYaml = false;
+
+            thread->start();
+            thread->wait();
+
+            const auto& singleFileDocument = readJsonFile("./yaml_files/topic.json");
+            const auto& messagesObject = singleFileDocument.object();
+            REQUIRE(singleFileDocument.isObject());
+            REQUIRE(messagesObject.size() == 100);
+
+            for (auto i = 0; i < 100; ++i) {
+                verifyJsonObject(messagesObject[QString::number(i)].toObject(), i);
+            }
+        }
+        SECTION("Multiple output files - json") {
+            parameters.isYaml = false;
+            parameters.writeSingleOutputFile = false;
+
+            thread->start();
+            thread->wait();
+
+            const auto extensionCheckValues = getDirFileCountWithExtensions("./yaml_files", ".json");
+            REQUIRE(extensionCheckValues[0] == 100);
+            REQUIRE(extensionCheckValues[1] == 100);
+
+            for (auto i = 0; i < 100; ++i) {
+                verifyJsonObject(readJsonFile("./yaml_files/" + parameters.topicName.toStdString() + "_" + std::to_string(i) + ".json").object(), i);
             }
         }
 
@@ -920,6 +964,27 @@ TEST_CASE("Threads Testing", "[threads]") {
 
             shouldDelete = true;
         }
+    }
+
+    SECTION("Topics Services Thread Test") {
+        auto* const thread = new TopicsServicesThread;
+        QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
+
+        thread->start();
+        thread->wait();
+
+        REQUIRE(thread->isFinished());
+
+        const auto& topicInformation = thread->getTopicInformation();
+        const auto& serviceNamesAndTypes = thread->getServiceNamesAndTypes();
+
+        const auto containsTopic = [] (const auto& currentTopicInformation, const std::string& topicName) {
+            return std::ranges::any_of(currentTopicInformation, [topicName] (const auto& topic) {
+                return topic.first == topicName;
+            });
+        };
+        REQUIRE(containsTopic(topicInformation, "/parameter_events"));
+        REQUIRE(containsTopic(topicInformation, "/rosout"));
     }
 
     // This will be executed before EACH segment, so set true at the very end

@@ -17,8 +17,8 @@ class BagTF2ToFileThread : public BasicThread {
     Q_OBJECT
 public:
     explicit
-    BagTF2ToFileThread(const Parameters::TF2ToFileParameters& parameters,
-                       QObject*                               parent = nullptr);
+    BagTF2ToFileThread(const Parameters::BagTF2ToFileParameters& parameters,
+                       QObject*                                  parent = nullptr);
 
     void
     run() override;
@@ -70,5 +70,5 @@ private:
     }
 
 private:
-    const Parameters::TF2ToFileParameters& m_parameters;
+    const Parameters::BagTF2ToFileParameters& m_parameters;
 };

@@ -6,6 +6,9 @@
 BagTreeWidget::BagTreeWidget(QWidget *parent) : QTreeWidget(parent)
 {
     setColumnCount(3);
+    setMinimumHeight(MINIMUM_HEIGHT);
+    setMaximumHeight(MAXIMUM_HEIGHT);
+
     headerItem()->setText(COL_CHECKBOXES, "");
     headerItem()->setText(COL_TOPIC_NAME, "Topic Name:");
     headerItem()->setText(COL_TOPIC_TYPE, "Topic Type:");
@@ -45,6 +48,20 @@ BagTreeWidget::resizeColumns()
 {
     for (auto i = 0; i < columnCount(); ++i) {
         resizeColumnToContents(i);
+    }
+}
+
+
+void
+BagTreeWidget::setTreeWidgetItemSelection(Qt::CheckState checkState)
+{
+    for (auto i = 0; i < topLevelItemCount(); ++i) {
+        // Merge bags widget tree has top items without checkboxes
+        if (topLevelItem(i)->data(COL_CHECKBOXES, Qt::CheckStateRole).isNull()) {
+            continue;
+        }
+
+        topLevelItem(i)->setCheckState(COL_CHECKBOXES, checkState);
     }
 }
 

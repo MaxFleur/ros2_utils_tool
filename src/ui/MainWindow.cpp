@@ -1,10 +1,10 @@
 #include "MainWindow.hpp"
 
 #include "BagInfoWidget.hpp"
+#include "BagMessageToFileWidget.hpp"
 #include "BagToPCDsWidget.hpp"
 #include "BagToImagesWidget.hpp"
 #include "BagToVideoWidget.hpp"
-#include "BagToYamlWidget.hpp"
 #include "ChangeCompressionWidget.hpp"
 #include "ConfigurePlayBagWidget.hpp"
 #include "ConfigureRecordBagWidget.hpp"
@@ -82,11 +82,11 @@ MainWindow::setInputWidget(Utils::UI::TOOL_ID mode)
     case Utils::UI::TOOL_ID::BAG_TO_IMAGES:
         basicInputWidget = new BagToImagesWidget(m_bagToImagesParameters);
         break;
-    case Utils::UI::TOOL_ID::TF2_TO_FILE:
-        basicInputWidget = new BagTF2ToFileWidget(m_TF2ToFileParameters);
+    case Utils::UI::TOOL_ID::BAG_TF2_TO_FILE:
+        basicInputWidget = new BagTF2ToFileWidget(m_bagTF2ToFileParameters);
         break;
-    case Utils::UI::TOOL_ID::BAG_TO_YAML:
-        basicInputWidget = new BagToYamlWidget(m_bagToYamlParameters);
+    case Utils::UI::TOOL_ID::BAG_MESSAGE_TO_FILE:
+        basicInputWidget = new BagMessageToFileWidget(m_bagMessageToFileParameters);
         break;
     case Utils::UI::TOOL_ID::EDIT_BAG:
         basicInputWidget = new EditBagWidget(m_editBagParameters, m_dialogParameters.warnROS2NameConvention);
@@ -175,11 +175,11 @@ MainWindow::setProcessingWidget(Utils::UI::TOOL_ID mode)
     case Utils::UI::TOOL_ID::BAG_TO_IMAGES:
         progressWidget = new ProgressWidget("Writing Images...", m_bagToImagesParameters, mode);
         break;
-    case Utils::UI::TOOL_ID::TF2_TO_FILE:
-        progressWidget = new ProgressWidget("Writing File(s)...", m_TF2ToFileParameters, mode);
+    case Utils::UI::TOOL_ID::BAG_TF2_TO_FILE:
+        progressWidget = new ProgressWidget("Writing File(s)...", m_bagTF2ToFileParameters, mode);
         break;
-    case Utils::UI::TOOL_ID::BAG_TO_YAML:
-        progressWidget = new ProgressWidget("Writing File(s)...", m_bagToYamlParameters, mode);
+    case Utils::UI::TOOL_ID::BAG_MESSAGE_TO_FILE:
+        progressWidget = new ProgressWidget("Writing File(s)...", m_bagMessageToFileParameters, mode);
         break;
     case Utils::UI::TOOL_ID::EDIT_BAG:
         progressWidget = new ProgressWidget("Writing edited Bag File...", m_editBagParameters, mode);

@@ -9,8 +9,8 @@
 #include <QLabel>
 #include <QRadioButton>
 
-BagTF2ToFileWidget::BagTF2ToFileWidget(Parameters::TF2ToFileParameters& parameters, QWidget *parent) :
-    TopicComboBoxWidget(parameters, "TF2 to File", ":/icons/tools/tf2_to_file", "Bag File:", "File Location:", "tf2_to_file", OUTPUT_TYPE::OUTPUT_TF_TO_FILE, parent),
+BagTF2ToFileWidget::BagTF2ToFileWidget(Parameters::BagTF2ToFileParameters& parameters, QWidget *parent) :
+    TopicComboBoxWidget(parameters, "Bag TF2 to File", ":/icons/tools/bag_tf2_to_file", "Bag File:", "File Location:", "bag_tf2_to_file", OUTPUT_TYPE::OUTPUT_TF_TO_FILE, parent),
     m_parameters(parameters), m_settings(parameters, "tf2_to_file")
 {
     m_sourceLineEdit->setToolTip("The source bag file directory.");

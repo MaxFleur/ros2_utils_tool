@@ -342,4 +342,5 @@ The ros2_utils_tool package is licensed under [EUPLv1.2](https://interoperable-e
 
 If you discover a new bug or wish for a new feature, feel free to open a new issue.
 > [!Note]  
-> If you want to contribute another feature, please use the provided Uncrustify file for code formatting. As the `main` branch is only updated for new versions or critical bugfixes, the `develop` branch is the most current one, providing the newest updates and features. So please open a merge request with `develop` as the target branch.
+> If you want to contribute another feature, please use the provided Uncrustify file for code formatting. The repo has a pre commit config file which you can use if you have `pre-commit` installed via pip.\
+> As the `main` branch is only updated for new versions or critical bugfixes, the `develop` branch is the most current one, providing the newest updates and features. So please open a merge request with `develop` as the target branch.

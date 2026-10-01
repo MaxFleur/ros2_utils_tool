@@ -46,6 +46,7 @@ EditBagWidget::EditBagWidget(Parameters::EditBagParameters& parameters, bool war
     m_updateTimestampsCheckBox->setVisible(false);
 
     m_controlsLayout->addWidget(m_editLabel);
+    m_controlsLayout->addWidget(m_selectAllCheckBox);
     m_controlsLayout->addWidget(m_treeWidget);
     m_controlsLayout->addWidget(m_findTargetWidget);
     m_controlsLayout->addWidget(m_lowDiskSpaceWidget);
@@ -141,8 +142,9 @@ EditBagWidget::createTopicTree()
     m_treeWidget->blockSignals(false);
     // Just take a random item to get its height
     auto* item = m_treeWidget->topLevelItem(m_treeWidget->topLevelItemCount() - 1);
-    const auto height = m_treeWidget->visualItemRect(item).height();
-    m_treeWidget->setFixedHeight((height * m_treeWidget->topLevelItemCount()) + HEIGHT_OFFSET);
+    const auto itemHeight = m_treeWidget->visualItemRect(item).height();
+    const auto treeWidgetHeight = (itemHeight * m_treeWidget->topLevelItemCount()) + HEIGHT_OFFSET;
+    m_treeWidget->setFixedHeight(std::min(treeWidgetHeight, m_treeWidget->MAXIMUM_HEIGHT));
 
     m_treeWidget->setVisible(true);
     m_findTargetWidget->setVisible(true);
@@ -153,6 +155,8 @@ EditBagWidget::createTopicTree()
     m_updateTimestampsCheckBox->setVisible(true);
     m_compressionModeComboBox->setVisible(true);
     m_okButton->setVisible(true);
+
+    updateSelectAllState();
 }
 
 
@@ -168,6 +172,8 @@ EditBagWidget::itemCheckStateChanged(QTreeWidgetItem* item, int column)
 
     const auto rowIndex = m_treeWidget->indexOfTopLevelItem(item);
     writeParameterToSettings(m_parameters.topics[rowIndex].isSelected, item->checkState(COL_CHECKBOXES) == Qt::Checked, m_settings);
+
+    updateSelectAllState();
 }
 
 
