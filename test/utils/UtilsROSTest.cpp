@@ -1,6 +1,7 @@
 #include "catch_ros2/catch_ros2.hpp"
 
 #include "UtilsROS.hpp"
+#include "UtilsTF2.hpp"
 
 #include "rclcpp/rclcpp.hpp"
 
@@ -71,7 +72,7 @@ TEST_CASE("Utils ROS Testing", "[utils]") {
             rotationX += msg.transforms[0].transform.rotation.x;
         });
 
-        Utils::ROS::sendStaticTransformation({ 0.0, 0.0, 0.0 }, { 0.1, 0.1, 0.1, 1.0 }, nodeWrapper);
+        Utils::TF2::sendStaticTransformation({ 0.0, 0.0, 0.0 }, { 0.1, 0.1, 0.1, 1.0 }, nodeWrapper);
         REQUIRE(rotationX == 0.1);
     }
     SECTION("Does dir contain bag file test") {

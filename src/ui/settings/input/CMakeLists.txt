@@ -2,17 +2,19 @@ add_library (rt_settings_input INTERFACE)
 
 target_include_directories (rt_settings_input
     INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
-) 
+)
 
 target_sources(rt_settings_input INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/AdvancedSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/AdvancedSettings.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/BagMessageToFileSettings.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/BagMessageToFileSettings.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/BagTF2ToFileSettings.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/BagTF2ToFileSettings.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToImagesSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToImagesSettings.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToVideoSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToVideoSettings.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/BagToYamlSettings.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/BagToYamlSettings.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BasicSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BasicSettings.hpp
     ${CMAKE_CURRENT_LIST_DIR}/DeleteSourceSettings.cpp
@@ -37,8 +39,6 @@ target_sources(rt_settings_input INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/SelectableBagContentSettings.hpp
     ${CMAKE_CURRENT_LIST_DIR}/SendTF2Settings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/SendTF2Settings.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/TF2ToFileSettings.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/TF2ToFileSettings.hpp
     ${CMAKE_CURRENT_LIST_DIR}/VideoSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/VideoSettings.hpp
     ${CMAKE_CURRENT_LIST_DIR}/VideoToBagSettings.cpp

@@ -18,7 +18,7 @@ protected:
         OUTPUT_IMAGES,
         OUTPUT_PCDS,
         OUTPUT_TF_TO_FILE,
-        OUTPUT_YAML,
+        OUTPUT_MESSAGE_TO_FILE,
         OUTPUT_BAG,
         OUTPUT_BAG_EDITED,
         OUTPUT_BAG_MERGED,

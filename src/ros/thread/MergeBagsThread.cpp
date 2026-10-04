@@ -1,5 +1,7 @@
 #include "MergeBagsThread.hpp"
 
+#include "UtilsBag.hpp"
+
 #include "rosbag2_transport/bag_rewrite.hpp"
 
 #include <filesystem>
@@ -39,12 +41,7 @@ MergeBagsThread::run()
         recordOptions.topics.push_back(topic.name.toStdString());
     }
     if (m_parameters.compressTarget) {
-        recordOptions.rmw_serialization_format = "cdr";
-        recordOptions.compression_format = "zstd";
-        recordOptions.compression_mode = m_parameters.compressPerMessage ? "message" : "file";
-        recordOptions.compression_threads = m_numberOfThreads;
-        // Need to set this to prevent message dropping
-        recordOptions.compression_queue_size = 0;
+        Utils::Bag::setCompressionOptions(recordOptions, m_parameters.compressPerMessage, m_numberOfThreads);
     }
 
     std::vector<std::pair<rosbag2_storage::StorageOptions, rosbag2_transport::RecordOptions> > outputBags;

@@ -12,6 +12,8 @@
         <file>gifs/publishing_white.gif</file>
         <file>gifs/recording_bag_black.gif</file>
         <file>gifs/recording_bag_white.gif</file>
+        <file>gifs/searching_black.gif</file>
+        <file>gifs/searching_white.gif</file>
         <file>gifs/sending_tf2_black.gif</file>
         <file>gifs/sending_tf2_white.gif</file>
 
@@ -28,14 +30,16 @@
 
         <file>icons/tools/bag_info_black.svg</file>
         <file>icons/tools/bag_info_white.svg</file>
+        <file>icons/tools/bag_message_to_file_black.svg</file>
+        <file>icons/tools/bag_message_to_file_white.svg</file>
+        <file>icons/tools/bag_tf2_to_file_black.svg</file>
+        <file>icons/tools/bag_tf2_to_file_white.svg</file>
         <file>icons/tools/bag_to_pcd_black.svg</file>
         <file>icons/tools/bag_to_pcd_white.svg</file>
         <file>icons/tools/bag_to_images_black.svg</file>
         <file>icons/tools/bag_to_images_white.svg</file>
         <file>icons/tools/bag_to_video_black.svg</file>
         <file>icons/tools/bag_to_video_white.svg</file>
-        <file>icons/tools/bag_to_yaml_black.svg</file>
-        <file>icons/tools/bag_to_yaml_white.svg</file>
         <file>icons/tools/bag_tools_black.svg</file>
         <file>icons/tools/bag_tools_white.svg</file>
         <file>icons/tools/compress_bag_black.svg</file>
@@ -69,8 +73,6 @@
         <file>icons/tools/send_tf2_white.svg</file>
         <file>icons/tools/topics_services_info_black.svg</file>
         <file>icons/tools/topics_services_info_white.svg</file>
-        <file>icons/tools/tf2_to_file_black.svg</file>
-        <file>icons/tools/tf2_to_file_white.svg</file>
         <file>icons/tools/video_to_bag_black.svg</file>
         <file>icons/tools/video_to_bag_white.svg</file>
 

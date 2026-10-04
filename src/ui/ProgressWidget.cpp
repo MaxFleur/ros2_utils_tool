@@ -1,9 +1,9 @@
 #include "ProgressWidget.hpp"
 
+#include "BagMessageToFileThread.hpp"
 #include "BagToImagesThread.hpp"
 #include "BagToPCDsThread.hpp"
 #include "BagToVideoThread.hpp"
-#include "BagToYamlThread.hpp"
 #include "BasicThread.hpp"
 #include "DialogSettings.hpp"
 #include "ChangeCompressionBagThread.hpp"
@@ -50,11 +50,11 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
         m_thread = new BagToImagesThread(dynamic_cast<Parameters::BagToImagesParameters&>(parameters),
                                          DialogSettings::getStaticParameter("max_threads", std::thread::hardware_concurrency()), this);
         break;
-    case Utils::UI::TOOL_ID::TF2_TO_FILE:
-        m_thread = new BagTF2ToFileThread(dynamic_cast<Parameters::TF2ToFileParameters&>(parameters), this);
+    case Utils::UI::TOOL_ID::BAG_TF2_TO_FILE:
+        m_thread = new BagTF2ToFileThread(dynamic_cast<Parameters::BagTF2ToFileParameters&>(parameters), this);
         break;
-    case Utils::UI::TOOL_ID::BAG_TO_YAML:
-        m_thread = new BagToYamlThread(dynamic_cast<Parameters::BagToYamlParameters&>(parameters), this);
+    case Utils::UI::TOOL_ID::BAG_MESSAGE_TO_FILE:
+        m_thread = new BagMessageToFileThread(dynamic_cast<Parameters::BagMessageToFileParameters&>(parameters), this);
         break;
     case Utils::UI::TOOL_ID::EDIT_BAG:
         m_thread = new EditBagThread(dynamic_cast<Parameters::EditBagParameters&>(parameters),

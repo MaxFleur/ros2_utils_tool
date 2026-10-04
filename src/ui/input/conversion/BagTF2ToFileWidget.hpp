@@ -1,6 +1,6 @@
 #pragma once
 
-#include "TF2ToFileSettings.hpp"
+#include "BagTF2ToFileSettings.hpp"
 #include "TopicComboBoxWidget.hpp"
 #include "Parameters.hpp"
 
@@ -17,8 +17,8 @@ class BagTF2ToFileWidget : public TopicComboBoxWidget
     Q_OBJECT
 
 public:
-    BagTF2ToFileWidget(Parameters::TF2ToFileParameters& parameters,
-                       QWidget*                         parent = 0);
+    BagTF2ToFileWidget(Parameters::BagTF2ToFileParameters& parameters,
+                       QWidget*                            parent = 0);
 
     void
     formatComboBoxTextChanged(bool switched);
@@ -29,7 +29,7 @@ private:
     QPointer<QRadioButton> m_indentedRadioButton;
     QPointer<QComboBox> m_formatComboBox;
 
-    Parameters::TF2ToFileParameters& m_parameters;
+    Parameters::BagTF2ToFileParameters& m_parameters;
 
-    TF2ToFileSettings m_settings;
+    BagTF2ToFileSettings m_settings;
 };

@@ -48,3 +48,40 @@ TEST_CASE("Bag Tree Widget Testing", "[bag_tree_widget]") {
 
     delete bagTreeWidget;
 }
+TEST_CASE("Bag Tree Widget Count Selected And Total Items Testing", "[bag_tree_widget]") {
+    auto* const bagTreeWidget = new BagTreeWidget;
+
+    // An empty tree has no selected items and no items with checkboxes
+    const auto [emptySelectedCount, emptyCheckBoxCount] = bagTreeWidget->countSelectedAndTotalItems();
+    REQUIRE(emptySelectedCount == 0);
+    REQUIRE(emptyCheckBoxCount == 0);
+
+    // The first top level item is unchecked, the other two are checked
+    for (auto i = 0; i < 3; ++i) {
+        bagTreeWidget->blockSignals(true);
+        bagTreeWidget->createItemWithTopicNameAndType("name_" + QString::number(i), "topic_" + QString::number(i), i != 0);
+        bagTreeWidget->blockSignals(false);
+    }
+
+    const auto [topLevelSelectedCount, topLevelCheckBoxCount] = bagTreeWidget->countSelectedAndTotalItems();
+    REQUIRE(topLevelSelectedCount == 2);
+    REQUIRE(topLevelCheckBoxCount == 3);
+
+    // Child items are counted recursively
+    auto* const parentItem = bagTreeWidget->topLevelItem(0);
+    bagTreeWidget->blockSignals(true);
+    bagTreeWidget->createItemWithTopicNameAndType("child_name", "child_topic", true, parentItem);
+    bagTreeWidget->blockSignals(false);
+
+    const auto [nestedSelectedCount, nestedCheckBoxCount] = bagTreeWidget->countSelectedAndTotalItems();
+    REQUIRE(nestedSelectedCount == 3);
+    REQUIRE(nestedCheckBoxCount == 4);
+
+    // Deselecting all items unchecks every checkbox
+    bagTreeWidget->setTreeWidgetItemSelection(Qt::Unchecked);
+    const auto [noneSelectedCount, noneCheckBoxCount] = bagTreeWidget->countSelectedAndTotalItems();
+    REQUIRE(noneSelectedCount == 0);
+    REQUIRE(noneCheckBoxCount == 4);
+
+    delete bagTreeWidget;
+}

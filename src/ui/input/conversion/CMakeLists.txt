@@ -5,14 +5,14 @@ target_include_directories (rt_input_conversion
 )
 
 target_sources(rt_input_conversion INTERFACE
+    ${CMAKE_CURRENT_LIST_DIR}/BagMessageToFileWidget.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/BagMessageToFileWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToImagesWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToImagesWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToPCDsWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToPCDsWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToVideoWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToVideoWidget.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/BagToYamlWidget.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/BagToYamlWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/PCDsToBagWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/PCDsToBagWidget.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BagTF2ToFileWidget.cpp
@@ -22,5 +22,5 @@ target_sources(rt_input_conversion INTERFACE
 )
 
 target_link_libraries(rt_input_conversion
-    INTERFACE Qt::Widgets rt_input rt_helper rt_settings_input rt_utils
-) 
+    INTERFACE Qt::Widgets rt_input rt_helper rt_settings_input rt_utils_misc rt_utils_ui
+)

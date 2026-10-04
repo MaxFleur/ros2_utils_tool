@@ -6,10 +6,13 @@
 // declare the Python header before everything else
 #include <Python.h>
 
-#include "BagToYamlThread.hpp"
+#include "BagMessageToFileThread.hpp"
 
 #include "UtilsGeneral.hpp"
 #include "UtilsROS.hpp"
+
+#include <QJsonDocument>
+#include <QJsonObject>
 
 #include <rosbag2_cpp/reader.hpp>
 #include <rosbag2_storage/serialized_bag_message.hpp>
@@ -86,12 +89,12 @@ private:
     PyObject* m_pythonObject;
 };
 
-// Converts serialized ROS2 bag messages into YAML by calling
-// rosidl_runtime_py.convert.message_to_yaml from the embedded CPython interpreter
-class MessageToYamlBridge
+// Converts serialized ROS2 bag messages into YAML or JSON by calling
+// rosidl_runtime_py.convert functions from the embedded CPython interpreter
+class MessageConverterBridge
 {
 public:
-    MessageToYamlBridge()
+    MessageConverterBridge()
     {
         EmbeddedPython::instance();
 
@@ -100,6 +103,8 @@ public:
         m_deserializeMessage = PyObjectRef(PyObject_GetAttrString(PyImport_ImportModule("rclpy.serialization"), "deserialize_message"));
         m_getMessage = PyObjectRef(PyObject_GetAttrString(PyImport_ImportModule("rosidl_runtime_py.utilities"), "get_message"));
         m_messageToYaml = PyObjectRef(PyObject_GetAttrString(PyImport_ImportModule("rosidl_runtime_py.convert"), "message_to_yaml"));
+        m_messageToOrderedDict = PyObjectRef(PyObject_GetAttrString(PyImport_ImportModule("rosidl_runtime_py.convert"), "message_to_ordereddict"));
+        m_jsonDumps = PyObjectRef(PyObject_GetAttrString(PyImport_ImportModule("json"), "dumps"));
 
         PyGILState_Release(gilState);
     }
@@ -126,6 +131,29 @@ public:
         return result;
     }
 
+    // Converts one serialized message from a bag. message_to_json is not available in Jazzy,
+    // so message_to_ordereddict and json.dumps are used instead
+    std::string
+    toJson(const rosbag2_storage::SerializedBagMessage& message,
+           const std::string&                           messageType)
+    {
+        std::string result;
+        const auto gilState = PyGILState_Ensure();
+
+        // Scoped, so that the reference counts of all temporary Python objects are decreased while the GIL is still held
+        {
+            const PyObjectRef serializedBytes(PyBytes_FromStringAndSize(reinterpret_cast<const char*>(message.serialized_data->buffer), message.serialized_data->buffer_length));
+            const PyObjectRef pythonMessage(PyObject_CallFunctionObjArgs(m_deserializeMessage.get(), serializedBytes.get(), getMessageClass(messageType), nullptr));
+            const PyObjectRef orderedDictObject(PyObject_CallOneArg(m_messageToOrderedDict.get(), pythonMessage));
+            const PyObjectRef jsonObject(PyObject_CallOneArg(m_jsonDumps.get(), orderedDictObject));
+
+            result = PyUnicode_AsUTF8(jsonObject);
+        }
+
+        PyGILState_Release(gilState);
+        return result;
+    }
+
 private:
     // Returns the cached Python message class for the given type string
     PyObject*
@@ -145,13 +173,15 @@ private:
     PyObjectRef m_deserializeMessage;
     PyObjectRef m_getMessage;
     PyObjectRef m_messageToYaml;
+    PyObjectRef m_messageToOrderedDict;
+    PyObjectRef m_jsonDumps;
 
     std::unordered_map<std::string, PyObjectRef> m_messageClasses;
 };
 } // namespace
 
 
-BagToYamlThread::BagToYamlThread(const Parameters::BagToYamlParameters& parameters, QObject* parent) :
+BagMessageToFileThread::BagMessageToFileThread(const Parameters::BagMessageToFileParameters& parameters, QObject* parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),
     m_parameters(parameters)
 {
@@ -159,7 +189,7 @@ BagToYamlThread::BagToYamlThread(const Parameters::BagToYamlParameters& paramete
 
 
 void
-BagToYamlThread::run()
+BagMessageToFileThread::run()
 {
     const auto targetDirectoryStd = m_parameters.targetDirectory.toStdString();
     Utils::General::createAndClearDirectory(targetDirectoryStd);
@@ -169,9 +199,11 @@ BagToYamlThread::run()
     const auto totalInstances = *Utils::ROS::getTopicMessageCount(m_parameters.sourceDirectory, m_parameters.topicName);
 
     YAML::Node messagesNode;
-    std::string topicYamlString = "";
+    QJsonObject messagesObject;
+    std::string topicContentString = "";
+    const auto fileExtension = m_parameters.isYaml ? ".yaml" : ".json";
 
-    auto bridge = std::make_unique<MessageToYamlBridge>();
+    auto bridge = std::make_unique<MessageConverterBridge>();
     auto iterationCount = 0;
     rosbag2_storage::SerializedBagMessageSharedPtr message;
 
@@ -191,12 +223,16 @@ BagToYamlThread::run()
         }
 
         if (m_parameters.writeSingleOutputFile) {
-            messagesNode[std::to_string(iterationCount)] = YAML::Load(bridge->toYaml(*message, topicTypeStdString));
+            if (m_parameters.isYaml) {
+                messagesNode[std::to_string(iterationCount)] = YAML::Load(bridge->toYaml(*message, topicTypeStdString));
+            } else {
+                messagesObject[QString::number(iterationCount)] = QJsonDocument::fromJson(QByteArray::fromStdString(bridge->toJson(*message, topicTypeStdString))).object();
+            }
         } else {
-            topicYamlString = bridge->toYaml(*message, topicTypeStdString);
+            topicContentString = m_parameters.isYaml ? bridge->toYaml(*message, topicTypeStdString) : bridge->toJson(*message, topicTypeStdString);
+            std::ofstream out(targetDirectoryStd + "/" + topicNameStdString + "_" + std::to_string(iterationCount) + fileExtension);
 
-            std::ofstream out(targetDirectoryStd + "/" + topicNameStdString + "_" + std::to_string(iterationCount) + ".yaml");
-            out << topicYamlString;
+            out << topicContentString;
             out.close();
         }
 
@@ -206,10 +242,11 @@ BagToYamlThread::run()
     }
 
     if (m_parameters.writeSingleOutputFile) {
-        std::ofstream fout(targetDirectoryStd + "/topic.yaml");
+        std::ofstream fout(m_parameters.isYaml ? targetDirectoryStd + "/topic.yaml" : targetDirectoryStd + "/topic.json");
 
         try {
-            fout << messagesNode;
+            m_parameters.isYaml ? fout << messagesNode
+                                : fout << QJsonDocument(messagesObject).toJson(QJsonDocument::Indented).toStdString();
         } catch (std::ofstream::failure& /* exeption */) {
             emit failed();
         }

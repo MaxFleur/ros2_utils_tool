@@ -8,6 +8,8 @@
 #include <QWidget>
 
 class BagTreeWidget;
+class LoadingWidget;
+class TopicsServicesThread;
 
 class QPushButton;
 
@@ -28,13 +30,20 @@ private slots:
     okButtonPressed() const override;
 
     void
-    populateTreeWidget() override;
+    startSearchingThread();
 
     void
     enableOkButton() override;
 
+    void
+    populateTreeWidget() override;
+
 private:
     QPointer<QPushButton> m_refreshButton;
+    QPointer<QWidget> m_loadedInfoWidget;
+    QPointer<LoadingWidget> m_loadingWidget;
+
+    QPointer<TopicsServicesThread> m_thread;
 
     Parameters::RecordBagParameters& m_parameters;
 

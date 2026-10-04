@@ -47,7 +47,7 @@ protected:
                    const QString& identifier,
                    T              parameter) const
     {
-        if (settings.value(identifier).value<T>() == parameter) {
+        if (const auto& storedParameter = settings.value(identifier); storedParameter.isValid() && storedParameter.value<T>() == parameter) {
             return;
         }
         // Simple conversion between size_t and QVariant is not possible
