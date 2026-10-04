@@ -5,7 +5,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/License-EUPLv1.2-blue.svg"/>
   <img src="https://img.shields.io/badge/C++-20-blue.svg"/>
-  <img src="https://img.shields.io/badge/Release-v1.0.0-blue.svg"/>
+  <img src="https://img.shields.io/badge/Release-v1.1.0-blue.svg"/>
 </p>
 <p align="center">
   <img src="https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/jazzy.yml/badge.svg?event=push"/>
@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <img width="340" height="480" src="https://github.com/user-attachments/assets/f412463f-78bd-4d6c-807f-8cd5d1e6ec6f">
+  <img width="340" height="480" src="https://github.com/user-attachments/assets/9d7d06ac-b74a-41ac-8d83-7c8ad07faac6">
   <img width="360" height="480" src="https://github.com/user-attachments/assets/2847d943-9212-4672-9dd3-23e96e51b51e">
 </p>
 <p align="center">
@@ -85,8 +85,8 @@ Below is a list of all tools which are currently available in the ros2_utils_too
       <td align="center">X</td>
     </tr>
     <tr>
-      <td><i>Bag to YAML</i></td>
-      <td>Export bag topic messages to one or multiple yaml files.</td>
+      <td><i>Bag Message to File</i></td>
+      <td>Export bag topic messages to one or multiple json or yaml files.</td>
       <td align="center">X</td>
     </tr>
     <tr>
@@ -142,7 +142,7 @@ Below is a list of all tools which are currently available in the ros2_utils_too
       <td align="center">X</td>
     </tr>
     <tr>
-      <td><i>Video as ROS Topic</i></td>
+      <td><i>Set of Images as ROS Topic</i></td>
       <td>Publish a set of images to a ROS image message topic.</td>
       <td align="center">X</td>
     </tr>
@@ -279,13 +279,13 @@ ros2 run ros2_utils_tool tool_bag_to_images /path/to/bag /path/to/images
 
 **Bag TF2 to File Tool**:
 ```
-ros2 run ros2_utils_tool tool_tf2_to_file /path/to/bag /path/to/output
+ros2 run ros2_utils_tool tool_bag_tf2_to_file /path/to/bag /path/to/output
 ```
 (Accepted file formats are json or yaml. Note that a topic can be specified optionally. If no topic is specified, the first available tf2 topic is used).
 
-**Bag to YAML Tool**:
+**Bag Message to File Tool**:
 ```
-ros2 run ros2_utils_tool tool_message_to_yaml /path/to/bag /path/to/yaml_dir
+ros2 run ros2_utils_tool tool_bag_message_to_file /path/to/bag /path/to/files_dir
 ```
 (Note that a topic can be specified optionally. If no topic is specified, the first available topic is used).
 
@@ -302,13 +302,13 @@ ros2 run ros2_utils_tool tool_dummy_bag path/to/bag topic_type_1 topic_name_1 ..
 
 **Compress Bag Tool**:
 ```
-ros2 run mediassist4_ros_tools tool_compress_bag path/to/uncompressed/source/bag /path/to/compressed/target/bag
+ros2 run ros2_utils_tool tool_compress_bag path/to/uncompressed/source/bag /path/to/compressed/target/bag
 ```
 (Compression per file is default, use `-m message` to compress per message).
 
 **Decompress Bag Tool**:
 ```
-ros2 run mediassist4_ros_tools tool_decompress_bag path/to/compressed/source/bag /path/to/uncompressed/target/bag
+ros2 run ros2_utils_tool tool_decompress_bag path/to/compressed/source/bag /path/to/uncompressed/target/bag
 ```
 
 **Publish Video Tool**:
