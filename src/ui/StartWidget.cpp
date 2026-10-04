@@ -188,10 +188,9 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     backButtonLayout->addWidget(m_backButton);
     backButtonLayout->addStretch();
 
-    m_versionLabel = new QLabel("v1.0.0");
-    m_versionLabel->setToolTip("We're finally there! Now with a bag to yaml tool,\n"
-                               "compression support for the edit and merge bag tools\n"
-                               "and additional CLI flag improvements!");
+    m_versionLabel = new QLabel("v1.1.0");
+    m_versionLabel->setToolTip("Json support for bag messages to yaml tool, enhanced settings dialog\n"
+                               "and many other minor UI improvements!");
 
     auto* const versionLayout = new QHBoxLayout;
     versionLayout->addStretch();

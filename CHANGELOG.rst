@@ -1,9 +1,37 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Changelog for the ros2_utils_tool
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1.1.0 (2026-10-04)
+-------------------
+**New:**
+
+* The Bag Message to Yaml Tool now also supports json export.
+* UI - Made the Configure Record Bag and Topic and Services Info Tool more responsive while loading ROS data using a new searching gif.
+* UI - The settings dialog's layout design has been overhauled and improved. Additionally, the following functions were added:
+  * A function to clear all currently stored tool input parameters.
+  * A function to configure the threshold for low diskspace warnings. NOTE: For all CLI tools, this threshold is still tied to ten GiB.
+* UI - Tree widget adjustments for the Edit, Merge, Record and Play Bag Tool:
+  * A button to (un)select all topics for the Record Bag and Play Bag configuration.
+  * Height improvements.
+
+**Changed/Improved:**
+
+* File index for all tools with possibly multiple output files now always starts with 0 (started with 1 for some tools before).
+* UI - Redesigned the options dialog for improved settings overview.
+
+**Fixed:**
+
+* UI - Possibly unsaved user inputs if some settings weren't fully initialized.
+
+**System:**
+
+* Slightly reduced compile times due to CMake optimizations.
+* Added a pre-commit config file for automatic code formatting.
+
 1.0.0 (2026-09-04)
 -------------------
 **New:**
+
 * A Bag Topic To Yaml tool to convert messages of any bag topic to one or multiple yaml files.
 * Compressed target and input support for the Edit and Compress Bag Tool.
 * UI - Added an option to publish service requests for the Play Bag Tool.
@@ -11,11 +39,13 @@ Changelog for the ros2_utils_tool
 * UI - Added a "Reset to Defaults" button for the settings dialog.
 
 **Changed/Improved:**
+
 * UI - Gifs and layout overhauls for the Record and Play Bag Tool.
 * UI - The settings button is now accessible from the specific tool selection widgets as well.
 * CLI - Replaced multiple word argument underscores with dashes and rechanged a few more arguments to improve naming consistency with standard ROS2 tools. For further infos, type "-h" for the specific cli tools.
 
 **Fixed:**
+
 * UI - Entering a target bag file for the Edit, Compress, Decompress and Merge Bag Tool disabled the Ok button.
 * UI - Compression Mode and Format were switched up in the Bag Info Tool.
 
