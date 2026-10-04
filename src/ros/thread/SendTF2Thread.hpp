@@ -23,6 +23,4 @@ private:
     std::shared_ptr<tf2_ros::TransformBroadcaster> m_broadcaster;
 
     const Parameters::SendTF2Parameters& m_parameters;
-
-    static constexpr int PROGRESS = 0;
 };

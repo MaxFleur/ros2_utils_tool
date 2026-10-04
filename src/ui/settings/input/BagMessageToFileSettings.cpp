@@ -1,7 +1,5 @@
 #include "BagMessageToFileSettings.hpp"
 
-#include <QDebug>
-
 BagMessageToFileSettings::BagMessageToFileSettings(Parameters::BagMessageToFileParameters& parameters,
                                                    const QString&                          groupName) :
     AdvancedSettings(parameters, groupName), m_parameters(parameters)

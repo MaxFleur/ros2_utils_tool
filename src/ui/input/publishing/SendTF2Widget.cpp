@@ -21,7 +21,6 @@
 #include <QSpinBox>
 #include <QTimer>
 #include <QToolButton>
-#include <QVBoxLayout>
 
 SendTF2Widget::SendTF2Widget(Parameters::SendTF2Parameters& parameters, QWidget *parent) :
     BasicInputWidget("Send TF2 Message", ":/icons/tools/send_tf2", parent),

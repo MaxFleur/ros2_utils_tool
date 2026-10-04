@@ -5,6 +5,7 @@
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
+#include <QComboBox>
 #include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>

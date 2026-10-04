@@ -73,6 +73,4 @@ private:
     Parameters::DeleteSourceParameters& m_parameters;
 
     DeleteSourceSettings m_settings;
-
-    bool m_isDiskSpaceSufficient{ true };
 };

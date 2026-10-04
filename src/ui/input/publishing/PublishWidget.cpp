@@ -9,7 +9,6 @@
 #include <QFileInfo>
 #include <QFormLayout>
 #include <QLabel>
-#include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QShortcut>

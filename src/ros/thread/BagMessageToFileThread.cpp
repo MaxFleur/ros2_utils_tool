@@ -247,7 +247,7 @@ BagMessageToFileThread::run()
         try {
             m_parameters.isYaml ? fout << messagesNode
                                 : fout << QJsonDocument(messagesObject).toJson(QJsonDocument::Indented).toStdString();
-        } catch (std::ofstream::failure& /* exeption */) {
+        } catch (std::ofstream::failure& /* exception */) {
             emit failed();
         }
     }

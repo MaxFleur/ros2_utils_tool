@@ -150,7 +150,7 @@ writeTF2ToYAML(const QString& path, Parameters::SendTF2Parameters& parameters)
     std::ofstream fout(path.toStdString());
     try {
         fout << node;
-    } catch (std::ofstream::failure& /* exeption */) {
+    } catch (std::ofstream::failure& /* exception */) {
         return false;
     }
 

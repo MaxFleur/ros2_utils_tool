@@ -35,6 +35,8 @@
 #include "rosbag2_cpp/writer.hpp"
 #include "sensor_msgs/msg/compressed_image.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
+#include "std_msgs/msg/int32.hpp"
+#include "std_msgs/msg/string.hpp"
 #include "tf2_msgs/msg/tf_message.hpp"
 
 #include "yaml-cpp/yaml.h"

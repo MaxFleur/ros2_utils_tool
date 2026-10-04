@@ -7,6 +7,7 @@
 #include "UtilsUI.hpp"
 
 #include <QCheckBox>
+#include <QComboBox>
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>

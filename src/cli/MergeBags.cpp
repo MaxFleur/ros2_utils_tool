@@ -91,15 +91,12 @@ main(int argc, char* argv[])
         parameters.topics.push_back({ { { arguments.at(bagIndex) }, true }, bagDirectory });
         topicNameSet.insert(arguments.at(bagIndex));
         bagIndex++;
-        return true;
     };
 
     // First bag
     auto topicsFirstBagIndex = 4;
     while (topicsFirstBagIndex <= arguments.size() && arguments.at(topicsFirstBagIndex) != "-t2") {
-        if (!addTopicsToParameters(parameters.sourceDirectory, topicsFirstBagIndex)) {
-            return 0;
-        }
+        addTopicsToParameters(parameters.sourceDirectory, topicsFirstBagIndex);
     }
 
     // Handle source deletion here because it might affect topic and target name handling
@@ -144,9 +141,7 @@ main(int argc, char* argv[])
 
     auto topicsSecondBagIndex = Utils::CLI::getArgumentsIndex(arguments, "-t2", "--topic2") + 1;
     while (topicsSecondBagIndex != boundary) {
-        if (!addTopicsToParameters(parameters.secondSourceDirectory, topicsSecondBagIndex)) {
-            return 0;
-        }
+        addTopicsToParameters(parameters.secondSourceDirectory, topicsSecondBagIndex);
     }
 
     // Target file
