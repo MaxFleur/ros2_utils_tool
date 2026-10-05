@@ -8,6 +8,8 @@
 
 #include "rclcpp/rclcpp.hpp"
 
+#include <opencv2/imgcodecs.hpp>
+
 #include <filesystem>
 #include <iostream>
 
@@ -90,7 +92,6 @@ main(int argc, char* argv[])
         if (!Utils::CLI::checkArgumentValidity(arguments, "", "--scale", parameters.height, 1, 2160, 2)) {
             throw std::runtime_error("Please enter a height value between 1 and 2160!");
         }
-        parameters.scale = true;
         // Exchange red and blue values
         parameters.exchangeRedBlueValues = Utils::CLI::containsArguments(arguments, "-e", "--exchange");
         // Loop
@@ -100,6 +101,20 @@ main(int argc, char* argv[])
     // Apply default topic name if not assigned
     if (parameters.topicName.isEmpty()) {
         parameters.topicName = "/topic_video";
+    }
+    // Assign correct width and height values
+    if (!parameters.scale) {
+        for (auto const& entry : std::filesystem::directory_iterator(parameters.sourceDirectory.toStdString())) {
+            if (entry.path().extension() != ".jpg" && entry.path().extension() != ".png" && entry.path().extension() != ".bmp") {
+                continue;
+            }
+            const auto image = cv::imread(entry.path().string(), cv::IMREAD_COLOR);
+            if (!image.empty()) {
+                parameters.width = image.cols;
+                parameters.height = image.rows;
+            }
+            break;
+        }
     }
 
     // Create thread and connect to its informations

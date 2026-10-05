@@ -8,6 +8,8 @@
 
 #include "rclcpp/rclcpp.hpp"
 
+#include <opencv2/videoio.hpp>
+
 #include <filesystem>
 #include <iostream>
 
@@ -88,7 +90,6 @@ main(int argc, char* argv[])
         if (!Utils::CLI::checkArgumentValidity(arguments, "", "--scale", parameters.height, 1, 2160, 2)) {
             throw std::runtime_error("Please enter a height value between 1 and 2160!");
         }
-        parameters.scale = true;
         // Hardware acceleration
         useHardwareAcceleration = Utils::CLI::containsArguments(arguments, "-a", "--accelerate");
         // Exchange red and blue values
@@ -100,6 +101,11 @@ main(int argc, char* argv[])
     // Apply default topic name if not assigned
     if (parameters.topicName.isEmpty()) {
         parameters.topicName = "/topic_video";
+    }
+    if (!parameters.scale) {
+        cv::VideoCapture videoCapture(parameters.sourceDirectory.toStdString());
+        parameters.width = static_cast<int>(videoCapture.get(cv::CAP_PROP_FRAME_WIDTH));
+        parameters.height = static_cast<int>(videoCapture.get(cv::CAP_PROP_FRAME_HEIGHT));
     }
 
     // Create thread and connect to its informations
