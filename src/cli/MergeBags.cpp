@@ -95,7 +95,7 @@ main(int argc, char* argv[])
 
     // First bag
     auto topicsFirstBagIndex = 4;
-    while (topicsFirstBagIndex <= arguments.size() && arguments.at(topicsFirstBagIndex) != "-t2") {
+    while (topicsFirstBagIndex < arguments.size() && arguments.at(topicsFirstBagIndex) != "-t2") {
         addTopicsToParameters(parameters.sourceDirectory, topicsFirstBagIndex);
     }
 
