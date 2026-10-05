@@ -86,7 +86,7 @@ main(int argc, char* argv[])
         // Hardware acceleration
         useHardwareAcceleration = Utils::CLI::containsArguments(arguments, "-a", "--accelerate");
         // Compression enabled/disabled
-        parameters.useCompression = Utils::CLI::containsArguments(arguments, "-c", "--compression");
+        parameters.useCompression = Utils::CLI::containsArguments(arguments, "-c", "--compress");
         // Compression format
         if (Utils::CLI::containsArguments(arguments, "-f", "--format")) {
             parameters.isCompressionJPEG = arguments.at(Utils::CLI::getFormatIndex(arguments, { "jpg", "png" })) == "jpg";
