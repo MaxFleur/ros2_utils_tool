@@ -49,14 +49,4 @@ public:
 
         settings.setValue(identifier, value);
     }
-
-    bool
-    write() override;
-
-private:
-    bool
-    read() override;
-
-private:
-    Parameters::DialogParameters& m_parameters;
 };

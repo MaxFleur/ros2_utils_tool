@@ -2,19 +2,9 @@
 
 #include "BasicSettings.hpp"
 
-// Store topics for play bag and record bag parameters
+// Store parameters for bags with a selectable content
 class SelectableBagContentSettings : public BasicSettings {
 public:
     SelectableBagContentSettings(Parameters::SelectableBagContentParameters& parameters,
                                  const QString&                              groupName);
-
-    bool
-    write() override;
-
-protected:
-    bool
-    read() override;
-
-private:
-    Parameters::SelectableBagContentParameters& m_parameters;
 };

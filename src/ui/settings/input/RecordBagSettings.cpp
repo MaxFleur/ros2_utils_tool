@@ -1,51 +1,18 @@
 #include "RecordBagSettings.hpp"
 
 RecordBagSettings::RecordBagSettings(Parameters::RecordBagParameters& parameters, const QString& groupName) :
-    SelectableBagContentSettings(parameters, groupName), m_parameters(parameters)
+    SelectableBagContentSettings(parameters, groupName)
 {
+    registerParameter("size", parameters.maxSizeInMB, 1024);
+    registerParameter("duration", parameters.maxDurationInSeconds, 60);
+    registerParameter("include_ros_topics", parameters.includeROSTopics, false);
+    registerParameter("show_advanced", parameters.showAdvancedOptions, false);
+    registerParameter("include_hidden_topics", parameters.includeHiddenTopics, false);
+    registerParameter("include_unpublished_topics", parameters.includeUnpublishedTopics, false);
+    registerParameter("use_custom_size", parameters.useCustomSize, false);
+    registerParameter("use_custom_duration", parameters.useCustomDuration, false);
+    registerParameter("use_compression", parameters.useCompression, false);
+    registerParameter("is_compression_file", parameters.isCompressionFile, false);
+
     read();
-}
-
-
-bool
-RecordBagSettings::write()
-{
-    if (!SelectableBagContentSettings::write()) {
-        return false;
-    }
-
-    writeParameter(m_groupName, "size", m_parameters.maxSizeInMB);
-    writeParameter(m_groupName, "duration", m_parameters.maxDurationInSeconds);
-    writeParameter(m_groupName, "include_ros_topics", m_parameters.includeROSTopics);
-    writeParameter(m_groupName, "show_advanced", m_parameters.showAdvancedOptions);
-    writeParameter(m_groupName, "include_hidden_topics", m_parameters.includeHiddenTopics);
-    writeParameter(m_groupName, "include_unpublished_topics", m_parameters.includeUnpublishedTopics);
-    writeParameter(m_groupName, "use_custom_size", m_parameters.useCustomSize);
-    writeParameter(m_groupName, "use_custom_duration", m_parameters.useCustomDuration);
-    writeParameter(m_groupName, "use_compression", m_parameters.useCompression);
-    writeParameter(m_groupName, "is_compression_file", m_parameters.isCompressionFile);
-
-    return true;
-}
-
-
-bool
-RecordBagSettings::read()
-{
-    if (!SelectableBagContentSettings::read()) {
-        return false;
-    }
-
-    m_parameters.maxSizeInMB = readParameter(m_groupName, "size", 1024);
-    m_parameters.maxDurationInSeconds = readParameter(m_groupName, "duration", 60);
-    m_parameters.includeROSTopics = readParameter(m_groupName, "include_ros_topics", false);
-    m_parameters.showAdvancedOptions = readParameter(m_groupName, "show_advanced", false);
-    m_parameters.includeHiddenTopics = readParameter(m_groupName, "include_hidden_topics", false);
-    m_parameters.includeUnpublishedTopics = readParameter(m_groupName, "include_unpublished_topics", false);
-    m_parameters.useCustomSize = readParameter(m_groupName, "use_custom_size", false);
-    m_parameters.useCustomDuration = readParameter(m_groupName, "use_custom_duration", false);
-    m_parameters.useCompression = readParameter(m_groupName, "use_compression", false);
-    m_parameters.isCompressionFile = readParameter(m_groupName, "is_compression_file", false);
-
-    return true;
 }

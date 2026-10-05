@@ -2,37 +2,11 @@
 
 VideoToBagSettings::VideoToBagSettings(Parameters::VideoToBagParameters& parameters,
                                        const QString&                    groupName) :
-    VideoSettings(parameters, groupName), m_parameters(parameters)
+    VideoSettings(parameters, groupName)
 {
+    registerParameter("use_compression", parameters.useCompression, false);
+    registerParameter("custom_fps", parameters.useCustomFPS, false);
+    registerParameter("is_compression_jpeg", parameters.isCompressionJPEG, true);
+
     read();
-}
-
-
-bool
-VideoToBagSettings::write()
-{
-    if (!VideoSettings::write()) {
-        return false;
-    }
-
-    writeParameter(m_groupName, "use_compression", m_parameters.useCompression);
-    writeParameter(m_groupName, "custom_fps", m_parameters.useCustomFPS);
-    writeParameter(m_groupName, "is_compression_jpeg", m_parameters.isCompressionJPEG);
-
-    return true;
-}
-
-
-bool
-VideoToBagSettings::read()
-{
-    if (!VideoSettings::read()) {
-        return false;
-    }
-
-    m_parameters.useCompression = readParameter(m_groupName, "use_compression", false);
-    m_parameters.useCustomFPS = readParameter(m_groupName, "custom_fps", false);
-    m_parameters.isCompressionJPEG = readParameter(m_groupName, "is_compression_jpeg", true);
-
-    return true;
 }

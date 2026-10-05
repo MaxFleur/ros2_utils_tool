@@ -7,14 +7,4 @@ class DummyBagSettings : public BasicSettings {
 public:
     DummyBagSettings(Parameters::DummyBagParameters& parameters,
                      const QString&                  groupName);
-
-    bool
-    write() override;
-
-private:
-    bool
-    read() override;
-
-private:
-    Parameters::DummyBagParameters& m_parameters;
 };
