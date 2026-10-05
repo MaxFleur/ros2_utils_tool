@@ -5,16 +5,13 @@
 #include "UtilsROS.hpp"
 
 #include <QCoreApplication>
-#include <QObject>
 #include <QSet>
 
 #include <filesystem>
 #include <iostream>
 
-volatile sig_atomic_t signalStatus = 0;
-
 void
-showHelp()
+helpFunction()
 {
     std::cout << "Usage: ros2 run ros2_utils_tool tool_dummy_bag [-h] [bag_path] [topic_name_1]\n";
     std::cout << "                                               [topic_type_1 {String,Integer,Image,PointCloud,TF2}] ...\n";
@@ -47,16 +44,12 @@ main(int argc, char* argv[])
 
     const auto& arguments = app.arguments();
     // 20 means all five topics plus every possible flag
-    if (arguments.size() < 4 || arguments.size() > 20 || Utils::CLI::containsArguments(arguments, "-h", "--help")) {
-        showHelp();
+    if (Utils::CLI::showHelpAndExitEarly(arguments, helpFunction, 4, 20)) {
         return 0;
     }
 
     const QVector<QString> checkList{ "-r", "-s", "--rate", "--suppress", "--message-count", "--thread-count" };
-    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
-        showHelp();
-        throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
-    }
+    Utils::CLI::checkForInvalidParameters(arguments, checkList, helpFunction);
 
     Parameters::DummyBagParameters parameters;
 
@@ -138,31 +131,8 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    // Create thread and connect to its informations
+    // Create thread and run the operation
     auto* const dummyBagThread = new DummyBagThread(parameters, numberOfThreads);
-    std::mutex mutex;
-
-    QObject::connect(dummyBagThread, &DummyBagThread::progressChanged, [&mutex] (const QString& progressString, int progress) {
-        const auto progressStringCMD = Utils::CLI::drawProgressString(progress);
-        // Always clear the last line for a nice "progress bar" feeling
-        mutex.lock();
-        std::cout << progressString.toStdString() << " " << progressStringCMD << " " << progress << "%" << "\r" << std::flush;
-        mutex.unlock();
-    });
-    QObject::connect(dummyBagThread, &DummyBagThread::finished, [] {
-        // This signal is thrown even if SIGINT is called, but we haven't finished, only interrupted
-        if (signalStatus != SIGINT) {
-            std::cout << "\n"; // Extra line to stop flushing
-            std::cout << "Creating bag finished!\n";
-        }
-        return EXIT_SUCCESS;
-    });
-    QObject::connect(dummyBagThread, &DummyBagThread::finished, dummyBagThread, &QObject::deleteLater);
-
-    signal(SIGINT, [] (int signal) {
-        signalStatus = signal;
-    });
-
     std::cout << "Target bag file: " << std::filesystem::absolute(parameters.sourceDirectory.toStdString()) << "\n";
     std::cout << "Topics to create:\n";
     for (const auto& topic : parameters.topics) {
@@ -172,8 +142,7 @@ main(int argc, char* argv[])
     std::cout << "Rate: " << parameters.rate << "\n";
     std::cout << "Number of used threads: " << numberOfThreads << "\n\n";
     std::cout << "Please wait...\n";
-    // Start operation
-    Utils::CLI::runThread(dummyBagThread, signalStatus);
+    Utils::CLI::runThread(dummyBagThread, "Creating bag finished!", Utils::CLI::ProgressMode::ProgressBar, "", false);
 
     return EXIT_SUCCESS;
 }

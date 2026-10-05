@@ -157,6 +157,45 @@ TEST_CASE("Utils CLI Testing", "[utils]") {
         progressString = Utils::CLI::drawProgressString(100);
         REQUIRE(progressString == "##################################################");
     }
+    SECTION("Show help and exit early test") {
+        const QStringList testArguments { "tool_name", "arg2", "arg3" };
+        auto helpWasShown = false;
+
+        const auto helpFunction = [&helpWasShown] {
+            helpWasShown = true;
+        };
+
+        // Too few arguments
+        REQUIRE(Utils::CLI::showHelpAndExitEarly(testArguments, helpFunction, 4) == true);
+        REQUIRE(helpWasShown == true);
+        // Too many arguments
+        helpWasShown = false;
+        REQUIRE(Utils::CLI::showHelpAndExitEarly(testArguments, helpFunction, 1, 2) == true);
+        REQUIRE(helpWasShown == true);
+
+        // Help flag
+        helpWasShown = false;
+        auto helpArguments = testArguments;
+        helpArguments.append("--help");
+        REQUIRE(Utils::CLI::showHelpAndExitEarly(helpArguments, helpFunction, 2) == true);
+        REQUIRE(helpWasShown == true);
+
+        // Valid argument count
+        helpWasShown = false;
+        REQUIRE(Utils::CLI::showHelpAndExitEarly(testArguments, helpFunction, 3) == false);
+        REQUIRE(helpWasShown == false);
+    }
+    SECTION("Check for invalid parameters test") {
+        auto helpWasShown = false;
+        const auto helpFunction = [&helpWasShown] {
+            helpWasShown = true;
+        };
+
+        REQUIRE_NOTHROW(Utils::CLI::checkForInvalidParameters({ "tool_name", "arg2" }, { "-t", "--topic" }, helpFunction));
+        REQUIRE(helpWasShown == false);
+        CHECK_THROWS_WITH(Utils::CLI::checkForInvalidParameters({ "tool_name", "--random_flag" }, { "-t", "--topic" }, helpFunction), "Unrecognized argument '--random_flag'!");
+        REQUIRE(helpWasShown == true);
+    }
 
     std::filesystem::remove_all("test_bag_file");
 }

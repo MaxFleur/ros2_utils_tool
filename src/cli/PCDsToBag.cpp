@@ -3,15 +3,12 @@
 #include "UtilsCLI.hpp"
 
 #include <QCoreApplication>
-#include <QObject>
 
 #include <filesystem>
 #include <iostream>
 
-volatile sig_atomic_t signalStatus = 0;
-
 void
-showHelp()
+helpFunction()
 {
     std::cout << "Usage: ros2 run ros2_utils_tool tool_pcds_to_bag [-h] [files_dir] [output_bag_dir] [-t TOPIC] [-r RATE] [-s]\n\n";
     std::cout << "Convert a dir of pcd files to a bag file.\n\n";
@@ -36,16 +33,12 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto& arguments = app.arguments();
-    if (arguments.size() < 3 || Utils::CLI::containsArguments(arguments, "-h", "--help")) {
-        showHelp();
+    if (Utils::CLI::showHelpAndExitEarly(arguments, helpFunction, 3)) {
         return 0;
     }
 
     const QVector<QString> checkList{ "-t", "-r", "-s", "--topic", "--rate", "--suppress" };
-    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
-        showHelp();
-        throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
-    }
+    Utils::CLI::checkForInvalidParameters(arguments, checkList, helpFunction);
 
     Parameters::PCDsToBagParameters parameters;
 
@@ -88,32 +81,14 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    // Create thread and connect to its informations
+    // Create thread and run the operation
     auto* const pcdsToBagThread = new PCDsToBagThread(parameters);
-
-    QObject::connect(pcdsToBagThread, &PCDsToBagThread::progressChanged, [] (const QString& progressString, int progress) {
-        const auto progressStringCMD = Utils::CLI::drawProgressString(progress);
-        // Always clear the last line for a nice "progress bar" feeling
-        std::cout << progressString.toStdString() << " " << progressStringCMD << " " << progress << "%" << "\r" << std::flush;
-    });
-    QObject::connect(pcdsToBagThread, &PCDsToBagThread::finished, [] {
-        std::cout << "\n"; // Extra line to stop flushing
-        std::cout << "Writing finished!\n";
-        return EXIT_SUCCESS;
-    });
-    QObject::connect(pcdsToBagThread, &PCDsToBagThread::finished, pcdsToBagThread, &QObject::deleteLater);
-
-    signal(SIGINT, [] (int signal) {
-        signalStatus = signal;
-    });
-
     std::cout << "Source pcd directory: " << std::filesystem::absolute(parameters.sourceDirectory.toStdString()) << "\n";
     std::cout << "Target bag file: " << std::filesystem::absolute(parameters.targetDirectory.toStdString()) << "\n";
     std::cout << "Topic name: " << parameters.topicName.toStdString() << "\n";
     std::cout << "Rate: " << parameters.rate << " point clouds per second\n\n";
     std::cout << "Please wait...\n";
-    // Start operation
-    Utils::CLI::runThread(pcdsToBagThread, signalStatus);
+    Utils::CLI::runThread(pcdsToBagThread, "Writing finished!");
 
     return EXIT_SUCCESS;
 }

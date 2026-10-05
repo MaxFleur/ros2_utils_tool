@@ -4,7 +4,6 @@
 #include "Parameters.hpp"
 
 #include <QCoreApplication>
-#include <QObject>
 
 #include "rclcpp/rclcpp.hpp"
 
@@ -13,10 +12,8 @@
 #include <filesystem>
 #include <iostream>
 
-volatile sig_atomic_t signalStatus = 0;
-
 void
-showHelp()
+helpFunction()
 {
     std::cout << "Usage: ros2 run ros2_utils_tool tool_publish_images [-h] [images_dir] [--scale WIDTH HEIGHT] [-r RATE] [-t TOPIC] [-e] [-l] [-s]\n\n";
     std::cout << "Publish a set of images as a ROS2 image messages stream. The images must have format jpg, png or bmp.\n\n";
@@ -45,16 +42,12 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto& arguments = app.arguments();
-    if (arguments.size() < 2 || Utils::CLI::containsArguments(arguments, "-h", "--help")) {
-        showHelp();
+    if (Utils::CLI::showHelpAndExitEarly(arguments, helpFunction, 2)) {
         return 0;
     }
 
     const QVector<QString> checkList{ "-r", "-t", "-e", "-l", "-s", "--rate", "--topic", "--exchange", "--loop", "--suppress", "--scale" };
-    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
-        showHelp();
-        throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
-    }
+    Utils::CLI::checkForInvalidParameters(arguments, checkList, helpFunction);
 
     Parameters::PublishParameters parameters;
 
@@ -117,20 +110,8 @@ main(int argc, char* argv[])
         }
     }
 
-    // Create thread and connect to its informations
+    // Create thread and run the operation
     auto* const publishImagesThread = new PublishImagesThread(parameters);
-    QObject::connect(publishImagesThread, &PublishImagesThread::progressChanged, [] (const QString& progressString, int /* progress */) {
-        std::cout << progressString.toStdString() << "\r" << std::flush;
-    });
-    QObject::connect(publishImagesThread, &PublishImagesThread::finished, publishImagesThread, &QObject::deleteLater);
-    QObject::connect(publishImagesThread, &PublishImagesThread::failed, [] {
-        throw std::runtime_error("Images publishing failed. Please make sure that the image files are valid!");
-    });
-
-    signal(SIGINT, [] (int signal) {
-        signalStatus = signal;
-    });
-
     std::cout << "Source images directory " << std::filesystem::absolute(parameters.sourceDirectory.toStdString()) << "\n";
     std::cout << "Topic name: " << parameters.topicName.toStdString() << "\n";
     std::cout << "Images resolution: " << parameters.width << " x " << parameters.height << "\n";
@@ -139,8 +120,7 @@ main(int argc, char* argv[])
         std::cout << "Looping enabled.\n";
     }
     std::cout << "\n";
-    // Start operation
-    Utils::CLI::runThread(publishImagesThread, signalStatus);
+    Utils::CLI::runThread(publishImagesThread, "", Utils::CLI::ProgressMode::ProgressStringOnly, "Images publishing failed. Please make sure that the image files are valid!");
 
     rclcpp::shutdown();
     return EXIT_SUCCESS;

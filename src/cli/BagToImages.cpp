@@ -4,15 +4,12 @@
 #include "UtilsCLI.hpp"
 
 #include <QCoreApplication>
-#include <QObject>
 
 #include <filesystem>
 #include <iostream>
 
-volatile sig_atomic_t signalStatus = 0;
-
 void
-showHelp()
+helpFunction()
 {
     std::cout << "Usage: ros2 run ros2_utils_tool tool_bag_to_images [-h] [bag_path] [output_files_path] [-f {jpg,png,bmp}] [-t TOPIC]\n";
     std::cout << "                                                   [--thread-count THREAD_COUNT] [-c] [-e] [-b] [-o] [-q QUALITY] [-s]\n\n";
@@ -47,17 +44,13 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto& arguments = app.arguments();
-    if (arguments.size() < 3 || Utils::CLI::containsArguments(arguments, "-h", "--help")) {
-        showHelp();
+    if (Utils::CLI::showHelpAndExitEarly(arguments, helpFunction, 3)) {
         return 0;
     }
 
     const QVector<QString> checkList{ "-f", "-t", "-c", "-e", "-b", "-o", "-q", "-s",
                                       "--format", "--topic", "--colorless", "--exchange", "--binary", "--optimize", "--quality", "--suppress", "--thread-count" };
-    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
-        showHelp();
-        throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
-    }
+    Utils::CLI::checkForInvalidParameters(arguments, checkList, helpFunction);
 
     Parameters::BagToImagesParameters parameters;
 
@@ -107,32 +100,15 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    // Create thread and connect to its informations
+    // Create thread and run the operation
     auto* const bagToImagesThread = new BagToImagesThread(parameters, numberOfThreads);
-    QObject::connect(bagToImagesThread, &BagToImagesThread::progressChanged, [] (const QString& progressString, int progress) {
-        const auto progressStringCMD = Utils::CLI::drawProgressString(progress);
-        // Always clear the last line for a nice "progress bar" feeling
-        std::cout << progressString.toStdString() << " " << progressStringCMD << " " << progress << "%" << "\r" << std::flush;
-    });
-    QObject::connect(bagToImagesThread, &BagToImagesThread::finished, [] {
-        std::cout << "\n"; // Extra line to stop flushing
-        std::cout << "Writing images finished!\n";
-        return EXIT_SUCCESS;
-    });
-    QObject::connect(bagToImagesThread, &BagToImagesThread::finished, bagToImagesThread, &QObject::deleteLater);
-
-    signal(SIGINT, [] (int signal) {
-        signalStatus = signal;
-    });
-
     std::cout << "Source bag file: " << std::filesystem::absolute(parameters.sourceDirectory.toStdString()) << "\n";
     std::cout << "Target images dir: " << std::filesystem::absolute(parameters.targetDirectory.toStdString()) << "\n";
     std::cout << "Topic name: " << parameters.topicName.toStdString() << "\n";
     std::cout << "Format: " << parameters.format.toStdString() << "\n";
     std::cout << "Number of used threads: " << numberOfThreads << "\n\n";
     std::cout << "Writing images. Please wait...\n";
-    // Start operation
-    Utils::CLI::runThread(bagToImagesThread, signalStatus);
+    Utils::CLI::runThread(bagToImagesThread, "Writing images finished!");
 
     return EXIT_SUCCESS;
 }

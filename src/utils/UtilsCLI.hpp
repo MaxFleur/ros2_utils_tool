@@ -8,11 +8,24 @@
 #include <optional>
 #include <string>
 
-#include <signal.h>
+class BasicThread;
 
 // Util functions for the cli tools
 namespace Utils::CLI
 {
+// Show the help and return true if the number of arguments is invalid or the -h/--help parameter was put in.
+bool
+showHelpAndExitEarly(const QStringList&           arguments,
+                     const std::function<void()>& showHelpFunction,
+                     const int                    minimumArgumentCount,
+                     const int                    maximumArgumentCount = -1); // Default: No upper limit
+
+// Show the help and throw if an invalid argument was used
+void
+checkForInvalidParameters(const QStringList&           arguments,
+                          const QVector<QString>&      checkList,
+                          const std::function<void()>& showHelpFunction);
+
 // Determines if an argument list contains invalid arguments
 // by comparing it with a matching checklist, returns the invalid argument if found
 std::optional<std::string>
@@ -98,8 +111,19 @@ drawProgressString(int progress);
 void
 showProcessingString(bool& isProcessing);
 
+// Different ways in which the tools display their progress
+enum class ProgressMode {
+    ProgressStringOnly,
+    ProgressBar,       // additional percentage
+    ProcessingSpinner, // / -> - -> \ -> |
+    None
+};
+
 // Run the thread handling the main CLI tool operation
 void
-runThread(QThread*               thread,
-          volatile sig_atomic_t& signalStatus);
+runThread(BasicThread*   thread,
+          const QString& successMessage,
+          ProgressMode   progressMode = ProgressMode::ProgressBar,
+          const QString& failureMessage = "",
+          bool           printSuccessMessageOnInterrupt = true);
 }

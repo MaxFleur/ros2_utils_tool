@@ -5,16 +5,13 @@
 #include "UtilsROS.hpp"
 
 #include <QCoreApplication>
-#include <QObject>
 #include <QSet>
 
 #include <filesystem>
 #include <iostream>
 
-volatile sig_atomic_t signalStatus = 0;
-
 void
-showHelp()
+helpFunction()
 {
     std::cout << "Usage: ros2 run ros2_utils_tool tool_merge_bags [-h] [bag_path_first] [bag_path_second] [-t1 Topic [Topic...]]\n";
     std::cout << "                                                [-t2 Topic [Topic...]] [output_merged_bag]\n";
@@ -52,16 +49,12 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto& arguments = app.arguments();
-    if (arguments.size() < 8 || Utils::CLI::containsArguments(arguments, "-h", "--help")) {
-        showHelp();
+    if (Utils::CLI::showHelpAndExitEarly(arguments, helpFunction, 8)) {
         return 0;
     }
 
     const QVector<QString> checkList{ "-t1", "-t2", "-d", "-s", "--delete", "--suppress", "--thread-count", "--compression-mode" };
-    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
-        showHelp();
-        throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
-    }
+    Utils::CLI::checkForInvalidParameters(arguments, checkList, helpFunction);
 
     Parameters::MergeBagsParameters parameters;
 
@@ -161,30 +154,8 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    // Create thread and connect to its informations
+    // Create thread and run the operation
     auto* const mergeBagsThread = new MergeBagsThread(parameters, numberOfThreads);
-    auto isMerging = false;
-    std::thread processingThread;
-
-    QObject::connect(mergeBagsThread, &MergeBagsThread::processing, [&processingThread, &isMerging] {
-        processingThread = std::thread(&Utils::CLI::showProcessingString, std::ref(isMerging));
-
-        return EXIT_SUCCESS;
-    });
-    QObject::connect(mergeBagsThread, &MergeBagsThread::finished, [&isMerging, &processingThread] {
-        isMerging = false;
-        processingThread.join();
-
-        std::cout << "\n"; // Extra line to stop flushing
-        std::cout << "Merging bags finished!\n";
-        return EXIT_SUCCESS;
-    });
-    QObject::connect(mergeBagsThread, &MergeBagsThread::finished, mergeBagsThread, &QObject::deleteLater);
-
-    signal(SIGINT, [] (int signal) {
-        signalStatus = signal;
-    });
-
     std::cout << "Source bag file 1: " << std::filesystem::absolute(parameters.sourceDirectory.toStdString()) << "\n";
     std::cout << "Source bag file 2: " << std::filesystem::absolute(parameters.secondSourceDirectory.toStdString()) << "\n";
     std::cout << "Target bag file: " << std::filesystem::absolute(parameters.targetDirectory.toStdString()) << "\n";
@@ -193,8 +164,7 @@ main(int argc, char* argv[])
         std::cout << "    " << topic.name.toStdString() << "\n";
     }
     std::cout << "Number of used threads: " << numberOfThreads << "\n\n";
-    // Start operation
-    Utils::CLI::runThread(mergeBagsThread, signalStatus);
+    Utils::CLI::runThread(mergeBagsThread, "Merging bags finished!", Utils::CLI::ProgressMode::ProcessingSpinner);
 
     return EXIT_SUCCESS;
 }

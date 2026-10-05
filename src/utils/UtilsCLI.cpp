@@ -1,12 +1,52 @@
 #include "UtilsCLI.hpp"
 
+#include "BasicThread.hpp"
 #include "UtilsGeneral.hpp"
 #include "UtilsROS.hpp"
 
 #include <filesystem>
+#include <signal.h>
 
 namespace Utils::CLI
 {
+// Every tool runs in its own process, so one shared signal status is sufficient
+static volatile sig_atomic_t signalStatus = 0;
+
+static void
+signalHandler(int signal)
+{
+    signalStatus = signal;
+}
+
+
+bool
+showHelpAndExitEarly(const QStringList&           arguments,
+                     const std::function<void()>& showHelpFunction,
+                     const int                    minimumArgumentCount,
+                     const int                    maximumArgumentCount)
+{
+    if (arguments.size() < minimumArgumentCount || (maximumArgumentCount != -1 && arguments.size() > maximumArgumentCount) ||
+        Utils::CLI::containsArguments(arguments, "-h", "--help")) {
+        showHelpFunction();
+        return true;
+    }
+
+    return false;
+}
+
+
+void
+checkForInvalidParameters(const QStringList&           arguments,
+                          const QVector<QString>&      checkList,
+                          const std::function<void()>& showHelpFunction)
+{
+    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
+        showHelpFunction();
+        throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
+    }
+}
+
+
 std::optional<std::string>
 containsInvalidParameters(const QStringList& argumentsList, const QVector<QString>& checkList)
 {
@@ -274,11 +314,63 @@ showProcessingString(bool& isProcessing)
 
 
 void
-runThread(QThread* thread, volatile sig_atomic_t& signalStatus)
+runThread(BasicThread*   thread,
+          const QString& successMessage,
+          ProgressMode   progressMode,
+          const QString& failureMessage,
+          bool           printSuccessMessageOnInterrupt)
 {
+    auto isProcessing = false;
+    std::thread processingThread;
+
+    // Connect to progress, finished, failed and processing signals,
+    switch (progressMode) {
+    case ProgressMode::ProgressBar:
+        QObject::connect(thread, &BasicThread::progressChanged, [] (const QString& progressString, int progress) {
+            // Progress can be emitted from multiple threads (dummy bag tool)
+            static std::mutex progressMutex;
+            const auto progressStringCMD = Utils::CLI::drawProgressString(progress);
+            // Always clear the last line for a nice "progress bar" feeling
+            std::lock_guard lock(progressMutex);
+            std::cout << progressString.toStdString() << " " << progressStringCMD << " " << progress << "%" << "\r" << std::flush;
+        });
+        break;
+    case ProgressMode::ProgressStringOnly:
+        QObject::connect(thread, &BasicThread::progressChanged, [] (const QString& progressString, int /* progress */) {
+            std::cout << progressString.toStdString() << "\r" << std::flush;
+        });
+        break;
+    case ProgressMode::ProcessingSpinner:
+        QObject::connect(thread, &BasicThread::processing, [&processingThread, &isProcessing] {
+            processingThread = std::thread(&Utils::CLI::showProcessingString, std::ref(isProcessing));
+        });
+        break;
+    default: break;
+    }
+
+    QObject::connect(thread, &BasicThread::finished, [&processingThread, &isProcessing, successMessage, printSuccessMessageOnInterrupt] {
+        if (processingThread.joinable()) {
+            isProcessing = false;
+            processingThread.join();
+        }
+
+        if (!successMessage.isEmpty() && (printSuccessMessageOnInterrupt || signalStatus != SIGINT)) {
+            std::cout << "\n"; // Extra line to stop flushing
+            std::cout << successMessage.toStdString() << "\n";
+        }
+    });
+    QObject::connect(thread, &BasicThread::finished, thread, &QObject::deleteLater);
+
+    if (!failureMessage.isEmpty()) {
+        QObject::connect(thread, &BasicThread::failed, [failureMessage] {
+            throw std::runtime_error(failureMessage.toStdString());
+        });
+    }
+
+    // Install SIGINT handler and run the thread until it is finished
+    signal(SIGINT, signalHandler);
     thread->start();
 
-    // Look for SIGINT
     while (!thread->isFinished()) {
         if (signalStatus == SIGINT) {
             thread->requestInterruption();
