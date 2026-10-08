@@ -18,11 +18,16 @@ main(int argc, char* argv[])
     MainWindow mainWindow;
     mainWindow.show();
 
-    while (rclcpp::ok()) {
-        app.processEvents();
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
-    }
+    rclcpp::on_shutdown([] {
+        if (!qApp) {
+            return;
+        }
 
+        qApp->quit();
+    });
+
+    const auto returnValue = app.exec();
     rclcpp::shutdown();
-    return EXIT_SUCCESS;
+
+    return returnValue;
 }

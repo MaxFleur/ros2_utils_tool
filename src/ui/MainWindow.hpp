@@ -34,9 +34,6 @@ private:
     void
     resizeToDefault(QWidget* widget);
 
-    void
-    closeEvent(QCloseEvent *event) override;
-
 private:
     // Parameters storing all configurations done by a user in the input widgets.
     // The parameters are transferred to the progress/control widget and the threads.

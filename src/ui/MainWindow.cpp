@@ -25,10 +25,7 @@
 
 #include "DialogSettings.hpp"
 
-#include <QCloseEvent>
 #include <QScrollArea>
-
-#include <csignal>
 
 MainWindow::MainWindow()
 {
@@ -231,12 +228,4 @@ MainWindow::resizeToDefault(QWidget* widget)
     setCentralWidget(widget);
     layout()->activate();
     resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-}
-
-
-void
-MainWindow::closeEvent(QCloseEvent *event)
-{
-    std::raise(SIGINT);
-    event->accept();
 }
