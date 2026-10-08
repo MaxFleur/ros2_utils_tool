@@ -14,6 +14,8 @@ main(int argc, char* argv[])
 
     QApplication app(argc, argv);
     app.setWindowIcon(QIcon(":/icons/tools/main.svg"));
+    app.setOrganizationName("ros2_utils_tool");
+    app.setApplicationName("ros2_utils_tool");
 
     MainWindow mainWindow;
     mainWindow.show();
