@@ -1,12 +1,13 @@
+# Not used that much, but still might be a compile time gain to make it static
 add_subdirectory(input)
 
-add_library (rt_settings INTERFACE)
+add_library (rt_settings STATIC)
 
 target_include_directories (rt_settings
-    INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_sources(rt_settings INTERFACE
+target_sources(rt_settings PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/GeneralSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/GeneralSettings.hpp
     ${CMAKE_CURRENT_LIST_DIR}/DialogSettings.cpp
@@ -14,5 +15,5 @@ target_sources(rt_settings INTERFACE
 )
 
 target_link_libraries(rt_settings
-    INTERFACE Qt::Core
+    PUBLIC Qt::Core rt_utils_misc
 )

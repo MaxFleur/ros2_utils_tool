@@ -1,12 +1,11 @@
-# Lib for UI, utilizing all threads
-
-add_library (rt_all_threads INTERFACE)
+# Lots of classes here, only compile them all once
+add_library (rt_all_threads STATIC)
 
 target_include_directories (rt_all_threads
-    INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_sources(rt_all_threads INTERFACE
+target_sources(rt_all_threads PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/BagMessageToFileThread.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BagMessageToFileThread.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BagTF2ToFileThread.cpp
@@ -17,8 +16,6 @@ target_sources(rt_all_threads INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/BagToPCDsThread.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToVideoThread.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BagToVideoThread.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/BasicThread.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/BasicThread.hpp
     ${CMAKE_CURRENT_LIST_DIR}/ChangeCompressionBagThread.cpp
     ${CMAKE_CURRENT_LIST_DIR}/ChangeCompressionBagThread.hpp
     ${CMAKE_CURRENT_LIST_DIR}/DummyBagThread.cpp
@@ -40,22 +37,33 @@ target_sources(rt_all_threads INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/VideoToBagThread.hpp
 )
 
+if("$ENV{ROS_DISTRO}" STREQUAL "jazzy")
+    ament_target_dependencies(rt_all_threads PUBLIC pcl_conversions)
+else()
+    target_link_libraries(rt_all_threads
+        PUBLIC pcl_conversions::pcl_conversions
+    )
+endif()
+
 target_link_libraries(rt_all_threads
-    INTERFACE Qt::Core rt_utils_misc rt_utils_ui tf2_ros::tf2_ros yaml-cpp
+    PUBLIC Qt::Core rt_basic_thread rt_utils_misc rt_utils_ui rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp cv_bridge::cv_bridge
+    PUBLIC ${geometry_msgs_TARGETS} ${sensor_msgs_TARGETS} ${std_msgs_TARGETS} ${tf2_msgs_TARGETS} tf2_ros::tf2_ros yaml-cpp
+    # Only used by the lib itself
+    PRIVATE Python3::Python
 )
 
 # Libs for CLI tools
+add_library (rt_basic_thread STATIC)
 
-add_library (rt_basic_thread INTERFACE)
 target_include_directories (rt_basic_thread
-    INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )
-target_sources(rt_basic_thread INTERFACE
+target_sources(rt_basic_thread PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/BasicThread.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BasicThread.hpp
 )
 target_link_libraries(rt_basic_thread
-    INTERFACE Qt::Core
+    PUBLIC Qt::Core
 )
 
 add_library (rt_bag_message_to_file_thread INTERFACE)
