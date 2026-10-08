@@ -9,7 +9,7 @@ add_compile_options(-Wall -Wextra -Wpedantic)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-if($ENV{ROS_DISTRO} STREQUAL "lyrical")
+if("$ENV{ROS_DISTRO}" STREQUAL "lyrical")
     # For Ubuntu 26.04, the VTK config seems to be broken and does not
     # correctly create the jsoncpp target, which is a dependency.
     # We have to fix it manually
@@ -152,7 +152,7 @@ target_link_libraries(tool_video_to_bag
     Qt::Core rt_video_to_bag_thread rt_utils_cli rt_utils_misc
 )
 
-if($ENV{ROS_DISTRO} STREQUAL "jazzy")
+if("$ENV{ROS_DISTRO}" STREQUAL "jazzy")
     ament_target_dependencies(tool_ui pcl_conversions)
     ament_target_dependencies(tool_bag_to_pcds pcl_conversions)
     ament_target_dependencies(tool_dummy_bag pcl_conversions )

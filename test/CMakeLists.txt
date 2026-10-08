@@ -25,7 +25,7 @@ target_link_libraries(tool_tests
     catch_ros2::catch_ros2_with_main Python3::Python Qt::Widgets rt_all_threads rt_input_bag rt_ros rt_settings_input rt_utils_cli rt_utils_misc rt_utils_ui
 )
 
-if($ENV{ROS_DISTRO} STREQUAL "jazzy")
+if("$ENV{ROS_DISTRO}" STREQUAL "jazzy")
     ament_target_dependencies(tool_tests pcl_conversions)
 else()
     target_link_libraries(tool_tests
