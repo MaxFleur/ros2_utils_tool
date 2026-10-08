@@ -148,6 +148,7 @@ EditBagWidget::createTopicTree()
     m_treeWidget->setFixedHeight(std::min(treeWidgetHeight, m_treeWidget->MAXIMUM_HEIGHT));
 
     m_treeWidget->setVisible(true);
+    m_selectAllCheckBox->setVisible(true);
     m_findTargetWidget->setVisible(true);
     m_editLabel->setVisible(true);
     m_differentDirsLabel->setVisible(true);

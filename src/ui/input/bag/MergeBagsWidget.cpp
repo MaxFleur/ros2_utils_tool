@@ -158,6 +158,7 @@ MergeBagsWidget::createTopicTree(bool resetTopicsParameter)
     m_treeWidget->blockSignals(false);
 
     m_treeWidget->setVisible(true);
+    m_selectAllCheckBox->setVisible(true);
     m_findTargetWidget->setVisible(true);
     m_sufficientSpaceLabel->setVisible(true);
     m_deleteSourceCheckBox->setVisible(true);

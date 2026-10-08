@@ -121,6 +121,7 @@ ConfigurePlayBagWidget::populateTreeWidget()
     m_treeWidget->blockSignals(false);
 
     m_unselectLabel->setVisible(true);
+    m_selectAllCheckBox->setVisible(true);
     m_treeWidget->setVisible(true);
     m_okButton->setVisible(true);
 
