@@ -1,6 +1,19 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Changelog for the ros2_utils_tool
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1.1.1 (2026-10-08)
+-------------------
+**Changed/Improved:**
+
+* Overall stability improvements.
+
+**Fixed:**
+
+* UI - Some play bag settings were sometimes not properly stored.
+* UI - The "(Un)select all" button was sometimes visible for the Edit Bag, Merge Bags and Play Bag Tool, even when no bag file was selected.
+* CLI - The '--compress' flag was not correctly recognized by the Video to Bag tool.
+* CLI - The Publish Video and Publish Images tool sometimes scaled the input data even when no scale flag was specified.
+
 1.1.0 (2026-10-04)
 -------------------
 **New:**
