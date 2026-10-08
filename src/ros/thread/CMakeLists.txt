@@ -41,7 +41,7 @@ target_sources(rt_all_threads INTERFACE
 )
 
 target_link_libraries(rt_all_threads
-    INTERFACE Qt::Widgets rt_utils_misc rt_utils_ui tf2_ros::tf2_ros yaml-cpp
+    INTERFACE Qt::Core rt_utils_misc rt_utils_ui tf2_ros::tf2_ros yaml-cpp
 )
 
 # Libs for CLI tools
@@ -55,7 +55,7 @@ target_sources(rt_basic_thread INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/BasicThread.hpp
 )
 target_link_libraries(rt_basic_thread
-    INTERFACE Qt::Widgets
+    INTERFACE Qt::Core
 )
 
 add_library (rt_bag_message_to_file_thread INTERFACE)

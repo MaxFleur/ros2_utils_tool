@@ -45,5 +45,5 @@ target_link_libraries(rt_utils_misc
     INTERFACE ${OpenCV_LIBS} rt_settings
 )
 target_link_libraries(rt_utils_ui
-    INTERFACE Qt::Widgets rt_settings
+    INTERFACE Qt::Core rt_settings
 )

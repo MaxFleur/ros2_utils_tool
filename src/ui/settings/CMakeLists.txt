@@ -4,7 +4,7 @@ add_library (rt_settings INTERFACE)
 
 target_include_directories (rt_settings
     INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
-) 
+)
 
 target_sources(rt_settings INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/GeneralSettings.cpp
@@ -14,5 +14,5 @@ target_sources(rt_settings INTERFACE
 )
 
 target_link_libraries(rt_settings
-    INTERFACE Qt::Widgets
+    INTERFACE Qt::Core
 )

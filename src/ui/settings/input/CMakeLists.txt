@@ -46,5 +46,5 @@ target_sources(rt_settings_input INTERFACE
 )
 
 target_link_libraries(rt_settings_input
-    INTERFACE Qt::Widgets rt_settings
+    INTERFACE Qt::Core rt_settings
 )
