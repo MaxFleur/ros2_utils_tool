@@ -9,13 +9,16 @@
 
   <depend>cv_bridge</depend>
   <depend>geometry_msgs</depend>
+  <depend>libopencv-dev</depend>
   <depend>pcl_conversions</depend>
   <depend>rclcpp</depend>
   <depend>rosbag2_cpp</depend>
   <depend>rosbag2_transport</depend>
   <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
   <depend>tf2_msgs</depend>
   <depend>tf2_ros</depend>
+  <depend>yaml-cpp</depend>
 
   <exec_depend>rclpy</exec_depend>
   <exec_depend>rosidl_runtime_py</exec_depend>

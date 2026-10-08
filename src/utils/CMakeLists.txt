@@ -8,7 +8,7 @@ target_include_directories (rt_utils_cli
     INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
 )
 target_include_directories (rt_utils_misc
-    INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
+    INTERFACE ${CMAKE_CURRENT_SOURCE_DIR} ${OpenCV_INCLUDE_DIRS}
 )
 target_include_directories (rt_utils_ui
     INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
