@@ -98,7 +98,7 @@ BagRecorder::searchForAllSubscriptions()
 
 BagRecorder::~BagRecorder()
 {
-    m_recorder->stop();
     m_abortCalled = true;
     m_spinThread.join();
+    m_recorder->stop();
 }
