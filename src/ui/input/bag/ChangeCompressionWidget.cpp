@@ -8,7 +8,6 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QRadioButton>
-#include <QVBoxLayout>
 
 ChangeCompressionWidget::ChangeCompressionWidget(Parameters::DeleteSourceParameters& parameters, bool compress,
                                                  QWidget *parent) :

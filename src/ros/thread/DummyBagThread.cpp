@@ -165,5 +165,4 @@ DummyBagThread::run()
     }
 
     writer->close();
-    emit finished();
 }

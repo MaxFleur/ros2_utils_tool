@@ -40,6 +40,7 @@ AdvancedBagWidget::AdvancedBagWidget(Parameters::DeleteSourceParameters& paramet
 
     m_selectAllCheckBox = new QCheckBox("(Un)select all");
     m_selectAllCheckBox->setTristate(true);
+    m_selectAllCheckBox->setVisible(false);
 
     m_deleteSourceCheckBox = new QCheckBox("Delete Source Bag File(s) after Completion");
     m_deleteSourceCheckBox->setTristate(false);

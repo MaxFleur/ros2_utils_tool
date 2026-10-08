@@ -23,19 +23,6 @@ signals:
     void
     upperValueChanged(int value);
 
-public:
-    int
-    getLowerValue() const
-    {
-        return m_lowerBox->value();
-    }
-
-    int
-    getHigherValue() const
-    {
-        return m_upperBox->value();
-    }
-
 private:
     QPointer<QSpinBox> m_lowerBox;
     QPointer<QSpinBox> m_upperBox;

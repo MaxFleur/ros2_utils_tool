@@ -4,15 +4,12 @@
 #include "Parameters.hpp"
 
 #include <QCoreApplication>
-#include <QObject>
 
 #include <filesystem>
 #include <iostream>
 
-volatile sig_atomic_t signalStatus = 0;
-
 void
-showHelp()
+helpFunction()
 {
     std::cout << "Usage: ros2 run ros2_utils_tool tool_bag_to_video [-h] [bag_path] [output_video_path.{mp4,mkv,avi}] [-r RATE]\n";
     std::cout << "                                                  [-t TOPIC] [-a] [-c] [-e] [-l] [-s]\n\n";
@@ -43,17 +40,13 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto& arguments = app.arguments();
-    if (arguments.size() < 3 || Utils::CLI::containsArguments(arguments, "-h", "--help")) {
-        showHelp();
+    if (Utils::CLI::showHelpAndExitEarly(arguments, helpFunction, 3)) {
         return 0;
     }
 
     const QVector<QString> checkList{ "-r", "-t", "-a", "-c", "-e", "-l", "-s",
                                       "--rate", "--topic", "--accelerate", "--colorless", "--exchange", "--lossless", "--suppress" };
-    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
-        showHelp();
-        throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
-    }
+    Utils::CLI::checkForInvalidParameters(arguments, checkList, helpFunction);
 
     Parameters::BagToVideoParameters parameters;
 
@@ -99,34 +92,15 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    // Create thread and connect to its informations
+    // Create thread and run the operation
     auto* const encodingThread = new BagToVideoThread(parameters, useHardwareAcceleration);
-    QObject::connect(encodingThread, &BagToVideoThread::progressChanged, [] (const QString& progressString, int progress) {
-        const auto progressStringCMD = Utils::CLI::drawProgressString(progress);
-        // Always clear the last line for a nice "progress bar" feeling
-        std::cout << progressString.toStdString() << " " << progressStringCMD << " " << progress << "%" << "\r" << std::flush;
-    });
-    QObject::connect(encodingThread, &BagToVideoThread::finished, [] {
-        std::cout << "\n"; // Extra line to stop flushing
-        std::cout << "Encoding finished!\n";
-        return EXIT_SUCCESS;
-    });
-    QObject::connect(encodingThread, &BagToVideoThread::finished, encodingThread, &QObject::deleteLater);
-    QObject::connect(encodingThread, &BagToVideoThread::failed, [] {
-        throw std::runtime_error("The video writing failed. Please make sure that all parameters are set correctly and disable the hardware acceleration, if necessary.");
-    });
-
-    signal(SIGINT, [] (int signal) {
-        signalStatus = signal;
-    });
-
     std::cout << "Source bag file: " << std::filesystem::absolute(parameters.sourceDirectory.toStdString()) << "\n";
     std::cout << "Target video file: " << std::filesystem::absolute(parameters.targetDirectory.toStdString()) << "\n";
     std::cout << "Rate: " << parameters.fps << "\n";
     std::cout << "Hardware acceleration " << (useHardwareAcceleration ? "enabled" : "disabled") << "\n\n";
     std::cout << "Encoding video. Please wait...\n";
-    // Start operation
-    Utils::CLI::runThread(encodingThread, signalStatus);
+    Utils::CLI::runThread(encodingThread, "Encoding finished!", Utils::CLI::ProgressMode::ProgressBar,
+                          "The video writing failed. Please make sure that all parameters are set correctly and disable the hardware acceleration, if necessary.");
 
     return EXIT_SUCCESS;
 }

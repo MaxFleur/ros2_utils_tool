@@ -6,9 +6,6 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rosbag2_storage/bag_metadata.hpp"
 
-#include "std_msgs/msg/int32.hpp"
-#include "std_msgs/msg/string.hpp"
-
 #include <string>
 
 // ROS related util functions
@@ -80,5 +77,5 @@ isTopicNameROS2Conform(const QString& topicName);
 
 // Returns the current ROS time. Does not require a node.
 QString
-getCurrentROSTimeAsString(rclcpp::Node* node = nullptr);
+getCurrentROSTimeAsString();
 }

@@ -124,7 +124,7 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
         movieLabel->setAlignment(Qt::AlignHCenter);
         progressWidget = movieLabel;
 
-        connect(m_thread, &BasicThread::finished, this, [this, progressLabel] {
+        connect(m_thread, &QThread::finished, this, [this, progressLabel] {
             m_movie->stop();
             progressLabel->setText("Done!");
         });
@@ -211,7 +211,7 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
     connect(m_thread, &BasicThread::progressChanged, this, [progressLabel] (const QString& progressString, int /* progress */) {
         progressLabel->setText(progressString);
     });
-    connect(m_thread, &BasicThread::finished, this, [cancelButton, finishedButton] {
+    connect(m_thread, &QThread::finished, this, [cancelButton, finishedButton] {
         cancelButton->setVisible(false);
         finishedButton->setVisible(true);
     });

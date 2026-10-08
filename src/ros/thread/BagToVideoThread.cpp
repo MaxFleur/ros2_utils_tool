@@ -91,5 +91,4 @@ BagToVideoThread::run()
 
     videoEncoder->release();
     reader->close();
-    emit finished();
 }

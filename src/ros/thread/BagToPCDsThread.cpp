@@ -94,6 +94,4 @@ BagToPCDsThread::run()
     }
 
     reader->close();
-
-    emit finished();
 }

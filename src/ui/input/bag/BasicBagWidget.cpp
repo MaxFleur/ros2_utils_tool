@@ -29,6 +29,7 @@ BasicBagWidget::BasicBagWidget(Parameters::SelectableBagContentParameters& param
     m_selectAllCheckBox = new QCheckBox;
     m_selectAllCheckBox->setText("(Un)select all");
     m_selectAllCheckBox->setCheckState(Qt::Checked);
+    m_selectAllCheckBox->setVisible(false);
 
     m_treeWidget = new BagTreeWidget;
     m_treeWidget->setMinimumWidth(380);

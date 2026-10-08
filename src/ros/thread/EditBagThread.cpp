@@ -171,5 +171,4 @@ EditBagThread::run()
     }
 
     writer->close();
-    emit finished();
 }

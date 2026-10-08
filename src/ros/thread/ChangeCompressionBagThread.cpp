@@ -47,5 +47,4 @@ ChangeCompressionBagThread::run()
     if (m_parameters.deleteSource) {
         std::filesystem::remove_all(m_sourceDirectory);
     }
-    emit finished();
 }

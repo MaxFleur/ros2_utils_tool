@@ -9,6 +9,7 @@
 #include "rosbag2_transport/bag_rewrite.hpp"
 
 #include "sensor_msgs/msg/image.hpp"
+#include "std_msgs/msg/int32.hpp"
 #include "std_msgs/msg/string.hpp"
 #include "tf2_msgs/msg/tf_message.hpp"
 

@@ -36,7 +36,7 @@ TEST_CASE("Bah Handlers Testing", "[threads]") {
         dummyBagParameters.topics.push_back({ { "/string" }, "String" });
 
         auto* const thread = new DummyBagThread(dummyBagParameters, std::thread::hardware_concurrency());
-        QObject::connect(thread, &DummyBagThread::finished, thread, &QObject::deleteLater);
+        QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
 
         thread->start();
         thread->wait();

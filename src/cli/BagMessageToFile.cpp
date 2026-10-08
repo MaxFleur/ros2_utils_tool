@@ -5,15 +5,12 @@
 #include "UtilsROS.hpp"
 
 #include <QCoreApplication>
-#include <QObject>
 
 #include <filesystem>
 #include <iostream>
 
-volatile sig_atomic_t signalStatus = 0;
-
 void
-showHelp()
+helpFunction()
 {
     std::cout << "Usage: ros2 run ros2_utils_tool tool_bag_message_to_file [-h] [bag_path] [output_files_path] [-t TOPIC] [-m] [-f {json,yaml}] [-s]\n\n";
     std::cout << "Convert bag topic messages to one or multiple yaml or json files.\n\n";
@@ -41,17 +38,12 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto& arguments = app.arguments();
-    if (arguments.size() < 3 || Utils::CLI::containsArguments(arguments, "-h", "--help")) {
-        showHelp();
+    if (Utils::CLI::showHelpAndExitEarly(arguments, helpFunction, 3)) {
         return 0;
     }
 
     const QVector<QString> checkList{ "-t", "-f", "-s", "--topic", "--format", "--suppress", "--multiple-output-files" };
-    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList);
-        argument != std::nullopt) {
-        showHelp();
-        throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
-    }
+    Utils::CLI::checkForInvalidParameters(arguments, checkList, helpFunction);
 
     Parameters::BagMessageToFileParameters parameters;
 
@@ -87,32 +79,15 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    // Create thread and connect to its informations
+    // Create thread and run the operation
     auto* const bagMessageToFileThread = new BagMessageToFileThread(parameters);
-    const auto fileFormatString = parameters.isYaml ? "yaml" : "json";
-
-    QObject::connect(bagMessageToFileThread, &BagMessageToFileThread::progressChanged, [] (const QString& progressString, int progress) {
-        const auto progressStringCMD = Utils::CLI::drawProgressString(progress);
-        // Always clear the last line for a nice "progress bar" feeling
-        std::cout << progressString.toStdString() << " " << progressStringCMD << " " << progress << "%" << "\r" << std::flush;
-    });
-    QObject::connect(bagMessageToFileThread, &BagMessageToFileThread::finished, [fileFormatString] {
-        std::cout << "\n"; // Extra line to stop flushing
-        std::cout << "Writing " << fileFormatString << " file(s) finished!\n";
-        return EXIT_SUCCESS;
-    });
-    QObject::connect(bagMessageToFileThread, &BagMessageToFileThread::finished, bagMessageToFileThread, &QObject::deleteLater);
-
-    signal(SIGINT, [] (int signal) {
-        signalStatus = signal;
-    });
+    const auto fileFormatString = parameters.isYaml ? QString("yaml") : QString("json");
 
     std::cout << "Source bag file: " << std::filesystem::absolute(parameters.sourceDirectory.toStdString()) << "\n";
-    std::cout << "Target " << fileFormatString << " file(s) dir: " << std::filesystem::absolute(parameters.targetDirectory.toStdString()) << "\n";
+    std::cout << "Target " << fileFormatString.toStdString() << " file(s) dir: " << std::filesystem::absolute(parameters.targetDirectory.toStdString()) << "\n";
     std::cout << "Topic name: " << parameters.topicName.toStdString() << "\n\n";
-    std::cout << "Writing " << fileFormatString << " file(s). Please wait...\n";
-    // Start operation
-    Utils::CLI::runThread(bagMessageToFileThread, signalStatus);
+    std::cout << "Writing " << fileFormatString.toStdString() << " file(s). Please wait...\n";
+    Utils::CLI::runThread(bagMessageToFileThread, "Writing " + fileFormatString + " file(s) finished!");
 
     return EXIT_SUCCESS;
 }

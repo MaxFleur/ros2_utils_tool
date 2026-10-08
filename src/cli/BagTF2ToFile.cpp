@@ -5,15 +5,12 @@
 #include "UtilsGeneral.hpp"
 
 #include <QCoreApplication>
-#include <QObject>
 
 #include <filesystem>
 #include <iostream>
 
-volatile sig_atomic_t signalStatus = 0;
-
 void
-showHelp()
+helpFunction()
 {
     std::cout << "Usage: ros2 run ros2_utils_tool tool_bag_tf2_to_file [-h] [bag_path] [output_file_path.{json,yaml}] [-t TOPIC] [--keep-timestamps] [-i] [-s]\n\n";
     std::cout << "Convert bag transformations to file.\n\n";
@@ -41,16 +38,12 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto& arguments = app.arguments();
-    if (arguments.size() < 3 || Utils::CLI::containsArguments(arguments, "-h", "--help")) {
-        showHelp();
+    if (Utils::CLI::showHelpAndExitEarly(arguments, helpFunction, 3)) {
         return 0;
     }
 
     const QVector<QString> checkList{ "-t", "-i", "-s", "--topic", "--indent", "--suppress", "--keep-timestamps" };
-    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
-        showHelp();
-        throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
-    }
+    Utils::CLI::checkForInvalidParameters(arguments, checkList, helpFunction);
 
     Parameters::BagTF2ToFileParameters parameters;
 
@@ -83,29 +76,13 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    // Create thread and connect to its informations
+    // Create thread and run the operation
     auto* const bagTF2ToFileThread = new BagTF2ToFileThread(parameters);
-    QObject::connect(bagTF2ToFileThread, &BagTF2ToFileThread::progressChanged, [] (const QString& progressString, int progress) {
-        const auto progressStringCMD = Utils::CLI::drawProgressString(progress);
-        // Always clear the last line for a nice "progress bar" feeling
-        std::cout << progressString.toStdString() << " " << progressStringCMD << " " << progress << "%" << "\r" << std::flush;
-    });
-    QObject::connect(bagTF2ToFileThread, &BagTF2ToFileThread::finished, [] {
-        std::cout << "\n"; // Extra line to stop flushing
-        std::cout << "Writing finished!\n";
-        return EXIT_SUCCESS;
-    });
-    QObject::connect(bagTF2ToFileThread, &BagTF2ToFileThread::finished, bagTF2ToFileThread, &QObject::deleteLater);
-
-    signal(SIGINT, [] (int signal) {
-        signalStatus = signal;
-    });
-
     std::cout << "Source bag file: " << std::filesystem::absolute(parameters.sourceDirectory.toStdString()) << "\n";
     std::cout << "Target file: " << std::filesystem::absolute(parameters.targetDirectory.toStdString()) << "\n";
     std::cout << "Topic name: " << parameters.topicName.toStdString() << "\n\n";
     std::cout << "Please wait...\n";
-    Utils::CLI::runThread(bagTF2ToFileThread, signalStatus);
+    Utils::CLI::runThread(bagTF2ToFileThread, "Writing finished!");
 
     return EXIT_SUCCESS;
 }

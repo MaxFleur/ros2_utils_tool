@@ -1,35 +1,10 @@
 #include "BagToVideoSettings.hpp"
 
 BagToVideoSettings::BagToVideoSettings(Parameters::BagToVideoParameters& parameters, const QString& groupName) :
-    VideoSettings(parameters, groupName), m_parameters(parameters)
+    VideoSettings(parameters, groupName)
 {
+    registerParameter("bw_images", parameters.useBWImages, false);
+    registerParameter("lossless_images", parameters.lossless, false);
+
     read();
-}
-
-
-bool
-BagToVideoSettings::write()
-{
-    if (!VideoSettings::write()) {
-        return false;
-    }
-
-    writeParameter(m_groupName, "bw_images", m_parameters.useBWImages);
-    writeParameter(m_groupName, "lossless_images", m_parameters.lossless);
-
-    return true;
-}
-
-
-bool
-BagToVideoSettings::read()
-{
-    if (!VideoSettings::read()) {
-        return false;
-    }
-
-    m_parameters.useBWImages = readParameter(m_groupName, "bw_images", false);
-    m_parameters.lossless = readParameter(m_groupName, "lossless_images", false);
-
-    return true;
 }

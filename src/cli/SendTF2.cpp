@@ -6,14 +6,11 @@
 #include "UtilsTF2.hpp"
 
 #include <QCoreApplication>
-#include <QObject>
 
 #include <iostream>
 
-volatile sig_atomic_t signalStatus = 0;
-
 void
-showHelp()
+helpFunction()
 {
     std::cout << "Usage: ros2 run ros2_utils_tool tool_send_tf2 [-h] [--child-frame-name NAME]\n";
     std::cout << "                                              [--rotation \"VALUE,VALUE,VALUE,VALUE\"] [--translation \"VALUE,VALUE,VALUE\"]\n";
@@ -68,16 +65,12 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto& arguments = app.arguments();
-    if (arguments.size() < 1 || Utils::CLI::containsArguments(arguments, "-h", "--help")) {
-        showHelp();
+    if (Utils::CLI::showHelpAndExitEarly(arguments, helpFunction, 1)) {
         return 0;
     }
 
     const QVector<QString> checkList{ "-i", "-r", "--input", "--rate", "--child-frame-name", "--rotation", "--translation", "--save" };
-    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
-        showHelp();
-        throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
-    }
+    Utils::CLI::checkForInvalidParameters(arguments, checkList, helpFunction);
 
     Parameters::SendTF2Parameters parameters;
     if (Utils::CLI::containsArguments(arguments, "-i", "--input")) {
@@ -167,18 +160,10 @@ main(int argc, char* argv[])
         throw std::runtime_error("Please enter a rate in the range of 1 to 100!");
     }
 
-    // Create thread and connect to its informations
+    // Create thread and run the operation
     auto* const sendTF2Thread = new SendTF2Thread(parameters);
-
-    QObject::connect(sendTF2Thread, &SendTF2Thread::finished, sendTF2Thread, &QObject::deleteLater);
-
-    signal(SIGINT, [] (int signal) {
-        signalStatus = signal;
-    });
-
     showInfo(parameters, false);
-    // Start operation
-    Utils::CLI::runThread(sendTF2Thread, signalStatus);
+    Utils::CLI::runThread(sendTF2Thread, "", Utils::CLI::ProgressMode::None);
 
     rclcpp::shutdown();
     return EXIT_SUCCESS;

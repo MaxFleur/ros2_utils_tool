@@ -55,5 +55,4 @@ MergeBagsThread::run()
         std::filesystem::remove_all(m_sourceDirectory);
         std::filesystem::remove_all(m_parameters.secondSourceDirectory.toStdString());
     }
-    emit finished();
 }

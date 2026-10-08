@@ -41,9 +41,6 @@ BagInfoWidget::BagInfoWidget(QWidget *parent) :
     m_controlsLayout->addStretch();
 
     connect(m_findSourceButton, &QPushButton::clicked, this, &BagInfoWidget::populateTreeWidget);
-    connect(m_okButton, &QPushButton::clicked, this, [this] {
-        emit back();
-    });
 }
 
 

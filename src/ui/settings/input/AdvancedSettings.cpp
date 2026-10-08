@@ -1,37 +1,11 @@
 #include "AdvancedSettings.hpp"
 
 AdvancedSettings::AdvancedSettings(Parameters::AdvancedParameters& parameters, const QString& groupName) :
-    BasicSettings(parameters, groupName), m_parameters(parameters)
+    BasicSettings(parameters, groupName)
 {
+    registerParameter("target_dir", parameters.targetDirectory, QString(""));
+    registerParameter("topic_name", parameters.topicName, QString(""));
+    registerParameter("show_advanced", parameters.showAdvancedOptions, false);
+
     read();
-}
-
-
-bool
-AdvancedSettings::write()
-{
-    if (!BasicSettings::write()) {
-        return false;
-    }
-
-    writeParameter(m_groupName, "target_dir", m_parameters.targetDirectory);
-    writeParameter(m_groupName, "topic_name", m_parameters.topicName);
-    writeParameter(m_groupName, "show_advanced", m_parameters.showAdvancedOptions);
-
-    return true;
-}
-
-
-bool
-AdvancedSettings::read()
-{
-    if (!BasicSettings::read()) {
-        return false;
-    }
-
-    m_parameters.targetDirectory = readParameter(m_groupName, "target_dir", QString(""));
-    m_parameters.topicName = readParameter(m_groupName, "topic_name", QString(""));
-    m_parameters.showAdvancedOptions = readParameter(m_groupName, "show_advanced", false);
-
-    return true;
 }

@@ -58,8 +58,6 @@ VideoToBagThread::run()
     cvBridge.header = header;
     cvBridge.encoding = sensor_msgs::image_encodings::BGR8;
 
-    cv_bridge::CvImagePtr cvPointer;
-
     while (true) {
         if (isInterruptionRequested()) {
             writer->close();
@@ -97,5 +95,4 @@ VideoToBagThread::run()
     }
 
     writer->close();
-    emit finished();
 }

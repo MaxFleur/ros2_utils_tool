@@ -5,15 +5,12 @@
 #include "UtilsROS.hpp"
 
 #include <QCoreApplication>
-#include <QObject>
 
 #include <filesystem>
 #include <iostream>
 
-volatile sig_atomic_t signalStatus = 0;
-
 void
-showHelp()
+helpFunction()
 {
     std::cout << "Usage: ros2 run ros2_utils_tool tool_compress_bag [-h] [bag_path] [output_compressed_bag_path]\n";
     std::cout << "                                                  [--compression-mode {file,message}] [--thread-count THREAD_COUNT] [-d] [-s]\n\n";
@@ -44,17 +41,12 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto& arguments = app.arguments();
-    if (arguments.size() < 3 || Utils::CLI::containsArguments(arguments, "-h", "--help")) {
-        showHelp();
+    if (Utils::CLI::showHelpAndExitEarly(arguments, helpFunction, 3)) {
         return 0;
     }
 
     const QVector<QString> checkList { "-d", "-s", "--delete", "--suppress", "--compression-mode", "--thread-count" };
-    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList);
-        argument != std::nullopt) {
-        showHelp();
-        throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
-    }
+    Utils::CLI::checkForInvalidParameters(arguments, checkList, helpFunction);
 
     Parameters::DeleteSourceParameters parameters;
 
@@ -99,35 +91,12 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    // Create thread and connect to its informations
+    // Create thread and run the operation
     auto* const compressBagThread = new ChangeCompressionBagThread(parameters, numberOfThreads, true);
-    auto isCompressing = false;
-    std::thread processingThread;
-
-    QObject::connect(compressBagThread, &ChangeCompressionBagThread::processing, [&processingThread, &isCompressing] {
-        processingThread = std::thread(Utils::CLI::showProcessingString, std::ref(isCompressing));
-
-        return EXIT_SUCCESS;
-    });
-    QObject::connect(compressBagThread, &ChangeCompressionBagThread::finished, [&isCompressing, &processingThread] {
-        isCompressing = false;
-        processingThread.join();
-
-        std::cout << "\n";// Extra line to stop flushing
-        std::cout << "Compressing finished!\n";
-        return EXIT_SUCCESS;
-    });
-    QObject::connect(compressBagThread, &ChangeCompressionBagThread::finished, compressBagThread, &QObject::deleteLater);
-
-    signal(SIGINT, [] (int signal) {
-        signalStatus = signal;
-    });
-
     std::cout << "Source uncompressed bag file: " << std::filesystem::absolute(parameters.sourceDirectory.toStdString()) << "\n";
     std::cout << "Target compressed bag file: " << std::filesystem::absolute(parameters.targetDirectory.toStdString()) << "\n";
     std::cout << "Number of used threads: " << numberOfThreads << "\n\n";
-    // Start operation
-    Utils::CLI::runThread(compressBagThread, signalStatus);
+    Utils::CLI::runThread(compressBagThread, "Compressing finished!", Utils::CLI::ProgressMode::ProcessingSpinner);
 
     return EXIT_SUCCESS;
 }

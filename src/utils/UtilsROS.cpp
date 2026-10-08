@@ -220,12 +220,8 @@ isTopicNameROS2Conform(const QString& topicName)
 
 
 QString
-getCurrentROSTimeAsString(rclcpp::Node* node)
+getCurrentROSTimeAsString()
 {
-    if (node) {
-        return "[" + QString::number(node->now().seconds(), 'f', 9) + "]";
-    }
-
     rclcpp::Clock clock(RCL_ROS_TIME);  // or RCL_ROS_TIME
     return "[" + QString::number(clock.now().seconds(), 'f', 9) + "]";
 }

@@ -7,6 +7,7 @@ target_include_directories (rt_settings
 ) 
 
 target_sources(rt_settings INTERFACE
+    ${CMAKE_CURRENT_LIST_DIR}/GeneralSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/GeneralSettings.hpp
     ${CMAKE_CURRENT_LIST_DIR}/DialogSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/DialogSettings.hpp

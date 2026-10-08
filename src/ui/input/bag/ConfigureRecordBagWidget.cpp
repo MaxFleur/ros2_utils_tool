@@ -24,6 +24,7 @@ ConfigureRecordBagWidget::ConfigureRecordBagWidget(Parameters::RecordBagParamete
     // So reenable visibility
     m_unselectLabel->setVisible(true);
     m_treeWidget->setVisible(true);
+    m_selectAllCheckBox->setVisible(true);
 
     auto* const includeROSTopicsCheckBox = new QCheckBox("Include ROS Topics");
     includeROSTopicsCheckBox->setCheckState(m_parameters.includeROSTopics ? Qt::Checked : Qt::Unchecked);

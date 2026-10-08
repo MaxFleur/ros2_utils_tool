@@ -4,17 +4,16 @@
 #include "Parameters.hpp"
 
 #include <QCoreApplication>
-#include <QObject>
 
 #include "rclcpp/rclcpp.hpp"
+
+#include <opencv2/videoio.hpp>
 
 #include <filesystem>
 #include <iostream>
 
-volatile sig_atomic_t signalStatus = 0;
-
 void
-showHelp()
+helpFunction()
 {
     std::cout << "Usage: ros2 run ros2_utils_tool tool_publish_video [-h] [video_dir] [--scale WIDTH HEIGHT] [-r RATE] [-t TOPIC] [-a] [-e] [-l] [-s]\n\n";
     std::cout << "Publish a stored video as a ROS2 image messages stream. The video must have a format of mp4 or mkv.\n\n";
@@ -44,17 +43,13 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto& arguments = app.arguments();
-    if (arguments.size() < 2 || Utils::CLI::containsArguments(arguments, "-h", "--help")) {
-        showHelp();
+    if (Utils::CLI::showHelpAndExitEarly(arguments, helpFunction, 2)) {
         return 0;
     }
 
     const QVector<QString> checkList{ "-r", "-t", "-a", "-e", "-l", "-s",
                                       "--scale", "--rate", "--topic", "--accelerate", "--exchange", "--loop", "--suppress" };
-    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
-        showHelp();
-        throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
-    }
+    Utils::CLI::checkForInvalidParameters(arguments, checkList, helpFunction);
 
     Parameters::PublishParameters parameters;
 
@@ -88,7 +83,6 @@ main(int argc, char* argv[])
         if (!Utils::CLI::checkArgumentValidity(arguments, "", "--scale", parameters.height, 1, 2160, 2)) {
             throw std::runtime_error("Please enter a height value between 1 and 2160!");
         }
-        parameters.scale = true;
         // Hardware acceleration
         useHardwareAcceleration = Utils::CLI::containsArguments(arguments, "-a", "--accelerate");
         // Exchange red and blue values
@@ -101,21 +95,14 @@ main(int argc, char* argv[])
     if (parameters.topicName.isEmpty()) {
         parameters.topicName = "/topic_video";
     }
+    if (!parameters.scale) {
+        cv::VideoCapture videoCapture(parameters.sourceDirectory.toStdString());
+        parameters.width = static_cast<int>(videoCapture.get(cv::CAP_PROP_FRAME_WIDTH));
+        parameters.height = static_cast<int>(videoCapture.get(cv::CAP_PROP_FRAME_HEIGHT));
+    }
 
-    // Create thread and connect to its informations
+    // Create thread and run the operation
     auto* const publishVideoThread = new PublishVideoThread(parameters, useHardwareAcceleration);
-    QObject::connect(publishVideoThread, &PublishVideoThread::progressChanged, [] (const QString& progressString, int /* progress */) {
-        std::cout << progressString.toStdString() << "\r" << std::flush;
-    });
-    QObject::connect(publishVideoThread, &PublishVideoThread::finished, publishVideoThread, &QObject::deleteLater);
-    QObject::connect(publishVideoThread, &PublishVideoThread::failed, [] {
-        throw std::runtime_error("Video publishing failed. Please make sure that the video file is valid and disable the hardware acceleration, if necessary.");
-    });
-
-    signal(SIGINT, [] (int signal) {
-        signalStatus = signal;
-    });
-
     std::cout << "Video file " << std::filesystem::absolute(parameters.sourceDirectory.toStdString()) << "\n";
     std::cout << "Topic name: " << parameters.topicName.toStdString() << "\n";
     std::cout << "Resolution: " << parameters.width << " x " << parameters.height << "\n";
@@ -123,8 +110,8 @@ main(int argc, char* argv[])
         std::cout << "Looping enabled.\n";
     }
     std::cout << "\n";
-    // Start operation
-    Utils::CLI::runThread(publishVideoThread, signalStatus);
+    Utils::CLI::runThread(publishVideoThread, "", Utils::CLI::ProgressMode::ProgressStringOnly,
+                          "Video publishing failed. Please make sure that the video file is valid and disable the hardware acceleration, if necessary.");
 
     rclcpp::shutdown();
     return EXIT_SUCCESS;

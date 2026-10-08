@@ -2,6 +2,7 @@
 
 #include "UtilsUI.hpp"
 
+#include <QComboBox>
 #include <QFormLayout>
 
 BagToPCDsWidget::BagToPCDsWidget(Parameters::AdvancedParameters& parameters, QWidget *parent) :

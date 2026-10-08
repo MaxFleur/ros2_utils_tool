@@ -4,15 +4,12 @@
 #include "Parameters.hpp"
 
 #include <QCoreApplication>
-#include <QObject>
 
 #include <filesystem>
 #include <iostream>
 
-volatile sig_atomic_t signalStatus = 0;
-
 void
-showHelp()
+helpFunction()
 {
     std::cout << "Usage: ros2 run ros2_utils_tool tool_video_to_bag [-h] [video_path.{mp4,mkv}] [output_bag_path] [-r RATE]\n";
     std::cout << "                                                  [-t TOPIC] [-a] [-c] [-e] [-l] [-f {jpg,png}] [-s]\n\n";
@@ -44,17 +41,13 @@ main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     const auto& arguments = app.arguments();
-    if (arguments.size() < 3 || Utils::CLI::containsArguments(arguments, "-h", "--help")) {
-        showHelp();
+    if (Utils::CLI::showHelpAndExitEarly(arguments, helpFunction, 3)) {
         return 0;
     }
 
     const QVector<QString> checkList{ "-r", "-t", "-a", "-c", "-e", "-f", "-s",
                                       "--rate", "--topic", "--accelerate", "--compress", "--exchange", "--format", "--suppress" };
-    if (const auto& argument = Utils::CLI::containsInvalidParameters(arguments, checkList); argument != std::nullopt) {
-        showHelp();
-        throw std::runtime_error("Unrecognized argument '" + *argument + "'!");
-    }
+    Utils::CLI::checkForInvalidParameters(arguments, checkList, helpFunction);
 
     Parameters::VideoToBagParameters parameters;
 
@@ -86,7 +79,7 @@ main(int argc, char* argv[])
         // Hardware acceleration
         useHardwareAcceleration = Utils::CLI::containsArguments(arguments, "-a", "--accelerate");
         // Compression enabled/disabled
-        parameters.useCompression = Utils::CLI::containsArguments(arguments, "-c", "--compression");
+        parameters.useCompression = Utils::CLI::containsArguments(arguments, "-c", "--compress");
         // Compression format
         if (Utils::CLI::containsArguments(arguments, "-f", "--format")) {
             parameters.isCompressionJPEG = arguments.at(Utils::CLI::getFormatIndex(arguments, { "jpg", "png" })) == "jpg";
@@ -104,35 +97,15 @@ main(int argc, char* argv[])
         return 0;
     }
 
-    // Create thread and connect to its informations
+    // Create thread and run the operation
     auto* const videoToBagThread = new VideoToBagThread(parameters, useHardwareAcceleration);
-
-    QObject::connect(videoToBagThread, &VideoToBagThread::progressChanged, [] (const QString& progressString, int progress) {
-        const auto progressStringCMD = Utils::CLI::drawProgressString(progress);
-        // Always clear the last line for a nice "progress bar" feeling
-        std::cout << progressString.toStdString() << " " << progressStringCMD << " " << progress << "%" << "\r" << std::flush;
-    });
-    QObject::connect(videoToBagThread, &VideoToBagThread::finished, [] {
-        std::cout << "\n";// Extra line to stop flushing
-        std::cout << "Writing finished!\n";
-        return EXIT_SUCCESS;
-    });
-    QObject::connect(videoToBagThread, &VideoToBagThread::finished, videoToBagThread, &QObject::deleteLater);
-    QObject::connect(videoToBagThread, &VideoToBagThread::failed, [] {
-        throw std::runtime_error("Bag creation failed. Please make sure that all parameters are set correctly and disable the hardware acceleration, if necessary.");
-    });
-
-    signal(SIGINT, [] (int signal) {
-        signalStatus = signal;
-    });
-
     std::cout << "Source video file: " << std::filesystem::absolute(parameters.sourceDirectory.toStdString()) << "\n";
     std::cout << "Target bag file: " << std::filesystem::absolute(parameters.targetDirectory.toStdString()) << "\n";
     std::cout << "Topic name: " << parameters.topicName.toStdString() << "\n";
     std::cout << "Rate: " << parameters.fps << " fps\n\n";
     std::cout << "Please wait...\n";
-    // Start operation
-    Utils::CLI::runThread(videoToBagThread, signalStatus);
+    Utils::CLI::runThread(videoToBagThread, "Writing finished!", Utils::CLI::ProgressMode::ProgressBar,
+                          "Bag creation failed. Please make sure that all parameters are set correctly and disable the hardware acceleration, if necessary.");
 
     return EXIT_SUCCESS;
 }

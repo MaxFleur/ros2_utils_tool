@@ -14,15 +14,22 @@ main(int argc, char* argv[])
 
     QApplication app(argc, argv);
     app.setWindowIcon(QIcon(":/icons/tools/main.svg"));
+    app.setOrganizationName("ros2_utils_tool");
+    app.setApplicationName("ros2_utils_tool");
 
     MainWindow mainWindow;
     mainWindow.show();
 
-    while (rclcpp::ok()) {
-        app.processEvents();
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
-    }
+    rclcpp::on_shutdown([] {
+        if (!qApp) {
+            return;
+        }
 
+        qApp->quit();
+    });
+
+    const auto returnValue = app.exec();
     rclcpp::shutdown();
-    return EXIT_SUCCESS;
+
+    return returnValue;
 }

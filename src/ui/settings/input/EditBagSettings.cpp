@@ -2,66 +2,26 @@
 
 EditBagSettings::EditBagSettings(Parameters::EditBagParameters& parameters,
                                  const QString&                 groupName) :
-    DeleteSourceSettings(parameters, groupName), m_parameters(parameters)
+    DeleteSourceSettings(parameters, groupName)
 {
+    const auto readParameters = [] (QSettings& settings, Parameters::EditBagParameters::EditBagTopic& topic) {
+        topic.name = readParameter(settings, "name", QString(""));
+        topic.isSelected = readParameter(settings, "is_selected", false);
+        topic.renamedName = readParameter(settings, "renamed_name", QString(""));
+        topic.lowerBoundary = readParameter(settings, "lower_boundary", static_cast<size_t>(0));
+        topic.upperBoundary = readParameter(settings, "upper_boundary", static_cast<size_t>(0));
+    };
+    const auto writeParameters = [] (QSettings& settings, const Parameters::EditBagParameters::EditBagTopic& topic) {
+        writeParameter(settings, "name", topic.name);
+        writeParameter(settings, "is_selected", topic.isSelected);
+        writeParameter(settings, "renamed_name", topic.renamedName);
+        writeParameter(settings, "lower_boundary", topic.lowerBoundary);
+        writeParameter(settings, "upper_boundary", topic.upperBoundary);
+    };
+
+    registerArrayParameter("topics", parameters.topics, readParameters, writeParameters);
+    registerParameter("update_timestamps", parameters.updateTimestamps, false);
+    registerParameter("compress_target", parameters.compressTarget, false);
+
     read();
-}
-
-
-bool
-EditBagSettings::write()
-{
-    if (!DeleteSourceSettings::write()) {
-        return false;
-    }
-
-    QSettings settings;
-    settings.beginGroup(m_groupName);
-
-    settings.beginWriteArray("topics");
-    for (auto i = 0; i < m_parameters.topics.size(); ++i) {
-        settings.setArrayIndex(i);
-        writeParameter(settings, "name", m_parameters.topics.at(i).name);
-        writeParameter(settings, "is_selected", m_parameters.topics.at(i).isSelected);
-        writeParameter(settings, "renamed_name", m_parameters.topics.at(i).renamedName);
-        writeParameter(settings, "lower_boundary", m_parameters.topics.at(i).lowerBoundary);
-        writeParameter(settings, "upper_boundary", m_parameters.topics.at(i).upperBoundary);
-    }
-    settings.endArray();
-    settings.endGroup();
-
-    writeParameter(m_groupName, "update_timestamps", m_parameters.updateTimestamps);
-    writeParameter(m_groupName, "compress_target", m_parameters.compressTarget);
-
-    return true;
-}
-
-
-bool
-EditBagSettings::read()
-{
-    if (!DeleteSourceSettings::read()) {
-        return false;
-    }
-
-    QSettings settings;
-    settings.beginGroup(m_groupName);
-    m_parameters.topics.clear();
-
-    const auto size = settings.beginReadArray("topics");
-    for (auto i = 0; i < size; ++i) {
-        settings.setArrayIndex(i);
-        m_parameters.topics.append({ { { readParameter(settings, "name", QString("")) },
-                                       readParameter(settings, "is_selected", false) },
-                                       readParameter(settings, "renamed_name", QString("")),
-                                       static_cast<size_t>(readParameter(settings, "lower_boundary", 0)),
-                                       static_cast<size_t>(readParameter(settings, "upper_boundary", 0)) });
-    }
-    settings.endArray();
-    settings.endGroup();
-
-    m_parameters.updateTimestamps = readParameter(m_groupName, "update_timestamps", false);
-    m_parameters.compressTarget = readParameter(m_groupName, "compress_target", false);
-
-    return true;
 }

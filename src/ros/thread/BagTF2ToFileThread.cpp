@@ -92,10 +92,8 @@ BagTF2ToFileThread::run()
 
         try {
             fout << transformsNode;
-        } catch (std::ofstream::failure& /* exeption */) {
+        } catch (std::ofstream::failure& /* exception */) {
             emit failed();
         }
     }
-
-    emit finished();
 }
