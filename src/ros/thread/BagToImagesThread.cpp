@@ -151,6 +151,4 @@ BagToImagesThread::run()
     }
 
     reader->close();
-
-    emit finished();
 }

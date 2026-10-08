@@ -47,5 +47,4 @@ SendTF2Thread::run()
     }
 
     timer->cancel();
-    emit finished();
 }

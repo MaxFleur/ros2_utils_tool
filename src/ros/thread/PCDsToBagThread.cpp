@@ -66,6 +66,4 @@ PCDsToBagThread::run()
                              (static_cast<float>(iterationCount) / static_cast<float>(frameCount) * 100));
         iterationCount++;
     }
-
-    emit finished();
 }

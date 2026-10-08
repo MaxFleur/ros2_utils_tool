@@ -348,7 +348,7 @@ runThread(BasicThread*   thread,
     default: break;
     }
 
-    QObject::connect(thread, &BasicThread::finished, [&processingThread, &isProcessing, successMessage, printSuccessMessageOnInterrupt] {
+    QObject::connect(thread, &QThread::finished, [&processingThread, &isProcessing, successMessage, printSuccessMessageOnInterrupt] {
         if (processingThread.joinable()) {
             isProcessing = false;
             processingThread.join();
@@ -359,7 +359,7 @@ runThread(BasicThread*   thread,
             std::cout << successMessage.toStdString() << "\n";
         }
     });
-    QObject::connect(thread, &BasicThread::finished, thread, &QObject::deleteLater);
+    QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
 
     if (!failureMessage.isEmpty()) {
         QObject::connect(thread, &BasicThread::failed, [failureMessage] {

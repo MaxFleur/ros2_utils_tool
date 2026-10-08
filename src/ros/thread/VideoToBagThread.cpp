@@ -95,5 +95,4 @@ VideoToBagThread::run()
     }
 
     writer->close();
-    emit finished();
 }

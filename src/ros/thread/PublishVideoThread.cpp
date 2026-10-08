@@ -81,5 +81,4 @@ PublishVideoThread::run()
     }
 
     timer->cancel();
-    emit finished();
 }

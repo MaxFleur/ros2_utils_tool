@@ -93,5 +93,4 @@ PublishImagesThread::run()
     }
 
     timer->cancel();
-    emit finished();
 }

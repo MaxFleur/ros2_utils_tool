@@ -161,7 +161,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.topics.push_back({ { "/dummy_tf2" }, "TF2" });
 
         auto* const thread = new DummyBagThread(parameters, std::thread::hardware_concurrency());
-        QObject::connect(thread, &DummyBagThread::finished, thread, &QObject::deleteLater);
+        QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
 
         thread->start();
         thread->wait();
@@ -212,7 +212,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.topics.push_back({ { { "/dummy_string" }, true }, "/renamed_string", 25, 74 });
 
         auto* const thread = new EditBagThread(parameters, std::thread::hardware_concurrency());
-        QObject::connect(thread, &EditBagThread::finished, thread, &QObject::deleteLater);
+        QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
 
         thread->start();
         thread->wait();
@@ -264,7 +264,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.targetDirectory = "./merged_bag";
 
         auto* const thread = new MergeBagsThread(parameters, std::thread::hardware_concurrency());
-        QObject::connect(thread, &MergeBagsThread::finished, thread, &QObject::deleteLater);
+        QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
 
         SECTION("Unique Topics") {
             parameters.topics.push_back({ { { "/dummy_integer" }, true }, "./dummy_bag" });
@@ -362,8 +362,8 @@ TEST_CASE("Threads Testing", "[threads]") {
 
         auto* const compressionThread = new ChangeCompressionBagThread(parametersCompression, std::thread::hardware_concurrency(), true);
         auto* const decompressionThread = new ChangeCompressionBagThread(parametersDecompression, std::thread::hardware_concurrency(), false);
-        QObject::connect(compressionThread, &ChangeCompressionBagThread::finished, compressionThread, &QObject::deleteLater);
-        QObject::connect(decompressionThread, &ChangeCompressionBagThread::finished, decompressionThread, &QObject::deleteLater);
+        QObject::connect(compressionThread, &QThread::finished, compressionThread, &QObject::deleteLater);
+        QObject::connect(decompressionThread, &QThread::finished, decompressionThread, &QObject::deleteLater);
 
         const auto checkForThread = [] (BasicThread* thread, const std::string& targetDirectory) {
             thread->start();
@@ -420,7 +420,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.topicName = "/dummy_image";
 
         auto* const thread = new BagToVideoThread(parameters, false);
-        QObject::connect(thread, &BagToVideoThread::finished, thread, &QObject::deleteLater);
+        QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
 
         // OpenCV VideoCapture codecs changed between kilted and lyrical release, we need to differentiate
         const auto distroEnvName = std::string(std::getenv("ROS_DISTRO"));
@@ -483,7 +483,7 @@ TEST_CASE("Threads Testing", "[threads]") {
 
             // Reset thread to apply new source directory and topic name
             auto* const thread = new BagToVideoThread(parameters, false);
-            QObject::connect(thread, &BagToVideoThread::finished, thread, &QObject::deleteLater);
+            QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
 
             thread->start();
             thread->wait();
@@ -505,7 +505,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         cv_bridge::CvImagePtr cvPointer;
 
         auto* const thread = new VideoToBagThread(parameters, false);
-        QObject::connect(thread, &VideoToBagThread::finished, thread, &QObject::deleteLater);
+        QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
 
         const auto performBagCheck = [&parameters, &reader, &serialization, &serializationCompressed, cvPointer]
                                      (int width, int height, int redValue, int greenValue, int blueValue) {
@@ -566,7 +566,7 @@ TEST_CASE("Threads Testing", "[threads]") {
 
             // Reset thread to apply new source directory and topic name
             auto* const thread = new VideoToBagThread(parameters, false);
-            QObject::connect(thread, &BagToImagesThread::finished, thread, &QObject::deleteLater);
+            QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
 
             thread->start();
             thread->wait();
@@ -599,7 +599,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         };
 
         auto* const thread = new BagToImagesThread(parameters, std::thread::hardware_concurrency());
-        QObject::connect(thread, &BagToImagesThread::finished, thread, &QObject::deleteLater);
+        QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
 
         SECTION("Default Parameter Values") {
             thread->start();
@@ -631,7 +631,7 @@ TEST_CASE("Threads Testing", "[threads]") {
 
             // Reset thread to apply new source directory and topic name
             auto* const thread = new BagToImagesThread(parameters, std::thread::hardware_concurrency());
-            QObject::connect(thread, &BagToImagesThread::finished, thread, &QObject::deleteLater);
+            QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
 
             thread->start();
             thread->wait();
@@ -727,7 +727,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         };
 
         auto* const thread = new BagTF2ToFileThread(parameters);
-        QObject::connect(thread, &BagTF2ToFileThread::finished, thread, &QObject::deleteLater);
+        QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
 
         SECTION("Default Parameter Values - JSON") {
             thread->start();
@@ -773,7 +773,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.topicName = "/dummy_points";
 
         auto* const thread = new BagToPCDsThread(parameters, std::thread::hardware_concurrency());
-        QObject::connect(thread, &BagToPCDsThread::finished, thread, &QObject::deleteLater);
+        QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
 
         thread->start();
         thread->wait();
@@ -793,7 +793,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         parameters.rate = 2;
 
         auto* const thread = new PCDsToBagThread(parameters);
-        QObject::connect(thread, &PCDsToBagThread::finished, thread, &QObject::deleteLater);
+        QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
 
         thread->start();
         thread->wait();
@@ -820,7 +820,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         std::filesystem::remove_all("./yaml_files");
 
         auto* const thread = new BagMessageToFileThread(parameters);
-        QObject::connect(thread, &BagMessageToFileThread::finished, thread, &QObject::deleteLater);
+        QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
 
         const auto verifyNode = [] (const YAML::Node& node, const int i) {
             REQUIRE(node.IsMap());

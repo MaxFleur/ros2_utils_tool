@@ -96,6 +96,4 @@ BagTF2ToFileThread::run()
             emit failed();
         }
     }
-
-    emit finished();
 }

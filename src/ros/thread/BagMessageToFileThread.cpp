@@ -252,6 +252,4 @@ BagMessageToFileThread::run()
         }
     }
     reader->close();
-
-    emit finished();
 }
