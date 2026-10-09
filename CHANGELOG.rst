@@ -1,6 +1,18 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Changelog for the ros2_utils_tool
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1.1.2 (2026-10-09)
+-------------------
+**Fixed:**
+
+* UI - Low diskspace warnings even when available diskspace was sufficient.
+* UI - The conversion tools source line edit still being filled if the input was invalid.
+
+**System:**
+* Major compile time optimizations.
+* CI workflow optimizations.
+* Improved Qt version selection upon building.
+
 1.1.1 (2026-10-08)
 -------------------
 **Changed/Improved:**
