@@ -14,7 +14,7 @@ TopicComboBoxWidget::TopicComboBoxWidget(Parameters::AdvancedParameters& paramet
     m_topicNameComboBox->setMinimumWidth(200);
 
     if (!m_parameters.sourceDirectory.isEmpty()) {
-        mainFillOperation();
+        mainFillOperation(m_parameters.sourceDirectory);
 
         if (!m_parameters.topicName.isEmpty()) {
             m_topicNameComboBox->setCurrentText(m_parameters.topicName);
@@ -27,30 +27,35 @@ TopicComboBoxWidget::TopicComboBoxWidget(Parameters::AdvancedParameters& paramet
 }
 
 
-void
-TopicComboBoxWidget::fillTopicComboBox()
+bool
+TopicComboBoxWidget::fillTopicComboBox(const QString& sourceDirectory)
 {
-    mainFillOperation();
-
-    if (m_topicNameComboBox->count() == 0) {
-        Utils::UI::createCriticalMessageBox("Topic not found!", "The bag file does not contain any corresponding topics!");
-        return;
+    mainFillOperation(sourceDirectory);
+    // Invalid bag file
+    if (m_topicNameComboBox->count() != 0) {
+        return true;
     }
-    enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.topicName.isEmpty() && !m_parameters.targetDirectory.isEmpty());
+
+    // Restore the topics from the previous, still valid source
+    if (!m_sourceLineEdit->text().isEmpty()) {
+        mainFillOperation(m_sourceLineEdit->text());
+    }
+    Utils::UI::createCriticalMessageBox("Topic not found!", "The bag file does not contain any corresponding topics!");
+    return false;
 }
 
 
 void
-TopicComboBoxWidget::mainFillOperation()
+TopicComboBoxWidget::mainFillOperation(const QString& sourceDirectory)
 {
-    if (m_sourceLineEdit->text().isEmpty()) {
+    if (sourceDirectory.isEmpty()) {
         return;
     }
 
     m_topicNameComboBox->clear();
 
-    const auto fillComboBoxWithTopicType = [this] (const QString& topicType) {
-        const auto& topics = Utils::ROS::getBagTopicNames(m_sourceLineEdit->text(), topicType);
+    const auto fillComboBoxWithTopicType = [this, &sourceDirectory] (const QString& topicType) {
+        const auto& topics = Utils::ROS::getBagTopicNames(sourceDirectory, topicType);
         if (topics.empty()) {
             return;
         }
@@ -75,7 +80,7 @@ TopicComboBoxWidget::mainFillOperation()
     case OUTPUT_TYPE::OUTPUT_MESSAGE_TO_FILE:
     {
         // Just fill it with every topic inside the bag
-        const auto& metadata = Utils::ROS::getBagMetadata(m_sourceLineEdit->text());
+        const auto& metadata = Utils::ROS::getBagMetadata(sourceDirectory);
         for (const auto& topic : metadata.topics_with_message_count) {
             m_topicNameComboBox->addItem(QString::fromStdString(topic.topic_metadata.name));
         }

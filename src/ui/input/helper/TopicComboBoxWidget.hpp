@@ -20,12 +20,13 @@ public:
                         QWidget*                        parent = 0);
 
 protected slots:
-    void
-    fillTopicComboBox() override;
+    // returns if the source directory contains any topics suitable for this tool
+    bool
+    fillTopicComboBox(const QString& sourceDirectory) override;
 
 private:
     void
-    mainFillOperation();
+    mainFillOperation(const QString& sourceDirectory);
 
 protected:
     QPointer<QComboBox> m_topicNameComboBox;

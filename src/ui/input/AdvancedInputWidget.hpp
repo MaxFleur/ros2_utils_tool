@@ -55,10 +55,11 @@ protected slots:
         m_fileFormat = fileFormat;
     }
 
-    // Only for topic combo box widgets
-    virtual void
-    fillTopicComboBox()
+    // Overridden only for topic combo box widgets
+    virtual bool
+    fillTopicComboBox(const QString&)
     {
+        return true;
     }
 
 protected:
