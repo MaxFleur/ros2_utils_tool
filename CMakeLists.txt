@@ -14,13 +14,11 @@ if("$ENV{ROS_DISTRO}" STREQUAL "lyrical")
     # correctly create the jsoncpp target, which is a dependency.
     # We have to fix it manually
     find_package(jsoncpp REQUIRED)
-    # For Lyrical, ROS2 finally links with Qt6, otherwise still Qt5
-    find_package(QT NAMES Qt6 COMPONENTS Widgets REQUIRED)
-    find_package(Qt6 COMPONENTS Widgets REQUIRED)
-else()
-    find_package(QT NAMES Qt5 COMPONENTS Widgets REQUIRED)
-    find_package(Qt5 COMPONENTS Widgets REQUIRED)
 endif()
+
+# Prefer Qt6, fall back to Qt5 if it's not installed
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 
 if(NOT DEFINED Python3_EXECUTABLE AND EXISTS /usr/bin/python3)
     set(Python3_EXECUTABLE /usr/bin/python3)
