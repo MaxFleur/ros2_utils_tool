@@ -37,17 +37,9 @@ target_sources(rt_all_threads PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/VideoToBagThread.hpp
 )
 
-if("$ENV{ROS_DISTRO}" STREQUAL "jazzy")
-    ament_target_dependencies(rt_all_threads PUBLIC pcl_conversions)
-else()
-    target_link_libraries(rt_all_threads
-        PUBLIC pcl_conversions::pcl_conversions
-    )
-endif()
-
 target_link_libraries(rt_all_threads
     PUBLIC Qt::Core rt_basic_thread rt_utils_misc rt_utils_ui rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp cv_bridge::cv_bridge
-    PUBLIC ${geometry_msgs_TARGETS} ${sensor_msgs_TARGETS} ${std_msgs_TARGETS} ${tf2_msgs_TARGETS} tf2_ros::tf2_ros yaml-cpp
+    PUBLIC ${geometry_msgs_TARGETS} ${sensor_msgs_TARGETS} ${std_msgs_TARGETS} ${tf2_msgs_TARGETS} tf2_ros::tf2_ros yaml-cpp rt_pcl_conversions
     # Only used by the lib itself
     PRIVATE Python3::Python
 )
