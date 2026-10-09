@@ -82,7 +82,7 @@ BasicInputWidget::setPixmapLabelIcon() const
 void
 BasicInputWidget::setLowDiskSpaceWidgetVisibility(const QString& path)
 {
-    if (path.isEmpty()) {
+    if (path.isEmpty() || !m_lowDiskSpaceWidget) {
         return;
     }
 

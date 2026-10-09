@@ -89,5 +89,5 @@ protected:
 
     QString m_iconPath;
     // Need to store this so we can possibly show it in the messagebox
-    float m_remainingSpace;
+    float m_remainingSpace = 0;
 };

@@ -69,6 +69,7 @@ BasicBagWidget::findSourceButtonPressed()
     writeParameterToSettings(m_parameters.sourceDirectory, fileName, m_settings);
     m_settings.write();
     m_sourceLineEdit->setText(fileName);
+    setLowDiskSpaceWidgetVisibility(fileName);
 
     handleTreeAfterSource();
 }
