@@ -9,18 +9,16 @@ add_compile_options(-Wall -Wextra -Wpedantic)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-if($ENV{ROS_DISTRO} STREQUAL "lyrical")
+if("$ENV{ROS_DISTRO}" STREQUAL "lyrical")
     # For Ubuntu 26.04, the VTK config seems to be broken and does not
     # correctly create the jsoncpp target, which is a dependency.
     # We have to fix it manually
     find_package(jsoncpp REQUIRED)
-    # For Lyrical, ROS2 finally links with Qt6, otherwise still Qt5
-    find_package(QT NAMES Qt6 COMPONENTS Widgets REQUIRED)
-    find_package(Qt6 COMPONENTS Widgets REQUIRED)
-else()
-    find_package(QT NAMES Qt5 COMPONENTS Widgets REQUIRED)
-    find_package(Qt5 COMPONENTS Widgets REQUIRED)
 endif()
+
+# Prefer Qt6, fall back to Qt5 if it's not installed
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 
 if(NOT DEFINED Python3_EXECUTABLE AND EXISTS /usr/bin/python3)
     set(Python3_EXECUTABLE /usr/bin/python3)
@@ -30,13 +28,31 @@ find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 find_package(ament_cmake REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(OpenCV REQUIRED)
 find_package(pcl_conversions REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rosbag2_cpp REQUIRED)
 find_package(rosbag2_transport REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
 find_package(tf2_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
+find_package(yaml-cpp REQUIRED)
+
+# On jazzy, pcl_conversions does not export a modern CMake target,
+# so provide a unified interface target for all distros
+add_library(rt_pcl_conversions INTERFACE)
+if("$ENV{ROS_DISTRO}" STREQUAL "jazzy")
+    ament_target_dependencies(rt_pcl_conversions INTERFACE pcl_conversions)
+
+    target_link_libraries(rt_pcl_conversions
+        INTERFACE ${pcl_conversions_LIBRARIES}
+    )
+else()
+    target_link_libraries(rt_pcl_conversions
+        INTERFACE pcl_conversions::pcl_conversions
+    )
+endif()
 
 add_subdirectory(src)
 add_subdirectory(test)
@@ -90,84 +106,64 @@ add_executable(tool_video_to_bag
 target_link_libraries(tool_ui
     rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp rosbag2_transport::rosbag2_transport cv_bridge::cv_bridge
     ${geometry_msgs_TARGETS} ${sensor_msgs_TARGETS} ${tf2_msgs_TARGETS}
-    Python3::Python Qt::Widgets rt_ui
+    Python3::Python Qt::Widgets rt_ui rt_pcl_conversions
 )
 target_link_libraries(tool_bag_message_to_file
     rosbag2_cpp::rosbag2_cpp Python3::Python ${std_msgs_TARGETS}
-    Qt::Widgets rt_bag_message_to_file_thread rt_utils_cli rt_utils_misc
+    Qt::Core rt_bag_message_to_file_thread rt_utils_cli rt_utils_misc
 )
 target_link_libraries(tool_bag_tf2_to_file
     rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp ${geometry_msgs_TARGETS} ${std_msgs_TARGETS} ${tf2_msgs_TARGETS}
-    Qt::Widgets rt_tf2_to_file_thread rt_utils_cli rt_utils_misc
+    Qt::Core rt_tf2_to_file_thread rt_utils_cli rt_utils_misc
 )
 target_link_libraries(tool_bag_to_images
     rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp cv_bridge::cv_bridge ${sensor_msgs_TARGETS} ${std_msgs_TARGETS}
-    Qt::Widgets rt_bag_to_images_thread rt_utils_cli rt_utils_misc
+    Qt::Core rt_bag_to_images_thread rt_utils_cli rt_utils_misc
 )
 target_link_libraries(tool_bag_to_pcds
     rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp ${sensor_msgs_TARGETS} ${std_msgs_TARGETS}
-    Qt::Widgets rt_bag_to_pcds_thread rt_utils_cli rt_utils_misc
+    Qt::Core rt_bag_to_pcds_thread rt_utils_cli rt_utils_misc rt_pcl_conversions
 )
 target_link_libraries(tool_bag_to_video
     rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp cv_bridge::cv_bridge ${sensor_msgs_TARGETS} ${std_msgs_TARGETS}
-    Qt::Widgets rt_bag_to_video_thread rt_utils_cli rt_utils_misc
+    Qt::Core rt_bag_to_video_thread rt_utils_cli rt_utils_misc
 )
 target_link_libraries(tool_compress_bag
     rosbag2_cpp::rosbag2_cpp rosbag2_transport::rosbag2_transport ${sensor_msgs_TARGETS}
-    Qt::Widgets rt_change_compression_thread rt_utils_cli rt_utils_misc
+    Qt::Core rt_change_compression_thread rt_utils_cli rt_utils_misc
 )
 target_link_libraries(tool_decompress_bag
     rosbag2_cpp::rosbag2_cpp rosbag2_transport::rosbag2_transport ${sensor_msgs_TARGETS}
-    Qt::Widgets rt_change_compression_thread rt_utils_cli rt_utils_misc
+    Qt::Core rt_change_compression_thread rt_utils_cli rt_utils_misc
 )
 target_link_libraries(tool_dummy_bag
     rosbag2_cpp::rosbag2_cpp cv_bridge::cv_bridge ${sensor_msgs_TARGETS} ${tf2_msgs_TARGETS}
-    Qt::Widgets rt_dummy_bag_thread rt_utils_cli rt_utils_misc
+    Qt::Core rt_dummy_bag_thread rt_utils_cli rt_utils_misc rt_pcl_conversions
 )
 target_link_libraries(tool_merge_bags
     rosbag2_cpp::rosbag2_cpp rosbag2_transport::rosbag2_transport ${sensor_msgs_TARGETS}
-    Qt::Widgets rt_merge_bags_thread rt_utils_cli rt_utils_misc
+    Qt::Core rt_merge_bags_thread rt_utils_cli rt_utils_misc
 )
 target_link_libraries(tool_pcds_to_bag
     rosbag2_cpp::rosbag2_cpp ${sensor_msgs_TARGETS}
-    Qt::Widgets rt_pcds_to_bag_thread rt_utils_cli rt_utils_misc
+    Qt::Core rt_pcds_to_bag_thread rt_utils_cli rt_utils_misc rt_pcl_conversions
 )
 target_link_libraries(tool_publish_images
     rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp cv_bridge::cv_bridge ${sensor_msgs_TARGETS}
-    Qt::Widgets rt_publish_images_thread rt_utils_cli rt_utils_misc
+    Qt::Core rt_publish_images_thread rt_utils_cli rt_utils_misc
 )
 target_link_libraries(tool_publish_video
     rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp cv_bridge::cv_bridge ${sensor_msgs_TARGETS}
-    Qt::Widgets rt_publish_video_thread rt_utils_cli rt_utils_misc
+    Qt::Core rt_publish_video_thread rt_utils_cli rt_utils_misc
 )
 target_link_libraries(tool_send_tf2
     rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp tf2_ros::tf2_ros ${tf2_msgs_TARGETS}
-    Qt::Widgets rt_send_tf2_thread rt_utils_cli rt_utils_misc
+    Qt::Core rt_send_tf2_thread rt_utils_cli rt_utils_misc
 )
 target_link_libraries(tool_video_to_bag
     rosbag2_cpp::rosbag2_cpp cv_bridge::cv_bridge ${sensor_msgs_TARGETS}
-    Qt::Widgets rt_video_to_bag_thread rt_utils_cli rt_utils_misc
+    Qt::Core rt_video_to_bag_thread rt_utils_cli rt_utils_misc
 )
-
-if($ENV{ROS_DISTRO} STREQUAL "jazzy")
-    ament_target_dependencies(tool_ui pcl_conversions)
-    ament_target_dependencies(tool_bag_to_pcds pcl_conversions)
-    ament_target_dependencies(tool_dummy_bag pcl_conversions )
-    ament_target_dependencies(tool_pcds_to_bag pcl_conversions)
-else()
-    target_link_libraries(tool_ui
-        pcl_conversions::pcl_conversions
-    )
-    target_link_libraries(tool_bag_to_pcds
-        pcl_conversions::pcl_conversions
-    )
-    target_link_libraries(tool_dummy_bag
-        pcl_conversions::pcl_conversions
-    )
-    target_link_libraries(tool_pcds_to_bag
-        pcl_conversions::pcl_conversions
-    )
-endif()
 
 install(TARGETS
     tool_ui

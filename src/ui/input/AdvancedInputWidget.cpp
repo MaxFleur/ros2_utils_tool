@@ -57,17 +57,21 @@ AdvancedInputWidget::AdvancedInputWidget(Parameters::AdvancedParameters& paramet
 void
 AdvancedInputWidget::findSourceButtonPressed()
 {
-    const auto bagDirectory = QFileDialog::getExistingDirectory(this, "Open Source Bag File", "", QFileDialog::ShowDirsOnly);
-    if (bagDirectory.isEmpty()) {
+    const auto bagDirectory = Utils::UI::isBagDirectoryValid(this);
+    if (bagDirectory == std::nullopt) {
         return;
     }
 
-    m_sourceLineEdit->setText(bagDirectory);
-    writeParameterToSettings(m_parameters.sourceDirectory, bagDirectory, m_settings);
+    // Bail out if bag file is invalid or does not contain any suitable topics
+    if (!fillTopicComboBox(*bagDirectory)) {
+        return;
+    }
+
+    m_sourceLineEdit->setText(*bagDirectory);
+    writeParameterToSettings(m_parameters.sourceDirectory, *bagDirectory, m_settings);
     fillTargetLineEdit();
 
     enableAdvancedOkButton();
-    fillTopicComboBox();
 }
 
 

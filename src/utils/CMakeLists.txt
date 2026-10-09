@@ -1,24 +1,25 @@
 # CLI utils are for CLI tools only, while UI parts are for UI solely
 # Split into separate libraries to prevent globalized imports
-add_library (rt_utils_cli INTERFACE)
-add_library (rt_utils_misc INTERFACE)
-add_library (rt_utils_ui INTERFACE)
+# Also make these static as they're used by lots of different targets
+add_library (rt_utils_cli STATIC)
+add_library (rt_utils_misc STATIC)
+add_library (rt_utils_ui STATIC)
 
 target_include_directories (rt_utils_cli
-    INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )
 target_include_directories (rt_utils_misc
-    INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${OpenCV_INCLUDE_DIRS}
 )
 target_include_directories (rt_utils_ui
-    INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_sources(rt_utils_cli INTERFACE
+target_sources(rt_utils_cli PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/UtilsCLI.cpp
     ${CMAKE_CURRENT_LIST_DIR}/UtilsCLI.hpp
 )
-target_sources(rt_utils_misc INTERFACE
+target_sources(rt_utils_misc PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/NodeWrapper.hpp
     ${CMAKE_CURRENT_LIST_DIR}/Parameters.hpp
     ${CMAKE_CURRENT_LIST_DIR}/UtilsBag.hpp
@@ -33,17 +34,19 @@ target_sources(rt_utils_misc INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/VideoEncoder.cpp
     ${CMAKE_CURRENT_LIST_DIR}/VideoEncoder.hpp
 )
-target_sources(rt_utils_ui INTERFACE
+target_sources(rt_utils_ui PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/UtilsUI.cpp
     ${CMAKE_CURRENT_LIST_DIR}/UtilsUI.hpp
 )
 
 target_link_libraries(rt_utils_cli
-    INTERFACE rt_settings
+    PUBLIC Qt::Core rt_utils_misc rt_settings
+    PRIVATE rt_basic_thread
 )
 target_link_libraries(rt_utils_misc
-    INTERFACE ${OpenCV_LIBS} rt_settings
+    PUBLIC Qt::Core rclcpp::rclcpp rosbag2_cpp::rosbag2_cpp rosbag2_transport::rosbag2_transport
+    PUBLIC ${sensor_msgs_TARGETS} tf2_ros::tf2_ros cv_bridge::cv_bridge ${OpenCV_LIBS} yaml-cpp
 )
 target_link_libraries(rt_utils_ui
-    INTERFACE Qt::Widgets rt_settings
+    PUBLIC Qt::Widgets rt_utils_misc rt_settings
 )

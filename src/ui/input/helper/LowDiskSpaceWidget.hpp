@@ -34,7 +34,7 @@ private:
     QPointer<QLabel> m_warningIconLabel;
     QPointer<QLabel> m_diskSpaceLabel;
 
-    bool m_isDiskSpaceSufficient;
+    bool m_isDiskSpaceSufficient = true;
 
     static constexpr int ICON_SIZE = 25;
 };

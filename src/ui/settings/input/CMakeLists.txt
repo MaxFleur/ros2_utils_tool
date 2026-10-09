@@ -1,10 +1,11 @@
-add_library (rt_settings_input INTERFACE)
+# Tons of classes here, only compile once
+add_library (rt_settings_input STATIC)
 
 target_include_directories (rt_settings_input
-    INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_sources(rt_settings_input INTERFACE
+target_sources(rt_settings_input PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/AdvancedSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/AdvancedSettings.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BagMessageToFileSettings.cpp
@@ -46,5 +47,5 @@ target_sources(rt_settings_input INTERFACE
 )
 
 target_link_libraries(rt_settings_input
-    INTERFACE Qt::Widgets rt_settings
+    PUBLIC Qt::Core rt_settings rt_utils_misc
 )
