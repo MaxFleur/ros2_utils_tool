@@ -200,9 +200,6 @@ MainWindow::setProcessingWidget(Utils::UI::TOOL_ID mode)
         progressWidget = new ProgressWidget("Publishing Images...", m_publishImagesParameters, mode);
         break;
     case Utils::UI::TOOL_ID::SEND_TF2:
-        // The input widget contains a ROS node, which would still be active if we create the progress widget
-        // with an instance of the send tf2 thread. To avoid two nodes existing, destroy the input widget containg the first node
-        delete centralWidget();
         progressWidget = new ProgressWidget("Sending TF2...", m_parametersSendTF2, mode);
         break;
     default:

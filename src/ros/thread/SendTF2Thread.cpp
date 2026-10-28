@@ -1,11 +1,13 @@
 #include "SendTF2Thread.hpp"
 
+#include "NodeWrapper.hpp"
+
 SendTF2Thread::SendTF2Thread(const Parameters::SendTF2Parameters& parameters,
                              QObject*                             parent) :
     BasicThread(parameters.sourceDirectory, "", parent),
     m_parameters(parameters)
 {
-    m_node = std::make_shared<rclcpp::Node>("tf_node");
+    m_node = NodeWrapper::getOrCreate("tf_node");
     m_broadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(m_node);
 }
 
