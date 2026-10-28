@@ -322,6 +322,8 @@ runThread(BasicThread*   thread,
 {
     auto isProcessing = false;
     std::thread processingThread;
+    // Exceptions thrown in the QThread instance throw std::terminate, so we capture them and rethrow them in the main thread
+    std::exception_ptr failureException;
 
     // Connect to progress, finished, failed and processing signals,
     switch (progressMode) {
@@ -348,13 +350,13 @@ runThread(BasicThread*   thread,
     default: break;
     }
 
-    QObject::connect(thread, &QThread::finished, [&processingThread, &isProcessing, successMessage, printSuccessMessageOnInterrupt] {
+    QObject::connect(thread, &QThread::finished, [&processingThread, &isProcessing, &failureException, successMessage, printSuccessMessageOnInterrupt] {
         if (processingThread.joinable()) {
             isProcessing = false;
             processingThread.join();
         }
 
-        if (!successMessage.isEmpty() && (printSuccessMessageOnInterrupt || signalStatus != SIGINT)) {
+        if (!failureException && !successMessage.isEmpty() && (printSuccessMessageOnInterrupt || signalStatus != SIGINT)) {
             std::cout << "\n"; // Extra line to stop flushing
             std::cout << successMessage.toStdString() << "\n";
         }
@@ -362,8 +364,8 @@ runThread(BasicThread*   thread,
     QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
 
     if (!failureMessage.isEmpty()) {
-        QObject::connect(thread, &BasicThread::failed, [failureMessage] {
-            throw std::runtime_error(failureMessage.toStdString());
+        QObject::connect(thread, &BasicThread::failed, [&failureException, failureMessage] {
+            failureException = std::make_exception_ptr(std::runtime_error(failureMessage.toStdString()));
         });
     }
 
@@ -379,6 +381,11 @@ runThread(BasicThread*   thread,
             std::cout << "Interrupted\n";
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    }
+
+    // If the QThread failed, it finishes and the failure will be caught here
+    if (failureException) {
+        std::rethrow_exception(failureException);
     }
 }
 }
