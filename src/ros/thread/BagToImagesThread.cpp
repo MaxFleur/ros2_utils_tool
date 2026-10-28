@@ -21,13 +21,19 @@ BagToImagesThread::BagToImagesThread(const Parameters::BagToImagesParameters& pa
 void
 BagToImagesThread::run()
 {
+    // Prepare parameters
+    const auto topicType = Utils::ROS::getTopicType(m_parameters.sourceDirectory, m_parameters.topicName);
+    const auto messageCount = Utils::ROS::getTopicMessageCount(m_sourceDirectory, m_topicName);
+    if (!topicType || !messageCount) {
+        emit failed();
+        return;
+    }
+
     const auto targetDirectoryStd = m_parameters.targetDirectory.toStdString();
-    const auto isCompressed = *Utils::ROS::getTopicType(m_parameters.sourceDirectory, m_parameters.topicName) == "sensor_msgs/msg/CompressedImage";
+    const auto isCompressed = *topicType == "sensor_msgs/msg/CompressedImage";
 
     Utils::General::createAndClearDirectory(targetDirectoryStd);
 
-    // Prepare parameters
-    const auto messageCount = Utils::ROS::getTopicMessageCount(m_sourceDirectory, m_topicName);
     const auto messageCountNumberOfDigits = int(log10(*messageCount) + 1);
 
     auto reader = std::make_shared<rosbag2_cpp::Reader>();

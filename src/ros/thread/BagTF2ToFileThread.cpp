@@ -22,14 +22,19 @@ BagTF2ToFileThread::BagTF2ToFileThread(const Parameters::BagTF2ToFileParameters&
 void
 BagTF2ToFileThread::run()
 {
+    // Prepare parameters
+    const auto messageCount = Utils::ROS::getTopicMessageCount(m_sourceDirectory, m_topicName);
+    if (!messageCount) {
+        emit failed();
+        return;
+    }
+
     const auto& targetDirectory = m_parameters.targetDirectory;
     if (std::filesystem::exists(targetDirectory.toStdString())) {
         std::filesystem::remove_all(targetDirectory.toStdString());
     }
 
-    // Prepare parameters
     const auto isFormatJson = Utils::General::getFileExtension(targetDirectory) == "json";
-    const auto messageCount = Utils::ROS::getTopicMessageCount(m_sourceDirectory, m_topicName);
     auto iterationCount = 0;
 
     auto reader = std::make_shared<rosbag2_cpp::Reader>();

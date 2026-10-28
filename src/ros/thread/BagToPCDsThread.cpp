@@ -20,11 +20,16 @@ BagToPCDsThread::BagToPCDsThread(const Parameters::AdvancedParameters& parameter
 void
 BagToPCDsThread::run()
 {
+    // Prepare parameters
+    const auto messageCount = Utils::ROS::getTopicMessageCount(m_sourceDirectory, m_topicName);
+    if (!messageCount) {
+        emit failed();
+        return;
+    }
+
     const auto targetDirectoryStd = m_parameters.targetDirectory.toStdString();
     Utils::General::createAndClearDirectory(targetDirectoryStd);
 
-    // Prepare parameters
-    const auto messageCount = Utils::ROS::getTopicMessageCount(m_sourceDirectory, m_topicName);
     // Used to fill the file names with zeroes
     const auto messageCountNumberOfDigits = int(log10(*messageCount) + 1);
 

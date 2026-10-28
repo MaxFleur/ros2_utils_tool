@@ -17,11 +17,17 @@ BagToVideoThread::BagToVideoThread(const Parameters::BagToVideoParameters& param
 void
 BagToVideoThread::run()
 {
+    // Prepare parameters
+    const auto messageCount = Utils::ROS::getTopicMessageCount(m_sourceDirectory, m_topicName);
+    const auto topicType = Utils::ROS::getTopicType(m_parameters.sourceDirectory, m_parameters.topicName);
+    if (!messageCount || !topicType) {
+        emit failed();
+        return;
+    }
+
     auto reader = std::make_unique<rosbag2_cpp::Reader>();
     reader->open(m_sourceDirectory);
 
-    // Prepare parameters
-    const auto messageCount = Utils::ROS::getTopicMessageCount(m_sourceDirectory, m_topicName);
     rosbag2_storage::SerializedBagMessageSharedPtr message;
 
     rclcpp::Serialization<sensor_msgs::msg::Image> serialization;
@@ -32,7 +38,7 @@ BagToVideoThread::run()
 
     auto iterationCount = 0;
     const auto topicNameStdString = m_topicName;
-    const auto isCompressed = *Utils::ROS::getTopicType(m_parameters.sourceDirectory, m_parameters.topicName) == "sensor_msgs/msg/CompressedImage";
+    const auto isCompressed = *topicType == "sensor_msgs/msg/CompressedImage";
 
     int codec;
     // https://abcavi.kibi.ru/fourcc.php
