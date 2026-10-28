@@ -9,6 +9,7 @@ Changelog for the ros2_utils_tool
 * UI - The conversion tools source line edit still being filled if the input was invalid.
 
 **System:**
+
 * Major compile time optimizations.
 * CI workflow optimizations.
 * Improved Qt version selection upon building.
