@@ -9,8 +9,7 @@
 LoadingWidget::LoadingWidget(QWidget* parent) : QWidget(parent)
 {
     const auto isDarkMode = Utils::UI::isDarkMode();
-
-    m_movie = new QMovie(isDarkMode ? ":/gifs/searching_white.gif" : ":/gifs/searching_black.gif");
+    m_movie = new QMovie(Utils::UI::themedIconPath(":/gifs/searching", ".gif", isDarkMode));
     m_movie->setScaledSize(QSize(100, 100));
 
     auto* const movieLabel = new QLabel;
@@ -36,7 +35,7 @@ LoadingWidget::event(QEvent *event)
 {
     [[unlikely]] if ((event->type() == QEvent::ApplicationPaletteChange || event->type() == QEvent::PaletteChange)) {
         const auto isDarkMode = Utils::UI::isDarkMode();
-        m_movie->setFileName(isDarkMode ? ":/gifs/searching_white.gif" : ":/gifs/searching_black.gif");
+        m_movie->setFileName(Utils::UI::themedIconPath(":/gifs/searching", ".gif", isDarkMode));
         m_movie->start();
     }
     return QWidget::event(event);

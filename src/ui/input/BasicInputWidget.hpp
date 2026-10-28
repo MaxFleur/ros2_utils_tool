@@ -47,7 +47,7 @@ protected:
     void
     enableOkButton(bool enable) const;
 
-    void
+    virtual void
     setPixmapLabelIcon() const;
 
     void

@@ -92,8 +92,6 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
         break;
     }
 
-    const auto isDarkMode = Utils::UI::isDarkMode();
-
     // UI parts
     auto* const headerLabel = new QLabel(headerLabelText);
     Utils::UI::setWidgetFontSize(headerLabel);
@@ -113,10 +111,12 @@ ProgressWidget::ProgressWidget(const QString& headerLabelText, Parameters::Basic
     buttonLayout->addStretch();
     buttonLayout->addWidget(finishedButton);
 
+    const auto isDarkMode = Utils::UI::isDarkMode();
+
     QWidget* progressWidget;
     // Play gif
     const auto setMovie = [this, &progressWidget, progressLabel, isDarkMode] (const QString& moviePath, int width, int height) {
-        m_movie = new QMovie(isDarkMode ? moviePath + "_white.gif" : moviePath + "_black.gif");
+        m_movie = new QMovie(Utils::UI::themedIconPath(moviePath, ".gif", isDarkMode));
         m_movie->setScaledSize(QSize(width, height));
 
         auto* const movieLabel = new QLabel;

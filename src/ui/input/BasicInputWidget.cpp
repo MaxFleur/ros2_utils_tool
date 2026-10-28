@@ -75,7 +75,7 @@ BasicInputWidget::setPixmapLabelIcon() const
 {
     const auto isDarkMode = Utils::UI::isDarkMode();
     // Don't need to provide full name, appendix is always the same
-    m_headerPixmapLabel->setPixmap(QIcon(isDarkMode ? m_iconPath + "_white.svg" : m_iconPath + "_black.svg").pixmap(QSize(100, 45)));
+    m_headerPixmapLabel->setPixmap(QIcon(Utils::UI::themedIconPath(m_iconPath, ".svg", isDarkMode)).pixmap(QSize(100, 45)));
 }
 
 

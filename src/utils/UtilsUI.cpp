@@ -155,4 +155,11 @@ isDarkMode()
                                 0.114 * std::pow(color.blueF(), 2));
     return luminance < 0.2;
 }
+
+
+QString
+themedIconPath(const QString& baseName, const QString& extension, bool isDarkMode)
+{
+    return baseName + (isDarkMode ? "_white" : "_black") + extension;
+}
 }

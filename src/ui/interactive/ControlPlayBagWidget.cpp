@@ -14,11 +14,11 @@ ControlPlayBagWidget::ControlPlayBagWidget(Parameters::PlayBagParameters& parame
     emptyWidget->setFixedSize(QSize(TOOLBUTTON_SIZE, TOOLBUTTON_SIZE));
 
     const auto isDarkMode = Utils::UI::isDarkMode();
-    auto* const decreaseRateButton = createButton(isDarkMode ? ":/icons/player/decrease_rate_white.svg" : ":/icons/player/decrease_rate_black.svg",
+    auto* const decreaseRateButton = createButton(Utils::UI::themedIconPath(":/icons/player/decrease_rate", ".svg", isDarkMode),
                                                   "Decrease playback rate by 0.1.", TOOLBUTTON_SIZE, TOOLBUTTON_ICON_SIZE);
-    auto* const increaseRateButton = createButton(isDarkMode ? ":/icons/player/increase_rate_white.svg" : ":/icons/player/increase_rate_black.svg",
+    auto* const increaseRateButton = createButton(Utils::UI::themedIconPath(":/icons/player/increase_rate", ".svg", isDarkMode),
                                                   "Increase playback rate by 0.1.", TOOLBUTTON_SIZE, TOOLBUTTON_ICON_SIZE);
-    auto* const playNextMessageButton = createButton(isDarkMode ? ":/icons/player/play_next_message_white.svg" : ":/icons/player/play_next_message_black.svg",
+    auto* const playNextMessageButton = createButton(Utils::UI::themedIconPath(":/icons/player/play_next_message", ".svg", isDarkMode),
                                                      "Jump forward by one message.", TOOLBUTTON_SIZE, TOOLBUTTON_ICON_SIZE);
 
     m_controlsLayout->addWidget(emptyWidget);

@@ -37,12 +37,9 @@ protected:
     virtual std::optional<bool>
     areTopicsValid() const = 0;
 
-    // Have to overwrite this one because we are using more additional icons then just the top one
+    // Have to override this one because we are using more additional icons than just the top one
     void
-    setPixmapLabelIcon() const;
-
-    bool
-    event(QEvent *event);
+    setPixmapLabelIcon() const override;
 
 protected:
     // A QFormLayout provides no easy access to layout labels, so we keep them

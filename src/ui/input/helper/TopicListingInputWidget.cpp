@@ -85,17 +85,8 @@ TopicListingInputWidget::okButtonPressed() const
 void
 TopicListingInputWidget::setPixmapLabelIcon() const
 {
+    BasicInputWidget::setPixmapLabelIcon();
+
     const auto isDarkMode = Utils::UI::isDarkMode();
-    m_headerPixmapLabel->setPixmap(QIcon(isDarkMode ? m_iconPath + "_white.svg" : m_iconPath + "_black.svg").pixmap(QSize(100, 45)));
-    m_addTopicButton->setIcon(QIcon(isDarkMode ? ":/icons/widgets/plus_white.svg" : ":/icons/widgets/plus_black.svg"));
-}
-
-
-bool
-TopicListingInputWidget::event(QEvent *event)
-{
-    [[unlikely]] if (event->type() == QEvent::ApplicationPaletteChange || event->type() == QEvent::PaletteChange) {
-        setPixmapLabelIcon();
-    }
-    return QWidget::event(event);
+    m_addTopicButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/widgets/plus", ".svg", isDarkMode)));
 }
