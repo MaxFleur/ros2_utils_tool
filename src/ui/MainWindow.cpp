@@ -203,6 +203,7 @@ MainWindow::setProcessingWidget(Utils::UI::TOOL_ID mode)
         progressWidget = new ProgressWidget("Sending TF2...", m_parametersSendTF2, mode);
         break;
     default:
+        setStartWidget();
         break;
     }
 
