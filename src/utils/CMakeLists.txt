@@ -40,7 +40,7 @@ target_sources(rt_utils_ui PRIVATE
 )
 
 target_link_libraries(rt_utils_cli
-    PUBLIC Qt::Core rt_utils_misc rt_settings
+    PUBLIC Qt::Core rt_utils_misc
     PRIVATE rt_basic_thread
 )
 target_link_libraries(rt_utils_misc
