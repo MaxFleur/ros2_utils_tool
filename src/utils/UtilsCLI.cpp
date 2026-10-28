@@ -77,7 +77,8 @@ int
 getFormatIndex(const QStringList& arguments, const QStringList& formats)
 {
     const auto formatIndex = Utils::CLI::getArgumentsIndex(arguments, "-f", "--format");
-    if (arguments.at(formatIndex) != arguments.last() && formats.contains(arguments.at(formatIndex + 1))) {
+    // If valid, '-f/--format' should be present -> formatIndex is non-negative
+    if (formatIndex >= 0 && formatIndex + 1 < arguments.size() && formats.contains(arguments.at(formatIndex + 1))) {
         return formatIndex + 1;
     }
 
