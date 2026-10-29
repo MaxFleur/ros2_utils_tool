@@ -8,6 +8,7 @@
 class LowDiskSpaceWidget;
 
 class QDialogButtonBox;
+class QFormLayout;
 class QHBoxLayout;
 class QLabel;
 class QLineEdit;
@@ -52,6 +53,12 @@ protected:
 
     void
     setLowDiskSpaceWidgetVisibility(const QString& path);
+
+    // Adds a "Show Advanced Options" checkbox plus a collapsible widget container to the controls layout
+    void
+    createAdvancedOptionsWidget(QFormLayout*                     advancedOptionsFormLayout,
+                                bool                             showAdvancedOptions,
+                                const std::function<void(bool)>& onToggled);
 
     [[nodiscard]] bool
     showLowDiskSpaceMessageBox() const;

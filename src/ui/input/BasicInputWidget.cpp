@@ -5,9 +5,11 @@
 #include "UtilsGeneral.hpp"
 #include "UtilsUI.hpp"
 
+#include <QCheckBox>
 #include <QDialogButtonBox>
 #include <QDir>
 #include <QEvent>
+#include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
@@ -91,6 +93,29 @@ BasicInputWidget::setLowDiskSpaceWidgetVisibility(const QString& path)
 
     m_lowDiskSpaceWidget->setVisibility(dir.path());
     m_remainingSpace = Utils::General::getAvailableDriveSpace(dir.path());
+}
+
+
+void
+BasicInputWidget::createAdvancedOptionsWidget(QFormLayout* advancedOptionsFormLayout, bool showAdvancedOptions, const std::function<void(bool)>& onToggled)
+{
+    auto* const advancedOptionsCheckBox = new QCheckBox("Show Advanced Options");
+    advancedOptionsCheckBox->setChecked(showAdvancedOptions);
+
+    auto* const advancedOptionsWidget = new QWidget;
+    advancedOptionsWidget->setLayout(advancedOptionsFormLayout);
+    advancedOptionsWidget->setVisible(showAdvancedOptions);
+
+    m_controlsLayout->addWidget(advancedOptionsCheckBox);
+    m_controlsLayout->addSpacing(10);
+    m_controlsLayout->addWidget(advancedOptionsWidget);
+    m_controlsLayout->addStretch();
+
+    connect(advancedOptionsCheckBox, &QCheckBox::stateChanged, this, [advancedOptionsWidget, onToggled] (int state) {
+        const auto shown = state == Qt::Checked;
+        advancedOptionsWidget->setVisible(shown);
+        onToggled(shown);
+    });
 }
 
 

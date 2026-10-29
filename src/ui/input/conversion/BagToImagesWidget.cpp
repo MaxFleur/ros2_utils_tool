@@ -25,10 +25,6 @@ BagToImagesWidget::BagToImagesWidget(Parameters::BagToImagesParameters& paramete
     m_basicOptionsFormLayout->insertRow(1, "Topic Name:", m_topicNameComboBox);
     m_basicOptionsFormLayout->addRow("Format:", formatComboBox);
 
-    auto* const advancedOptionsCheckBox = new QCheckBox;
-    advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions);
-    advancedOptionsCheckBox->setText("Show Advanced Options");
-
     auto* const switchRedBlueCheckBox = Utils::UI::createCheckBox("Switch the video's red and blue values.", m_parameters.exchangeRedBlueValues);
     auto* const useBWCheckBox = Utils::UI::createCheckBox("If the images should be colorless or not.", m_parameters.useBWImages);
 
@@ -36,14 +32,9 @@ BagToImagesWidget::BagToImagesWidget(Parameters::BagToImagesParameters& paramete
     m_advancedOptionsFormLayout->addRow("Switch Red and Blue Values:", switchRedBlueCheckBox);
     m_advancedOptionsFormLayout->addRow("Colorless Images:", useBWCheckBox);
 
-    auto* const advancedOptionsWidget = new QWidget;
-    advancedOptionsWidget->setLayout(m_advancedOptionsFormLayout);
-    advancedOptionsWidget->setVisible(m_parameters.showAdvancedOptions);
-
-    m_controlsLayout->addWidget(advancedOptionsCheckBox);
-    m_controlsLayout->addSpacing(10);
-    m_controlsLayout->addWidget(advancedOptionsWidget);
-    m_controlsLayout->addStretch();
+    createAdvancedOptionsWidget(m_advancedOptionsFormLayout, m_parameters.showAdvancedOptions, [this] (bool shown) {
+        writeParameterToSettings(m_parameters.showAdvancedOptions, shown, m_settings);
+    });
 
     adjustWidgetsToChangedFormat(m_parameters.format);
 
@@ -51,10 +42,6 @@ BagToImagesWidget::BagToImagesWidget(Parameters::BagToImagesParameters& paramete
                    !m_topicNameComboBox->currentText().isEmpty() && !m_parameters.targetDirectory.isEmpty());
 
     connect(formatComboBox, &QComboBox::currentTextChanged, this, &BagToImagesWidget::adjustWidgetsToChangedFormat);
-    connect(advancedOptionsCheckBox, &QCheckBox::stateChanged, this, [this, advancedOptionsWidget] (int state) {
-        writeParameterToSettings(m_parameters.showAdvancedOptions, state == Qt::Checked, m_settings);
-        advancedOptionsWidget->setVisible(state == Qt::Checked);
-    });
     connect(switchRedBlueCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.exchangeRedBlueValues, state == Qt::Checked, m_settings);
     });

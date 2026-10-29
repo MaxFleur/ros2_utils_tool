@@ -19,10 +19,6 @@ BagTF2ToFileWidget::BagTF2ToFileWidget(Parameters::BagTF2ToFileParameters& param
 
     m_basicOptionsFormLayout->insertRow(1, "Topic Name:", m_topicNameComboBox);
 
-    auto* const advancedOptionsCheckBox = new QCheckBox;
-    advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions);
-    advancedOptionsCheckBox->setText("Show Advanced Options");
-
     auto* const keepTimestampsCheckBox = Utils::UI::createCheckBox("Keep the message's timestamp into the file.", m_parameters.keepTimestamps);
 
     m_formatComboBox = new QComboBox;
@@ -37,24 +33,16 @@ BagTF2ToFileWidget::BagTF2ToFileWidget(Parameters::BagTF2ToFileParameters& param
     m_advancedOptionsFormLayout->addRow("File Format:", m_formatComboBox);
     m_advancedOptionsFormLayout->addRow("", new QLabel(""));
 
-    auto* const advancedOptionsWidget = new QWidget;
-    advancedOptionsWidget->setLayout(m_advancedOptionsFormLayout);
-    advancedOptionsWidget->setVisible(m_parameters.showAdvancedOptions);
-
-    m_controlsLayout->addWidget(advancedOptionsCheckBox);
-    m_controlsLayout->addSpacing(10);
-    m_controlsLayout->addWidget(advancedOptionsWidget);
-    m_controlsLayout->addStretch();
+    createAdvancedOptionsWidget(m_advancedOptionsFormLayout, m_parameters.showAdvancedOptions,
+                                [this] (bool shown) {
+        writeParameterToSettings(m_parameters.showAdvancedOptions, shown, m_settings);
+    });
 
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() &&
                    !m_topicNameComboBox->currentText().isEmpty() && !m_parameters.targetDirectory.isEmpty());
 
     formatComboBoxTextChanged(isFormatJson);
 
-    connect(advancedOptionsCheckBox, &QCheckBox::stateChanged, this, [this, advancedOptionsWidget] (int state) {
-        writeParameterToSettings(m_parameters.showAdvancedOptions, state == Qt::Checked, m_settings);
-        advancedOptionsWidget->setVisible(state == Qt::Checked);
-    });
     connect(keepTimestampsCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.keepTimestamps, state == Qt::Checked, m_settings);
     });
