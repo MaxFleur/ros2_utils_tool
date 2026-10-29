@@ -40,9 +40,6 @@ protected slots:
     }
 
     virtual void
-    okButtonPressed() const;
-
-    virtual void
     populateTreeWidget() = 0;
 
     virtual void

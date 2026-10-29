@@ -30,10 +30,10 @@ protected slots:
     void
     sourceButtonPressed();
 
-    void
-    okButtonPressed() const;
-
 protected:
+    bool
+    areInputsValid() const override;
+
     virtual std::optional<bool>
     areTopicsValid() const = 0;
 

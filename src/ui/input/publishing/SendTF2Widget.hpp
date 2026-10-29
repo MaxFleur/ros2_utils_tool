@@ -41,7 +41,7 @@ private slots:
     timeoutActivated();
 
     void
-    okButtonPressed();
+    okButtonPressed() override;
 
 private:
     void

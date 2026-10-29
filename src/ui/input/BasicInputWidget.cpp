@@ -3,6 +3,7 @@
 #include "DialogSettings.hpp"
 #include "LowDiskSpaceWidget.hpp"
 #include "UtilsGeneral.hpp"
+#include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
 #include <QCheckBox>
@@ -73,6 +74,19 @@ BasicInputWidget::enableOkButton(bool enable) const
 
 
 void
+BasicInputWidget::okButtonPressed()
+{
+    if (!m_okButton->isEnabled()) {
+        return;
+    }
+
+    if (areInputsValid()) {
+        emit okPressed();
+    }
+}
+
+
+void
 BasicInputWidget::setPixmapLabelIcon() const
 {
     const auto isDarkMode = Utils::UI::isDarkMode();
@@ -137,6 +151,28 @@ BasicInputWidget::showLowDiskSpaceMessageBox() const
         }
     }
     return true;
+}
+
+
+bool
+BasicInputWidget::confirmWriteToTarget(const QString& targetDirectory, const QString& noun, const QString& nounLowerCase) const
+{
+    if (const auto sufficientSpace = showLowDiskSpaceMessageBox(); !sufficientSpace) {
+        return false;
+    }
+
+    return Utils::UI::continueForExistingTarget(targetDirectory, noun, nounLowerCase);
+}
+
+
+bool
+BasicInputWidget::confirmTopicName(const QString& topicName, bool warnROS2NameConvention) const
+{
+    if (!warnROS2NameConvention || Utils::ROS::isTopicNameROS2Conform(topicName)) {
+        return true;
+    }
+
+    return Utils::UI::continueWithInvalidROS2Names();
 }
 
 

@@ -44,7 +44,17 @@ signals:
     void
     okPressed() const;
 
+protected slots:
+    virtual void
+    okButtonPressed();
+
 protected:
+    virtual bool
+    areInputsValid() const
+    {
+        return true;
+    }
+
     void
     enableOkButton(bool enable) const;
 
@@ -62,6 +72,17 @@ protected:
 
     [[nodiscard]] bool
     showLowDiskSpaceMessageBox() const;
+
+    // Confirms overwrites before writing to the target
+    [[nodiscard]] bool
+    confirmWriteToTarget(const QString& targetDirectory,
+                         const QString& noun,
+                         const QString& nounLowerCase) const;
+
+    // Confirms a non-ROS2-conform topic name, if warning is enabled
+    [[nodiscard]] bool
+    confirmTopicName(const QString& topicName,
+                     bool           warnROS2NameConvention) const;
 
     bool
     event(QEvent *event) override;

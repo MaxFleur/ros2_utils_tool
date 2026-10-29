@@ -169,18 +169,8 @@ PublishWidget::scaleCheckBoxPressed(int state)
 }
 
 
-void
-PublishWidget::okButtonPressed() const
+bool
+PublishWidget::areInputsValid() const
 {
-    if (!m_okButton->isEnabled()) {
-        return;
-    }
-
-    if (m_warnROS2NameConvention && !Utils::ROS::isTopicNameROS2Conform(m_parameters.topicName)) {
-        if (const auto returnValue = Utils::UI::continueWithInvalidROS2Names(); !returnValue) {
-            return;
-        }
-    }
-
-    emit okPressed();
+    return confirmTopicName(m_parameters.topicName, m_warnROS2NameConvention);
 }

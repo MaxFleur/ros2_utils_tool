@@ -155,24 +155,15 @@ VideoToBagWidget::useCompressionCheckBoxPressed(int state)
 }
 
 
-void
-VideoToBagWidget::okButtonPressed() const
+bool
+VideoToBagWidget::areInputsValid() const
 {
-    if (!m_okButton->isEnabled()) {
-        return;
-    }
-
     if (const auto sufficientSpace = showLowDiskSpaceMessageBox(); !sufficientSpace) {
-        return;
+        return false;
     }
-    if (m_warnROS2NameConvention && !Utils::ROS::isTopicNameROS2Conform(m_parameters.topicName)) {
-        if (const auto returnValue = Utils::UI::continueWithInvalidROS2Names(); !returnValue) {
-            return;
-        }
-    }
-    if (!Utils::UI::continueForExistingTarget(m_parameters.targetDirectory, "Bag file", "bag file")) {
-        return;
+    if (!confirmTopicName(m_parameters.topicName, m_warnROS2NameConvention)) {
+        return false;
     }
 
-    emit okPressed();
+    return Utils::UI::continueForExistingTarget(m_parameters.targetDirectory, "Bag file", "bag file");
 }

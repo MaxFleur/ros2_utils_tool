@@ -46,9 +46,6 @@ protected slots:
     void
     enableAdvancedOkButton();
 
-    virtual void
-    okButtonPressed() const;
-
     void
     setFileFormat(const QString& fileFormat)
     {
@@ -63,6 +60,9 @@ protected slots:
     }
 
 protected:
+    bool
+    areInputsValid() const override;
+
     void
     fillTargetLineEdit();
 

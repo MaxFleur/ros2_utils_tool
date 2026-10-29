@@ -164,20 +164,10 @@ ConfigureRecordBagWidget::handleTreeAfterSource()
 }
 
 
-void
-ConfigureRecordBagWidget::okButtonPressed() const
+bool
+ConfigureRecordBagWidget::areInputsValid() const
 {
-    if (!m_okButton->isEnabled()) {
-        return;
-    }
-    if (const auto sufficientSpace = showLowDiskSpaceMessageBox(); !sufficientSpace) {
-        return;
-    }
-    if (!Utils::UI::continueForExistingTarget(m_parameters.sourceDirectory, "Bag file", "bag file")) {
-        return;
-    }
-
-    emit okPressed();
+    return confirmWriteToTarget(m_parameters.sourceDirectory, "Bag file", "bag file");
 }
 
 

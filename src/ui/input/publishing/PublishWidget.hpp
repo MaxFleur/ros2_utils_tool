@@ -30,10 +30,10 @@ private slots:
     void
     scaleCheckBoxPressed(int state);
 
-    void
-    okButtonPressed() const;
-
 private:
+    bool
+    areInputsValid() const override;
+
     QPointer<QLineEdit> m_topicNameLineEdit;
     QPointer<QFormLayout> m_advancedOptionsFormLayout;
     QPointer<QSpinBox> m_widthSpinBox;

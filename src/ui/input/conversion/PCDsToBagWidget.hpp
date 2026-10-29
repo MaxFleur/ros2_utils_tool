@@ -22,10 +22,10 @@ private slots:
     void
     findSourceButtonPressed() override;
 
-    void
-    okButtonPressed() const override;
-
 private:
+    bool
+    areInputsValid() const override;
+
     Parameters::PCDsToBagParameters& m_parameters;
 
     PCDsToBagSettings m_settings;

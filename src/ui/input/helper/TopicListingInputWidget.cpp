@@ -54,31 +54,24 @@ TopicListingInputWidget::sourceButtonPressed()
 }
 
 
-void
-TopicListingInputWidget::okButtonPressed() const
+bool
+TopicListingInputWidget::areInputsValid() const
 {
     if (m_parameters.sourceDirectory.isEmpty()) {
         Utils::UI::createCriticalMessageBox("No bag name specified!", "Please specify a bag name before continuing!");
-        return;
+        return false;
     }
 
     const auto isValid = areTopicsValid();
     if (isValid == std::nullopt) {
-        return;
+        return false;
     }
     if (!*isValid) {
         Utils::UI::createCriticalMessageBox("Duplicate Topic Names Detected!", "Please make sure that no duplicate topic names are used!");
-        return;
+        return false;
     }
 
-    if (const auto sufficientSpace = showLowDiskSpaceMessageBox(); !sufficientSpace) {
-        return;
-    }
-    if (!Utils::UI::continueForExistingTarget(m_parameters.sourceDirectory, "Bagfile", "bag file")) {
-        return;
-    }
-
-    emit okPressed();
+    return confirmWriteToTarget(m_parameters.sourceDirectory, "Bagfile", "bag file");
 }
 
 
