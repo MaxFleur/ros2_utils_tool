@@ -7,4 +7,4 @@ jobs:
     uses: ./.github/workflows/ci.yml
     with:
       distro: rolling
-      os: ubuntu-latest
+      os: ubuntu-24.04
