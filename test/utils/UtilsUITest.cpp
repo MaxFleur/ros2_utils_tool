@@ -2,16 +2,6 @@
 
 #include "UtilsUI.hpp"
 
-#include <QWidget>
-
-#include "rclcpp/rclcpp.hpp"
-
-#include "rosbag2_cpp/writer.hpp"
-
-#include "sensor_msgs/msg/image.hpp"
-
-#include <filesystem>
-
 TEST_CASE("Utils UI Testing", "[utils]") {
     SECTION("Font size test") {
         auto* const widget = new QWidget;
