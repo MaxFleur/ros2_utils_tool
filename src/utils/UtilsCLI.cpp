@@ -5,12 +5,11 @@
 #include "UtilsROS.hpp"
 
 #include <filesystem>
-#include <signal.h>
 
 namespace Utils::CLI
 {
 // Every tool runs in its own process, so one shared signal status is sufficient
-static volatile sig_atomic_t signalStatus = 0;
+static volatile std::sig_atomic_t signalStatus = 0;
 
 static void
 signalHandler(int signal)
@@ -371,7 +370,7 @@ runThread(BasicThread*   thread,
     }
 
     // Install SIGINT handler and run the thread until it is finished
-    signal(SIGINT, signalHandler);
+    std::signal(SIGINT, signalHandler);
     thread->start();
 
     while (!thread->isFinished()) {
