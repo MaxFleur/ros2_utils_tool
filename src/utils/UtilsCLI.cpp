@@ -284,7 +284,7 @@ drawProgressString(int progress)
 
 
 void
-showProcessingString(bool& isProcessing)
+showProcessingString(std::atomic<bool>& isProcessing)
 {
     auto processingChar = '\\';
     isProcessing = true;
@@ -320,7 +320,7 @@ runThread(BasicThread*   thread,
           const QString& failureMessage,
           bool           printSuccessMessageOnInterrupt)
 {
-    auto isProcessing = false;
+    std::atomic<bool> isProcessing = false;
     std::thread processingThread;
     // Exceptions thrown in the QThread instance throw std::terminate, so we capture them and rethrow them in the main thread
     std::exception_ptr failureException;

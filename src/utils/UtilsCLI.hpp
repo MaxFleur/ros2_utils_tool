@@ -109,7 +109,7 @@ drawProgressString(int progress);
 
 // Shows a processing string while something is processed in the background
 void
-showProcessingString(bool& isProcessing);
+showProcessingString(std::atomic<bool>& isProcessing);
 
 // Different ways in which the tools display their progress
 enum class ProgressMode {
