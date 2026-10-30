@@ -8,6 +8,7 @@
 class LowDiskSpaceWidget;
 
 class QDialogButtonBox;
+class QFormLayout;
 class QHBoxLayout;
 class QLabel;
 class QLineEdit;
@@ -43,18 +44,45 @@ signals:
     void
     okPressed() const;
 
+protected slots:
+    virtual void
+    okButtonPressed();
+
 protected:
+    virtual bool
+    areInputsValid() const
+    {
+        return true;
+    }
+
     void
     enableOkButton(bool enable) const;
 
-    void
+    virtual void
     setPixmapLabelIcon() const;
 
     void
     setLowDiskSpaceWidgetVisibility(const QString& path);
 
+    // Adds a "Show Advanced Options" checkbox plus a collapsible widget container to the controls layout
+    void
+    createAdvancedOptionsWidget(QFormLayout*                     advancedOptionsFormLayout,
+                                bool                             showAdvancedOptions,
+                                const std::function<void(bool)>& onToggled);
+
     [[nodiscard]] bool
     showLowDiskSpaceMessageBox() const;
+
+    // Confirms overwrites before writing to the target
+    [[nodiscard]] bool
+    confirmWriteToTarget(const QString& targetDirectory,
+                         const QString& noun,
+                         const QString& nounLowerCase) const;
+
+    // Confirms a non-ROS2-conform topic name, if warning is enabled
+    [[nodiscard]] bool
+    confirmTopicName(const QString& topicName,
+                     bool           warnROS2NameConvention) const;
 
     bool
     event(QEvent *event) override;

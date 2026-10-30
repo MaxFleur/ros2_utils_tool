@@ -1,6 +1,13 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Changelog for the ros2_utils_tool
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1.1.3 (2026-10-30)
+-------------------
+**System:**
+
+* Internal stability improvements and cleanups.
+* Temporarily set CI for rolling back to Ubuntu 24.04 until it is migrated to 26.04 (latest).
+
 1.1.2 (2026-10-09)
 -------------------
 **Fixed:**

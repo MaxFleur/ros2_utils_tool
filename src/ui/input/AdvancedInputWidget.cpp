@@ -132,27 +132,20 @@ AdvancedInputWidget::enableAdvancedOkButton()
 }
 
 
-void
-AdvancedInputWidget::okButtonPressed() const
+bool
+AdvancedInputWidget::areInputsValid() const
 {
-    if (!m_okButton->isEnabled()) {
-        return;
-    }
-
     if (const auto sufficientSpace = showLowDiskSpaceMessageBox(); !sufficientSpace) {
-        return;
+        return false;
     }
     if (!Utils::ROS::doesDirectoryContainBagFile(m_parameters.sourceDirectory)) {
         Utils::UI::createCriticalMessageBox("Invalid bag file!", "The source bag file seems to be invalid or broken!");
-        return;
-    }
-    if (!Utils::UI::continueForExistingTarget(m_parameters.targetDirectory,
-                                              m_outputType == OUTPUT_TYPE::OUTPUT_VIDEO ? "Video" : "Directory",
-                                              m_outputType == OUTPUT_TYPE::OUTPUT_VIDEO ? "video" : "directory")) {
-        return;
+        return false;
     }
 
-    emit okPressed();
+    return Utils::UI::continueForExistingTarget(m_parameters.targetDirectory,
+                                                m_outputType == OUTPUT_TYPE::OUTPUT_VIDEO ? "Video" : "Directory",
+                                                m_outputType == OUTPUT_TYPE::OUTPUT_VIDEO ? "video" : "directory");
 }
 
 

@@ -231,19 +231,9 @@ SendTF2Widget::animateInfoLabel(const QString& labelText)
 void
 SendTF2Widget::setPixmapLabelIcon() const
 {
+    BasicInputWidget::setPixmapLabelIcon();
+
     const auto isDarkMode = Utils::UI::isDarkMode();
-    m_headerPixmapLabel->setPixmap(QIcon(isDarkMode ? m_iconPath + "_white.svg" : m_iconPath + "_black.svg").pixmap(QSize(100, 45)));
-
-    m_loadFromFileButton->setIcon(QIcon(isDarkMode ? ":/icons/widgets/load_from_file_white.svg" : ":/icons/widgets/load_from_file_black.svg"));
-    m_saveToFileButton->setIcon(QIcon(isDarkMode ? ":/icons/widgets/save_to_file_white.svg" : ":/icons/widgets/save_to_file_black.svg"));
-}
-
-
-bool
-SendTF2Widget::event(QEvent *event)
-{
-    [[unlikely]] if (event->type() == QEvent::ApplicationPaletteChange || event->type() == QEvent::PaletteChange) {
-        setPixmapLabelIcon();
-    }
-    return QWidget::event(event);
+    m_loadFromFileButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/widgets/load_from_file", ".svg", isDarkMode)));
+    m_saveToFileButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/widgets/save_to_file", ".svg", isDarkMode)));
 }

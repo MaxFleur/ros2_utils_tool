@@ -29,8 +29,7 @@ ControlBagWidget::ControlBagWidget(Parameters::SelectableBagContentParameters& p
     headerLabel->setAlignment(Qt::AlignHCenter);
 
     const auto isDarkMode = Utils::UI::isDarkMode();
-
-    m_movie = new QMovie(isDarkMode ? moviePath + "_white.gif" : moviePath + "_black.gif");
+    m_movie = new QMovie(Utils::UI::themedIconPath(moviePath, ".gif", isDarkMode));
     m_movie->setScaledSize(QSize(120, 70));
 
     auto* const movieLabel = new QLabel;
@@ -38,7 +37,7 @@ ControlBagWidget::ControlBagWidget(Parameters::SelectableBagContentParameters& p
     movieLabel->setAlignment(Qt::AlignHCenter);
 
     const QString activeString = m_isRecorder ? "Record" : "Play";
-    m_playPauseButton = createButton(isDarkMode ? ":/icons/player/stop_white.svg" : ":/icons/player/stop_black.svg",
+    m_playPauseButton = createButton(Utils::UI::themedIconPath(":/icons/player/stop", ".svg", isDarkMode),
                                      activeString + " or pause.", TOOLBUTTON_SIZE_PLAYER, TOOLBUTTON_ICON_SIZE_PLAYER);
 
     m_controlsLayout = new QHBoxLayout;
@@ -98,11 +97,11 @@ ControlBagWidget::setState()
     // Button icon has to switch between "Pause" and "Play"
     const auto isDarkMode = Utils::UI::isDarkMode();
     if (m_isActive) {
-        m_playPauseButton->setIcon(QIcon(isDarkMode ? ":/icons/player/stop_white.svg" : ":/icons/player/stop_black.svg"));
+        m_playPauseButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/player/stop", ".svg", isDarkMode)));
         m_movie->start();
         return;
     }
-    m_playPauseButton->setIcon(QIcon(isDarkMode ? ":/icons/player/play_white.svg" : ":/icons/player/play_black.svg"));
+    m_playPauseButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/player/play", ".svg", isDarkMode)));
     m_movie->stop();
 }
 

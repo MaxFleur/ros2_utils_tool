@@ -44,10 +44,6 @@ PublishWidget::PublishWidget(Parameters::PublishParameters& parameters, bool use
     basicOptionsFormLayout->addRow(m_publishVideo ? "Video File:" : "Images Files:", m_findSourceLayout);
     basicOptionsFormLayout->addRow("Topic Name:", topicNameLineEdit);
 
-    auto* const advancedOptionsCheckBox = new QCheckBox;
-    advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions);
-    advancedOptionsCheckBox->setText("Show Advanced Options");
-
     auto* const scaleCheckBox = Utils::UI::createCheckBox("Scale the video to another width and height.", m_parameters.scale);
     auto* const switchRedBlueCheckBox = Utils::UI::createCheckBox("Switch the video's red and blue values.", m_parameters.exchangeRedBlueValues);
     auto* const loopCheckBox = Utils::UI::createCheckBox("Loop the video file if it has been played through.", m_parameters.loop);
@@ -63,17 +59,13 @@ PublishWidget::PublishWidget(Parameters::PublishParameters& parameters, bool use
     m_advancedOptionsFormLayout->addRow("Loop Video:", loopCheckBox);
     m_advancedOptionsFormLayout->addRow("FPS:", fpsSpinBox);
 
-    auto* const advancedOptionsWidget = new QWidget;
-    advancedOptionsWidget->setLayout(m_advancedOptionsFormLayout);
-    advancedOptionsWidget->setVisible(m_parameters.showAdvancedOptions);
-
     m_controlsLayout->addSpacing(40);
     m_controlsLayout->addLayout(basicOptionsFormLayout);
     m_controlsLayout->addSpacing(5);
-    m_controlsLayout->addWidget(advancedOptionsCheckBox);
-    m_controlsLayout->addSpacing(10);
-    m_controlsLayout->addWidget(advancedOptionsWidget);
-    m_controlsLayout->addStretch();
+
+    createAdvancedOptionsWidget(m_advancedOptionsFormLayout, m_parameters.showAdvancedOptions, [this] (bool shown) {
+        writeParameterToSettings(m_parameters.showAdvancedOptions, shown, m_settings);
+    });
 
     auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.topicName.isEmpty());
@@ -82,10 +74,6 @@ PublishWidget::PublishWidget(Parameters::PublishParameters& parameters, bool use
     connect(topicNameLineEdit, &QLineEdit::textChanged, this, [this, topicNameLineEdit] {
         writeParameterToSettings(m_parameters.topicName, topicNameLineEdit->text(), m_settings);
         enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.topicName.isEmpty());
-    });
-    connect(advancedOptionsCheckBox, &QCheckBox::stateChanged, this, [this, advancedOptionsWidget] (int state) {
-        writeParameterToSettings(m_parameters.showAdvancedOptions, state == Qt::Checked, m_settings);
-        advancedOptionsWidget->setVisible(state == Qt::Checked);
     });
     connect(scaleCheckBox, &QCheckBox::stateChanged, this, &PublishWidget::scaleCheckBoxPressed);
     connect(switchRedBlueCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
@@ -181,18 +169,8 @@ PublishWidget::scaleCheckBoxPressed(int state)
 }
 
 
-void
-PublishWidget::okButtonPressed() const
+bool
+PublishWidget::areInputsValid() const
 {
-    if (!m_okButton->isEnabled()) {
-        return;
-    }
-
-    if (m_warnROS2NameConvention && !Utils::ROS::isTopicNameROS2Conform(m_parameters.topicName)) {
-        if (const auto returnValue = Utils::UI::continueWithInvalidROS2Names(); !returnValue) {
-            return;
-        }
-    }
-
-    emit okPressed();
+    return confirmTopicName(m_parameters.topicName, m_warnROS2NameConvention);
 }

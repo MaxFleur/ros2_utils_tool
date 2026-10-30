@@ -76,20 +76,14 @@ ChangeCompressionWidget::findSourceButtonPressed()
 }
 
 
-void
-ChangeCompressionWidget::okButtonPressed() const
+bool
+ChangeCompressionWidget::areInputsValid() const
 {
     if (const auto valid = isBagFileValid(m_parameters.sourceDirectory); !valid) {
-        return;
-    }
-    if (const auto sufficientSpace = showLowDiskSpaceMessageBox(); !sufficientSpace) {
-        return;
-    }
-    if (!Utils::UI::continueForExistingTarget(m_parameters.targetDirectory, "Bagfile", "bag file")) {
-        return;
+        return false;
     }
 
-    emit okPressed();
+    return confirmWriteToTarget(m_parameters.targetDirectory, "Bagfile", "bag file");
 }
 
 

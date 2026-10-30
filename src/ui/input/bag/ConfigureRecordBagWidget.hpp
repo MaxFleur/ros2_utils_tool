@@ -27,9 +27,6 @@ private slots:
     handleTreeAfterSource() override;
 
     void
-    okButtonPressed() const override;
-
-    void
     startSearchingThread();
 
     void
@@ -39,6 +36,9 @@ private slots:
     populateTreeWidget() override;
 
 private:
+    bool
+    areInputsValid() const override;
+
     QPointer<QPushButton> m_refreshButton;
     QPointer<QWidget> m_loadedInfoWidget;
     QPointer<LoadingWidget> m_loadingWidget;

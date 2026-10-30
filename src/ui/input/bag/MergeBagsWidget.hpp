@@ -28,10 +28,10 @@ private slots:
     itemCheckStateChanged(QTreeWidgetItem* item,
                           int              column) override;
 
-    void
-    okButtonPressed() const override;
-
 private:
+    bool
+    areInputsValid() const override;
+
     QPointer<QLineEdit> m_secondSourceLineEdit;
 
     QPointer<QLabel> m_sufficientSpaceLabel;

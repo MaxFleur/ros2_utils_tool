@@ -95,14 +95,3 @@ BasicBagWidget::itemCheckStateChanged(QTreeWidgetItem* item, int column)
     writeParameterToSettings(vector[vectorIndex].isSelected, item->checkState(COL_CHECKBOXES) == Qt::Checked, m_settings);
     enableOkButton();
 }
-
-
-void
-BasicBagWidget::okButtonPressed() const
-{
-    if (!m_okButton->isEnabled()) {
-        return;
-    }
-
-    emit okPressed();
-}

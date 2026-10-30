@@ -32,10 +32,10 @@ private slots:
     void
     useCompressionCheckBoxPressed(int state);
 
-    void
-    okButtonPressed() const override;
-
 private:
+    bool
+    areInputsValid() const override;
+
     QPointer<QFormLayout> m_advancedOptionsFormLayout;
     QPointer<QSpinBox> m_fpsSpinBox;
     QPointer<QRadioButton> m_compressJPEGRadioButton;

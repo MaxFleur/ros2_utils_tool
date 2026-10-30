@@ -191,12 +191,20 @@ BagMessageToFileThread::BagMessageToFileThread(const Parameters::BagMessageToFil
 void
 BagMessageToFileThread::run()
 {
+    // Prepare parameters
+    const auto topicType = Utils::ROS::getTopicType(m_parameters.sourceDirectory, m_parameters.topicName);
+    const auto messageCount = Utils::ROS::getTopicMessageCount(m_parameters.sourceDirectory, m_parameters.topicName);
+    if (!topicType || !messageCount) {
+        emit failed();
+        return;
+    }
+
     const auto targetDirectoryStd = m_parameters.targetDirectory.toStdString();
     Utils::General::createAndClearDirectory(targetDirectoryStd);
 
-    const auto topicTypeStdString = Utils::ROS::getTopicType(m_parameters.sourceDirectory, m_parameters.topicName)->toStdString();
     const auto& topicNameStdString = m_parameters.topicName.toStdString();
-    const auto totalInstances = *Utils::ROS::getTopicMessageCount(m_parameters.sourceDirectory, m_parameters.topicName);
+    const auto topicTypeStdString = topicType->toStdString();
+    const auto totalInstances = *messageCount;
 
     YAML::Node messagesNode;
     QJsonObject messagesObject;

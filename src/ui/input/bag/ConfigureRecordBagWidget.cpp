@@ -55,10 +55,6 @@ ConfigureRecordBagWidget::ConfigureRecordBagWidget(Parameters::RecordBagParamete
 
     m_lowDiskSpaceWidget = new LowDiskSpaceWidget;
 
-    auto* const advancedOptionsCheckBox = new QCheckBox;
-    advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions);
-    advancedOptionsCheckBox->setText("Show Advanced Options");
-
     const auto createCheckBox = [this] (const QString& toolTip, bool& enableValue) {
         auto* const checkBox = new QCheckBox;
         checkBox->setCheckState(enableValue ? Qt::Checked : Qt::Unchecked);
@@ -126,10 +122,6 @@ ConfigureRecordBagWidget::ConfigureRecordBagWidget(Parameters::RecordBagParamete
     advancedOptionsFormLayout->addRow("", compressPerFileRadioButton);
     advancedOptionsFormLayout->addRow("", compressPerMessageRadioButton);
 
-    auto* const advancedOptionsWidget = new QWidget;
-    advancedOptionsWidget->setLayout(advancedOptionsFormLayout);
-    advancedOptionsWidget->setVisible(m_parameters.showAdvancedOptions);
-
     m_controlsLayout->addSpacing(30);
     m_controlsLayout->addWidget(m_loadedInfoWidget);
     m_controlsLayout->addWidget(m_loadingWidget);
@@ -138,19 +130,15 @@ ConfigureRecordBagWidget::ConfigureRecordBagWidget(Parameters::RecordBagParamete
     m_controlsLayout->addSpacing(5);
     m_controlsLayout->addWidget(m_lowDiskSpaceWidget);
     m_controlsLayout->addSpacing(10);
-    m_controlsLayout->addWidget(advancedOptionsCheckBox);
-    m_controlsLayout->addSpacing(10);
-    m_controlsLayout->addWidget(advancedOptionsWidget);
-    m_controlsLayout->addStretch();
+
+    createAdvancedOptionsWidget(advancedOptionsFormLayout, m_parameters.showAdvancedOptions, [this] (bool shown) {
+        writeParameterToSettings(m_parameters.showAdvancedOptions, shown, m_settings);
+    });
 
     connect(includeROSTopicsCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.includeROSTopics, state == Qt::Checked, m_settings);
     });
     connect(m_refreshButton, &QPushButton::clicked, this, &ConfigureRecordBagWidget::startSearchingThread);
-    connect(advancedOptionsCheckBox, &QCheckBox::stateChanged, this, [this, advancedOptionsWidget] (int state) {
-        writeParameterToSettings(m_parameters.showAdvancedOptions, state == Qt::Checked, m_settings);
-        advancedOptionsWidget->setVisible(state == Qt::Checked);
-    });
     connect(noCompressionRadioButton, &QRadioButton::clicked, this, [this] {
         writeParameterToSettings(m_parameters.useCompression, false, m_settings);
     });
@@ -176,20 +164,10 @@ ConfigureRecordBagWidget::handleTreeAfterSource()
 }
 
 
-void
-ConfigureRecordBagWidget::okButtonPressed() const
+bool
+ConfigureRecordBagWidget::areInputsValid() const
 {
-    if (!m_okButton->isEnabled()) {
-        return;
-    }
-    if (const auto sufficientSpace = showLowDiskSpaceMessageBox(); !sufficientSpace) {
-        return;
-    }
-    if (!Utils::UI::continueForExistingTarget(m_parameters.sourceDirectory, "Bag file", "bag file")) {
-        return;
-    }
-
-    emit okPressed();
+    return confirmWriteToTarget(m_parameters.sourceDirectory, "Bag file", "bag file");
 }
 
 

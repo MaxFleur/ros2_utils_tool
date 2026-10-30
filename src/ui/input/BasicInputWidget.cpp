@@ -3,11 +3,14 @@
 #include "DialogSettings.hpp"
 #include "LowDiskSpaceWidget.hpp"
 #include "UtilsGeneral.hpp"
+#include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
+#include <QCheckBox>
 #include <QDialogButtonBox>
 #include <QDir>
 #include <QEvent>
+#include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
@@ -71,11 +74,24 @@ BasicInputWidget::enableOkButton(bool enable) const
 
 
 void
+BasicInputWidget::okButtonPressed()
+{
+    if (!m_okButton->isEnabled()) {
+        return;
+    }
+
+    if (areInputsValid()) {
+        emit okPressed();
+    }
+}
+
+
+void
 BasicInputWidget::setPixmapLabelIcon() const
 {
     const auto isDarkMode = Utils::UI::isDarkMode();
     // Don't need to provide full name, appendix is always the same
-    m_headerPixmapLabel->setPixmap(QIcon(isDarkMode ? m_iconPath + "_white.svg" : m_iconPath + "_black.svg").pixmap(QSize(100, 45)));
+    m_headerPixmapLabel->setPixmap(QIcon(Utils::UI::themedIconPath(m_iconPath, ".svg", isDarkMode)).pixmap(QSize(100, 45)));
 }
 
 
@@ -91,6 +107,29 @@ BasicInputWidget::setLowDiskSpaceWidgetVisibility(const QString& path)
 
     m_lowDiskSpaceWidget->setVisibility(dir.path());
     m_remainingSpace = Utils::General::getAvailableDriveSpace(dir.path());
+}
+
+
+void
+BasicInputWidget::createAdvancedOptionsWidget(QFormLayout* advancedOptionsFormLayout, bool showAdvancedOptions, const std::function<void(bool)>& onToggled)
+{
+    auto* const advancedOptionsCheckBox = new QCheckBox("Show Advanced Options");
+    advancedOptionsCheckBox->setChecked(showAdvancedOptions);
+
+    auto* const advancedOptionsWidget = new QWidget;
+    advancedOptionsWidget->setLayout(advancedOptionsFormLayout);
+    advancedOptionsWidget->setVisible(showAdvancedOptions);
+
+    m_controlsLayout->addWidget(advancedOptionsCheckBox);
+    m_controlsLayout->addSpacing(10);
+    m_controlsLayout->addWidget(advancedOptionsWidget);
+    m_controlsLayout->addStretch();
+
+    connect(advancedOptionsCheckBox, &QCheckBox::stateChanged, this, [advancedOptionsWidget, onToggled] (int state) {
+        const auto shown = state == Qt::Checked;
+        advancedOptionsWidget->setVisible(shown);
+        onToggled(shown);
+    });
 }
 
 
@@ -112,6 +151,28 @@ BasicInputWidget::showLowDiskSpaceMessageBox() const
         }
     }
     return true;
+}
+
+
+bool
+BasicInputWidget::confirmWriteToTarget(const QString& targetDirectory, const QString& noun, const QString& nounLowerCase) const
+{
+    if (const auto sufficientSpace = showLowDiskSpaceMessageBox(); !sufficientSpace) {
+        return false;
+    }
+
+    return Utils::UI::continueForExistingTarget(targetDirectory, noun, nounLowerCase);
+}
+
+
+bool
+BasicInputWidget::confirmTopicName(const QString& topicName, bool warnROS2NameConvention) const
+{
+    if (!warnROS2NameConvention || Utils::ROS::isTopicNameROS2Conform(topicName)) {
+        return true;
+    }
+
+    return Utils::UI::continueWithInvalidROS2Names();
 }
 
 

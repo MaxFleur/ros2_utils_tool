@@ -153,8 +153,8 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     backButtonLayout->addWidget(m_backButton);
     backButtonLayout->addStretch();
 
-    m_versionLabel = new QLabel("v1.1.2");
-    m_versionLabel->setToolTip("Bug fixes and build system improvements.");
+    m_versionLabel = new QLabel("v1.1.3");
+    m_versionLabel->setToolTip("Internal stability improvements and cleanups.");
 
     auto* const versionLayout = new QHBoxLayout;
     versionLayout->addStretch();
@@ -276,36 +276,35 @@ void
 StartWidget::setButtonIcons()
 {
     const auto isDarkMode = Utils::UI::isDarkMode();
-    m_settingsButton->setIcon(QIcon(isDarkMode ? ":/icons/widgets/gear_white.svg" : ":/icons/widgets/gear_black.svg"));
+    m_settingsButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/widgets/gear", ".svg", isDarkMode)));
 
-    m_conversionToolsButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/conversion_tools_white.svg" : ":/icons/tools/conversion_tools_black.svg"));
-    m_bagToolsButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_tools_white.svg" : ":/icons/tools/bag_tools_black.svg"));
-    m_publishingToolsButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/publishing_tools_white.svg" : ":/icons/tools/publishing_tools_black.svg"));
-    m_infoToolsButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/info_tools_white.svg" : ":/icons/tools/info_tools_black.svg"));
+    m_conversionToolsButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/tools/conversion_tools", ".svg", isDarkMode)));
+    m_bagToolsButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/tools/bag_tools", ".svg", isDarkMode)));
+    m_publishingToolsButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/tools/publishing_tools", ".svg", isDarkMode)));
+    m_infoToolsButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/tools/info_tools", ".svg", isDarkMode)));
 
-    m_bagToVideoPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_to_video_white.svg" : ":/icons/tools/bag_to_video_black.svg"));
-    m_videoToBagPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/video_to_bag_white.svg" : ":/icons/tools/video_to_bag_black.svg"));
-    m_bagToPCDsPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_to_pcd_white.svg" : ":/icons/tools/bag_to_pcd_black.svg"));
-    m_PCDsToBagPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/pcd_to_bag_white.svg" : ":/icons/tools/pcd_to_bag_black.svg"));
-    m_bagToImagesPushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_to_images_white.svg" : ":/icons/tools/bag_to_images_black.svg"));
-    m_tf2ToFilePushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_tf2_to_file_white.svg" : ":/icons/tools/bag_tf2_to_file_black.svg"));
-    m_bagMessageToFilePushButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_message_to_file_white.svg" : ":/icons/tools/bag_message_to_file_black.svg"));
+    m_bagToVideoPushButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/tools/bag_to_video", ".svg", isDarkMode)));
+    m_videoToBagPushButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/tools/video_to_bag", ".svg", isDarkMode)));
+    m_bagToPCDsPushButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/tools/bag_to_pcd", ".svg", isDarkMode)));
+    m_PCDsToBagPushButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/tools/pcd_to_bag", ".svg", isDarkMode)));
+    m_bagToImagesPushButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/tools/bag_to_images", ".svg", isDarkMode)));
+    m_tf2ToFilePushButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/tools/bag_tf2_to_file", ".svg", isDarkMode)));
+    m_bagMessageToFilePushButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/tools/bag_message_to_file", ".svg", isDarkMode)));
 
-    m_editBagButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/edit_bag_white.svg" : ":/icons/tools/edit_bag_black.svg"));
-    m_mergeBagsButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/merge_bags_white.svg" : ":/icons/tools/merge_bags_black.svg"));
-    m_recordBagButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/record_bag_white.svg" : ":/icons/tools/record_bag_black.svg"));
-    m_dummyBagButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/dummy_bag_white.svg" : ":/icons/tools/dummy_bag_black.svg"));
-    m_compressBagButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/compress_bag_white.svg" : ":/icons/tools/compress_bag_black.svg"));
-    m_decompressBagButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/decompress_bag_white.svg" : ":/icons/tools/decompress_bag_black.svg"));
-    m_playBagButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/play_bag_white.svg" : ":/icons/tools/play_bag_black.svg"));
+    m_editBagButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/tools/edit_bag", ".svg", isDarkMode)));
+    m_mergeBagsButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/tools/merge_bags", ".svg", isDarkMode)));
+    m_recordBagButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/tools/record_bag", ".svg", isDarkMode)));
+    m_dummyBagButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/tools/dummy_bag", ".svg", isDarkMode)));
+    m_compressBagButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/tools/compress_bag", ".svg", isDarkMode)));
+    m_decompressBagButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/tools/decompress_bag", ".svg", isDarkMode)));
+    m_playBagButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/tools/play_bag", ".svg", isDarkMode)));
 
-    m_publishVideoButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/publish_video_white.svg" : ":/icons/tools/publish_video_black.svg"));
-    m_publishImagesButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/publish_images_white.svg" : ":/icons/tools/publish_images_black.svg"));
-    m_sendTF2Button->setIcon(QIcon(isDarkMode ? ":/icons/tools/send_tf2_white.svg" : ":/icons/tools/send_tf2_black.svg"));
+    m_publishVideoButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/tools/publish_video", ".svg", isDarkMode)));
+    m_publishImagesButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/tools/publish_images", ".svg", isDarkMode)));
+    m_sendTF2Button->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/tools/send_tf2", ".svg", isDarkMode)));
 
-    m_topicServiceInfoButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/topics_services_info_white.svg"
-                                                       : ":/icons/tools/topics_services_info_black.svg"));
-    m_bagInfoButton->setIcon(QIcon(isDarkMode ? ":/icons/tools/bag_info_white.svg" : ":/icons/tools/bag_info_black.svg"));
+    m_topicServiceInfoButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/tools/topics_services_info", ".svg", isDarkMode)));
+    m_bagInfoButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/tools/bag_info", ".svg", isDarkMode)));
 }
 
 

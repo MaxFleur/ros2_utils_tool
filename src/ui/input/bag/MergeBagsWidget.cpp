@@ -195,8 +195,8 @@ MergeBagsWidget::itemCheckStateChanged(QTreeWidgetItem* item, int column)
 }
 
 
-void
-MergeBagsWidget::okButtonPressed() const
+bool
+MergeBagsWidget::areInputsValid() const
 {
     // Sets remove duplicates, so use such an instance to check for duplicate topic names
     QSet<QString> topicNameSet;
@@ -210,10 +210,5 @@ MergeBagsWidget::okButtonPressed() const
         sizeOfSelectedTopics++;
     }
 
-    if (const auto ioParamsValid = areIOParametersValid(sizeOfSelectedTopics, topicNameSet.size(), m_parameters.secondSourceDirectory);
-        !ioParamsValid) {
-        return;
-    }
-
-    emit okPressed();
+    return areIOParametersValid(sizeOfSelectedTopics, topicNameSet.size(), m_parameters.secondSourceDirectory);
 }

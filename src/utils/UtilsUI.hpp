@@ -56,6 +56,12 @@ isBagDirectoryValid(QWidget* parent);
 [[nodiscard]] bool
 isDarkMode();
 
+// Returns the path to the light- or dark-theme variant of an icon/movie
+[[nodiscard]] QString
+themedIconPath(const QString& baseName,
+               const QString& extension,
+               bool           isDarkMode);
+
 enum class TOOL_ID {
     BAG_TO_VIDEO,
     VIDEO_TO_BAG,

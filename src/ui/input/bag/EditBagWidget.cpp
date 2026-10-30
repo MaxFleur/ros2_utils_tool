@@ -179,8 +179,8 @@ EditBagWidget::itemCheckStateChanged(QTreeWidgetItem* item, int column)
 }
 
 
-void
-EditBagWidget::okButtonPressed() const
+bool
+EditBagWidget::areInputsValid() const
 {
     auto areROS2NamesValid = true;
     for (const auto& topic : m_parameters.topics) {
@@ -191,7 +191,7 @@ EditBagWidget::okButtonPressed() const
             msgBox->setAttribute(Qt::WA_DeleteOnClose);
             msgBox->exec();
 
-            return;
+            return false;
         }
         if (!topic.renamedName.isEmpty() && m_warnROS2NameConvention &&
             !Utils::ROS::isTopicNameROS2Conform(topic.renamedName) && areROS2NamesValid) {
@@ -212,14 +212,14 @@ EditBagWidget::okButtonPressed() const
         sizeOfSelectedTopics++;
     }
 
-    if (const auto ioParamsValid = areIOParametersValid(sizeOfSelectedTopics, topicNameSet.size()); !ioParamsValid) {
-        return;
+    if (!areIOParametersValid(sizeOfSelectedTopics, topicNameSet.size())) {
+        return false;
     }
     if (!areROS2NamesValid) {
         if (const auto returnValue = Utils::UI::continueWithInvalidROS2Names(); !returnValue) {
-            return;
+            return false;
         }
     }
 
-    emit okPressed();
+    return true;
 }

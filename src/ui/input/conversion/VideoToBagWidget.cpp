@@ -34,10 +34,6 @@ VideoToBagWidget::VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
 
     m_basicOptionsFormLayout->insertRow(1, "Topic Name:", topicNameLineEdit);
 
-    auto* const advancedOptionsCheckBox = new QCheckBox;
-    advancedOptionsCheckBox->setChecked(m_parameters.showAdvancedOptions);
-    advancedOptionsCheckBox->setText("Show Advanced Options");
-
     auto* const switchRedBlueCheckBox = Utils::UI::createCheckBox("Switch the video's red and blue values.", m_parameters.exchangeRedBlueValues);
     auto* const useCustomFPSCheckBox = Utils::UI::createCheckBox("Use custom fps for the bag file. If this is unchecked, "
                                                                  "the video's fps will be used.", m_parameters.useCustomFPS);
@@ -49,24 +45,16 @@ VideoToBagWidget::VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
     m_advancedOptionsFormLayout->addRow("Use Custom FPS:", useCustomFPSCheckBox);
     m_advancedOptionsFormLayout->addRow("Use Compression:", useCompressionCheckBox);
 
-    auto* const advancedOptionsWidget = new QWidget;
-    advancedOptionsWidget->setLayout(m_advancedOptionsFormLayout);
-    advancedOptionsWidget->setVisible(m_parameters.showAdvancedOptions);
-
-    m_controlsLayout->addWidget(advancedOptionsCheckBox);
-    m_controlsLayout->addSpacing(10);
-    m_controlsLayout->addWidget(advancedOptionsWidget);
-    m_controlsLayout->addStretch();
+    createAdvancedOptionsWidget(m_advancedOptionsFormLayout, m_parameters.showAdvancedOptions,
+                                [this] (bool shown) {
+        writeParameterToSettings(m_parameters.showAdvancedOptions, shown, m_settings);
+    });
 
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.targetDirectory.isEmpty() && !m_parameters.topicName.isEmpty());
 
     connect(topicNameLineEdit, &QLineEdit::textChanged, this, [this, topicNameLineEdit] {
         writeParameterToSettings(m_parameters.topicName, topicNameLineEdit->text(), m_settings);
         enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.targetDirectory.isEmpty() && !m_parameters.topicName.isEmpty());
-    });
-    connect(advancedOptionsCheckBox, &QCheckBox::stateChanged, this, [this, advancedOptionsWidget] (int state) {
-        writeParameterToSettings(m_parameters.showAdvancedOptions, state == Qt::Checked, m_settings);
-        advancedOptionsWidget->setVisible(state == Qt::Checked);
     });
     connect(switchRedBlueCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
         writeParameterToSettings(m_parameters.exchangeRedBlueValues, state == Qt::Checked, m_settings);
@@ -167,24 +155,15 @@ VideoToBagWidget::useCompressionCheckBoxPressed(int state)
 }
 
 
-void
-VideoToBagWidget::okButtonPressed() const
+bool
+VideoToBagWidget::areInputsValid() const
 {
-    if (!m_okButton->isEnabled()) {
-        return;
-    }
-
     if (const auto sufficientSpace = showLowDiskSpaceMessageBox(); !sufficientSpace) {
-        return;
+        return false;
     }
-    if (m_warnROS2NameConvention && !Utils::ROS::isTopicNameROS2Conform(m_parameters.topicName)) {
-        if (const auto returnValue = Utils::UI::continueWithInvalidROS2Names(); !returnValue) {
-            return;
-        }
-    }
-    if (!Utils::UI::continueForExistingTarget(m_parameters.targetDirectory, "Bag file", "bag file")) {
-        return;
+    if (!confirmTopicName(m_parameters.topicName, m_warnROS2NameConvention)) {
+        return false;
     }
 
-    emit okPressed();
+    return Utils::UI::continueForExistingTarget(m_parameters.targetDirectory, "Bag file", "bag file");
 }

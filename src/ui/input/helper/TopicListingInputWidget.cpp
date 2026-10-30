@@ -54,48 +54,32 @@ TopicListingInputWidget::sourceButtonPressed()
 }
 
 
-void
-TopicListingInputWidget::okButtonPressed() const
+bool
+TopicListingInputWidget::areInputsValid() const
 {
     if (m_parameters.sourceDirectory.isEmpty()) {
         Utils::UI::createCriticalMessageBox("No bag name specified!", "Please specify a bag name before continuing!");
-        return;
+        return false;
     }
 
     const auto isValid = areTopicsValid();
     if (isValid == std::nullopt) {
-        return;
+        return false;
     }
     if (!*isValid) {
         Utils::UI::createCriticalMessageBox("Duplicate Topic Names Detected!", "Please make sure that no duplicate topic names are used!");
-        return;
+        return false;
     }
 
-    if (const auto sufficientSpace = showLowDiskSpaceMessageBox(); !sufficientSpace) {
-        return;
-    }
-    if (!Utils::UI::continueForExistingTarget(m_parameters.sourceDirectory, "Bagfile", "bag file")) {
-        return;
-    }
-
-    emit okPressed();
+    return confirmWriteToTarget(m_parameters.sourceDirectory, "Bagfile", "bag file");
 }
 
 
 void
 TopicListingInputWidget::setPixmapLabelIcon() const
 {
+    BasicInputWidget::setPixmapLabelIcon();
+
     const auto isDarkMode = Utils::UI::isDarkMode();
-    m_headerPixmapLabel->setPixmap(QIcon(isDarkMode ? m_iconPath + "_white.svg" : m_iconPath + "_black.svg").pixmap(QSize(100, 45)));
-    m_addTopicButton->setIcon(QIcon(isDarkMode ? ":/icons/widgets/plus_white.svg" : ":/icons/widgets/plus_black.svg"));
-}
-
-
-bool
-TopicListingInputWidget::event(QEvent *event)
-{
-    [[unlikely]] if (event->type() == QEvent::ApplicationPaletteChange || event->type() == QEvent::PaletteChange) {
-        setPixmapLabelIcon();
-    }
-    return QWidget::event(event);
+    m_addTopicButton->setIcon(QIcon(Utils::UI::themedIconPath(":/icons/widgets/plus", ".svg", isDarkMode)));
 }

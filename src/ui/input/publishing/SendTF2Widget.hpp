@@ -41,18 +41,15 @@ private slots:
     timeoutActivated();
 
     void
-    okButtonPressed();
+    okButtonPressed() override;
 
 private:
     void
     animateInfoLabel(const QString& labelText);
 
-    // Have to overwrite this one because we are using more additional icons then just the header
+    // Have to override this one because we are using more additional icons than just the header
     void
-    setPixmapLabelIcon() const;
-
-    bool
-    event(QEvent *event);
+    setPixmapLabelIcon() const override;
 
 private:
     QPointer<QDoubleSpinBox> m_translationXSpinBox;

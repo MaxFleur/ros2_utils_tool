@@ -2,16 +2,6 @@
 
 #include "UtilsUI.hpp"
 
-#include <QWidget>
-
-#include "rclcpp/rclcpp.hpp"
-
-#include "rosbag2_cpp/writer.hpp"
-
-#include "sensor_msgs/msg/image.hpp"
-
-#include <filesystem>
-
 TEST_CASE("Utils UI Testing", "[utils]") {
     SECTION("Font size test") {
         auto* const widget = new QWidget;
@@ -42,5 +32,12 @@ TEST_CASE("Utils UI Testing", "[utils]") {
         const auto textMultipleAppendices = "text_with_a_format.mp4.mkv";
         const auto& newTextMultipleAppendices = Utils::UI::replaceTextAppendix(textMultipleAppendices, "avi");
         REQUIRE(QString::compare(newTextMultipleAppendices, "text_with_a_format.mp4.avi") == 0);
+    }
+    SECTION("Themed icon path test") {
+        const auto darkIconPath = Utils::UI::themedIconPath(":/icons/tools/record_bag", ".svg", true);
+        REQUIRE(QString::compare(darkIconPath, ":/icons/tools/record_bag_white.svg") == 0);
+
+        const auto lightMoviePath = Utils::UI::themedIconPath(":/gifs/searching", ".gif", false);
+        REQUIRE(QString::compare(lightMoviePath, ":/gifs/searching_black.gif") == 0);
     }
 }

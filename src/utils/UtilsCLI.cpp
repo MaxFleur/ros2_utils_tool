@@ -5,12 +5,11 @@
 #include "UtilsROS.hpp"
 
 #include <filesystem>
-#include <signal.h>
 
 namespace Utils::CLI
 {
 // Every tool runs in its own process, so one shared signal status is sufficient
-static volatile sig_atomic_t signalStatus = 0;
+static volatile std::sig_atomic_t signalStatus = 0;
 
 static void
 signalHandler(int signal)
@@ -77,7 +76,8 @@ int
 getFormatIndex(const QStringList& arguments, const QStringList& formats)
 {
     const auto formatIndex = Utils::CLI::getArgumentsIndex(arguments, "-f", "--format");
-    if (arguments.at(formatIndex) != arguments.last() && formats.contains(arguments.at(formatIndex + 1))) {
+    // If valid, '-f/--format' should be present -> formatIndex is non-negative
+    if (formatIndex >= 0 && formatIndex + 1 < arguments.size() && formats.contains(arguments.at(formatIndex + 1))) {
         return formatIndex + 1;
     }
 
@@ -284,7 +284,7 @@ drawProgressString(int progress)
 
 
 void
-showProcessingString(bool& isProcessing)
+showProcessingString(std::atomic<bool>& isProcessing)
 {
     auto processingChar = '\\';
     isProcessing = true;
@@ -320,8 +320,10 @@ runThread(BasicThread*   thread,
           const QString& failureMessage,
           bool           printSuccessMessageOnInterrupt)
 {
-    auto isProcessing = false;
+    std::atomic<bool> isProcessing = false;
     std::thread processingThread;
+    // Exceptions thrown in the QThread instance throw std::terminate, so we capture them and rethrow them in the main thread
+    std::exception_ptr failureException;
 
     // Connect to progress, finished, failed and processing signals,
     switch (progressMode) {
@@ -348,13 +350,13 @@ runThread(BasicThread*   thread,
     default: break;
     }
 
-    QObject::connect(thread, &QThread::finished, [&processingThread, &isProcessing, successMessage, printSuccessMessageOnInterrupt] {
+    QObject::connect(thread, &QThread::finished, [&processingThread, &isProcessing, &failureException, successMessage, printSuccessMessageOnInterrupt] {
         if (processingThread.joinable()) {
             isProcessing = false;
             processingThread.join();
         }
 
-        if (!successMessage.isEmpty() && (printSuccessMessageOnInterrupt || signalStatus != SIGINT)) {
+        if (!failureException && !successMessage.isEmpty() && (printSuccessMessageOnInterrupt || signalStatus != SIGINT)) {
             std::cout << "\n"; // Extra line to stop flushing
             std::cout << successMessage.toStdString() << "\n";
         }
@@ -362,13 +364,13 @@ runThread(BasicThread*   thread,
     QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
 
     if (!failureMessage.isEmpty()) {
-        QObject::connect(thread, &BasicThread::failed, [failureMessage] {
-            throw std::runtime_error(failureMessage.toStdString());
+        QObject::connect(thread, &BasicThread::failed, [&failureException, failureMessage] {
+            failureException = std::make_exception_ptr(std::runtime_error(failureMessage.toStdString()));
         });
     }
 
     // Install SIGINT handler and run the thread until it is finished
-    signal(SIGINT, signalHandler);
+    std::signal(SIGINT, signalHandler);
     thread->start();
 
     while (!thread->isFinished()) {
@@ -379,6 +381,11 @@ runThread(BasicThread*   thread,
             std::cout << "Interrupted\n";
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    }
+
+    // If the QThread failed, it finishes and the failure will be caught here
+    if (failureException) {
+        std::rethrow_exception(failureException);
     }
 }
 }
