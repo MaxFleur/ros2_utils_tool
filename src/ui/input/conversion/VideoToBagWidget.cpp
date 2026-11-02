@@ -3,13 +3,14 @@
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
+#include <QAbstractButton>
+#include <QButtonGroup>
 #include <QCheckBox>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QFormLayout>
 #include <QLineEdit>
 #include <QMessageBox>
-#include <QPushButton>
 #include <QRadioButton>
 #include <QSpinBox>
 
@@ -45,6 +46,8 @@ VideoToBagWidget::VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
     m_advancedOptionsFormLayout->addRow("Use Custom FPS:", useCustomFPSCheckBox);
     m_advancedOptionsFormLayout->addRow("Use Compression:", useCompressionCheckBox);
 
+    m_compressionButtonGroup = new QButtonGroup(this);
+
     createAdvancedOptionsWidget(m_advancedOptionsFormLayout, m_parameters.showAdvancedOptions,
                                 [this] (bool shown) {
         writeParameterToSettings(m_parameters.showAdvancedOptions, shown, m_settings);
@@ -61,6 +64,10 @@ VideoToBagWidget::VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
     });
     connect(useCustomFPSCheckBox, &QCheckBox::stateChanged, this, &VideoToBagWidget::useCustomFPSCheckBoxPressed);
     connect(useCompressionCheckBox, &QCheckBox::stateChanged, this, &VideoToBagWidget::useCompressionCheckBoxPressed);
+    connect(m_compressionButtonGroup, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this,
+            [this] (QAbstractButton* clickedButton) {
+        writeParameterToSettings(m_parameters.isCompressionJPEG, clickedButton == m_compressJPEGRadioButton, m_settings);
+    });
 
     useCustomFPSCheckBoxPressed(m_parameters.useCustomFPS);
     useCompressionCheckBoxPressed(m_parameters.useCompression);
@@ -140,14 +147,10 @@ VideoToBagWidget::useCompressionCheckBoxPressed(int state)
         m_advancedOptionsFormLayout->insertRow(m_parameters.useCustomFPS ? ADVANCED_OPTIONS_LAYOUT_ROW_FIFTH : ADVANCED_OPTIONS_LAYOUT_ROW_FOURTH, "", m_compressJPEGRadioButton);
         m_advancedOptionsFormLayout->insertRow(m_parameters.useCustomFPS ? ADVANCED_OPTIONS_LAYOUT_ROW_SIXTH : ADVANCED_OPTIONS_LAYOUT_ROW_FIFTH, "", m_compressPNGRadioButton);
 
-        m_parameters.isCompressionJPEG ? m_compressJPEGRadioButton->click() : m_compressPNGRadioButton->click();
+        m_compressionButtonGroup->addButton(m_compressJPEGRadioButton);
+        m_compressionButtonGroup->addButton(m_compressPNGRadioButton);
 
-        connect(m_compressJPEGRadioButton, &QPushButton::clicked, this, [this] {
-            writeParameterToSettings(m_parameters.isCompressionJPEG, true, m_settings);
-        });
-        connect(m_compressPNGRadioButton, &QPushButton::clicked, this, [this] {
-            writeParameterToSettings(m_parameters.isCompressionJPEG, false, m_settings);
-        });
+        m_parameters.isCompressionJPEG ? m_compressJPEGRadioButton->setChecked(true) : m_compressPNGRadioButton->setChecked(true);
     } else if (m_compressJPEGRadioButton && m_compressPNGRadioButton) {
         m_advancedOptionsFormLayout->removeRow(m_compressJPEGRadioButton);
         m_advancedOptionsFormLayout->removeRow(m_compressPNGRadioButton);

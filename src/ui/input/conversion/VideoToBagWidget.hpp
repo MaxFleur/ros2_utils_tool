@@ -7,6 +7,7 @@
 #include <QPointer>
 #include <QWidget>
 
+class QButtonGroup;
 class QFormLayout;
 class QSpinBox;
 class QRadioButton;
@@ -38,6 +39,7 @@ private:
 
     QPointer<QFormLayout> m_advancedOptionsFormLayout;
     QPointer<QSpinBox> m_fpsSpinBox;
+    QPointer<QButtonGroup> m_compressionButtonGroup;
     QPointer<QRadioButton> m_compressJPEGRadioButton;
     QPointer<QRadioButton> m_compressPNGRadioButton;
 

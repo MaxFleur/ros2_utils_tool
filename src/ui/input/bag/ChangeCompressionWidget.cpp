@@ -3,6 +3,8 @@
 #include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
+#include <QAbstractButton>
+#include <QButtonGroup>
 #include <QCheckBox>
 #include <QFileDialog>
 #include <QFormLayout>
@@ -39,13 +41,13 @@ ChangeCompressionWidget::ChangeCompressionWidget(Parameters::DeleteSourceParamet
         m_basicOptionsFormLayout->addRow("Compression Mode:", fileRadioButton);
         m_basicOptionsFormLayout->addRow("", messageRadioButton);
 
-        connect(fileRadioButton, &QRadioButton::toggled, this, [this, messageRadioButton] (bool switched) {
-            writeParameterToSettings(m_parameters.compressPerMessage, !switched, m_settings);
-            messageRadioButton->setChecked(false);
-        });
-        connect(messageRadioButton, &QRadioButton::toggled, this, [this, fileRadioButton] (bool switched) {
-            writeParameterToSettings(m_parameters.compressPerMessage, switched, m_settings);
-            fileRadioButton->setChecked(false);
+        auto* const compressionModeButtonGroup = new QButtonGroup(this);
+        compressionModeButtonGroup->addButton(fileRadioButton);
+        compressionModeButtonGroup->addButton(messageRadioButton);
+
+        connect(compressionModeButtonGroup, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this,
+                [this, messageRadioButton] (QAbstractButton* clickedButton) {
+            writeParameterToSettings(m_parameters.compressPerMessage, clickedButton == messageRadioButton, m_settings);
         });
     }
 
