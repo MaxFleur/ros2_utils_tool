@@ -9,7 +9,6 @@
 #include <QFormLayout>
 #include <QLineEdit>
 #include <QMessageBox>
-#include <QPushButton>
 #include <QRadioButton>
 #include <QSpinBox>
 
@@ -140,12 +139,18 @@ VideoToBagWidget::useCompressionCheckBoxPressed(int state)
         m_advancedOptionsFormLayout->insertRow(m_parameters.useCustomFPS ? ADVANCED_OPTIONS_LAYOUT_ROW_FIFTH : ADVANCED_OPTIONS_LAYOUT_ROW_FOURTH, "", m_compressJPEGRadioButton);
         m_advancedOptionsFormLayout->insertRow(m_parameters.useCustomFPS ? ADVANCED_OPTIONS_LAYOUT_ROW_SIXTH : ADVANCED_OPTIONS_LAYOUT_ROW_FIFTH, "", m_compressPNGRadioButton);
 
-        m_parameters.isCompressionJPEG ? m_compressJPEGRadioButton->click() : m_compressPNGRadioButton->click();
+        m_parameters.isCompressionJPEG ? m_compressJPEGRadioButton->setChecked(true) : m_compressPNGRadioButton->setChecked(true);
 
-        connect(m_compressJPEGRadioButton, &QPushButton::clicked, this, [this] {
+        connect(m_compressJPEGRadioButton, &QRadioButton::toggled, this, [this] (bool checked) {
+            if (!checked) {
+                return;
+            }
             writeParameterToSettings(m_parameters.isCompressionJPEG, true, m_settings);
         });
-        connect(m_compressPNGRadioButton, &QPushButton::clicked, this, [this] {
+        connect(m_compressPNGRadioButton, &QRadioButton::toggled, this, [this] (bool checked) {
+            if (!checked) {
+                return;
+            }
             writeParameterToSettings(m_parameters.isCompressionJPEG, false, m_settings);
         });
     } else if (m_compressJPEGRadioButton && m_compressPNGRadioButton) {

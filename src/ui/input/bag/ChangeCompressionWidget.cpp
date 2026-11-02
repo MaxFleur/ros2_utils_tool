@@ -39,13 +39,8 @@ ChangeCompressionWidget::ChangeCompressionWidget(Parameters::DeleteSourceParamet
         m_basicOptionsFormLayout->addRow("Compression Mode:", fileRadioButton);
         m_basicOptionsFormLayout->addRow("", messageRadioButton);
 
-        connect(fileRadioButton, &QRadioButton::toggled, this, [this, messageRadioButton] (bool switched) {
-            writeParameterToSettings(m_parameters.compressPerMessage, !switched, m_settings);
-            messageRadioButton->setChecked(false);
-        });
-        connect(messageRadioButton, &QRadioButton::toggled, this, [this, fileRadioButton] (bool switched) {
-            writeParameterToSettings(m_parameters.compressPerMessage, switched, m_settings);
-            fileRadioButton->setChecked(false);
+        connect(messageRadioButton, &QRadioButton::toggled, this, [this] (bool checked) {
+            writeParameterToSettings(m_parameters.compressPerMessage, checked, m_settings);
         });
     }
 
