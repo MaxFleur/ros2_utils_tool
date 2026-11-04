@@ -69,8 +69,8 @@ main(int argc, char* argv[])
         // Topic name
         Utils::CLI::checkTopicNameValidity(arguments, parameters.sourceDirectory, { "sensor_msgs/msg/Image", "sensor_msgs/msg/CompressedImage" }, parameters.topicName);
         // Framerate
-        if (!Utils::CLI::checkArgumentValidity(arguments, "-r", "--rate", parameters.fps, 10, 60)) {
-            throw std::runtime_error("Please enter a framerate in the range of 10 to 60!");
+        if (const auto fps = Utils::CLI::checkArgumentValidity(arguments, "-r", "--rate", 10, 60); fps) {
+            parameters.fps = *fps;
         }
 
         // Hardware acceleration

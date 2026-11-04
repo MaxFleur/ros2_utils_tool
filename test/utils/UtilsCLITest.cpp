@@ -80,17 +80,24 @@ TEST_CASE("Utils CLI Testing", "[utils]") {
         REQUIRE(Utils::CLI::getFormatIndex(arguments, { "jpg", "png" }) == 4);
     }
     SECTION("Check argument validity test") {
-        auto parameter = 42;
+        QStringList arguments;
+        arguments << "argument1" << "arg2" << "test_3";
 
-        REQUIRE(Utils::CLI::checkArgumentValidity(arguments, "-t", "--test", parameter, 1, 100) == true);
+        REQUIRE(Utils::CLI::checkArgumentValidity(arguments, "-t", "--test", 1, 100) == std::nullopt);
 
         arguments.append("-t");
-        REQUIRE(Utils::CLI::checkArgumentValidity(arguments, "-t", "--test", parameter, 1, 100) == false);
+        REQUIRE_THROWS(Utils::CLI::checkArgumentValidity(arguments, "-t", "--test", 1, 100));
 
         arguments.append("42");
-        REQUIRE(Utils::CLI::checkArgumentValidity(arguments, "-t", "--test", parameter, 1, 10) == false);
-        REQUIRE(Utils::CLI::checkArgumentValidity(arguments, "-t", "--test", parameter, 50, 100) == false);
-        REQUIRE(Utils::CLI::checkArgumentValidity(arguments, "-t", "--test", parameter, 1, 100) == true);
+        REQUIRE(Utils::CLI::checkArgumentValidity(arguments, "-t", "--test", 1, 100) == std::optional<int>(42));
+        REQUIRE_THROWS(Utils::CLI::checkArgumentValidity(arguments, "-t", "--test", 1, 10));
+        REQUIRE_THROWS(Utils::CLI::checkArgumentValidity(arguments, "-t", "--test", 50, 100));
+
+        arguments[arguments.size() - 1] = "abc";
+        REQUIRE_THROWS(Utils::CLI::checkArgumentValidity(arguments, "-t", "--test", 1, 100));
+
+        arguments.append("42"); // ["argument1", "arg2", "test_3", "-t", "abc", "42"]
+        REQUIRE(Utils::CLI::checkArgumentValidity(arguments, "-t", "--test", 1, 100, 2) == std::optional<int>(42));
     }
     SECTION("Topic parameter position test") {
         arguments.append("-t");

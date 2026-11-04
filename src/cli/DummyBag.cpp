@@ -59,15 +59,14 @@ main(int argc, char* argv[])
 
     // Message count
     parameters.messageCount = 100;
-    if (!Utils::CLI::checkArgumentValidity(arguments, "", "--message-count", parameters.messageCount, 1, 1000)) {
-        throw std::runtime_error("Please enter a message count in the range of 1 to 1000!");
+    if (const auto messageCount = Utils::CLI::checkArgumentValidity(arguments, "", "--message-count", 1, 1000); messageCount) {
+        parameters.messageCount = *messageCount;
     }
     // Rate
     parameters.rate = 10;
-    if (Utils::CLI::checkArgumentValidity(arguments, "-r", "--rate", parameters.rate, 1, 100)) {
+    if (const auto rate = Utils::CLI::checkArgumentValidity(arguments, "-r", "--rate", 1, 100); rate) {
+        parameters.rate = *rate;
         parameters.useCustomRate = true;
-    } else {
-        throw std::runtime_error("Please enter a rate in the range of 1 to 100!");
     }
 
     // Topics
@@ -106,10 +105,7 @@ main(int argc, char* argv[])
     }
 
     // Thread count
-    auto numberOfThreads = 1;
-    if (!Utils::CLI::checkArgumentValidity(arguments, "", "--thread-count", numberOfThreads, 1, std::thread::hardware_concurrency())) {
-        throw std::runtime_error("Please enter a thread count value in the range of 1 to " + std::to_string(std::thread::hardware_concurrency()) + "!");
-    }
+    const auto numberOfThreads = Utils::CLI::checkArgumentValidity(arguments, "", "--thread-count", 1, std::thread::hardware_concurrency()).value_or(1);
 
     if (topicTypes.size() != topicNames.size()) {
         throw std::runtime_error("Topic type and topic name size do not match. Please make sure to enter a name for each topic!");
