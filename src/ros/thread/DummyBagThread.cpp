@@ -107,13 +107,13 @@ DummyBagThread::run()
                     std::random_device randomDevice;
                     std::mt19937 generator(randomDevice());
                     std::uniform_real_distribution<> distribution(-1.0, 1.0);
-                    for (auto j = 0; j < 10; j++) {
-                        (*cloud)[j].x = distribution(generator);
-                        (*cloud)[j].y = distribution(generator);
-                        (*cloud)[j].z = distribution(generator);
-                        (*cloud)[j].r = 255;
-                        (*cloud)[j].g = 255;
-                        (*cloud)[j].b = 0;
+                    for (auto& point : cloud->points) {
+                        point.x = distribution(generator);
+                        point.y = distribution(generator);
+                        point.z = distribution(generator);
+                        point.r = 255;
+                        point.g = 255;
+                        point.b = 0;
                     }
 
                     sensor_msgs::msg::PointCloud2 message;
@@ -127,7 +127,7 @@ DummyBagThread::run()
                     std::mt19937 generator(randomDevice());
                     std::uniform_real_distribution<> distribution(-1.0, 1.0);
 
-                    for (auto i = 0; i < 3; i++) {
+                    for (auto k = 0; k < 3; k++) {
                         geometry_msgs::msg::TransformStamped transformStamped;
 
                         transformStamped.header.stamp = timeStamp;

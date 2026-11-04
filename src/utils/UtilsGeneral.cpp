@@ -2,8 +2,6 @@
 
 #include <QFileInfo>
 
-#include <filesystem>
-
 namespace Utils::General
 {
 float
@@ -21,6 +19,13 @@ getFileExtension(const QString& path)
 {
     QFileInfo fileInfo(path);
     return fileInfo.suffix();
+}
+
+
+bool
+isImageFile(const std::filesystem::path& path)
+{
+    return std::ranges::find(IMAGE_FILE_EXTENSIONS, path.extension()) != IMAGE_FILE_EXTENSIONS.end();
 }
 
 
