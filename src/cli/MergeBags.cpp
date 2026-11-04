@@ -101,10 +101,7 @@ main(int argc, char* argv[])
     }
 
     // Thread count
-    auto numberOfThreads = 1;
-    if (!Utils::CLI::checkArgumentValidity(arguments, "", "--thread-count", numberOfThreads, 1, std::thread::hardware_concurrency())) {
-        throw std::runtime_error("Please enter a thread count value in the range of 1 to " + std::to_string(std::thread::hardware_concurrency()) + "!");
-    }
+    const auto numberOfThreads = Utils::CLI::checkArgumentValidity(arguments, "", "--thread-count", 1, std::thread::hardware_concurrency()).value_or(1);
 
     // Compression mode
     if (arguments.contains("--compression-mode")) {

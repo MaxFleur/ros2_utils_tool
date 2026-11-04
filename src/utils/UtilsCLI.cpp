@@ -96,27 +96,32 @@ getFormatIndex(const QStringList& arguments, const QStringList& formats)
 }
 
 
-bool
+std::optional<int>
 checkArgumentValidity(const QStringList& argumentsList, const QString& shortArg, const QString& longArg,
-                      int& parameter, int lowerRange, int higherRange, int argumentListOffset)
+                      int lowerRange, int higherRange, int argumentListOffset)
 {
-    // Nothing there -> argument is valid
+    // Nothing there -> argument is valid, caller keeps its current value
     if (!containsArguments(argumentsList, shortArg, longArg)) {
-        return true;
+        return std::nullopt;
     }
 
     const auto argumentIndex = std::max(argumentsList.lastIndexOf(shortArg), argumentsList.lastIndexOf(longArg));
-    // Check for parameter position
-    if (argumentsList.at(argumentIndex) == argumentsList.last() ||
-        (argumentListOffset == 2 && argumentsList.at(argumentIndex + 1) == argumentsList.last())) {
-        return false;
-    }
-    // Check for correct parameter range
-    if (parameter = argumentsList.at(argumentIndex + argumentListOffset).toInt(); parameter < lowerRange || parameter > higherRange) {
-        return false;
+    if (argumentIndex + argumentListOffset >= argumentsList.size()) {
+        throw std::runtime_error("Missing value for argument '" + longArg.toStdString() + "'");
     }
 
-    return true;
+    auto ok = false;
+    const auto value = argumentsList.at(argumentIndex + argumentListOffset).toInt(&ok);
+    if (!ok) {
+        throw std::runtime_error("Invalid value for argument '" + longArg.toStdString() + "'");
+    }
+
+    if (value < lowerRange || value > higherRange) {
+        throw std::runtime_error("Value " + std::to_string(value) + " for argument '" + longArg.toStdString() +
+                                 "' is not in range [" + std::to_string(lowerRange) + ", " + std::to_string(higherRange) + "]");
+    }
+
+    return value;
 }
 
 

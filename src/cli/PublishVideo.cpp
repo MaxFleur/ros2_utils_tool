@@ -72,16 +72,16 @@ main(int argc, char* argv[])
             return 0;
         }
         // Framerate
-        if (!Utils::CLI::checkArgumentValidity(arguments, "-r", "--rate", parameters.fps, 1, 60)) {
-            throw std::runtime_error("Please enter a framerate in the range of 1 to 60!");
+        if (const auto fps = Utils::CLI::checkArgumentValidity(arguments, "-r", "--rate", 1, 60); fps) {
+            parameters.fps = *fps;
         }
         // Scale
         parameters.scale = arguments.contains("--scale");
-        if (!Utils::CLI::checkArgumentValidity(arguments, "", "--scale", parameters.width, 1, 3840)) {
-            throw std::runtime_error("Please enter a width value between 1 and 3840!");
+        if (const auto width = Utils::CLI::checkArgumentValidity(arguments, "", "--scale", 1, 3840); width) {
+            parameters.width = *width;
         }
-        if (!Utils::CLI::checkArgumentValidity(arguments, "", "--scale", parameters.height, 1, 2160, 2)) {
-            throw std::runtime_error("Please enter a height value between 1 and 2160!");
+        if (const auto height = Utils::CLI::checkArgumentValidity(arguments, "", "--scale", 1, 2160, 2); height) {
+            parameters.height = *height;
         }
         // Hardware acceleration
         useHardwareAcceleration = Utils::CLI::containsArguments(arguments, "-a", "--accelerate");

@@ -49,12 +49,11 @@ int
 getFormatIndex(const QStringList& argumentsList,
                const QStringList& formats);
 
-// Check if an argument to be set with a value is correctly called
-bool
+// Check if an argument to be set with a value is correctly called.
+std::optional<int>
 checkArgumentValidity(const QStringList& argumentsList,
                       const QString&     shortArg,
                       const QString&     longArg,
-                      int&               parameter,
                       int                lowerRange,
                       int                higherRange,
                       // Sometimes the value to set the argument does not come directly at the position after it

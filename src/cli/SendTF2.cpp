@@ -156,8 +156,8 @@ main(int argc, char* argv[])
 
     // Rate
     parameters.isStatic = false;
-    if (!Utils::CLI::checkArgumentValidity(arguments, "-r", "--rate", parameters.rate, 1, 100)) {
-        throw std::runtime_error("Please enter a rate in the range of 1 to 100!");
+    if (const auto rate = Utils::CLI::checkArgumentValidity(arguments, "-r", "--rate", 1, 100); rate) {
+        parameters.rate = *rate;
     }
 
     // Create thread and run the operation

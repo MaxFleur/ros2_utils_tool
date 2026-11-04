@@ -67,8 +67,8 @@ main(int argc, char* argv[])
         // Topic name
         Utils::CLI::checkTopicNameValidity(arguments, parameters.sourceDirectory, { "sensor_msgs/msg/Image", "sensor_msgs/msg/CompressedImage" }, parameters.topicName);
         // Quality
-        if (!Utils::CLI::checkArgumentValidity(arguments, "-q", "--quality", parameters.quality, 0, 9)) {
-            throw std::runtime_error("Please enter a quality value in the range of 0 to 9!");
+        if (const auto quality = Utils::CLI::checkArgumentValidity(arguments, "-q", "--quality", 0, 9); quality) {
+            parameters.quality = *quality;
         }
         // Format
         if (Utils::CLI::containsArguments(arguments, "-f", "--format")) {
@@ -86,10 +86,7 @@ main(int argc, char* argv[])
     }
 
     // Thread count
-    auto numberOfThreads = 1;
-    if (!Utils::CLI::checkArgumentValidity(arguments, "", "--thread-count", numberOfThreads, 1, std::thread::hardware_concurrency())) {
-        throw std::runtime_error("Please enter a thread count value in the range of 1 to " + std::to_string(std::thread::hardware_concurrency()) + "!");
-    }
+    const auto numberOfThreads = Utils::CLI::checkArgumentValidity(arguments, "", "--thread-count", 1, std::thread::hardware_concurrency()).value_or(1);
 
     // Search for topic name in bag file if not specified
     if (parameters.topicName.isEmpty()) {
