@@ -1,5 +1,7 @@
 #include "PublishImagesThread.hpp"
 
+#include "UtilsGeneral.hpp"
+
 #include <cv_bridge/cv_bridge.hpp>
 
 #include <opencv2/imgcodecs.hpp>
@@ -25,7 +27,7 @@ PublishImagesThread::run()
     emit informOfGatheringData();
     // It is faster to first store all valid image file paths and then iterate over those
     for (auto const& entry : std::filesystem::directory_iterator(m_sourceDirectory)) {
-        if (entry.path().extension() != ".jpg" && entry.path().extension() != ".png" && entry.path().extension() != ".bmp") {
+        if (!Utils::General::isImageFile(entry.path())) {
             continue;
         }
 

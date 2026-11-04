@@ -1,6 +1,6 @@
 #include "PublishWidget.hpp"
 
-#include "UtilsROS.hpp"
+#include "UtilsGeneral.hpp"
 #include "UtilsUI.hpp"
 
 #include <QCheckBox>
@@ -116,7 +116,7 @@ PublishWidget::searchButtonPressed()
     } else {
         auto containsImageFiles = false;
         for (auto const& entry : std::filesystem::directory_iterator(dir.toStdString())) {
-            if (entry.path().extension() == ".jpg" || entry.path().extension() == ".png" || entry.path().extension() == ".bmp") {
+            if (Utils::General::isImageFile(entry.path())) {
                 containsImageFiles = true;
                 break;
             }

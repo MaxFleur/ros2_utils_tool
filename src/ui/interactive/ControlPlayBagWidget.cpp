@@ -53,12 +53,12 @@ ControlPlayBagWidget::ControlPlayBagWidget(Parameters::PlayBagParameters& parame
 
     QString topicsString = "";
     const auto addTopics = [&topicsString] (const QVector<Parameters::SelectableBagContent>& params) {
-        for (auto i = 0; i < params.size(); ++i) {
-            if (!params.at(i).isSelected) {
+        for (const auto& param : params) {
+            if (!param.isSelected) {
                 continue;
             }
 
-            topicsString += params.at(i).name + " ";
+            topicsString += param.name + " ";
         }
     };
 
