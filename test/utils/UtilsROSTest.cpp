@@ -158,11 +158,14 @@ TEST_CASE("Utils ROS Testing", "[utils]") {
         REQUIRE(contains == false);
     }
     SECTION("Topic message count test") {
-        auto messageCount = Utils::ROS::getTopicMessageCount(qString, "/topic_image");
+        auto messageCount = Utils::ROS::getTopicMessageCount(qString, QString("/topic_image"));
         REQUIRE(messageCount == 5);
-        messageCount = Utils::ROS::getTopicMessageCount(qString, "/topic_string");
+        messageCount = Utils::ROS::getTopicMessageCount(qString.toStdString(), std::string("/topic_image"));
+        REQUIRE(messageCount == 5);
+
+        messageCount = Utils::ROS::getTopicMessageCount(qString, QString("/topic_string"));
         REQUIRE(messageCount == 3);
-        messageCount = Utils::ROS::getTopicMessageCount(qString, "/topic_should_not_be_included");
+        messageCount = Utils::ROS::getTopicMessageCount(qString, QString("/topic_should_not_be_included"));
         REQUIRE(messageCount == std::nullopt);
     }
     SECTION("Topic type test") {

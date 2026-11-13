@@ -46,15 +46,22 @@ getTopicInBag(const QString& bagDirectory,
 doesBagContainTopicName(const QString& bagDirectory,
                         const QString& topicName);
 
-// Message count for a ROS bag topic
-[[nodiscard]] std::optional<int>
-getTopicMessageCount(const QString& bagDirectory,
-                     const QString& topicName);
+template<typename T>
+concept String = std::same_as<T, QString> || std::same_as<T, std::string>;
 
 // Get a ROS bag topic's message count
+template<String T>
 [[nodiscard]] std::optional<int>
-getTopicMessageCount(const std::string& bagDirectory,
-                     const std::string& topicName);
+getTopicMessageCount(const T& bagDirectory, const T& topicName)
+{
+    if constexpr (std::same_as<T, std::string>) {
+        return getTopicMessageCount(QString::fromStdString(bagDirectory), QString::fromStdString(topicName));
+    } else {
+        const auto& topic = getTopicInBag(bagDirectory, topicName);
+        return topic == std::nullopt ? std::nullopt : std::optional(topic->message_count);
+    }
+}
+
 
 // Get a ROS bag topic's type
 [[nodiscard]] std::optional<QString>

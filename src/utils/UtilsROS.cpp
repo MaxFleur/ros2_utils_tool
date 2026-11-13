@@ -142,21 +142,6 @@ doesBagContainTopicName(const QString& bagDirectory, const QString& topicName)
 }
 
 
-std::optional<int>
-getTopicMessageCount(const QString& bagDirectory, const QString& topicName)
-{
-    const auto& topic = getTopicInBag(bagDirectory, topicName);
-    return topic == std::nullopt ? std::nullopt : std::optional(topic->message_count);
-}
-
-
-std::optional<int>
-getTopicMessageCount(const std::string& bagDirectory, const std::string& topicName)
-{
-    return getTopicMessageCount(QString::fromStdString(bagDirectory), QString::fromStdString(topicName));
-}
-
-
 std::optional<QString>
 getTopicType(const QString& bagDirectory, const QString& topicName)
 {
