@@ -42,8 +42,8 @@ PCDsToBagThread::run()
     sensor_msgs::msg::PointCloud2 message;
     pcl::PCDReader reader;
 
-    auto writer = std::make_unique<rosbag2_cpp::Writer>();
-    writer->open(targetDirectoryStd);
+    rosbag2_cpp::Writer writer;
+    writer.open(targetDirectoryStd);
 
     auto iterationCount = 1;
     auto timeStamp = rclcpp::Clock(RCL_ROS_TIME).now();
@@ -59,7 +59,7 @@ PCDsToBagThread::run()
         timeStamp += duration;
         // Write
         pcl_conversions::fromPCL(cloud, message);
-        writer->write(message, m_topicName, timeStamp);
+        writer.write(message, m_topicName, timeStamp);
 
         sortedPCDsSet.erase(sortedPCDsSet.begin());
         emit progressChanged("Writing PCD File " + QString::number(iterationCount) + " of " + QString::number(frameCount) + "...",

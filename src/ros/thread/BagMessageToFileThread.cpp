@@ -211,33 +211,33 @@ BagMessageToFileThread::run()
     std::string topicContentString = "";
     const auto fileExtension = m_parameters.isYaml ? ".yaml" : ".json";
 
-    auto bridge = std::make_unique<MessageConverterBridge>();
+    MessageConverterBridge bridge;
     auto iterationCount = 0;
     rosbag2_storage::SerializedBagMessageSharedPtr message;
 
-    auto reader = std::make_unique<rosbag2_cpp::Reader>();
-    reader->open(m_sourceDirectory);
+    rosbag2_cpp::Reader reader;
+    reader.open(m_sourceDirectory);
 
-    while (reader->has_next()) {
+    while (reader.has_next()) {
         if (isInterruptionRequested()) {
-            reader->close();
+            reader.close();
             return;
         }
 
         // Read and deserialize the message
-        message = reader->read_next();
+        message = reader.read_next();
         if (message->topic_name != topicNameStdString) {
             continue;
         }
 
         if (m_parameters.writeSingleOutputFile) {
             if (m_parameters.isYaml) {
-                messagesNode[std::to_string(iterationCount)] = YAML::Load(bridge->toYaml(*message, topicTypeStdString));
+                messagesNode[std::to_string(iterationCount)] = YAML::Load(bridge.toYaml(*message, topicTypeStdString));
             } else {
-                messagesObject[QString::number(iterationCount)] = QJsonDocument::fromJson(QByteArray::fromStdString(bridge->toJson(*message, topicTypeStdString))).object();
+                messagesObject[QString::number(iterationCount)] = QJsonDocument::fromJson(QByteArray::fromStdString(bridge.toJson(*message, topicTypeStdString))).object();
             }
         } else {
-            topicContentString = m_parameters.isYaml ? bridge->toYaml(*message, topicTypeStdString) : bridge->toJson(*message, topicTypeStdString);
+            topicContentString = m_parameters.isYaml ? bridge.toYaml(*message, topicTypeStdString) : bridge.toJson(*message, topicTypeStdString);
             std::ofstream out(targetDirectoryStd + "/" + topicNameStdString + "_" + std::to_string(iterationCount) + fileExtension);
 
             out << topicContentString;
@@ -259,5 +259,5 @@ BagMessageToFileThread::run()
             emit failed();
         }
     }
-    reader->close();
+    reader.close();
 }

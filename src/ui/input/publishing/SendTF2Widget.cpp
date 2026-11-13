@@ -209,7 +209,7 @@ void
 SendTF2Widget::okButtonPressed()
 {
     if (m_isStaticCheckBox->checkState() == Qt::Checked) {
-        Utils::TF2::sendStaticTransformation(m_parameters.translation, m_parameters.rotation, m_nodeWrapper);
+        Utils::TF2::sendStaticTransformation(m_parameters.translation, m_parameters.rotation, *m_nodeWrapper);
         animateInfoLabel("Transformation sent!");
         return;
     }

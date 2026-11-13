@@ -52,7 +52,7 @@ TEST_CASE("Bah Handlers Testing", "[threads]") {
         std::vector<std::pair<std::string, std::array<std::string, 3> > > topicInformation;
         {
             // Ensure correct BagPlayer cleaning up
-            auto bagPlayer = std::make_unique<BagPlayer>(playBagParameters);
+            BagPlayer bagPlayer(playBagParameters);
             rate.sleep();
             topicInformation = Utils::ROS::getTopicInformation();
         }
@@ -126,7 +126,7 @@ TEST_CASE("Bah Handlers Testing", "[threads]") {
 
         SECTION("General unspecified run") {
             {
-                auto bagRecorder = std::make_unique<BagRecorder>(recordBagParameters);
+                BagRecorder bagRecorder(recordBagParameters);
                 rate.sleep();
                 sendMessages();
                 rate.sleep();
@@ -157,7 +157,7 @@ TEST_CASE("Bah Handlers Testing", "[threads]") {
                     rate.sleep();
                 }
                 {
-                    auto bagRecorder = std::make_unique<BagRecorder>(recordBagParameters);
+                    BagRecorder bagRecorder(recordBagParameters);
                     rate.sleep();
                     sendMessages();
                     rate.sleep();
@@ -179,7 +179,7 @@ TEST_CASE("Bah Handlers Testing", "[threads]") {
                 recordBagParameters.isCompressionFile = true;
 
                 {
-                    auto bagRecorder = std::make_unique<BagRecorder>(recordBagParameters);
+                    BagRecorder bagRecorder(recordBagParameters);
                     rate.sleep();
                     sendMessages();
                     rate.sleep();

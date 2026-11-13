@@ -146,7 +146,7 @@ main(int argc, char* argv[])
         }
     }
 
-    auto nodeWrapper = std::make_shared<NodeWrapper>("ros2_utils_tool_tf_node");
+    NodeWrapper nodeWrapper("ros2_utils_tool_tf_node");
     if (!Utils::CLI::containsArguments(arguments, "-r", "--rate")) {
         showInfo(parameters, true);
         Utils::TF2::sendStaticTransformation(parameters.translation, parameters.rotation, nodeWrapper);

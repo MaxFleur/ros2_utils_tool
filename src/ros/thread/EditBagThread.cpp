@@ -65,7 +65,7 @@ EditBagThread::run()
         queue.push_front(topic);
     }
 
-    auto node = std::make_shared<rclcpp::Node>("edit_bag");
+    rclcpp::Node node("edit_bag");
     std::atomic<int> instanceCount = 1;
     std::mutex mutex;
 
@@ -78,7 +78,7 @@ EditBagThread::run()
     }
 
     // Move to own lambda for multithreading
-    const auto writeTopicToBag = [this, &queue, &instanceCount, &mutex, writer, node, totalInstances] {
+    const auto writeTopicToBag = [this, &queue, &instanceCount, &mutex, writer, &node, totalInstances] {
         while (true) {
             // Reader can't work in parallel, so we have to lock this part
             mutex.lock();
@@ -143,7 +143,7 @@ EditBagThread::run()
                     message->topic_name = topic.renamedName.toStdString();
                 }
                 if (m_parameters.updateTimestamps) {
-                    message->recv_timestamp = node->now().nanoseconds();
+                    message->recv_timestamp = node.now().nanoseconds();
                 }
                 writer->write(message);
 

@@ -14,11 +14,11 @@ namespace Utils::TF2
 inline void
 sendStaticTransformation(const std::array<double, 3>& translation,
                          const std::array<double, 4>& rotation,
-                         std::shared_ptr<NodeWrapper> nodeWrapper)
+                         NodeWrapper&                 nodeWrapper)
 {
     // We need to create and spin a node for some time to be able to send transformations
-    auto node = nodeWrapper->getNode();
-    auto broadcaster = std::make_shared<tf2_ros::StaticTransformBroadcaster>(node);
+    auto node = nodeWrapper.getNode();
+    tf2_ros::StaticTransformBroadcaster broadcaster(node);
 
     geometry_msgs::msg::TransformStamped transformStamped;
 
@@ -35,12 +35,12 @@ sendStaticTransformation(const std::array<double, 3>& translation,
     transformStamped.transform.rotation.z = rotation[2];
     transformStamped.transform.rotation.w = rotation[3];
 
-    broadcaster->sendTransform(transformStamped);
+    broadcaster.sendTransform(transformStamped);
 
     // This implementation is based is based on ros2cli:
     // https://github.com/ros2/ros2cli/blob/rolling/ros2cli/ros2cli/node/direct.py#L25
-    auto executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
-    executor->add_node(node);
+    rclcpp::executors::SingleThreadedExecutor executor;
+    executor.add_node(node);
 
     rclcpp::Rate rate(50);
     auto isFinished = false;
@@ -49,7 +49,7 @@ sendStaticTransformation(const std::array<double, 3>& translation,
         isFinished = true;
     });
     while (!isFinished) {
-        executor->spin_once();
+        executor.spin_once();
         rate.sleep();
     }
 }

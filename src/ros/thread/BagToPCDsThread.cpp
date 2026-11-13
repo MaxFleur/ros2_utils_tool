@@ -33,35 +33,37 @@ BagToPCDsThread::run()
     // Used to fill the file names with zeroes
     const auto messageCountNumberOfDigits = int(log10(*messageCount) + 1);
 
-    auto reader = std::make_shared<rosbag2_cpp::Reader>();
-    reader->open(m_sourceDirectory);
+    rosbag2_cpp::Reader reader;
+    reader.open(m_sourceDirectory);
 
     rclcpp::Serialization<sensor_msgs::msg::PointCloud2> serialization;
     rosbag2_storage::SerializedBagMessageSharedPtr message;
-    auto rosMessage = std::make_shared<sensor_msgs::msg::PointCloud2>();
 
     auto iterationCount = 0;
     std::mutex mutex;
 
     // Move to own lambda for multithreading
-    const auto writePCD = [this, &targetDirectoryStd, &message, &iterationCount, &mutex, reader,
-                           serialization, rosMessage, messageCount, messageCountNumberOfDigits] {
+    const auto writePCD = [this, &targetDirectoryStd, &message, &iterationCount, &mutex, &reader,
+                           serialization, messageCount, messageCountNumberOfDigits] {
+        // Keep the message object local to each worker thread to avoid concurrent access to the same instance
+        sensor_msgs::msg::PointCloud2 rosMessage;
+
         while (true) {
             mutex.lock();
 
-            if (isInterruptionRequested() || !reader->has_next()) {
+            if (isInterruptionRequested() || !reader.has_next()) {
                 mutex.unlock();
                 break;
             }
 
             // Deserialize
-            message = reader->read_next();
+            message = reader.read_next();
             if (message->topic_name != m_topicName) {
                 mutex.unlock();
                 continue;
             }
             rclcpp::SerializedMessage serializedMessage(*message->serialized_data);
-            serialization.deserialize_message(&serializedMessage, rosMessage.get());
+            serialization.deserialize_message(&serializedMessage, &rosMessage);
 
             // Inform of progress update
             iterationCount++;
@@ -78,13 +80,13 @@ BagToPCDsThread::run()
 
             // Convert to cloud and then write to pcd
             pcl::PCLPointCloud2 cloud;
-            pcl_conversions::toPCL(*rosMessage, cloud);
+            pcl_conversions::toPCL(rosMessage, cloud);
             pcl::PCDWriter writer;
             writer.write(targetString, cloud);
         }
     };
 
-    while (reader->has_next()) {
+    while (reader.has_next()) {
         if (isInterruptionRequested()) {
             return;
         }
@@ -98,5 +100,5 @@ BagToPCDsThread::run()
         }
     }
 
-    reader->close();
+    reader.close();
 }

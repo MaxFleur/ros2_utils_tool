@@ -35,8 +35,8 @@ DummyBagThread::run()
         std::filesystem::remove_all(m_sourceDirectory);
     }
     // Prepare parameters
-    auto writer = std::make_shared<rosbag2_cpp::Writer>();
-    writer->open(m_sourceDirectory);
+    rosbag2_cpp::Writer writer;
+    writer.open(m_sourceDirectory);
 
     std::deque<Parameters::DummyBagParameters::DummyBagTopic> queue;
     for (const auto& topic : m_parameters.topics) {
@@ -47,7 +47,7 @@ DummyBagThread::run()
     std::atomic<int> iterationCount = 1;
 
     // Move to own lambda for multithreading
-    const auto writeDummyTopic = [this, &queue, &mutex, &iterationCount, writer, maximumMessageCount] {
+    const auto writeDummyTopic = [this, &queue, &mutex, &iterationCount, &writer, maximumMessageCount] {
         while (true) {
             // Queue access must be singlethreaded
             mutex.lock();
@@ -77,13 +77,13 @@ DummyBagThread::run()
                     std_msgs::msg::String message;
                     message.data = "Message " + std::to_string(i);
 
-                    writer->write(message, topicName, timeStamp);
+                    writer.write(message, topicName, timeStamp);
                 } else if (topicType == "Integer") {
                     // Simple integer
                     std_msgs::msg::Int32 message;
                     message.data = i;
 
-                    writer->write(message, topicName, timeStamp);
+                    writer.write(message, topicName, timeStamp);
                 } else if (topicType == "Image") {
                     // Create image which over time is lerped from blue to red
                     const auto blue = 255 - ((i - 1) * (255.0f / static_cast<float>(m_parameters.messageCount)));
@@ -95,10 +95,10 @@ DummyBagThread::run()
 
                     const auto cvBridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::BGR8, mat);
                     cvBridge.toImageMsg(message);
-                    writer->write(message, topicName, timeStamp);
+                    writer.write(message, topicName, timeStamp);
                 } else if (topicType == "Point Cloud" || topicType == "PointCloud") {
                     // Create a point cloud with ten points (point data is randomized)
-                    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>());
+                    auto cloud = pcl::make_shared<pcl::PointCloud<pcl::PointXYZRGB> >();
                     cloud->width = 10;
                     cloud->height = 1;
                     cloud->is_dense = false;
@@ -118,7 +118,7 @@ DummyBagThread::run()
 
                     sensor_msgs::msg::PointCloud2 message;
                     pcl::toROSMsg(*cloud, message);
-                    writer->write(message, topicName, timeStamp);
+                    writer.write(message, topicName, timeStamp);
                 } else {
                     // Generate a tf2 message with three transformations, each containing randomized translation and rotation
                     tf2_msgs::msg::TFMessage message;
@@ -145,7 +145,7 @@ DummyBagThread::run()
 
                         message.transforms.push_back(transformStamped);
                     }
-                    writer->write(message, topicName, timeStamp);
+                    writer.write(message, topicName, timeStamp);
                 }
 
                 emit progressChanged("Writing message " + QString::number(iterationCount) + " of " + QString::number(maximumMessageCount) + "...",
@@ -164,5 +164,5 @@ DummyBagThread::run()
         thread.join();
     }
 
-    writer->close();
+    writer.close();
 }

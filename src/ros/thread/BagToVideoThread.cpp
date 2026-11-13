@@ -25,16 +25,15 @@ BagToVideoThread::run()
         return;
     }
 
-    auto reader = std::make_unique<rosbag2_cpp::Reader>();
-    reader->open(m_sourceDirectory);
+    rosbag2_cpp::Reader reader;
+    reader.open(m_sourceDirectory);
 
     rosbag2_storage::SerializedBagMessageSharedPtr message;
 
     rclcpp::Serialization<sensor_msgs::msg::Image> serialization;
     rclcpp::Serialization<sensor_msgs::msg::CompressedImage> serializationCompressed;
-    auto imageMessage = std::make_shared<sensor_msgs::msg::Image>();
-    auto imageMessageCompressed = std::make_shared<sensor_msgs::msg::CompressedImage>();
-    cv_bridge::CvImagePtr cvPointer;
+    sensor_msgs::msg::Image imageMessage;
+    sensor_msgs::msg::CompressedImage imageMessageCompressed;
 
     auto iterationCount = 0;
     const auto topicNameStdString = m_topicName;
@@ -49,28 +48,28 @@ BagToVideoThread::run()
     } else {
         codec = m_parameters.lossless ? cv::VideoWriter::fourcc('F', 'F', 'V', '1') : cv::VideoWriter::fourcc('X', '2', '6', '4');
     }
-    const auto videoEncoder = std::make_shared<VideoEncoder>(codec);
+    VideoEncoder videoEncoder(codec);
 
     // Now the main encoding
-    while (reader->has_next()) {
+    while (reader.has_next()) {
         if (isInterruptionRequested()) {
-            reader->close();
+            reader.close();
             return;
         }
 
         // Read and deserialize the message
-        message = reader->read_next();
+        message = reader.read_next();
         if (message->topic_name != topicNameStdString) {
             continue;
         }
 
         auto frame = isCompressed ? Utils::Threads::convertCompressedImageMessageToMat(*message->serialized_data, serializationCompressed, imageMessageCompressed)
-                                  : Utils::Threads::convertImageMessageToMat(*message->serialized_data, serialization, cvPointer, imageMessage);
+                                  : Utils::Threads::convertImageMessageToMat(*message->serialized_data, serialization, imageMessage);
 
         // Setup the video encoder on the first iteration
         if (iterationCount == 0) {
-            if (!videoEncoder->setVideoWriter(m_parameters.targetDirectory.toStdString(), m_parameters.fps,
-                                              frame.cols, frame.rows, m_useHardwareAcceleration, m_parameters.useBWImages)) {
+            if (!videoEncoder.setVideoWriter(m_parameters.targetDirectory.toStdString(), m_parameters.fps,
+                                             frame.cols, frame.rows, m_useHardwareAcceleration, m_parameters.useBWImages)) {
                 emit failed();
                 return;
             }
@@ -82,12 +81,12 @@ BagToVideoThread::run()
             // https://github.com/opencv/opencv/issues/26276#issuecomment-2406825667
             cv::Mat greyMat;
             cv::cvtColor(frame, greyMat, cv::COLOR_BGR2GRAY);
-            videoEncoder->writeImageToVideo(greyMat);
+            videoEncoder.writeImageToVideo(greyMat);
         } else {
             if (m_parameters.exchangeRedBlueValues) {
                 cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
             }
-            videoEncoder->writeImageToVideo(frame);
+            videoEncoder.writeImageToVideo(frame);
         }
 
         iterationCount++;
@@ -95,6 +94,6 @@ BagToVideoThread::run()
                              (static_cast<float>(iterationCount) / static_cast<float>(*messageCount) * 100));
     }
 
-    videoEncoder->release();
-    reader->close();
+    videoEncoder.release();
+    reader.close();
 }

@@ -17,15 +17,15 @@ disableROSLogging()
 void
 waitForNodeContent(std::shared_ptr<rclcpp::Node> node, bool isTopic)
 {
-    auto executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
-    executor->add_node(node);
+    rclcpp::executors::SingleThreadedExecutor executor;
+    executor.add_node(node);
 
     rclcpp::Rate rate(20);
     size_t lastSize = 0;
     auto unchanged = 0;
 
     for (auto i = 0; i < 100; ++i) {
-        executor->spin_some();
+        executor.spin_some();
 
         // Check if there were new updates since the last iteration
         const auto currentSize = isTopic ? node->get_topic_names_and_types().size() : node->get_service_names_and_types().size();

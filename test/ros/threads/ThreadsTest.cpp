@@ -96,18 +96,18 @@ verifyMessages(const std::string& bagDirectory, const std::string& topicName,
         }
 
         rclcpp::SerializedMessage serializedMessage(*msg->serialized_data);
-        auto rosMsg = std::make_shared<T>();
-        serialization.deserialize_message(&serializedMessage, rosMsg.get());
+        T rosMsg;
+        serialization.deserialize_message(&serializedMessage, &rosMsg);
 
         if constexpr (std::is_same_v<T, std_msgs::msg::Int32>) {
-            REQUIRE(rosMsg->data == index);
+            REQUIRE(rosMsg.data == index);
         } else if constexpr (std::is_same_v<T, std_msgs::msg::String>) {
-            REQUIRE(rosMsg->data == "Message " + std::to_string(index));
+            REQUIRE(rosMsg.data == "Message " + std::to_string(index));
         } else if constexpr (std::is_same_v<T, sensor_msgs::msg::PointCloud2>) {
-            pcl::PointCloud<pcl::PointXYZRGB>::Ptr fileCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-            pcl::PointCloud<pcl::PointXYZRGB>::Ptr messageCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+            auto fileCloud = pcl::make_shared<pcl::PointCloud<pcl::PointXYZRGB> >();
+            auto messageCloud = pcl::make_shared<pcl::PointCloud<pcl::PointXYZRGB> >();
 
-            pcl::fromROSMsg(*rosMsg, *messageCloud);
+            pcl::fromROSMsg(rosMsg, *messageCloud);
             std::stringstream formatedIterationCount;
             formatedIterationCount << std::setw(3) << std::setfill('0') << index;
             pcl::io::loadPCDFile<pcl::PointXYZRGB>("./pcds/" + formatedIterationCount.str() + ".pcd", *fileCloud);
@@ -119,9 +119,9 @@ verifyMessages(const std::string& bagDirectory, const std::string& topicName,
             REQUIRE_THAT(fileCloud->at(0).g, Catch::Matchers::WithinAbs(messageCloud->at(0).g, 0.001));
             REQUIRE_THAT(fileCloud->at(0).b, Catch::Matchers::WithinAbs(messageCloud->at(0).b, 0.001));
         } else {
-            REQUIRE(rosMsg->transforms[0].header.frame_id == "world");
-            REQUIRE(rosMsg->transforms[0].child_frame_id == "child_tf2");
-            REQUIRE(rosMsg->transforms.size() == 3);
+            REQUIRE(rosMsg.transforms[0].header.frame_id == "world");
+            REQUIRE(rosMsg.transforms[0].child_frame_id == "child_tf2");
+            REQUIRE(rosMsg.transforms.size() == 3);
         }
 
         index++;
@@ -136,8 +136,8 @@ TEST_CASE("Threads Testing", "[threads]") {
     // Move this into an extra function to avoid multiple executions of trying to write the bag file
     SECTION("Create compressed image bag file") {
         // Create compressed image bag file
-        auto writer = std::make_unique<rosbag2_cpp::Writer>();
-        writer->open("./compressed_image_bag");
+        rosbag2_cpp::Writer writer;
+        writer.open("./compressed_image_bag");
 
         for (auto i = 0; i < 100; ++i) {
             cv::Mat mat(720, 1280, CV_8UC3, cv::Scalar(255, 0, 0));
@@ -145,9 +145,9 @@ TEST_CASE("Threads Testing", "[threads]") {
 
             sensor_msgs::msg::CompressedImage compressedMessage;
             cvImage.toCompressedImageMsg(compressedMessage);
-            writer->write(compressedMessage, "/compressed_image_topic", rclcpp::Clock(RCL_ROS_TIME).now());
+            writer.write(compressedMessage, "/compressed_image_topic", rclcpp::Clock(RCL_ROS_TIME).now());
         }
-        writer->close();
+        writer.close();
     }
 
     SECTION("Dummy Bag Thread Test") {
@@ -502,21 +502,20 @@ TEST_CASE("Threads Testing", "[threads]") {
         rosbag2_cpp::Reader reader;
         rclcpp::Serialization<sensor_msgs::msg::Image> serialization;
         rclcpp::Serialization<sensor_msgs::msg::CompressedImage> serializationCompressed;
-        cv_bridge::CvImagePtr cvPointer;
 
         auto* const thread = new VideoToBagThread(parameters, false);
         QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
 
-        const auto performBagCheck = [&parameters, &reader, &serialization, &serializationCompressed, cvPointer]
+        const auto performBagCheck = [&parameters, &reader, &serialization, &serializationCompressed]
                                      (int width, int height, int redValue, int greenValue, int blueValue) {
             reader.open("./video_bag");
             // Check first message values
             auto rosMessage = reader.read_next();
-            auto imageMessage = std::make_shared<sensor_msgs::msg::Image>();
-            auto imageMessageCompressed = std::make_shared<sensor_msgs::msg::CompressedImage>();
+            sensor_msgs::msg::Image imageMessage;
+            sensor_msgs::msg::CompressedImage imageMessageCompressed;
 
             const auto frame = parameters.useCompression ? Utils::Threads::convertCompressedImageMessageToMat(*rosMessage->serialized_data, serializationCompressed, imageMessageCompressed)
-                                                         : Utils::Threads::convertImageMessageToMat(*rosMessage->serialized_data, serialization, cvPointer, imageMessage);
+                                                         : Utils::Threads::convertImageMessageToMat(*rosMessage->serialized_data, serialization, imageMessage);
 
             REQUIRE(frame.cols == width);
             REQUIRE(frame.rows == height);

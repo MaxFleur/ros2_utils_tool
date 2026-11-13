@@ -87,11 +87,11 @@ PublishImagesThread::run()
         setIterator++;
     });
 
-    auto executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
-    executor->add_node(m_node);
+    rclcpp::executors::SingleThreadedExecutor executor;
+    executor.add_node(m_node);
     // Spin to publish
     while (!isInterruptionRequested()) {
-        executor->spin_once();
+        executor.spin_once();
     }
 
     timer->cancel();

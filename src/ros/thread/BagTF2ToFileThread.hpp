@@ -28,11 +28,11 @@ private:
     template<typename T>
     requires NodeParameter<T>
     void
-    fillNode(std::shared_ptr<tf2_msgs::msg::TFMessage> tfMessage,
-             T&                                        finalNode) const
+    fillNode(const tf2_msgs::msg::TFMessage& tfMessage,
+             T&                              finalNode) const
     {
-        for (size_t i = 0; i < tfMessage->transforms.size(); i++) {
-            const auto& currentTransform = tfMessage->transforms.at(i);
+        for (size_t i = 0; i < tfMessage.transforms.size(); i++) {
+            const auto& currentTransform = tfMessage.transforms.at(i);
             T iterationNode;
 
             T translation;

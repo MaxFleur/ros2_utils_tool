@@ -37,16 +37,16 @@ BagTF2ToFileThread::run()
     const auto isFormatJson = Utils::General::getFileExtension(targetDirectory) == "json";
     auto iterationCount = 0;
 
-    auto reader = std::make_shared<rosbag2_cpp::Reader>();
-    reader->open(m_sourceDirectory);
+    rosbag2_cpp::Reader reader;
+    reader.open(m_sourceDirectory);
 
     rclcpp::Serialization<tf2_msgs::msg::TFMessage> serializiation;
-    auto tfMessage = std::make_shared<tf2_msgs::msg::TFMessage>();
+    tf2_msgs::msg::TFMessage tfMessage;
 
     QJsonArray messagesArray;
     YAML::Node transformsNode;
 
-    const auto writeMessageToJsonArray = [this, tfMessage, &messagesArray, &iterationCount] {
+    const auto writeMessageToJsonArray = [this, &tfMessage, &messagesArray, &iterationCount] {
         QJsonObject transformsObject;
         fillNode(tfMessage, transformsObject);
 
@@ -54,25 +54,25 @@ BagTF2ToFileThread::run()
         messageObject["message_" + QString::number(iterationCount)] = transformsObject;
         messagesArray.append(messageObject);
     };
-    const auto writeMessageToYamlNode = [this, tfMessage, &transformsNode, &iterationCount] {
+    const auto writeMessageToYamlNode = [this, &tfMessage, &transformsNode, &iterationCount] {
         YAML::Node transformNode;
         fillNode(tfMessage, transformNode);
 
         transformsNode["message_" + std::to_string(iterationCount)] = transformNode;
     };
 
-    while (reader->has_next()) {
+    while (reader.has_next()) {
         if (isInterruptionRequested()) {
             break;
         }
 
-        auto bagMessage = reader->read_next();
+        auto bagMessage = reader.read_next();
         if (bagMessage->topic_name != m_topicName) {
             continue;
         }
 
         rclcpp::SerializedMessage serializedMessage(*bagMessage->serialized_data);
-        serializiation.deserialize_message(&serializedMessage, tfMessage.get());
+        serializiation.deserialize_message(&serializedMessage, &tfMessage);
 
         isFormatJson ? writeMessageToJsonArray() : writeMessageToYamlNode();
 

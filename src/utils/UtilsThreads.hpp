@@ -14,13 +14,13 @@ namespace Utils::Threads
 inline cv::Mat
 convertCompressedImageMessageToMat(rcutils_uint8_array_t&                                   serializedData,
                                    rclcpp::Serialization<sensor_msgs::msg::CompressedImage> serialization,
-                                   std::shared_ptr<sensor_msgs::msg::CompressedImage>       message)
+                                   sensor_msgs::msg::CompressedImage&                       message)
 {
     // Deserialize
     rclcpp::SerializedMessage serializedMessage(serializedData);
-    serialization.deserialize_message(&serializedMessage, message.get());
+    serialization.deserialize_message(&serializedMessage, &message);
 
-    cv::Mat buffer(1, static_cast<int>(message->data.size()), CV_8UC1, message->data.data());
+    cv::Mat buffer(1, static_cast<int>(message.data.size()), CV_8UC1, message.data.data());
     return cv::imdecode(buffer, cv::IMREAD_COLOR);
 }
 
@@ -28,14 +28,13 @@ convertCompressedImageMessageToMat(rcutils_uint8_array_t&                       
 inline cv::Mat
 convertImageMessageToMat(rcutils_uint8_array_t&                         serializedData,
                          rclcpp::Serialization<sensor_msgs::msg::Image> serialization,
-                         cv_bridge::CvImagePtr                          cvPointer,
-                         std::shared_ptr<sensor_msgs::msg::Image>       message)
+                         sensor_msgs::msg::Image&                       message)
 {
     // Deserialize
     rclcpp::SerializedMessage serializedMessage(serializedData);
-    serialization.deserialize_message(&serializedMessage, message.get());
+    serialization.deserialize_message(&serializedMessage, &message);
 
-    cvPointer = cv_bridge::toCvCopy(message, message->encoding);
+    const auto cvPointer = cv_bridge::toCvCopy(message, message.encoding);
     return cvPointer->image;
 }
 }

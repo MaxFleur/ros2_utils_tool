@@ -9,15 +9,15 @@
 
 TEST_CASE("Utils Threads Testing", "[utils]") {
     // Write bag with 10 normal and 10 compressed image messages
-    auto writer = std::make_shared<rosbag2_cpp::Writer>();
-    writer->open("threads_bag");
+    rosbag2_cpp::Writer writer;
+    writer.open("threads_bag");
 
     std_msgs::msg::Header header;
     cv_bridge::CvImage cvBridge;
     cvBridge.encoding = sensor_msgs::image_encodings::RGB8;
 
-    auto imageMessage = std::make_shared<sensor_msgs::msg::Image>();
-    auto imageMessageCompressed = std::make_shared<sensor_msgs::msg::CompressedImage>();
+    sensor_msgs::msg::Image imageMessage;
+    sensor_msgs::msg::CompressedImage imageMessageCompressed;
 
     auto red = 255;
     auto blue = 0;
@@ -29,16 +29,16 @@ TEST_CASE("Utils Threads Testing", "[utils]") {
         header.stamp = timeStamp;
         cvBridge.header = header;
         cvBridge.image = mat;
-        cvBridge.toImageMsg(*imageMessage);
-        cvBridge.toCompressedImageMsg(*imageMessageCompressed);
+        cvBridge.toImageMsg(imageMessage);
+        cvBridge.toCompressedImageMsg(imageMessageCompressed);
 
-        writer->write(*imageMessage, "/image", timeStamp);
-        writer->write(*imageMessageCompressed, "/image_compressed", timeStamp);
+        writer.write(imageMessage, "/image", timeStamp);
+        writer.write(imageMessageCompressed, "/image_compressed", timeStamp);
 
         red -= 20;
         blue += 20;
     }
-    writer->close();
+    writer.close();
 
     red = 255;
     blue = 0;
@@ -47,19 +47,18 @@ TEST_CASE("Utils Threads Testing", "[utils]") {
     rosbag2_storage::SerializedBagMessageSharedPtr message;
     rclcpp::Serialization<sensor_msgs::msg::Image> serialization;
     rclcpp::Serialization<sensor_msgs::msg::CompressedImage> serializationCompressed;
-    cv_bridge::CvImagePtr cvPointer;
 
-    auto reader = std::make_unique<rosbag2_cpp::Reader>();
-    reader->open("threads_bag");
+    rosbag2_cpp::Reader reader;
+    reader.open("threads_bag");
 
     const auto isInRange = [] (int value, int low, int high) {
         return (value >= low) && (value <= high);
     };
 
     for (auto i = 0; i < 20; ++i) {
-        message = reader->read_next();
+        message = reader.read_next();
         auto frame = message->topic_name == "/image_compressed" ? Utils::Threads::convertCompressedImageMessageToMat(*message->serialized_data, serializationCompressed, imageMessageCompressed)
-                                                                : Utils::Threads::convertImageMessageToMat(*message->serialized_data, serialization, cvPointer, imageMessage);
+                                                                : Utils::Threads::convertImageMessageToMat(*message->serialized_data, serialization, imageMessage);
 
         REQUIRE(frame.cols == 1280);
         REQUIRE(frame.rows == 720);
@@ -84,6 +83,6 @@ TEST_CASE("Utils Threads Testing", "[utils]") {
         blue += 20;
     }
 
-    reader->close();
+    reader.close();
     std::filesystem::remove_all("threads_bag");
 }
