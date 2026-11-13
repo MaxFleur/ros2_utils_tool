@@ -108,9 +108,9 @@ verifyMessages(const std::string& bagDirectory, const std::string& topicName,
             auto messageCloud = pcl::make_shared<pcl::PointCloud<pcl::PointXYZRGB> >();
 
             pcl::fromROSMsg(rosMsg, *messageCloud);
-            std::stringstream formatedIterationCount;
-            formatedIterationCount << std::setw(3) << std::setfill('0') << index;
-            pcl::io::loadPCDFile<pcl::PointXYZRGB>("./pcds/" + formatedIterationCount.str() + ".pcd", *fileCloud);
+            std::stringstream formattedIterationCount;
+            formattedIterationCount << std::setw(3) << std::setfill('0') << index;
+            pcl::io::loadPCDFile<pcl::PointXYZRGB>("./pcds/" + formattedIterationCount.str() + ".pcd", *fileCloud);
 
             REQUIRE_THAT(fileCloud->at(0).x, Catch::Matchers::WithinAbs(messageCloud->at(0).x, 0.001));
             REQUIRE_THAT(fileCloud->at(0).y, Catch::Matchers::WithinAbs(messageCloud->at(0).y, 0.001));

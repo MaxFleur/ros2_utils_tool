@@ -259,8 +259,8 @@ continueExistingTargetLowDiskSpace(const QStringList& arguments, const QString& 
         return true;
     }
 
-    constexpr auto TEN_GIGAGBYTE = 10.737f;
-    if (const auto diskSpace = Utils::General::getAvailableDriveSpace(directory); diskSpace < TEN_GIGAGBYTE) {
+    constexpr auto TEN_GIGABYTE = 10.737f;
+    if (const auto diskSpace = Utils::General::getAvailableDriveSpace(directory); diskSpace < TEN_GIGABYTE) {
         if (!shouldContinue("Available disk space is very small (" + std::to_string(diskSpace) + " GiB). Do you want to continue? [y]/n")) {
             return false;
         }

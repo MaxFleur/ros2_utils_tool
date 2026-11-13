@@ -73,7 +73,7 @@ BagToImagesThread::run()
 
             // Convert to grayscale
             if (m_parameters.format == "png" && m_parameters.pngBilevel) {
-                // Converting to a different channel seems to be saver then converting
+                // Converting to a different channel seems to be safer than converting
                 // to grayscale before calling imwrite
                 cv::Mat mat(frame.size(), CV_8UC1);
                 mat.convertTo(frame, CV_8UC1);
@@ -89,10 +89,10 @@ BagToImagesThread::run()
                                  (static_cast<float>(iterationCount) / static_cast<float>(*messageCount) * 100));
 
             // Have to create this as extra string to keep it atomic inside the mutex
-            std::stringstream formatedIterationCount;
+            std::stringstream formattedIterationCount;
             // Use leading zeroes
-            formatedIterationCount << std::setw(messageCountNumberOfDigits) << std::setfill('0') << iterationCount - 1;
-            const auto targetString = targetDirectoryStd + "/" + formatedIterationCount.str() + "." + m_parameters.format.toStdString();
+            formattedIterationCount << std::setw(messageCountNumberOfDigits) << std::setfill('0') << iterationCount - 1;
+            const auto targetString = targetDirectoryStd + "/" + formattedIterationCount.str() + "." + m_parameters.format.toStdString();
 
             mutex.unlock();
             // The main writing can be done in parallel, no mutex required

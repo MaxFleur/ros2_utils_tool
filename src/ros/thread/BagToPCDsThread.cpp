@@ -71,10 +71,10 @@ BagToPCDsThread::run()
                                  (static_cast<float>(iterationCount) / static_cast<float>(*messageCount) * 100));
 
             // Have to create this as extra string to keep it atomic
-            std::stringstream formatedIterationCount;
+            std::stringstream formattedIterationCount;
             // Use leading zeroes
-            formatedIterationCount << std::setw(messageCountNumberOfDigits) << std::setfill('0') << iterationCount - 1;
-            const auto targetString = targetDirectoryStd + "/" + formatedIterationCount.str() + ".pcd";
+            formattedIterationCount << std::setw(messageCountNumberOfDigits) << std::setfill('0') << iterationCount - 1;
+            const auto targetString = targetDirectoryStd + "/" + formattedIterationCount.str() + ".pcd";
 
             mutex.unlock();
 

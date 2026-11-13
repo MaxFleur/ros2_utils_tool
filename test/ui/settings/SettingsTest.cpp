@@ -41,7 +41,7 @@ concept SettingsReturnPrimitiveType = std::same_as<T, int> || std::same_as<T, bo
 template<typename T>
 requires SettingsReturnPrimitiveType<T>
 void
-verifiySettingPrimitive(const QSettings& settings, const QString& settingName, T expectedValue)
+verifySettingPrimitive(const QSettings& settings, const QString& settingName, T expectedValue)
 {
     REQUIRE(settings.value(settingName).isValid());
 
@@ -57,7 +57,7 @@ verifiySettingPrimitive(const QSettings& settings, const QString& settingName, T
 
 // Need this to allow qstring references
 void
-verifiySettingQString(const QSettings& settings, const QString& settingName, const QString& expectedValue)
+verifySettingQString(const QSettings& settings, const QString& settingName, const QString& expectedValue)
 {
     REQUIRE(settings.value(settingName).isValid());
     REQUIRE(settings.value(settingName).toString() == expectedValue);
@@ -84,11 +84,11 @@ TEST_CASE("Settings Testing", "[settings]") {
             settings.write();
 
             qSettings.beginGroup("basic");
-            verifiySettingQString(qSettings, "source_dir", "/source/dir");
+            verifySettingQString(qSettings, "source_dir", "/source/dir");
             qSettings.endGroup();
         }
     }
-    SECTION("Dummmy Bag Params Test") {
+    SECTION("Dummy Bag Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("dummy");
             checkSettingsInvalidacy(qSettings, { "topics", "msg_count", "rate", "use_custom_rate" });
@@ -105,15 +105,15 @@ TEST_CASE("Settings Testing", "[settings]") {
             settings.write();
 
             qSettings.beginGroup("dummy");
-            verifiySettingPrimitive(qSettings, "msg_count", 250);
-            verifiySettingPrimitive(qSettings, "rate", 25);
-            verifiySettingPrimitive(qSettings, "use_custom_rate", true);
+            verifySettingPrimitive(qSettings, "msg_count", 250);
+            verifySettingPrimitive(qSettings, "rate", 25);
+            verifySettingPrimitive(qSettings, "use_custom_rate", true);
 
             const auto size = qSettings.beginReadArray("topics");
             for (auto i = 0; i < size; ++i) {
                 qSettings.setArrayIndex(i);
-                verifiySettingQString(qSettings, "type", "string");
-                verifiySettingQString(qSettings, "name", "example_name");
+                verifySettingQString(qSettings, "type", "string");
+                verifySettingQString(qSettings, "name", "example_name");
             }
             REQUIRE(size == 1);
             qSettings.endArray();
@@ -146,16 +146,16 @@ TEST_CASE("Settings Testing", "[settings]") {
             settings.write();
 
             qSettings.beginGroup("send_tf2");
-            verifiySettingPrimitive(qSettings, "translation_x", 1.337);
-            verifiySettingPrimitive(qSettings, "translation_y", 4.2);
-            verifiySettingPrimitive(qSettings, "translation_z", 3.14159);
-            verifiySettingPrimitive(qSettings, "rotation_x", 1.234);
-            verifiySettingPrimitive(qSettings, "rotation_y", 6.7);
-            verifiySettingPrimitive(qSettings, "rotation_z", 2.71828);
-            verifiySettingPrimitive(qSettings, "rotation_w", -4.321);
-            verifiySettingQString(qSettings, "name", "test");
-            verifiySettingPrimitive(qSettings, "rate", 3);
-            verifiySettingPrimitive(qSettings, "is_static", false);
+            verifySettingPrimitive(qSettings, "translation_x", 1.337);
+            verifySettingPrimitive(qSettings, "translation_y", 4.2);
+            verifySettingPrimitive(qSettings, "translation_z", 3.14159);
+            verifySettingPrimitive(qSettings, "rotation_x", 1.234);
+            verifySettingPrimitive(qSettings, "rotation_y", 6.7);
+            verifySettingPrimitive(qSettings, "rotation_z", 2.71828);
+            verifySettingPrimitive(qSettings, "rotation_w", -4.321);
+            verifySettingQString(qSettings, "name", "test");
+            verifySettingPrimitive(qSettings, "rate", 3);
+            verifySettingPrimitive(qSettings, "is_static", false);
             qSettings.endGroup();
         }
     }
@@ -180,8 +180,8 @@ TEST_CASE("Settings Testing", "[settings]") {
 
                 for (auto i = 0; i < size; ++i) {
                     qSettings.setArrayIndex(i);
-                    verifiySettingQString(qSettings, "name", name);
-                    verifiySettingPrimitive(qSettings, "is_selected", true);
+                    verifySettingQString(qSettings, "name", name);
+                    verifySettingPrimitive(qSettings, "is_selected", true);
                 }
                 qSettings.endArray();
             };
@@ -210,10 +210,10 @@ TEST_CASE("Settings Testing", "[settings]") {
             settings.write();
 
             qSettings.beginGroup("play_bag");
-            verifiySettingPrimitive(qSettings, "rate", 4.2);
-            verifiySettingPrimitive(qSettings, "offset", 4.2);
-            verifiySettingPrimitive(qSettings, "loop", true);
-            verifiySettingPrimitive(qSettings, "publish_service_requests", true);
+            verifySettingPrimitive(qSettings, "rate", 4.2);
+            verifySettingPrimitive(qSettings, "offset", 4.2);
+            verifySettingPrimitive(qSettings, "loop", true);
+            verifySettingPrimitive(qSettings, "publish_service_requests", true);
 
             qSettings.endGroup();
         }
@@ -244,16 +244,16 @@ TEST_CASE("Settings Testing", "[settings]") {
             settings.write();
 
             qSettings.beginGroup("record");
-            verifiySettingPrimitive(qSettings, "size", 2048);
-            verifiySettingPrimitive(qSettings, "duration", 120);
-            verifiySettingPrimitive(qSettings, "include_ros_topics", true);
-            verifiySettingPrimitive(qSettings, "show_advanced", true);
-            verifiySettingPrimitive(qSettings, "include_hidden_topics", true);
-            verifiySettingPrimitive(qSettings, "include_unpublished_topics", true);
-            verifiySettingPrimitive(qSettings, "use_custom_size", true);
-            verifiySettingPrimitive(qSettings, "use_custom_duration", true);
-            verifiySettingPrimitive(qSettings, "use_compression", true);
-            verifiySettingPrimitive(qSettings, "is_compression_file", true);
+            verifySettingPrimitive(qSettings, "size", 2048);
+            verifySettingPrimitive(qSettings, "duration", 120);
+            verifySettingPrimitive(qSettings, "include_ros_topics", true);
+            verifySettingPrimitive(qSettings, "show_advanced", true);
+            verifySettingPrimitive(qSettings, "include_hidden_topics", true);
+            verifySettingPrimitive(qSettings, "include_unpublished_topics", true);
+            verifySettingPrimitive(qSettings, "use_custom_size", true);
+            verifySettingPrimitive(qSettings, "use_custom_duration", true);
+            verifySettingPrimitive(qSettings, "use_compression", true);
+            verifySettingPrimitive(qSettings, "is_compression_file", true);
 
             qSettings.endGroup();
         }
@@ -275,9 +275,9 @@ TEST_CASE("Settings Testing", "[settings]") {
             settings.write();
 
             qSettings.beginGroup("advanced");
-            verifiySettingQString(qSettings, "target_dir", "/target/dir");
-            verifiySettingQString(qSettings, "topic_name", "/test_topic_name");
-            verifiySettingPrimitive(qSettings, "show_advanced", true);
+            verifySettingQString(qSettings, "target_dir", "/target/dir");
+            verifySettingQString(qSettings, "topic_name", "/test_topic_name");
+            verifySettingPrimitive(qSettings, "show_advanced", true);
             qSettings.endGroup();
         }
     }
@@ -295,7 +295,7 @@ TEST_CASE("Settings Testing", "[settings]") {
             settings.write();
 
             qSettings.beginGroup("pcds_to_bag");
-            verifiySettingPrimitive(qSettings, "rate", 10);
+            verifySettingPrimitive(qSettings, "rate", 10);
             qSettings.endGroup();
         }
     }
@@ -314,8 +314,8 @@ TEST_CASE("Settings Testing", "[settings]") {
             settings.write();
 
             qSettings.beginGroup("bag_tf2_to_file");
-            verifiySettingPrimitive(qSettings, "keep_timestamps", false);
-            verifiySettingPrimitive(qSettings, "compact_output", true);
+            verifySettingPrimitive(qSettings, "keep_timestamps", false);
+            verifySettingPrimitive(qSettings, "compact_output", true);
             qSettings.endGroup();
         }
     }
@@ -334,8 +334,8 @@ TEST_CASE("Settings Testing", "[settings]") {
             settings.write();
 
             qSettings.beginGroup("bag_message_to_file");
-            verifiySettingPrimitive(qSettings, "write_single_output_file", true);
-            verifiySettingPrimitive(qSettings, "is_yaml", true);
+            verifySettingPrimitive(qSettings, "write_single_output_file", true);
+            verifySettingPrimitive(qSettings, "is_yaml", true);
             qSettings.endGroup();
         }
     }
@@ -355,8 +355,8 @@ TEST_CASE("Settings Testing", "[settings]") {
             settings.write();
 
             qSettings.beginGroup("delete_source_param");
-            verifiySettingPrimitive(qSettings, "delete_source", true);
-            verifiySettingPrimitive(qSettings, "compress_per_message", true);
+            verifySettingPrimitive(qSettings, "delete_source", true);
+            verifySettingPrimitive(qSettings, "compress_per_message", true);
             qSettings.endGroup();
         }
     }
@@ -377,17 +377,17 @@ TEST_CASE("Settings Testing", "[settings]") {
             settings.write();
 
             qSettings.beginGroup("edit");
-            verifiySettingPrimitive(qSettings, "update_timestamps", true);
-            verifiySettingPrimitive(qSettings, "compress_target", true);
+            verifySettingPrimitive(qSettings, "update_timestamps", true);
+            verifySettingPrimitive(qSettings, "compress_target", true);
 
             const auto size = qSettings.beginReadArray("topics");
             for (auto i = 0; i < size; ++i) {
                 qSettings.setArrayIndex(i);
-                verifiySettingQString(qSettings, "name", "original_topic");
-                verifiySettingPrimitive(qSettings, "is_selected", true);
-                verifiySettingQString(qSettings, "renamed_name", "renamed_topic");
-                verifiySettingPrimitive(qSettings, "lower_boundary", 42);
-                verifiySettingPrimitive(qSettings, "upper_boundary", 1337);
+                verifySettingQString(qSettings, "name", "original_topic");
+                verifySettingPrimitive(qSettings, "is_selected", true);
+                verifySettingQString(qSettings, "renamed_name", "renamed_topic");
+                verifySettingPrimitive(qSettings, "lower_boundary", 42);
+                verifySettingPrimitive(qSettings, "upper_boundary", 1337);
             }
             REQUIRE(size == 1);
             qSettings.endArray();
@@ -411,15 +411,15 @@ TEST_CASE("Settings Testing", "[settings]") {
             settings.write();
 
             qSettings.beginGroup("merge");
-            verifiySettingQString(qSettings, "second_source", "/path/to/other/bag");
-            verifiySettingPrimitive(qSettings, "compress_target", true);
+            verifySettingQString(qSettings, "second_source", "/path/to/other/bag");
+            verifySettingPrimitive(qSettings, "compress_target", true);
 
             const auto size = qSettings.beginReadArray("topics");
             for (auto i = 0; i < size; ++i) {
                 qSettings.setArrayIndex(i);
-                verifiySettingQString(qSettings, "name", "topic");
-                verifiySettingQString(qSettings, "dir", "/path/to/other/bag");
-                verifiySettingPrimitive(qSettings, "is_selected", true);
+                verifySettingQString(qSettings, "name", "topic");
+                verifySettingQString(qSettings, "dir", "/path/to/other/bag");
+                verifySettingPrimitive(qSettings, "is_selected", true);
             }
             REQUIRE(size == 1);
             qSettings.endArray();
@@ -442,8 +442,8 @@ TEST_CASE("Settings Testing", "[settings]") {
             settings.write();
 
             qSettings.beginGroup("compress_bag");
-            verifiySettingPrimitive(qSettings, "compress_per_message", true);
-            verifiySettingPrimitive(qSettings, "delete_source", true);
+            verifySettingPrimitive(qSettings, "compress_per_message", true);
+            verifySettingPrimitive(qSettings, "delete_source", true);
             qSettings.endGroup();
         }
     }
@@ -462,7 +462,7 @@ TEST_CASE("Settings Testing", "[settings]") {
             settings.write();
 
             qSettings.beginGroup("rgb");
-            verifiySettingPrimitive(qSettings, "switch_red_blue", true);
+            verifySettingPrimitive(qSettings, "switch_red_blue", true);
             qSettings.endGroup();
         }
     }
@@ -484,11 +484,11 @@ TEST_CASE("Settings Testing", "[settings]") {
             settings.write();
 
             qSettings.beginGroup("images");
-            verifiySettingQString(qSettings, "format", "jpg");
-            verifiySettingPrimitive(qSettings, "quality", 10);
-            verifiySettingPrimitive(qSettings, "bw_images", true);
-            verifiySettingPrimitive(qSettings, "jpg_optimize", true);
-            verifiySettingPrimitive(qSettings, "png_bilevel", true);
+            verifySettingQString(qSettings, "format", "jpg");
+            verifySettingPrimitive(qSettings, "quality", 10);
+            verifySettingPrimitive(qSettings, "bw_images", true);
+            verifySettingPrimitive(qSettings, "jpg_optimize", true);
+            verifySettingPrimitive(qSettings, "png_bilevel", true);
             qSettings.endGroup();
         }
     }
@@ -507,7 +507,7 @@ TEST_CASE("Settings Testing", "[settings]") {
             settings.write();
 
             qSettings.beginGroup("video");
-            verifiySettingPrimitive(qSettings, "fps", 15);
+            verifySettingPrimitive(qSettings, "fps", 15);
             qSettings.endGroup();
         }
     }
@@ -526,8 +526,8 @@ TEST_CASE("Settings Testing", "[settings]") {
             settings.write();
 
             qSettings.beginGroup("video");
-            verifiySettingPrimitive(qSettings, "bw_images", true);
-            verifiySettingPrimitive(qSettings, "lossless_images", true);
+            verifySettingPrimitive(qSettings, "bw_images", true);
+            verifySettingPrimitive(qSettings, "lossless_images", true);
             qSettings.endGroup();
         }
     }
@@ -547,9 +547,9 @@ TEST_CASE("Settings Testing", "[settings]") {
             settings.write();
 
             qSettings.beginGroup("bag");
-            verifiySettingPrimitive(qSettings, "use_compression", true);
-            verifiySettingPrimitive(qSettings, "custom_fps", true);
-            verifiySettingPrimitive(qSettings, "is_compression_jpeg", true);
+            verifySettingPrimitive(qSettings, "use_compression", true);
+            verifySettingPrimitive(qSettings, "custom_fps", true);
+            verifySettingPrimitive(qSettings, "is_compression_jpeg", true);
             qSettings.endGroup();
         }
     }
@@ -570,10 +570,10 @@ TEST_CASE("Settings Testing", "[settings]") {
             settings.write();
 
             qSettings.beginGroup("publish");
-            verifiySettingPrimitive(qSettings, "width", 1280);
-            verifiySettingPrimitive(qSettings, "height", 720);
-            verifiySettingPrimitive(qSettings, "loop", true);
-            verifiySettingPrimitive(qSettings, "scale", true);
+            verifySettingPrimitive(qSettings, "width", 1280);
+            verifySettingPrimitive(qSettings, "height", 720);
+            verifySettingPrimitive(qSettings, "loop", true);
+            verifySettingPrimitive(qSettings, "scale", true);
             qSettings.endGroup();
         }
     }
@@ -603,14 +603,14 @@ TEST_CASE("Settings Testing", "[settings]") {
                 settings.write();
 
                 qSettings.beginGroup("dialog");
-                verifiySettingPrimitive(qSettings, "max_threads", 4);
-                verifiySettingPrimitive(qSettings, "low_diskspace_threshold", 20);
-                verifiySettingPrimitive(qSettings, "hw_acc", true);
-                verifiySettingPrimitive(qSettings, "save_parameters", true);
-                verifiySettingPrimitive(qSettings, "predefined_topic_names", false);
-                verifiySettingPrimitive(qSettings, "warn_ros2_name_convention", true);
-                verifiySettingPrimitive(qSettings, "warn_target_overwrite", false);
-                verifiySettingPrimitive(qSettings, "warn_low_disk_space", false);
+                verifySettingPrimitive(qSettings, "max_threads", 4);
+                verifySettingPrimitive(qSettings, "low_diskspace_threshold", 20);
+                verifySettingPrimitive(qSettings, "hw_acc", true);
+                verifySettingPrimitive(qSettings, "save_parameters", true);
+                verifySettingPrimitive(qSettings, "predefined_topic_names", false);
+                verifySettingPrimitive(qSettings, "warn_ros2_name_convention", true);
+                verifySettingPrimitive(qSettings, "warn_target_overwrite", false);
+                verifySettingPrimitive(qSettings, "warn_low_disk_space", false);
                 qSettings.endGroup();
             }
         }
@@ -624,8 +624,8 @@ TEST_CASE("Settings Testing", "[settings]") {
                 DialogSettings::writeStaticParameter("hw_acc", true);
 
                 qSettings.beginGroup("dialog");
-                verifiySettingPrimitive(qSettings, "max_threads", 4);
-                verifiySettingPrimitive(qSettings, "hw_acc", true);
+                verifySettingPrimitive(qSettings, "max_threads", 4);
+                verifySettingPrimitive(qSettings, "hw_acc", true);
                 qSettings.endGroup();
             }
         }

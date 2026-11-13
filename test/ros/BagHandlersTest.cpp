@@ -24,7 +24,7 @@ serviceCallback(const std::shared_ptr<std_srvs::srv::SetBool::Request> request,
 }
 
 
-TEST_CASE("Bah Handlers Testing", "[threads]") {
+TEST_CASE("Bag Handlers Testing", "[threads]") {
     SECTION("Bag Player Test") {
         rclcpp::Rate rate(10);
 

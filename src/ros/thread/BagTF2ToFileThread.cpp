@@ -40,7 +40,7 @@ BagTF2ToFileThread::run()
     rosbag2_cpp::Reader reader;
     reader.open(m_sourceDirectory);
 
-    rclcpp::Serialization<tf2_msgs::msg::TFMessage> serializiation;
+    rclcpp::Serialization<tf2_msgs::msg::TFMessage> serialization;
     tf2_msgs::msg::TFMessage tfMessage;
 
     QJsonArray messagesArray;
@@ -72,7 +72,7 @@ BagTF2ToFileThread::run()
         }
 
         rclcpp::SerializedMessage serializedMessage(*bagMessage->serialized_data);
-        serializiation.deserialize_message(&serializedMessage, &tfMessage);
+        serialization.deserialize_message(&serializedMessage, &tfMessage);
 
         isFormatJson ? writeMessageToJsonArray() : writeMessageToYamlNode();
 

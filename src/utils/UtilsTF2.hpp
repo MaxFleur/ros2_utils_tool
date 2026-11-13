@@ -37,7 +37,7 @@ sendStaticTransformation(const std::array<double, 3>& translation,
 
     broadcaster.sendTransform(transformStamped);
 
-    // This implementation is based is based on ros2cli:
+    // This implementation is based on ros2cli:
     // https://github.com/ros2/ros2cli/blob/rolling/ros2cli/ros2cli/node/direct.py#L25
     rclcpp::executors::SingleThreadedExecutor executor;
     executor.add_node(node);
