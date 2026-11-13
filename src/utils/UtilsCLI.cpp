@@ -175,10 +175,7 @@ checkBagSourceDirectory(const QString& bagDirectory)
 void
 checkParentDirectory(const QString& directory, bool isTarget)
 {
-    auto parentDirectory = directory;
-    parentDirectory.truncate(parentDirectory.lastIndexOf(QChar('/')));
-
-    if (std::filesystem::exists(parentDirectory.toStdString())) {
+    if (std::filesystem::exists(std::filesystem::path(directory.toStdString()).parent_path())) {
         return;
     }
     throw std::runtime_error(isTarget ? "Invalid target directory. Please enter a valid one!" : "Invalid source directory. Please enter a valid one!");

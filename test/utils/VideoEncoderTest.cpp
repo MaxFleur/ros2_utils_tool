@@ -31,7 +31,7 @@ TEST_CASE("Video Encoder Testing", "[utils]") {
 
         cv::VideoCapture capture(videoPath);
         REQUIRE(capture.isOpened());
-        REQUIRE(capture.get(cv::CAP_PROP_FRAME_COUNT) == 10);
+        REQUIRE(static_cast<int>(capture.get(cv::CAP_PROP_FRAME_COUNT)) == 10);
         REQUIRE(capture.get(cv::CAP_PROP_FRAME_WIDTH) == 1280);
         REQUIRE(capture.get(cv::CAP_PROP_FRAME_HEIGHT) == 720);
         REQUIRE(capture.get(cv::CAP_PROP_FPS) == 30);

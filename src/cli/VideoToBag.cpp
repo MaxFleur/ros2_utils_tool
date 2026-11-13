@@ -55,7 +55,7 @@ main(int argc, char* argv[])
     parameters.sourceDirectory = arguments.at(1);
     Utils::CLI::checkParentDirectory(parameters.sourceDirectory, false);
 
-    if (const auto fileEnding = parameters.sourceDirectory.right(3); fileEnding != "mp4" && fileEnding != "mkv") {
+    if (!parameters.sourceDirectory.endsWith(".mp4") && !parameters.sourceDirectory.endsWith(".mkv")) {
         throw std::runtime_error("The entered video name is in invalid format. Please make sure that the video has the ending 'mp4' or 'mkv'!");
     }
 

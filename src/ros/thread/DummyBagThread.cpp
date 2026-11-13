@@ -48,6 +48,10 @@ DummyBagThread::run()
 
     // Move to own lambda for multithreading
     const auto writeDummyTopic = [this, &queue, &mutex, &iterationCount, &writer, maximumMessageCount] {
+        std::random_device randomDevice;
+        std::mt19937 generator(randomDevice());
+        std::uniform_real_distribution<> distribution(-1.0, 1.0);
+
         while (true) {
             // Queue access must be singlethreaded
             mutex.lock();
@@ -104,9 +108,6 @@ DummyBagThread::run()
                     cloud->is_dense = false;
                     cloud->points.resize(10);
 
-                    std::random_device randomDevice;
-                    std::mt19937 generator(randomDevice());
-                    std::uniform_real_distribution<> distribution(-1.0, 1.0);
                     for (auto& point : cloud->points) {
                         point.x = distribution(generator);
                         point.y = distribution(generator);
@@ -122,10 +123,6 @@ DummyBagThread::run()
                 } else {
                     // Generate a tf2 message with three transformations, each containing randomized translation and rotation
                     tf2_msgs::msg::TFMessage message;
-
-                    std::random_device randomDevice;
-                    std::mt19937 generator(randomDevice());
-                    std::uniform_real_distribution<> distribution(-1.0, 1.0);
 
                     for (auto i = 0; i < 3; i++) {
                         geometry_msgs::msg::TransformStamped transformStamped;

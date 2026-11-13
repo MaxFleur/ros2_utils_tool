@@ -427,7 +427,7 @@ TEST_CASE("Threads Testing", "[threads]") {
 
         const auto performVideoCheck = [] (const std::string& fileExtension, int codec, int fps, int blueValue, int greenValue, int redValue) {
             auto videoCapture = cv::VideoCapture("./video" + fileExtension);
-            REQUIRE(videoCapture.get(cv::CAP_PROP_FRAME_COUNT) == 100);
+            REQUIRE(static_cast<int>(videoCapture.get(cv::CAP_PROP_FRAME_COUNT)) == 100);
             REQUIRE(videoCapture.get(cv::CAP_PROP_FRAME_WIDTH) == 1280);
             REQUIRE(videoCapture.get(cv::CAP_PROP_FRAME_HEIGHT) == 720);
             REQUIRE(videoCapture.get(cv::CAP_PROP_FOURCC) == codec);

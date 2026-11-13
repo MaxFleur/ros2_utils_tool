@@ -44,7 +44,7 @@ createCriticalMessageBox(const QString& headerText,
                          const QString& mainText);
 
 // Replaces a text appendix with another one
-const QString
+QString
 replaceTextAppendix(const QString& inputText,
                     const QString& newAppendix);
 

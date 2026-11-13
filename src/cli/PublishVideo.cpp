@@ -58,8 +58,7 @@ main(int argc, char* argv[])
     if (!std::filesystem::exists(parameters.sourceDirectory.toStdString())) {
         throw std::runtime_error("The video file does not exist. Please enter a valid video path!");
     }
-    const auto fileEnding = parameters.sourceDirectory.right(3);
-    if (fileEnding != "mp4" && fileEnding != "mkv") {
+    if (!parameters.sourceDirectory.endsWith(".mp4") && !parameters.sourceDirectory.endsWith(".mkv")) {
         throw std::runtime_error("The entered video name is not in correct format. Please make sure that the video file ends in mp4 or mkv!");
     }
 

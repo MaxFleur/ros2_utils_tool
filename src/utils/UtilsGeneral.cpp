@@ -14,7 +14,7 @@ getAvailableDriveSpace(const QString& path)
 }
 
 
-const QString
+QString
 getFileExtension(const QString& path)
 {
     QFileInfo fileInfo(path);

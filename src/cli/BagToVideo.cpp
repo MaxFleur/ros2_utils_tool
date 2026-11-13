@@ -58,7 +58,7 @@ main(int argc, char* argv[])
     parameters.targetDirectory = arguments.at(2);
     Utils::CLI::checkParentDirectory(parameters.targetDirectory);
 
-    if (const QVector<QString> acceptedFormats { "mp4", "mkv", "avi" }; !acceptedFormats.contains(parameters.targetDirectory.right(3))) {
+    if (!parameters.targetDirectory.endsWith(".mp4") && !parameters.targetDirectory.endsWith(".mkv") && !parameters.targetDirectory.endsWith(".avi")) {
         throw std::runtime_error("The entered video name is in invalid format. Please make sure that the video has the ending 'mp4', 'mkv' or 'avi'!");
     }
 

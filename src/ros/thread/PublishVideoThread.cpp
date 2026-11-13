@@ -36,7 +36,7 @@ PublishVideoThread::run()
 
     const int rate = ((1000 / static_cast<float>(m_parameters.fps)) * 1000);
     auto iterator = 0;
-    const auto frameCount = videoCapture.get(cv::CAP_PROP_FRAME_COUNT);
+    const auto frameCount = static_cast<int>(videoCapture.get(cv::CAP_PROP_FRAME_COUNT));
 
     auto timer = m_node->create_wall_timer(std::chrono::microseconds(rate),
                                            [this, &iterator, &videoCapture, &frame, &message, &cvBridge, frameCount] {

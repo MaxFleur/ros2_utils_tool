@@ -13,7 +13,7 @@ namespace Utils::General
 getAvailableDriveSpace(const QString& path);
 
 // Get a file extension
-[[nodiscard]] const QString
+[[nodiscard]] QString
 getFileExtension(const QString& path);
 
 void
