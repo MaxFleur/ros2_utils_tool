@@ -11,7 +11,6 @@
 #include <QPushButton>
 #include <QShortcut>
 #include <QToolButton>
-#include <QVBoxLayout>
 
 #include <filesystem>
 

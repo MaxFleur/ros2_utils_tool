@@ -9,7 +9,6 @@
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QToolButton>
-#include <QVBoxLayout>
 
 #include "UtilsGeneral.hpp"
 #include "UtilsROS.hpp"

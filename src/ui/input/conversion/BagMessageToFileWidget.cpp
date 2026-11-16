@@ -1,10 +1,8 @@
 #include "BagMessageToFileWidget.hpp"
 
-#include "UtilsROS.hpp"
-#include "UtilsUI.hpp"
-
 #include <QComboBox>
 #include <QFormLayout>
+#include <QLineEdit>
 #include <QRadioButton>
 
 BagMessageToFileWidget::BagMessageToFileWidget(Parameters::BagMessageToFileParameters& parameters, QWidget *parent) :

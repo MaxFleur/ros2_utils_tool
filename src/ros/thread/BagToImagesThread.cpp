@@ -8,8 +8,6 @@
 
 #include "rosbag2_cpp/reader.hpp"
 
-#include <cmath>
-
 BagToImagesThread::BagToImagesThread(const Parameters::BagToImagesParameters& parameters,
                                      unsigned int numberOfThreads, QObject* parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),

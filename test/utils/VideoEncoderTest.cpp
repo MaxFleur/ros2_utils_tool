@@ -2,8 +2,6 @@
 
 #include "VideoEncoder.hpp"
 
-#include <opencv2/imgcodecs.hpp>
-
 #include <filesystem>
 
 TEST_CASE("Video Encoder Testing", "[utils]") {

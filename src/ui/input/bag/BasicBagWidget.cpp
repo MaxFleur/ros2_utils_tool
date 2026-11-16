@@ -1,7 +1,6 @@
 #include "BasicBagWidget.hpp"
 
 #include "BagTreeWidget.hpp"
-#include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
 #include <QCheckBox>
@@ -10,8 +9,6 @@
 #include <QPushButton>
 #include <QShortcut>
 #include <QTreeWidgetItem>
-
-#include <filesystem>
 
 BasicBagWidget::BasicBagWidget(Parameters::SelectableBagContentParameters& parameters,
                                const QString& titleText, const QString& iconText, const QString& settingsText, const QString& unselectLabelText, QWidget *parent)

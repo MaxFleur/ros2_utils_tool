@@ -4,6 +4,8 @@
 #include "UtilsGeneral.hpp"
 #include "UtilsROS.hpp"
 
+#include <QThread>
+
 #include <filesystem>
 
 namespace Utils::CLI

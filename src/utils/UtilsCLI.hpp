@@ -2,7 +2,6 @@
 
 #include <QString>
 #include <QStringList>
-#include <QThread>
 #include <QVector>
 
 #include <optional>

@@ -3,15 +3,11 @@
 #include "LowDiskSpaceWidget.hpp"
 #include "UtilsUI.hpp"
 
-#include <QEvent>
 #include <QFileDialog>
 #include <QHBoxLayout>
-#include <QLabel>
 #include <QPushButton>
 #include <QShortcut>
 #include <QToolButton>
-
-#include <filesystem>
 
 TopicListingInputWidget::TopicListingInputWidget(Parameters::BasicParameters& parameters, const QString& titleText,
                                                  const QString& iconText, const QString& settingsIdentifierText,

@@ -8,7 +8,6 @@
 #include <QCheckBox>
 #include <QDialogButtonBox>
 #include <QDoubleSpinBox>
-#include <QEvent>
 #include <QFileDialog>
 #include <QFormLayout>
 #include <QGraphicsEffect>

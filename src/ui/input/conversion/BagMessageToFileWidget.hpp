@@ -4,7 +4,6 @@
 #include "Parameters.hpp"
 #include "TopicComboBoxWidget.hpp"
 
-#include <QPointer>
 #include <QWidget>
 
 class BagTreeWidget;

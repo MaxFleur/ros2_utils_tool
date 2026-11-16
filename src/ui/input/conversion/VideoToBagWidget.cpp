@@ -1,6 +1,5 @@
 #include "VideoToBagWidget.hpp"
 
-#include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
 #include <QCheckBox>

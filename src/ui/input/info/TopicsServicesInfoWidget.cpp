@@ -2,7 +2,6 @@
 
 #include "LoadingWidget.hpp"
 #include "TopicsServicesThread.hpp"
-#include "UtilsROS.hpp"
 
 #include <QDialogButtonBox>
 #include <QLabel>

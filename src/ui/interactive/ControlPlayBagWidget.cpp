@@ -2,7 +2,6 @@
 
 #include "UtilsUI.hpp"
 
-#include <QHBoxLayout>
 #include <QListWidget>
 #include <QShortcut>
 #include <QToolButton>

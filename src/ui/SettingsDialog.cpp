@@ -1,6 +1,5 @@
 #include "SettingsDialog.hpp"
 
-#include "BasicSettings.hpp"
 #include "UtilsUI.hpp"
 
 #include <QCheckBox>
