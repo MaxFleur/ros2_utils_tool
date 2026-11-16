@@ -22,7 +22,15 @@ jobs:
           required-ros-distributions: ${{ inputs.distro }}
 
       - name: Install dependencies
-        run: sudo apt update && sudo apt install -y qt6-base-dev ros-${{ inputs.distro }}-catch-ros2
+        run: |
+          sudo apt update
+          # On Ubuntu 26.04 (Lyrical), ROS2 relies on and links with Qt6
+          if [ "${{ inputs.distro }}" = "lyrical" ]; then
+            sudo apt install -y qt6-base-dev
+          else
+            sudo apt install -y qtbase5-dev
+          fi
+          sudo apt install -y ros-${{ inputs.distro }}-catch-ros2
 
       - name: Create workspace and copy repo there
         run: mkdir -p ros2_ws/src/ros2_utils_tool && cp -r resources src test CMakeLists.txt package.xml ros2_ws/src/ros2_utils_tool
