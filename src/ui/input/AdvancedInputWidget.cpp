@@ -81,14 +81,14 @@ AdvancedInputWidget::findTargetButtonPressed()
     QString fileName;
     switch (m_outputType) {
     case OUTPUT_TYPE::OUTPUT_VIDEO:
-        fileName = QFileDialog::getSaveFileName(this, "Save Video", "", m_fileFormat + " files (*." + m_fileFormat + ")");
+        fileName = QFileDialog::getSaveFileName(this, "Save Video", "", QString("%1 files (*.%1)").arg(m_fileFormat));
         break;
     case OUTPUT_TYPE::OUTPUT_IMAGES:
     case OUTPUT_TYPE::OUTPUT_PCDS:
         fileName = QFileDialog::getExistingDirectory(this, "Save Files", "", QFileDialog::ShowDirsOnly);
         break;
     case OUTPUT_TYPE::OUTPUT_TF_TO_FILE:
-        fileName = QFileDialog::getSaveFileName(this, "Save File", "", m_fileFormat + " files (*." + m_fileFormat + ")");
+        fileName = QFileDialog::getSaveFileName(this, "Save File", "", QString("%1 files (*.%1)").arg(m_fileFormat));
         break;
     case OUTPUT_TYPE::OUTPUT_MESSAGE_TO_FILE:
         fileName = QFileDialog::getSaveFileName(this, "Save File(s)");
@@ -156,7 +156,7 @@ AdvancedInputWidget::fillTargetLineEdit()
 
     switch (m_outputType) {
     case OUTPUT_TYPE::OUTPUT_VIDEO:
-        autoTargetDir = "/bag_video." + m_fileFormat;
+        autoTargetDir = QString("/bag_video.%1").arg(m_fileFormat);
         break;
     case OUTPUT_TYPE::OUTPUT_IMAGES:
         autoTargetDir = "/image_files";
@@ -165,7 +165,7 @@ AdvancedInputWidget::fillTargetLineEdit()
         autoTargetDir = "/pcd_files";
         break;
     case OUTPUT_TYPE::OUTPUT_TF_TO_FILE:
-        autoTargetDir = "/bag_transforms." + m_fileFormat;
+        autoTargetDir = QString("/bag_transforms.%1").arg(m_fileFormat);
         break;
     case OUTPUT_TYPE::OUTPUT_MESSAGE_TO_FILE:
         autoTargetDir = "/topics";
@@ -189,7 +189,7 @@ AdvancedInputWidget::fillTargetLineEdit()
     QDir bagDirectoryDir(m_sourceLineEdit->text());
     // Automatically fill up the target dir if there is no already existing name
     bagDirectoryDir.cdUp();
-    if (const auto autoTargetDirectory = bagDirectoryDir.path() + autoTargetDir; !std::filesystem::exists(autoTargetDirectory.toStdString())) {
+    if (const auto autoTargetDirectory = QString("%1%2").arg(bagDirectoryDir.path(), autoTargetDir); !std::filesystem::exists(autoTargetDirectory.toStdString())) {
         m_targetLineEdit->setText(autoTargetDirectory);
 
         writeParameterToSettings(m_parameters.targetDirectory, autoTargetDirectory, m_settings);

@@ -90,7 +90,7 @@ VideoToBagWidget::findSourceButtonPressed()
     // Create bag file name automatically so the user has to put in less values
     QDir videoDirectoryDir(videoDir);
     videoDirectoryDir.cdUp();
-    if (const auto autoBagDirectory = videoDirectoryDir.path() + "/video_bag"; !std::filesystem::exists(autoBagDirectory.toStdString())) {
+    if (const auto autoBagDirectory = QString("%1/video_bag").arg(videoDirectoryDir.path()); !std::filesystem::exists(autoBagDirectory.toStdString())) {
         m_targetLineEdit->setText(autoBagDirectory);
 
         writeParameterToSettings(m_parameters.targetDirectory, autoBagDirectory, m_settings);

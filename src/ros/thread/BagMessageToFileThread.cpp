@@ -245,7 +245,7 @@ BagMessageToFileThread::run()
         }
 
         iterationCount++;
-        emit progressChanged("Writing Message " + QString::number(iterationCount) + " of " + QString::number(totalInstances) + "...",
+        emit progressChanged(QString("Writing Message %1 of %2...").arg(iterationCount).arg(totalInstances),
                              (static_cast<float>(iterationCount) / static_cast<float>(totalInstances) * 100));
     }
 

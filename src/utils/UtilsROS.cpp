@@ -208,6 +208,6 @@ QString
 getCurrentROSTimeAsString()
 {
     rclcpp::Clock clock(RCL_ROS_TIME);  // or RCL_ROS_TIME
-    return "[" + QString::number(clock.now().seconds(), 'f', 9) + "]";
+    return QString("[%1]").arg(clock.now().seconds(), 0, 'f', 9);
 }
 }

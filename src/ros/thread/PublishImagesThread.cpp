@@ -82,7 +82,7 @@ PublishImagesThread::run()
 
         m_publisher->publish(message);
 
-        emit progressChanged("Publishing Image " + QString::number(iterator + 1) + " of " + QString::number(frameCount) + "...", PROGRESS);
+        emit progressChanged(QString("Publishing Image %1 of %2...").arg(iterator + 1).arg(frameCount), PROGRESS);
         iterator++;
         setIterator++;
     });

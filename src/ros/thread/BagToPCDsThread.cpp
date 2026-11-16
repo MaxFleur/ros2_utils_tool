@@ -67,7 +67,7 @@ BagToPCDsThread::run()
 
             // Inform of progress update
             iterationCount++;
-            emit progressChanged("Writing PCD File " + QString::number(iterationCount) + " of " + QString::number(*messageCount) + "...",
+            emit progressChanged(QString("Writing PCD File %1 of %2...").arg(iterationCount).arg(*messageCount),
                                  (static_cast<float>(iterationCount) / static_cast<float>(*messageCount) * 100));
 
             // Have to create this as extra string to keep it atomic

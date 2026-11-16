@@ -22,7 +22,7 @@ ControlBagWidget::ControlBagWidget(Parameters::SelectableBagContentParameters& p
         targetFileString = "..." + targetFileString.right(40);
     }
 
-    auto* const headerLabel = new QLabel("<b>" + headerText + "</b><br>" + targetFileString);
+    auto* const headerLabel = new QLabel(QString("<b>%1</b><br>%2").arg(headerText, targetFileString));
     auto font = headerLabel->font();
     font.setPointSize(12);
     headerLabel->setFont(font);
@@ -38,7 +38,7 @@ ControlBagWidget::ControlBagWidget(Parameters::SelectableBagContentParameters& p
 
     const QString activeString = m_isRecorder ? "Record" : "Play";
     m_playPauseButton = createButton(Utils::UI::themedIconPath(":/icons/player/stop", ".svg", isDarkMode),
-                                     activeString + " or pause.", TOOLBUTTON_SIZE_PLAYER, TOOLBUTTON_ICON_SIZE_PLAYER);
+                                     QString("%1 or pause.").arg(activeString), TOOLBUTTON_SIZE_PLAYER, TOOLBUTTON_ICON_SIZE_PLAYER);
 
     m_controlsLayout = new QHBoxLayout;
     m_controlsLayout->addStretch();
@@ -91,8 +91,8 @@ ControlBagWidget::setState()
     handleBagControlInstance();
 
     const QString recordOrPlayString = m_isRecorder ? "recording" : "play";
-    const auto activeString = m_isActive ? "Resuming " + recordOrPlayString + "." : "Pausing " + recordOrPlayString + ".";
-    addLoggerWidgetEntry(Utils::ROS::getCurrentROSTimeAsString() + " " + activeString);
+    const auto activeString = m_isActive ? QString("Resuming %1.").arg(recordOrPlayString) : QString("Pausing %1.").arg(recordOrPlayString);
+    addLoggerWidgetEntry(QString("%1 %2").arg(Utils::ROS::getCurrentROSTimeAsString(), activeString));
 
     // Button icon has to switch between "Pause" and "Play"
     const auto isDarkMode = Utils::UI::isDarkMode();

@@ -84,7 +84,7 @@ DummyBagWidget::removeDummyTopicWidget(int row)
         m_topicWidgets[i]->setProperty("id", i + 1);
     }
     for (auto i = 0; i < m_topicLabels.size(); ++i) {
-        m_topicLabels[i]->setText("Topic " + QString::number(i + 1) + ":");
+        m_topicLabels[i]->setText(QString("Topic %1:").arg(i + 1));
     }
 
     m_addTopicButton->setEnabled(m_numberOfTopics != MAXIMUM_NUMBER_OF_TOPICS);
@@ -94,7 +94,7 @@ DummyBagWidget::removeDummyTopicWidget(int row)
 void
 DummyBagWidget::createNewDummyTopicWidget(const Parameters::DummyBagParameters::DummyBagTopic& topic, int index, bool isCtor)
 {
-    m_topicLabels.push_back(new QLabel("Topic " + QString::number(m_numberOfTopics + 1) + ":"));
+    m_topicLabels.push_back(new QLabel(QString("Topic %1:").arg(m_numberOfTopics + 1)));
 
     auto* const topicWidget = new TopicWidget(true, m_numberOfTopics != 0, topic.type, topic.name);
     m_topicWidgets.push_back(topicWidget);

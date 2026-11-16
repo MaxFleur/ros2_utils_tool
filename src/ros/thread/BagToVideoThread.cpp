@@ -90,7 +90,7 @@ BagToVideoThread::run()
         }
 
         iterationCount++;
-        emit progressChanged("Writing Frame " + QString::number(iterationCount) + " of " + QString::number(*messageCount) + "...",
+        emit progressChanged(QString("Writing Frame %1 of %2...").arg(iterationCount).arg(*messageCount),
                              (static_cast<float>(iterationCount) / static_cast<float>(*messageCount) * 100));
     }
 

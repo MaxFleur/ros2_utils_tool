@@ -145,7 +145,7 @@ DummyBagThread::run()
                     writer.write(message, topicName, timeStamp);
                 }
 
-                emit progressChanged("Writing message " + QString::number(iterationCount) + " of " + QString::number(maximumMessageCount) + "...",
+                emit progressChanged(QString("Writing message %1 of %2...").arg(iterationCount.load()).arg(maximumMessageCount),
                                      (static_cast<float>(iterationCount) / static_cast<float>(maximumMessageCount) * 100));
                 iterationCount++;
             }

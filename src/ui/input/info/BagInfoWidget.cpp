@@ -77,8 +77,8 @@ BagInfoWidget::populateTreeWidget()
     treeWidgetItems.append(new QTreeWidgetItem({ "Starting Time:", QString::fromStdString(stringStream.str()) }));
     // Only show the last three digits
     treeWidgetItems.append(new QTreeWidgetItem({ "Size:",
-                                                 QString::number(static_cast<float>(bagMetaData.bag_size /
-                                                                                    static_cast<float>(Utils::General::GIGABYTE_IN_BYTES)), 'f', 3) + " GiB" }));
+                                                 QString("%1 GiB").arg(QString::number(static_cast<float>(bagMetaData.bag_size /
+                                                                                                          static_cast<float>(Utils::General::GIGABYTE_IN_BYTES)), 'f', 3)) }));
     treeWidgetItems.append(new QTreeWidgetItem({ "Size (Message Count):", QString::number(bagMetaData.message_count) }));
     treeWidgetItems.append(new QTreeWidgetItem({ "Storage Identifier:", QString::fromStdString(bagMetaData.storage_identifier) }));
     treeWidgetItems.append(new QTreeWidgetItem({ "Compression Format:",

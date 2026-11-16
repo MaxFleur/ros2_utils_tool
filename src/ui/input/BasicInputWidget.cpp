@@ -139,7 +139,7 @@ BasicInputWidget::showLowDiskSpaceMessageBox() const
     if (const auto sufficientSpace = m_lowDiskSpaceWidget->isDiskSpaceSpaceSufficient();
         !sufficientSpace && DialogSettings::getStaticParameter("warn_low_disk_space", true)) {
         auto *const msgBox = new QMessageBox(QMessageBox::Warning, "Small Disk Space!",
-                                             "The available disk space is very small (" + QString::number(m_remainingSpace) + " GiB). Are you sure you want to continue? ",
+                                             QString("The available disk space is very small (%1 GiB). Are you sure you want to continue? ").arg(m_remainingSpace),
                                              QMessageBox::Yes | QMessageBox::No);
 
         auto* const checkBox = Utils::UI::createMessageBoxCheckBox("warn_low_disk_space");
