@@ -1,4 +1,3 @@
-#define CATCH_CONFIG_RUNNER
 #include "catch_ros2/catch_ros2.hpp"
 
 #include "UtilsROS.hpp"

@@ -330,7 +330,8 @@ ros2 run ros2_utils_tool tool_send_tf2
 
 **Unit tests**:
 ```
-ros2 run ros2_utils_tool tool_tests
+colcon test --packages-select ros2_utils_tool
+colcon test-result --verbose
 ```
 
 ## License

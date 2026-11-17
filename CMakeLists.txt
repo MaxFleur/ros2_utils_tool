@@ -183,7 +183,6 @@ install(TARGETS
     tool_publish_video
     tool_send_tf2
     tool_video_to_bag
-    tool_tests
     DESTINATION lib/${PROJECT_NAME}/
 )
 
