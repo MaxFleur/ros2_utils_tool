@@ -9,7 +9,6 @@
 </p>
 <p align="center">
   <img src="https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/jazzy.yml/badge.svg?event=push"/>
-  <img src="https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/kilted.yml/badge.svg?event=push"/>
   <img src="https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/lyrical.yml/badge.svg?event=push"/>
   <img src="https://github.com/MaxFleur/ros2_utils_tool/actions/workflows/rolling.yml/badge.svg?event=push"/>
 </p>
@@ -177,18 +176,18 @@ Below is a list of all tools which are currently available in the ros2_utils_too
 
 ### Prerequisites
 
-A working ROS2 distribution is required. As of now, **jazzy**, **kilted**, **lyrical** and **rolling** are supported. Make sure that your ROS distro is properly sourced:
+A working ROS2 distribution is required. As of now, **jazzy**, **lyrical** and **rolling** are supported. Make sure that your ROS distro is properly sourced:
 ```
 source /opt/ros/distro_name/setup.bash
 ```
 
 > [!Note]  
-> As of version 0.15.0, **humble** is no longer supported and won't receive any more feature updates. However, critical bugfixes will still be included (see the `humble` branch).
+> **humble** and **kilted** are no longer supported and won't receive any more feature updates. However, separate branches for them exist (checkout `humble` and `kilted`) and might still get critical bugfixes.
 
 ### Dependencies
 
 The following packages are required to be installed manually:
-- [Qt6/Qt5](https://doc.qt.io/) for all UI features as well as some convenience functionalities.
+- [Qt](https://doc.qt.io/) for all UI features as well as some convenience functionalities. Qt6 is used with ROS2 Lyrical and Rolling, while Jazzy still relies on Qt5.
 - [catch2_ROS](https://index.ros.org/p/catch_ros2/) for Catch2-based unit tests with ROS2.
 
 The following packages are also required, but should be installed automatically with ROS:
