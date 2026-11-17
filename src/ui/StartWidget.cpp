@@ -153,8 +153,8 @@ StartWidget::StartWidget(Parameters::DialogParameters& dialogParameters, QWidget
     backButtonLayout->addWidget(m_backButton);
     backButtonLayout->addStretch();
 
-    m_versionLabel = new QLabel("v1.1.3");
-    m_versionLabel->setToolTip("Internal stability improvements and cleanups.");
+    m_versionLabel = new QLabel("v1.1.4");
+    m_versionLabel->setToolTip("Code modernizations and cleanups.");
 
     auto* const versionLayout = new QHBoxLayout;
     versionLayout->addStretch();
