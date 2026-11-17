@@ -1,11 +1,10 @@
 #include "PublishImagesThread.hpp"
 
 #include "UtilsCLI.hpp"
+#include "UtilsGeneral.hpp"
 #include "Parameters.hpp"
 
 #include <QCoreApplication>
-
-#include "rclcpp/rclcpp.hpp"
 
 #include <opencv2/imgcodecs.hpp>
 
@@ -58,7 +57,7 @@ main(int argc, char* argv[])
     }
     auto containsImageFiles = false;
     for (auto const& entry : std::filesystem::directory_iterator(parameters.sourceDirectory.toStdString())) {
-        if (entry.path().extension() == ".jpg" || entry.path().extension() == ".png" || entry.path().extension() == ".bmp") {
+        if (Utils::General::isImageFile(entry.path())) {
             containsImageFiles = true;
             break;
         }
@@ -74,16 +73,16 @@ main(int argc, char* argv[])
             return 0;
         }
         // Framerate
-        if (!Utils::CLI::checkArgumentValidity(arguments, "-r", "--rate", parameters.fps, 1, 60)) {
-            throw std::runtime_error("Please enter a framerate in the range of 1 to 60!");
+        if (const auto fps = Utils::CLI::checkArgumentValidity(arguments, "-r", "--rate", 1, 60); fps) {
+            parameters.fps = *fps;
         }
         // Scale
         parameters.scale = arguments.contains("--scale");
-        if (!Utils::CLI::checkArgumentValidity(arguments, "", "--scale", parameters.width, 1, 3840)) {
-            throw std::runtime_error("Please enter a width value between 1 and 3840!");
+        if (const auto width = Utils::CLI::checkArgumentValidity(arguments, "", "--scale", 1, 3840); width) {
+            parameters.width = *width;
         }
-        if (!Utils::CLI::checkArgumentValidity(arguments, "", "--scale", parameters.height, 1, 2160, 2)) {
-            throw std::runtime_error("Please enter a height value between 1 and 2160!");
+        if (const auto height = Utils::CLI::checkArgumentValidity(arguments, "", "--scale", 1, 2160, 2); height) {
+            parameters.height = *height;
         }
         // Exchange red and blue values
         parameters.exchangeRedBlueValues = Utils::CLI::containsArguments(arguments, "-e", "--exchange");
@@ -98,7 +97,7 @@ main(int argc, char* argv[])
     // Assign correct width and height values
     if (!parameters.scale) {
         for (auto const& entry : std::filesystem::directory_iterator(parameters.sourceDirectory.toStdString())) {
-            if (entry.path().extension() != ".jpg" && entry.path().extension() != ".png" && entry.path().extension() != ".bmp") {
+            if (!Utils::General::isImageFile(entry.path())) {
                 continue;
             }
             const auto image = cv::imread(entry.path().string(), cv::IMREAD_COLOR);

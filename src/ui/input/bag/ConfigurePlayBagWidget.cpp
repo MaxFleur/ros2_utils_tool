@@ -94,8 +94,7 @@ ConfigurePlayBagWidget::populateTreeWidget()
 
     const auto& bagMetaData = Utils::ROS::getBagMetadata(m_parameters.sourceDirectory);
     // Fill tree widget with topics
-    for (size_t i = 0; i < bagMetaData.topics_with_message_count.size(); i++) {
-        const auto topicWithMessageCount = bagMetaData.topics_with_message_count.at(i);
+    for (const auto& topicWithMessageCount : bagMetaData.topics_with_message_count) {
         const auto& topicMetaData = topicWithMessageCount.topic_metadata;
 
         const QString topicNameQString(QString::fromStdString(topicMetaData.name));

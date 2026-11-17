@@ -1,10 +1,8 @@
 #include "BagMessageToFileWidget.hpp"
 
-#include "UtilsROS.hpp"
-#include "UtilsUI.hpp"
-
 #include <QComboBox>
 #include <QFormLayout>
+#include <QLineEdit>
 #include <QRadioButton>
 
 BagMessageToFileWidget::BagMessageToFileWidget(Parameters::BagMessageToFileParameters& parameters, QWidget *parent) :
@@ -44,13 +42,8 @@ BagMessageToFileWidget::BagMessageToFileWidget(Parameters::BagMessageToFileParam
     // Generally, enable ok only if we have a source and target directory
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.targetDirectory.isEmpty());
 
-    connect(singleFileRadioButton, &QRadioButton::toggled, this, [this, multipleFilesRadioButton] (bool switched) {
-        writeParameterToSettings(m_parameters.writeSingleOutputFile, switched, m_settings);
-        multipleFilesRadioButton->setChecked(false);
-    });
-    connect(multipleFilesRadioButton, &QRadioButton::toggled, this, [this, singleFileRadioButton] (bool switched) {
-        writeParameterToSettings(m_parameters.writeSingleOutputFile, !switched, m_settings);
-        singleFileRadioButton->setChecked(false);
+    connect(multipleFilesRadioButton, &QRadioButton::toggled, this, [this] (bool checked) {
+        writeParameterToSettings(m_parameters.writeSingleOutputFile, !checked, m_settings);
     });
     connect(formatComboBox, &QComboBox::currentTextChanged, this, [this] (const QString& text) {
         writeParameterToSettings(m_parameters.isYaml, text == "yaml", m_settings);

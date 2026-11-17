@@ -36,7 +36,7 @@ PublishVideoThread::run()
 
     const int rate = ((1000 / static_cast<float>(m_parameters.fps)) * 1000);
     auto iterator = 0;
-    const auto frameCount = videoCapture.get(cv::CAP_PROP_FRAME_COUNT);
+    const auto frameCount = static_cast<int>(videoCapture.get(cv::CAP_PROP_FRAME_COUNT));
 
     auto timer = m_node->create_wall_timer(std::chrono::microseconds(rate),
                                            [this, &iterator, &videoCapture, &frame, &message, &cvBridge, frameCount] {
@@ -69,15 +69,15 @@ PublishVideoThread::run()
 
         m_publisher->publish(message);
 
-        emit progressChanged("Publishing Image " + QString::number(iterator + 1) + " of " + QString::number(frameCount) + "...", PROGRESS);
+        emit progressChanged(QString("Publishing Image %1 of %2...").arg(iterator + 1).arg(frameCount), PROGRESS);
         iterator++;
     });
 
-    auto executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
-    executor->add_node(m_node);
+    rclcpp::executors::SingleThreadedExecutor executor;
+    executor.add_node(m_node);
     // Spin to publish
     while (!isInterruptionRequested()) {
-        executor->spin_once();
+        executor.spin_once();
     }
 
     timer->cancel();

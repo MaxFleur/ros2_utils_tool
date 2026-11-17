@@ -77,9 +77,9 @@ continueForExistingTarget(const QString& targetDirectory, const QString& headerT
     }
 
     if (std::filesystem::exists(targetDirectory.toStdString())) {
-        auto *const msgBox = new QMessageBox(QMessageBox::Warning, headerTextBeginning + " already exists!",
-                                             "The specified " + targetIdentifier + " already exists! Are you sure you want to continue? "
-                                             "This will overwrite all target files.",
+        auto *const msgBox = new QMessageBox(QMessageBox::Warning, QString("%1 already exists!").arg(headerTextBeginning),
+                                             QString("The specified %1 already exists! Are you sure you want to continue? "
+                                                     "This will overwrite all target files.").arg(targetIdentifier),
                                              QMessageBox::Yes | QMessageBox::No);
         // Do not show again check box
         auto* const checkBox = createMessageBoxCheckBox("warn_target_overwrite");
@@ -117,12 +117,12 @@ createCriticalMessageBox(const QString& headerText, const QString& mainText)
 }
 
 
-const QString
+QString
 replaceTextAppendix(const QString& inputText, const QString& newAppendix)
 {
     auto newText = inputText;
     newText.truncate(newText.lastIndexOf(QChar('.')));
-    newText += "." + newAppendix;
+    newText += QString(".%1").arg(newAppendix);
 
     return newText;
 }
@@ -160,6 +160,6 @@ isDarkMode()
 QString
 themedIconPath(const QString& baseName, const QString& extension, bool isDarkMode)
 {
-    return baseName + (isDarkMode ? "_white" : "_black") + extension;
+    return QString("%1%2%3").arg(baseName).arg(isDarkMode ? "_white" : "_black").arg(extension);
 }
 }

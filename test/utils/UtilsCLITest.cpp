@@ -16,16 +16,16 @@ TEST_CASE("Utils CLI Testing", "[utils]") {
     const auto bagDirectory = std::filesystem::path("test_bag_file");
     std::filesystem::remove_all(bagDirectory);
 
-    auto writer = std::make_shared<rosbag2_cpp::Writer>();
-    writer->open(bagDirectory);
+    rosbag2_cpp::Writer writer;
+    writer.open(bagDirectory);
 
     for (auto i = 0; i < 5; i++) {
         sensor_msgs::msg::Image imageMessage;
         imageMessage.width = 1;
         imageMessage.height = 1;
-        writer->write(imageMessage, "/topic_image", rclcpp::Clock().now());
+        writer.write(imageMessage, "/topic_image", rclcpp::Clock().now());
     }
-    writer->close();
+    writer.close();
 
     SECTION("Contains invalid parameters test") {
         arguments.append("-h");
@@ -80,17 +80,24 @@ TEST_CASE("Utils CLI Testing", "[utils]") {
         REQUIRE(Utils::CLI::getFormatIndex(arguments, { "jpg", "png" }) == 4);
     }
     SECTION("Check argument validity test") {
-        auto parameter = 42;
+        QStringList arguments;
+        arguments << "argument1" << "arg2" << "test_3";
 
-        REQUIRE(Utils::CLI::checkArgumentValidity(arguments, "-t", "--test", parameter, 1, 100) == true);
+        REQUIRE(Utils::CLI::checkArgumentValidity(arguments, "-t", "--test", 1, 100) == std::nullopt);
 
         arguments.append("-t");
-        REQUIRE(Utils::CLI::checkArgumentValidity(arguments, "-t", "--test", parameter, 1, 100) == false);
+        REQUIRE_THROWS(Utils::CLI::checkArgumentValidity(arguments, "-t", "--test", 1, 100));
 
         arguments.append("42");
-        REQUIRE(Utils::CLI::checkArgumentValidity(arguments, "-t", "--test", parameter, 1, 10) == false);
-        REQUIRE(Utils::CLI::checkArgumentValidity(arguments, "-t", "--test", parameter, 50, 100) == false);
-        REQUIRE(Utils::CLI::checkArgumentValidity(arguments, "-t", "--test", parameter, 1, 100) == true);
+        REQUIRE(Utils::CLI::checkArgumentValidity(arguments, "-t", "--test", 1, 100) == std::optional<int>(42));
+        REQUIRE_THROWS(Utils::CLI::checkArgumentValidity(arguments, "-t", "--test", 1, 10));
+        REQUIRE_THROWS(Utils::CLI::checkArgumentValidity(arguments, "-t", "--test", 50, 100));
+
+        arguments[arguments.size() - 1] = "abc";
+        REQUIRE_THROWS(Utils::CLI::checkArgumentValidity(arguments, "-t", "--test", 1, 100));
+
+        arguments.append("42"); // ["argument1", "arg2", "test_3", "-t", "abc", "42"]
+        REQUIRE(Utils::CLI::checkArgumentValidity(arguments, "-t", "--test", 1, 100, 2) == std::optional<int>(42));
     }
     SECTION("Topic parameter position test") {
         arguments.append("-t");

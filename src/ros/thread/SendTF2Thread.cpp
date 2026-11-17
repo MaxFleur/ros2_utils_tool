@@ -41,11 +41,11 @@ SendTF2Thread::run()
         m_broadcaster->sendTransform(transformStamped);
     });
 
-    auto executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
-    executor->add_node(m_node);
+    rclcpp::executors::SingleThreadedExecutor executor;
+    executor.add_node(m_node);
     // Spin to send
     while (!isInterruptionRequested()) {
-        executor->spin_once();
+        executor.spin_once();
     }
 
     timer->cancel();

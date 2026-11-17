@@ -36,7 +36,7 @@ private:
     inline void
     addPlayBagLoggerEntry(const QString& entryText)
     {
-        addLoggerWidgetEntry(Utils::ROS::getCurrentROSTimeAsString() + " " + entryText);
+        addLoggerWidgetEntry(QString("%1 %2").arg(Utils::ROS::getCurrentROSTimeAsString(), entryText));
     }
 
 private:

@@ -12,8 +12,6 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-#include <filesystem>
-
 EditBagWidget::EditBagWidget(Parameters::EditBagParameters& parameters, bool warnROS2NameConvention, QWidget *parent) :
     AdvancedBagWidget(parameters, "Edit Bag", ":/icons/tools/edit_bag", "edit_bag", OUTPUT_TYPE::OUTPUT_BAG_EDITED, parent),
     m_parameters(parameters), m_settings(parameters, "edit_bag"),

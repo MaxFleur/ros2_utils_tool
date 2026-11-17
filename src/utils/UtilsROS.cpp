@@ -17,15 +17,15 @@ disableROSLogging()
 void
 waitForNodeContent(std::shared_ptr<rclcpp::Node> node, bool isTopic)
 {
-    auto executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
-    executor->add_node(node);
+    rclcpp::executors::SingleThreadedExecutor executor;
+    executor.add_node(node);
 
     rclcpp::Rate rate(20);
     size_t lastSize = 0;
     auto unchanged = 0;
 
     for (auto i = 0; i < 100; ++i) {
-        executor->spin_some();
+        executor.spin_some();
 
         // Check if there were new updates since the last iteration
         const auto currentSize = isTopic ? node->get_topic_names_and_types().size() : node->get_service_names_and_types().size();
@@ -142,21 +142,6 @@ doesBagContainTopicName(const QString& bagDirectory, const QString& topicName)
 }
 
 
-std::optional<int>
-getTopicMessageCount(const QString& bagDirectory, const QString& topicName)
-{
-    const auto& topic = getTopicInBag(bagDirectory, topicName);
-    return topic == std::nullopt ? std::nullopt : std::optional(topic->message_count);
-}
-
-
-std::optional<int>
-getTopicMessageCount(const std::string& bagDirectory, const std::string& topicName)
-{
-    return getTopicMessageCount(QString::fromStdString(bagDirectory), QString::fromStdString(topicName));
-}
-
-
 std::optional<QString>
 getTopicType(const QString& bagDirectory, const QString& topicName)
 {
@@ -223,6 +208,6 @@ QString
 getCurrentROSTimeAsString()
 {
     rclcpp::Clock clock(RCL_ROS_TIME);  // or RCL_ROS_TIME
-    return "[" + QString::number(clock.now().seconds(), 'f', 9) + "]";
+    return QString("[%1]").arg(clock.now().seconds(), 0, 'f', 9);
 }
 }

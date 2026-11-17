@@ -8,8 +8,6 @@
 
 #include "rosbag2_cpp/reader.hpp"
 
-#include <cmath>
-
 BagToImagesThread::BagToImagesThread(const Parameters::BagToImagesParameters& parameters,
                                      unsigned int numberOfThreads, QObject* parent) :
     BasicThread(parameters.sourceDirectory, parameters.topicName, parent),
@@ -36,8 +34,8 @@ BagToImagesThread::run()
 
     const auto messageCountNumberOfDigits = int(log10(*messageCount) + 1);
 
-    auto reader = std::make_shared<rosbag2_cpp::Reader>();
-    reader->open(m_sourceDirectory);
+    rosbag2_cpp::Reader reader;
+    reader.open(m_sourceDirectory);
     std::deque<rosbag2_storage::SerializedBagMessageSharedPtr> queue;
 
     std::mutex mutex;
@@ -45,17 +43,18 @@ BagToImagesThread::run()
 
     rclcpp::Serialization<sensor_msgs::msg::Image> serialization;
     rclcpp::Serialization<sensor_msgs::msg::CompressedImage> serializationCompressed;
-    auto imageMessage = std::make_shared<sensor_msgs::msg::Image>();
-    auto imageMessageCompressed = std::make_shared<sensor_msgs::msg::CompressedImage>();
-    cv_bridge::CvImagePtr cvPointer;
 
-    const auto writeImageFromQueue = [this, &targetDirectoryStd, &queue, &iterationCount, &mutex,
-                                      cvPointer, imageMessage, imageMessageCompressed, reader, serialization, serializationCompressed,
+    const auto writeImageFromQueue = [this, &targetDirectoryStd, &queue, &iterationCount, &mutex, &reader,
+                                      serialization, serializationCompressed,
                                       messageCount, messageCountNumberOfDigits, isCompressed] {
+        // Keep the message objects local to each worker thread to avoid concurrent access to the same instance
+        sensor_msgs::msg::Image imageMessage;
+        sensor_msgs::msg::CompressedImage imageMessageCompressed;
+
         while (true) {
             mutex.lock();
             // Stop if interrupted or if everything has been read
-            if (isInterruptionRequested() || (queue.empty() && !reader->has_next())) {
+            if (isInterruptionRequested() || (queue.empty() && !reader.has_next())) {
                 mutex.unlock();
                 break;
             }
@@ -67,12 +66,12 @@ BagToImagesThread::run()
 
             // Deserialize and convert to OpenCV mat
             auto frame = isCompressed ? Utils::Threads::convertCompressedImageMessageToMat(*queue.back()->serialized_data, serializationCompressed, imageMessageCompressed)
-                                      : Utils::Threads::convertImageMessageToMat(*queue.back()->serialized_data, serialization, cvPointer, imageMessage);
+                                      : Utils::Threads::convertImageMessageToMat(*queue.back()->serialized_data, serialization, imageMessage);
             queue.pop_back();
 
             // Convert to grayscale
             if (m_parameters.format == "png" && m_parameters.pngBilevel) {
-                // Converting to a different channel seems to be saver then converting
+                // Converting to a different channel seems to be safer than converting
                 // to grayscale before calling imwrite
                 cv::Mat mat(frame.size(), CV_8UC1);
                 mat.convertTo(frame, CV_8UC1);
@@ -84,14 +83,14 @@ BagToImagesThread::run()
 
             // Inform of progress update
             iterationCount++;
-            emit progressChanged("Writing Image " + QString::number(iterationCount) + " of " + QString::number(*messageCount) + "...",
+            emit progressChanged(QString("Writing Image %1 of %2...").arg(iterationCount).arg(*messageCount),
                                  (static_cast<float>(iterationCount) / static_cast<float>(*messageCount) * 100));
 
             // Have to create this as extra string to keep it atomic inside the mutex
-            std::stringstream formatedIterationCount;
+            std::stringstream formattedIterationCount;
             // Use leading zeroes
-            formatedIterationCount << std::setw(messageCountNumberOfDigits) << std::setfill('0') << iterationCount - 1;
-            const auto targetString = targetDirectoryStd + "/" + formatedIterationCount.str() + "." + m_parameters.format.toStdString();
+            formattedIterationCount << std::setw(messageCountNumberOfDigits) << std::setfill('0') << iterationCount - 1;
+            const auto targetString = targetDirectoryStd + "/" + formattedIterationCount.str() + "." + m_parameters.format.toStdString();
 
             mutex.unlock();
             // The main writing can be done in parallel, no mutex required
@@ -107,11 +106,11 @@ BagToImagesThread::run()
     // The bag reader does not support parallel reading, thus we store the messages in a queue for parallel access.
     // Messages have a pretty large size and storing all of them at once might lead to an overflow quickly, though.
     // Thus we limit the queue size to 100.
-    const auto pushMessagesToQueue = [this, &queue, &mutex, reader] {
+    const auto pushMessagesToQueue = [this, &queue, &mutex, &reader] {
         constexpr auto maximumInstancesForQueue = 100;
         rosbag2_storage::SerializedBagMessageSharedPtr message;
 
-        while (reader->has_next()) {
+        while (reader.has_next()) {
             if (isInterruptionRequested()) {
                 return;
             }
@@ -119,12 +118,12 @@ BagToImagesThread::run()
             // Limit queue size to 100
             while (queue.size() < maximumInstancesForQueue) {
                 mutex.lock();
-                if (isInterruptionRequested() || !reader->has_next()) {
+                if (isInterruptionRequested() || !reader.has_next()) {
                     mutex.unlock();
                     break;
                 }
 
-                message = reader->read_next();
+                message = reader.read_next();
                 if (message->topic_name != m_topicName) {
                     mutex.unlock();
                     continue;
@@ -137,7 +136,7 @@ BagToImagesThread::run()
 
     // One thread constantly writes messages into the queue,
     // while the remaining threads will read messages out of and remove them from the queue.
-    while (reader->has_next()) {
+    while (reader.has_next()) {
         if (isInterruptionRequested()) {
             return;
         }
@@ -156,5 +155,5 @@ BagToImagesThread::run()
         readingThread.join();
     }
 
-    reader->close();
+    reader.close();
 }

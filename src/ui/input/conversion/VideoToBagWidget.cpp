@@ -1,6 +1,5 @@
 #include "VideoToBagWidget.hpp"
 
-#include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
 #include <QCheckBox>
@@ -9,7 +8,6 @@
 #include <QFormLayout>
 #include <QLineEdit>
 #include <QMessageBox>
-#include <QPushButton>
 #include <QRadioButton>
 #include <QSpinBox>
 
@@ -91,7 +89,7 @@ VideoToBagWidget::findSourceButtonPressed()
     // Create bag file name automatically so the user has to put in less values
     QDir videoDirectoryDir(videoDir);
     videoDirectoryDir.cdUp();
-    if (const auto autoBagDirectory = videoDirectoryDir.path() + "/video_bag"; !std::filesystem::exists(autoBagDirectory.toStdString())) {
+    if (const auto autoBagDirectory = QString("%1/video_bag").arg(videoDirectoryDir.path()); !std::filesystem::exists(autoBagDirectory.toStdString())) {
         m_targetLineEdit->setText(autoBagDirectory);
 
         writeParameterToSettings(m_parameters.targetDirectory, autoBagDirectory, m_settings);
@@ -140,12 +138,18 @@ VideoToBagWidget::useCompressionCheckBoxPressed(int state)
         m_advancedOptionsFormLayout->insertRow(m_parameters.useCustomFPS ? ADVANCED_OPTIONS_LAYOUT_ROW_FIFTH : ADVANCED_OPTIONS_LAYOUT_ROW_FOURTH, "", m_compressJPEGRadioButton);
         m_advancedOptionsFormLayout->insertRow(m_parameters.useCustomFPS ? ADVANCED_OPTIONS_LAYOUT_ROW_SIXTH : ADVANCED_OPTIONS_LAYOUT_ROW_FIFTH, "", m_compressPNGRadioButton);
 
-        m_parameters.isCompressionJPEG ? m_compressJPEGRadioButton->click() : m_compressPNGRadioButton->click();
+        m_parameters.isCompressionJPEG ? m_compressJPEGRadioButton->setChecked(true) : m_compressPNGRadioButton->setChecked(true);
 
-        connect(m_compressJPEGRadioButton, &QPushButton::clicked, this, [this] {
+        connect(m_compressJPEGRadioButton, &QRadioButton::toggled, this, [this] (bool checked) {
+            if (!checked) {
+                return;
+            }
             writeParameterToSettings(m_parameters.isCompressionJPEG, true, m_settings);
         });
-        connect(m_compressPNGRadioButton, &QPushButton::clicked, this, [this] {
+        connect(m_compressPNGRadioButton, &QRadioButton::toggled, this, [this] (bool checked) {
+            if (!checked) {
+                return;
+            }
             writeParameterToSettings(m_parameters.isCompressionJPEG, false, m_settings);
         });
     } else if (m_compressJPEGRadioButton && m_compressPNGRadioButton) {

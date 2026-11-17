@@ -35,8 +35,8 @@ DummyBagThread::run()
         std::filesystem::remove_all(m_sourceDirectory);
     }
     // Prepare parameters
-    auto writer = std::make_shared<rosbag2_cpp::Writer>();
-    writer->open(m_sourceDirectory);
+    rosbag2_cpp::Writer writer;
+    writer.open(m_sourceDirectory);
 
     std::deque<Parameters::DummyBagParameters::DummyBagTopic> queue;
     for (const auto& topic : m_parameters.topics) {
@@ -47,7 +47,11 @@ DummyBagThread::run()
     std::atomic<int> iterationCount = 1;
 
     // Move to own lambda for multithreading
-    const auto writeDummyTopic = [this, &queue, &mutex, &iterationCount, writer, maximumMessageCount] {
+    const auto writeDummyTopic = [this, &queue, &mutex, &iterationCount, &writer, maximumMessageCount] {
+        std::random_device randomDevice;
+        std::mt19937 generator(randomDevice());
+        std::uniform_real_distribution<> distribution(-1.0, 1.0);
+
         while (true) {
             // Queue access must be singlethreaded
             mutex.lock();
@@ -77,13 +81,13 @@ DummyBagThread::run()
                     std_msgs::msg::String message;
                     message.data = "Message " + std::to_string(i);
 
-                    writer->write(message, topicName, timeStamp);
+                    writer.write(message, topicName, timeStamp);
                 } else if (topicType == "Integer") {
                     // Simple integer
                     std_msgs::msg::Int32 message;
                     message.data = i;
 
-                    writer->write(message, topicName, timeStamp);
+                    writer.write(message, topicName, timeStamp);
                 } else if (topicType == "Image") {
                     // Create image which over time is lerped from blue to red
                     const auto blue = 255 - ((i - 1) * (255.0f / static_cast<float>(m_parameters.messageCount)));
@@ -95,37 +99,30 @@ DummyBagThread::run()
 
                     const auto cvBridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::BGR8, mat);
                     cvBridge.toImageMsg(message);
-                    writer->write(message, topicName, timeStamp);
+                    writer.write(message, topicName, timeStamp);
                 } else if (topicType == "Point Cloud" || topicType == "PointCloud") {
                     // Create a point cloud with ten points (point data is randomized)
-                    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>());
+                    auto cloud = pcl::make_shared<pcl::PointCloud<pcl::PointXYZRGB> >();
                     cloud->width = 10;
                     cloud->height = 1;
                     cloud->is_dense = false;
                     cloud->points.resize(10);
 
-                    std::random_device randomDevice;
-                    std::mt19937 generator(randomDevice());
-                    std::uniform_real_distribution<> distribution(-1.0, 1.0);
-                    for (auto j = 0; j < 10; j++) {
-                        (*cloud)[j].x = distribution(generator);
-                        (*cloud)[j].y = distribution(generator);
-                        (*cloud)[j].z = distribution(generator);
-                        (*cloud)[j].r = 255;
-                        (*cloud)[j].g = 255;
-                        (*cloud)[j].b = 0;
+                    for (auto& point : cloud->points) {
+                        point.x = distribution(generator);
+                        point.y = distribution(generator);
+                        point.z = distribution(generator);
+                        point.r = 255;
+                        point.g = 255;
+                        point.b = 0;
                     }
 
                     sensor_msgs::msg::PointCloud2 message;
                     pcl::toROSMsg(*cloud, message);
-                    writer->write(message, topicName, timeStamp);
+                    writer.write(message, topicName, timeStamp);
                 } else {
                     // Generate a tf2 message with three transformations, each containing randomized translation and rotation
                     tf2_msgs::msg::TFMessage message;
-
-                    std::random_device randomDevice;
-                    std::mt19937 generator(randomDevice());
-                    std::uniform_real_distribution<> distribution(-1.0, 1.0);
 
                     for (auto i = 0; i < 3; i++) {
                         geometry_msgs::msg::TransformStamped transformStamped;
@@ -145,10 +142,10 @@ DummyBagThread::run()
 
                         message.transforms.push_back(transformStamped);
                     }
-                    writer->write(message, topicName, timeStamp);
+                    writer.write(message, topicName, timeStamp);
                 }
 
-                emit progressChanged("Writing message " + QString::number(iterationCount) + " of " + QString::number(maximumMessageCount) + "...",
+                emit progressChanged(QString("Writing message %1 of %2...").arg(iterationCount.load()).arg(maximumMessageCount),
                                      (static_cast<float>(iterationCount) / static_cast<float>(maximumMessageCount) * 100));
                 iterationCount++;
             }
@@ -164,5 +161,5 @@ DummyBagThread::run()
         thread.join();
     }
 
-    writer->close();
+    writer.close();
 }

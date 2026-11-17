@@ -4,7 +4,6 @@
 #include "Parameters.hpp"
 #include "TopicComboBoxWidget.hpp"
 
-#include <QPointer>
 #include <QWidget>
 
 // Widget used to write pcd files to a ROS bag file

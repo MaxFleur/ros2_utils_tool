@@ -1,5 +1,7 @@
 #include "PublishImagesThread.hpp"
 
+#include "UtilsGeneral.hpp"
+
 #include <cv_bridge/cv_bridge.hpp>
 
 #include <opencv2/imgcodecs.hpp>
@@ -25,7 +27,7 @@ PublishImagesThread::run()
     emit informOfGatheringData();
     // It is faster to first store all valid image file paths and then iterate over those
     for (auto const& entry : std::filesystem::directory_iterator(m_sourceDirectory)) {
-        if (entry.path().extension() != ".jpg" && entry.path().extension() != ".png" && entry.path().extension() != ".bmp") {
+        if (!Utils::General::isImageFile(entry.path())) {
             continue;
         }
 
@@ -80,16 +82,16 @@ PublishImagesThread::run()
 
         m_publisher->publish(message);
 
-        emit progressChanged("Publishing Image " + QString::number(iterator + 1) + " of " + QString::number(frameCount) + "...", PROGRESS);
+        emit progressChanged(QString("Publishing Image %1 of %2...").arg(iterator + 1).arg(frameCount), PROGRESS);
         iterator++;
         setIterator++;
     });
 
-    auto executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
-    executor->add_node(m_node);
+    rclcpp::executors::SingleThreadedExecutor executor;
+    executor.add_node(m_node);
     // Spin to publish
     while (!isInterruptionRequested()) {
-        executor->spin_once();
+        executor.spin_once();
     }
 
     timer->cancel();

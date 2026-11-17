@@ -36,13 +36,13 @@ VideoToBagThread::run()
         std::filesystem::remove_all(targetDirectoryStd);
     }
 
-    const auto frameCount = videoCapture.get(cv::CAP_PROP_FRAME_COUNT);
+    const auto frameCount = static_cast<int>(videoCapture.get(cv::CAP_PROP_FRAME_COUNT));
     const auto finalFPS = m_parameters.useCustomFPS ? m_parameters.fps : videoCapture.get(cv::CAP_PROP_FPS);
     auto timeStamp = rclcpp::Clock(RCL_ROS_TIME).now();
     const auto duration = rclcpp::Duration::from_seconds(1.0f / static_cast<float>(finalFPS));
 
-    auto writer = std::make_unique<rosbag2_cpp::Writer>();
-    writer->open(targetDirectoryStd);
+    rosbag2_cpp::Writer writer;
+    writer.open(targetDirectoryStd);
     auto iterationCount = 0;
 
     cv::Mat frame;
@@ -60,7 +60,7 @@ VideoToBagThread::run()
 
     while (true) {
         if (isInterruptionRequested()) {
-            writer->close();
+            writer.close();
             return;
         }
 
@@ -85,14 +85,14 @@ VideoToBagThread::run()
 
         m_parameters.useCompression ? cvBridge.toCompressedImageMsg(imageMessageCompressed) : cvBridge.toImageMsg(imageMessage);
         if (m_parameters.useCompression) {
-            writer->write(imageMessageCompressed, m_topicName, timeStamp);
+            writer.write(imageMessageCompressed, m_topicName, timeStamp);
         } else {
-            writer->write(imageMessage, m_topicName, timeStamp);
+            writer.write(imageMessage, m_topicName, timeStamp);
         }
 
-        emit progressChanged("Writing Message " + QString::number(iterationCount) + " of " + QString::number(frameCount) + "...",
+        emit progressChanged(QString("Writing Message %1 of %2...").arg(iterationCount).arg(frameCount),
                              (static_cast<float>(iterationCount) / static_cast<float>(frameCount) * 100));
     }
 
-    writer->close();
+    writer.close();
 }

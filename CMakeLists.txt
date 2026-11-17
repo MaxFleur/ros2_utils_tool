@@ -16,9 +16,11 @@ if("$ENV{ROS_DISTRO}" STREQUAL "lyrical")
     find_package(jsoncpp REQUIRED)
 endif()
 
-# Prefer Qt6, fall back to Qt5 if it's not installed
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
+if("$ENV{ROS_DISTRO}" STREQUAL "lyrical")
+    find_package(Qt6 COMPONENTS Widgets REQUIRED)
+else()
+    find_package(Qt5 COMPONENTS Widgets REQUIRED)
+endif()
 
 if(NOT DEFINED Python3_EXECUTABLE AND EXISTS /usr/bin/python3)
     set(Python3_EXECUTABLE /usr/bin/python3)

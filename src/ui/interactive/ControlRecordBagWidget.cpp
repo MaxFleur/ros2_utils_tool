@@ -43,7 +43,7 @@ ControlRecordBagWidget::ControlRecordBagWidget(Parameters::RecordBagParameters& 
         addRecordBagLoggerEntry("Recording.");
     });
     connect(m_bagRecorder.get(), &BagRecorder::topicSubscribed, this, [this] (const QString& topic) {
-        addRecordBagLoggerEntry("Subscribed to topic '" + topic + "'");
+        addRecordBagLoggerEntry(QString("Subscribed to topic '%1'").arg(topic));
     });
     connect(m_bagRecorder.get(), &BagRecorder::allTopicsSubscribed, this, [this] {
         addRecordBagLoggerEntry("All requested topics are subscribed. Stopping discovery...");
@@ -75,8 +75,8 @@ ControlRecordBagWidget::updateSpaceInfoLabel()
     const auto sizeIndicator = bagFileSpace < Utils::General::GIGABYTE_IN_BYTES? " MB" : " GB";
     bagFileSpace /= bagFileSpace < Utils::General::GIGABYTE_IN_BYTES ? static_cast<float>(MEGABYTE_IN_BYTES)
                                                                      : static_cast<float>(Utils::General::GIGABYTE_IN_BYTES);
-    m_bagSizeLabel->setText("Recorded Bag File Size: " + QString::number(bagFileSpace) + sizeIndicator);
+    m_bagSizeLabel->setText(QString("Recorded Bag File Size: %1%2").arg(bagFileSpace).arg(sizeIndicator));
 
     const auto remainingSpace = Utils::General::getAvailableDriveSpace(m_parameters.sourceDirectory);
-    m_availableDiskSpaceLabel->setText("Available Disk Space: " + QString::number(remainingSpace) + "GB");
+    m_availableDiskSpaceLabel->setText(QString("Available Disk Space: %1GB").arg(remainingSpace));
 }

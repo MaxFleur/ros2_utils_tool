@@ -1,13 +1,11 @@
 #include "PCDsToBagWidget.hpp"
 
-#include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
 #include <QFileDialog>
 #include <QFormLayout>
 #include <QLineEdit>
 #include <QMessageBox>
-#include <QPushButton>
 #include <QSpinBox>
 
 #include <filesystem>
@@ -81,7 +79,7 @@ PCDsToBagWidget::findSourceButtonPressed()
     // Create bag file name automatically so the user has to put in less values
     QDir pcdFilesDirectory(pcdDir);
     pcdFilesDirectory.cdUp();
-    if (const auto autoBagDirectory = pcdFilesDirectory.path() + "/bag_pcd_files"; !std::filesystem::exists(autoBagDirectory.toStdString())) {
+    if (const auto autoBagDirectory = QString("%1/bag_pcd_files").arg(pcdFilesDirectory.path()); !std::filesystem::exists(autoBagDirectory.toStdString())) {
         m_targetLineEdit->setText(autoBagDirectory);
 
         writeParameterToSettings(m_parameters.targetDirectory, autoBagDirectory, m_settings);

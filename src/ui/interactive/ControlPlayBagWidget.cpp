@@ -2,7 +2,6 @@
 
 #include "UtilsUI.hpp"
 
-#include <QHBoxLayout>
 #include <QListWidget>
 #include <QShortcut>
 #include <QToolButton>
@@ -45,7 +44,7 @@ ControlPlayBagWidget::ControlPlayBagWidget(Parameters::PlayBagParameters& parame
 
     m_bagPlayer = std::make_unique<BagPlayer>(parameters);
     // Simulate the first few terminal info messages displayed when calling ros2 bag play
-    addPlayBagLoggerEntry("Set rate to " + QString::number(m_currentRate));
+    addPlayBagLoggerEntry(QString("Set rate to %1").arg(m_currentRate));
     addPlayBagLoggerEntry("Press SPACE for Pause/Resume");
     addPlayBagLoggerEntry("Press CURSOR_RIGHT for Play Next Message");
     addPlayBagLoggerEntry("Press CURSOR_UP for Increase Rate 10%");
@@ -53,19 +52,19 @@ ControlPlayBagWidget::ControlPlayBagWidget(Parameters::PlayBagParameters& parame
 
     QString topicsString = "";
     const auto addTopics = [&topicsString] (const QVector<Parameters::SelectableBagContent>& params) {
-        for (auto i = 0; i < params.size(); ++i) {
-            if (!params.at(i).isSelected) {
+        for (const auto& param : params) {
+            if (!param.isSelected) {
                 continue;
             }
 
-            topicsString += params.at(i).name + " ";
+            topicsString += param.name + " ";
         }
     };
 
     addTopics(parameters.topics);
     addTopics(parameters.services);
 
-    addPlayBagLoggerEntry("Playing topics " + topicsString);
+    addPlayBagLoggerEntry(QString("Playing topics %1").arg(topicsString));
     addPlayBagLoggerEntry("Started play.");
     m_loggerListWidget->setFocus();
 }
@@ -82,7 +81,7 @@ ControlPlayBagWidget::decreaseRate()
     m_currentRate = std::max(m_currentRate, 0.0);
 
     m_bagPlayer->setRate(m_currentRate);
-    addPlayBagLoggerEntry("Set rate to " + QString::number(m_currentRate));
+    addPlayBagLoggerEntry(QString("Set rate to %1").arg(m_currentRate));
 }
 
 
@@ -91,7 +90,7 @@ ControlPlayBagWidget::increaseRate()
 {
     m_currentRate += 0.1;
     m_bagPlayer->setRate(m_currentRate);
-    addPlayBagLoggerEntry("Set rate to " + QString::number(m_currentRate));
+    addPlayBagLoggerEntry(QString("Set rate to %1").arg(m_currentRate));
 }
 
 

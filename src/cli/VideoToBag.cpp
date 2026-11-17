@@ -55,7 +55,7 @@ main(int argc, char* argv[])
     parameters.sourceDirectory = arguments.at(1);
     Utils::CLI::checkParentDirectory(parameters.sourceDirectory, false);
 
-    if (const auto fileEnding = parameters.sourceDirectory.right(3); fileEnding != "mp4" && fileEnding != "mkv") {
+    if (!parameters.sourceDirectory.endsWith(".mp4") && !parameters.sourceDirectory.endsWith(".mkv")) {
         throw std::runtime_error("The entered video name is in invalid format. Please make sure that the video has the ending 'mp4' or 'mkv'!");
     }
 
@@ -73,8 +73,8 @@ main(int argc, char* argv[])
         }
         // Framerate
         parameters.useCustomFPS = Utils::CLI::containsArguments(arguments, "-r", "--rate");
-        if (!Utils::CLI::checkArgumentValidity(arguments, "-r", "--rate", parameters.fps, 10, 60)) {
-            throw std::runtime_error("Please enter a framerate in the range of 10 to 60!");
+        if (const auto fps = Utils::CLI::checkArgumentValidity(arguments, "-r", "--rate", 10, 60); fps) {
+            parameters.fps = *fps;
         }
         // Hardware acceleration
         useHardwareAcceleration = Utils::CLI::containsArguments(arguments, "-a", "--accelerate");

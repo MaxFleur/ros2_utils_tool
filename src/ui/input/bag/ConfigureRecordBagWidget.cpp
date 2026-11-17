@@ -4,7 +4,6 @@
 #include "LoadingWidget.hpp"
 #include "LowDiskSpaceWidget.hpp"
 #include "TopicsServicesThread.hpp"
-#include "UtilsROS.hpp"
 #include "UtilsUI.hpp"
 
 #include <QCheckBox>
