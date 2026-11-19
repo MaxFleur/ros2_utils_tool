@@ -349,13 +349,13 @@ BagMessageToFileThread::run()
     const auto isCsv = formatString == "csv";
     const auto fileExtension = "." + formatString;
 
-    YAML::Node messagesNode;
-    QJsonObject messagesObject;
-
-    // CSV content is collected and written at the end, just like the other formats
+    // Single output files are written incrementally while reading the bag
+    std::ofstream singleOutputFile;
+    std::unique_ptr<YAML::Emitter> yamlEmitter;
     std::vector<std::string> csvHeaders;
-    std::vector<std::vector<std::string> > csvRows;
+
     auto csvHeaderWritten = false;
+    auto jsonFirstMessage = true;
 
     MessageConverterBridge bridge;
     auto iterationCount = 0;
@@ -363,6 +363,23 @@ BagMessageToFileThread::run()
 
     rosbag2_cpp::Reader reader;
     reader.open(m_sourceDirectory);
+
+    if (m_parameters.writeSingleOutputFile) {
+        // Check if the file can be opened
+        singleOutputFile.open(targetDirectoryStd + "/topic" + fileExtension);
+        if (!singleOutputFile.is_open()) {
+            reader.close();
+            emit failed();
+            return;
+        }
+
+        if (isYaml) {
+            yamlEmitter = std::make_unique<YAML::Emitter>(singleOutputFile);
+            *yamlEmitter << YAML::BeginMap;
+        } else if (isJson) {
+            singleOutputFile << "{\n";
+        }
+    }
 
     while (reader.has_next()) {
         if (isInterruptionRequested()) {
@@ -378,9 +395,15 @@ BagMessageToFileThread::run()
 
         if (m_parameters.writeSingleOutputFile) {
             if (isYaml) {
-                messagesNode[std::to_string(iterationCount)] = YAML::Load(bridge.toYaml(*message, topicTypeStdString));
+                *yamlEmitter << YAML::Key << std::to_string(iterationCount) << YAML::Value << YAML::Load(bridge.toYaml(*message, topicTypeStdString));
             } else if (isJson) {
-                messagesObject[QString::number(iterationCount)] = QJsonDocument::fromJson(QByteArray::fromStdString(bridge.toJson(*message, topicTypeStdString))).object();
+                const auto messageObject = QJsonDocument::fromJson(QByteArray::fromStdString(bridge.toJson(*message, topicTypeStdString))).object();
+                if (!jsonFirstMessage) {
+                    singleOutputFile << ",\n";
+                }
+
+                singleOutputFile << "    \"" << iterationCount << "\": " << QJsonDocument(messageObject).toJson(QJsonDocument::Compact).toStdString();
+                jsonFirstMessage = false;
             } else if (isCsv) {
                 const auto csvContent = bridge.toCsv(*message, topicTypeStdString);
 
@@ -389,6 +412,8 @@ BagMessageToFileThread::run()
                     for (const auto& csvEntry : csvContent) {
                         csvHeaders.push_back(csvEntry.first);
                     }
+
+                    writeCSVLine(singleOutputFile, csvHeaders);
                     csvHeaderWritten = true;
                 }
 
@@ -402,7 +427,13 @@ BagMessageToFileThread::run()
                     });
                     csvValues.push_back(value != csvContent.end() ? value->second : "");
                 }
-                csvRows.push_back(std::move(csvValues));
+                writeCSVLine(singleOutputFile, csvValues);
+            }
+
+            if ((yamlEmitter && !yamlEmitter->good()) || !singleOutputFile.good()) {
+                reader.close();
+                emit failed();
+                return;
             }
         } else {
             const auto targetFilePath = targetDirectoryStd + "/" + topicNameStdString + "_" + std::to_string(iterationCount) + fileExtension;
@@ -439,16 +470,19 @@ BagMessageToFileThread::run()
     }
 
     if (m_parameters.writeSingleOutputFile) {
-        std::string content;
+        auto writeSucceeded = singleOutputFile.good();
+
         if (isYaml) {
-            content = YAML::Dump(messagesNode);
+            *yamlEmitter << YAML::EndMap;
+            writeSucceeded &= yamlEmitter->good();
         } else if (isJson) {
-            content = QJsonDocument(messagesObject).toJson(QJsonDocument::Indented).toStdString();
-        } else if (isCsv) {
-            content = csvContentToString(csvHeaders, csvRows);
+            singleOutputFile << (jsonFirstMessage ? "}\n" : "\n}\n");
         }
 
-        if (!writeFileContent(targetDirectoryStd + "/topic" + fileExtension, content)) {
+        yamlEmitter.reset();
+        singleOutputFile.close();
+
+        if (!writeSucceeded || singleOutputFile.fail()) {
             emit failed();
         }
     }
