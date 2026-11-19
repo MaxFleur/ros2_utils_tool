@@ -23,6 +23,73 @@
 
 namespace
 {
+// Write a single line for one or multiple csv files
+void
+writeCSVLine(std::ostream& stream, const std::vector<std::string>& fields)
+{
+    for (size_t i = 0; i < fields.size(); ++i) {
+        if (i != 0) {
+            stream << ',';
+        }
+
+        // Escape the field if it contains characters which would break the format
+        const auto& field = fields.at(i);
+        if (field.find_first_of(",\"\r\n") == std::string::npos) {
+            stream << field;
+            continue;
+        }
+
+        stream << '"';
+        for (const auto character : field) {
+            if (character == '"') {
+                stream << "\"\"";
+            } else {
+                stream << character;
+            }
+        }
+        stream << '"';
+    }
+    stream << '\n';
+}
+
+
+// Write bag message content previously converted to a csv compatible format
+// to a string which can then be written to a file
+std::string
+csvContentToString(const std::vector<std::string>&               headers,
+                   const std::vector<std::vector<std::string> >& rows)
+{
+    if (headers.empty()) {
+        return "";
+    }
+
+    std::ostringstream stream;
+    writeCSVLine(stream, headers);
+
+    for (const auto& row : rows) {
+        writeCSVLine(stream, row);
+    }
+
+    return stream.str();
+}
+
+
+// Write a bag message's content to file
+bool
+writeFileContent(const std::string& filePath, const std::string& content)
+{
+    std::ofstream file(filePath);
+    if (!file.is_open()) {
+        return false;
+    }
+
+    file << content;
+    file.close();
+
+    return !file.fail();
+}
+
+
 // Instance which starts the embedded Python interpreter. Slow as hell, so make sure to initialize only once per process.
 class EmbeddedPython
 {
@@ -89,7 +156,7 @@ private:
     PyObject* m_pythonObject;
 };
 
-// Converts serialized ROS2 bag messages into YAML or JSON by calling
+// Converts serialized ROS2 bag messages into YAML, JSON or CSV by calling
 // rosidl_runtime_py.convert functions from the embedded CPython interpreter
 class MessageConverterBridge
 {
@@ -105,6 +172,43 @@ public:
         m_messageToYaml = PyObjectRef(PyObject_GetAttrString(PyImport_ImportModule("rosidl_runtime_py.convert"), "message_to_yaml"));
         m_messageToOrderedDict = PyObjectRef(PyObject_GetAttrString(PyImport_ImportModule("rosidl_runtime_py.convert"), "message_to_ordereddict"));
         m_jsonDumps = PyObjectRef(PyObject_GetAttrString(PyImport_ImportModule("json"), "dumps"));
+        // No standard ROS python function for this, need to declare it ourselves
+        m_csvModule = PyObjectRef(PyModule_New("_ros2_utils_tool_csv"));
+        const auto moduleDictionary = PyModule_GetDict(m_csvModule.get());
+
+        // CSV output needs a flat representation of the message
+        const PyObjectRef flattenDefinition(PyRun_String(R"(
+import json
+
+def flatten_message(value, prefix=""):
+    items = []
+    if isinstance(value, dict):
+        for key, child in value.items():
+            child_prefix = f"{prefix}.{key}" if prefix else str(key)
+            items.extend(flatten_message(child, child_prefix))
+    elif isinstance(value, (list, tuple)):
+        items.append((prefix, json.dumps(value)))
+    elif isinstance(value, bool):
+        items.append((prefix, "true" if value else "false"))
+    elif value is None:
+        items.append((prefix, ""))
+    else:
+        items.append((prefix, str(value)))
+    return items
+)", Py_file_input, moduleDictionary, moduleDictionary));
+        m_flattenMessage = PyObjectRef(PyObject_GetAttrString(m_csvModule.get(), "flatten_message"));
+
+        PyGILState_Release(gilState);
+    }
+
+    ~MessageConverterBridge()
+    {
+        // Python objects have to be released while the GIL is held
+        const auto gilState = PyGILState_Ensure();
+
+        m_messageClasses.clear();
+        m_flattenMessage = PyObjectRef();
+        m_csvModule = PyObjectRef();
 
         PyGILState_Release(gilState);
     }
@@ -154,6 +258,37 @@ public:
         return result;
     }
 
+    // Converts one serialized message from a bag into flattened CSV column names and values
+    std::vector<std::pair<std::string, std::string> >
+    toCsv(const rosbag2_storage::SerializedBagMessage& message,
+          const std::string&                           messageType)
+    {
+        std::vector<std::pair<std::string, std::string> > result;
+        const auto gilState = PyGILState_Ensure();
+
+        // Scoped, so that the reference counts of all temporary Python objects are decreased while the GIL is still held
+        {
+            const PyObjectRef serializedBytes(PyBytes_FromStringAndSize(reinterpret_cast<const char*>(message.serialized_data->buffer), message.serialized_data->buffer_length));
+            const PyObjectRef pythonMessage(PyObject_CallFunctionObjArgs(m_deserializeMessage.get(), serializedBytes.get(), getMessageClass(messageType), nullptr));
+            const PyObjectRef orderedDictObject(PyObject_CallOneArg(m_messageToOrderedDict.get(), pythonMessage));
+            const PyObjectRef flattenedObject(PyObject_CallOneArg(m_flattenMessage.get(), orderedDictObject));
+
+            const auto numberOfFields = PyList_Size(flattenedObject.get());
+            result.reserve(numberOfFields);
+
+            for (Py_ssize_t i = 0; i < numberOfFields; ++i) {
+                auto* const field = PyList_GetItem(flattenedObject.get(), i);
+                auto* const key = PyTuple_GetItem(field, 0);
+                auto* const value = PyTuple_GetItem(field, 1);
+
+                result.emplace_back(PyUnicode_AsUTF8(key), PyUnicode_AsUTF8(value));
+            }
+        }
+
+        PyGILState_Release(gilState);
+        return result;
+    }
+
 private:
     // Returns the cached Python message class for the given type string
     PyObject*
@@ -175,6 +310,8 @@ private:
     PyObjectRef m_messageToYaml;
     PyObjectRef m_messageToOrderedDict;
     PyObjectRef m_jsonDumps;
+    PyObjectRef m_csvModule;
+    PyObjectRef m_flattenMessage;
 
     std::unordered_map<std::string, PyObjectRef> m_messageClasses;
 };
@@ -206,10 +343,19 @@ BagMessageToFileThread::run()
     const auto topicTypeStdString = topicType->toStdString();
     const auto totalInstances = *messageCount;
 
+    const auto& formatString = m_parameters.format.toStdString();
+    const auto isYaml = formatString == "yaml";
+    const auto isJson = formatString == "json";
+    const auto isCsv = formatString == "csv";
+    const auto fileExtension = "." + formatString;
+
     YAML::Node messagesNode;
     QJsonObject messagesObject;
-    std::string topicContentString = "";
-    const auto fileExtension = m_parameters.isYaml ? ".yaml" : ".json";
+
+    // CSV content is collected and written at the end, just like the other formats
+    std::vector<std::string> csvHeaders;
+    std::vector<std::vector<std::string> > csvRows;
+    auto csvHeaderWritten = false;
 
     MessageConverterBridge bridge;
     auto iterationCount = 0;
@@ -231,17 +377,60 @@ BagMessageToFileThread::run()
         }
 
         if (m_parameters.writeSingleOutputFile) {
-            if (m_parameters.isYaml) {
+            if (isYaml) {
                 messagesNode[std::to_string(iterationCount)] = YAML::Load(bridge.toYaml(*message, topicTypeStdString));
-            } else {
+            } else if (isJson) {
                 messagesObject[QString::number(iterationCount)] = QJsonDocument::fromJson(QByteArray::fromStdString(bridge.toJson(*message, topicTypeStdString))).object();
+            } else if (isCsv) {
+                const auto csvContent = bridge.toCsv(*message, topicTypeStdString);
+
+                // Take care of the header
+                if (!csvHeaderWritten) {
+                    for (const auto& csvEntry : csvContent) {
+                        csvHeaders.push_back(csvEntry.first);
+                    }
+                    csvHeaderWritten = true;
+                }
+
+                // Now main content
+                std::vector<std::string> csvValues;
+                csvValues.reserve(csvHeaders.size());
+
+                for (const auto& header : csvHeaders) {
+                    const auto value = std::find_if(csvContent.begin(), csvContent.end(), [&header] (const auto& entry) {
+                        return entry.first == header;
+                    });
+                    csvValues.push_back(value != csvContent.end() ? value->second : "");
+                }
+                csvRows.push_back(std::move(csvValues));
             }
         } else {
-            topicContentString = m_parameters.isYaml ? bridge.toYaml(*message, topicTypeStdString) : bridge.toJson(*message, topicTypeStdString);
-            std::ofstream out(targetDirectoryStd + "/" + topicNameStdString + "_" + std::to_string(iterationCount) + fileExtension);
+            const auto targetFilePath = targetDirectoryStd + "/" + topicNameStdString + "_" + std::to_string(iterationCount) + fileExtension;
 
-            out << topicContentString;
-            out.close();
+            std::string content;
+            if (isCsv) {
+                const auto csvContent = bridge.toCsv(*message, topicTypeStdString);
+
+                std::vector<std::string> headers;
+                std::vector<std::string> values;
+                headers.reserve(csvContent.size());
+                values.reserve(csvContent.size());
+
+                for (const auto& [header, value] : csvContent) {
+                    headers.push_back(header);
+                    values.push_back(value);
+                }
+
+                content = csvContentToString(headers, { values });
+            } else {
+                content = isYaml ? bridge.toYaml(*message, topicTypeStdString) : bridge.toJson(*message, topicTypeStdString);
+            }
+
+            if (!writeFileContent(targetFilePath, content)) {
+                reader.close();
+                emit failed();
+                return;
+            }
         }
 
         iterationCount++;
@@ -250,12 +439,16 @@ BagMessageToFileThread::run()
     }
 
     if (m_parameters.writeSingleOutputFile) {
-        std::ofstream fout(m_parameters.isYaml ? targetDirectoryStd + "/topic.yaml" : targetDirectoryStd + "/topic.json");
+        std::string content;
+        if (isYaml) {
+            content = YAML::Dump(messagesNode);
+        } else if (isJson) {
+            content = QJsonDocument(messagesObject).toJson(QJsonDocument::Indented).toStdString();
+        } else if (isCsv) {
+            content = csvContentToString(csvHeaders, csvRows);
+        }
 
-        try {
-            m_parameters.isYaml ? fout << messagesNode
-                                : fout << QJsonDocument(messagesObject).toJson(QJsonDocument::Indented).toStdString();
-        } catch (std::ofstream::failure& /* exception */) {
+        if (!writeFileContent(targetDirectoryStd + "/topic" + fileExtension, content)) {
             emit failed();
         }
     }

@@ -286,7 +286,7 @@ ros2 run ros2_utils_tool tool_bag_tf2_to_file /path/to/bag /path/to/output
 ```
 ros2 run ros2_utils_tool tool_bag_message_to_file /path/to/bag /path/to/files_dir
 ```
-(Note that a topic can be specified optionally. If no topic is specified, the first available topic is used).
+(Accepted file formats are csv, json or yaml. CSV export writes one row per message, flattens nested message fields into dot-separated column names and stores arrays as JSON in a single column. Note that a topic can be specified optionally. If no topic is specified, the first available topic is used).
 
 **Merge Bags Tool**:
 ```

@@ -1,0 +1,15 @@
+{
+  "lsp": {
+    "clangd": {
+      "initialization_options": {
+        "CompilationDatabase": "/home/fleurymax/Documents/Projects/ROS/build"
+      },
+      "settings": {
+        "clangdArguments": [
+          "--enable-clang-tidy",
+          "--header-insertion-decorate"
+        ]
+      }
+    }
+  }
+}

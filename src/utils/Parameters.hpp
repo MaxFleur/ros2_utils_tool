@@ -79,8 +79,8 @@ struct BagTF2ToFileParameters : AdvancedParameters {
     bool compactOutput = true;
 };
 struct BagMessageToFileParameters : AdvancedParameters {
-    bool writeSingleOutputFile = true;
-    bool isYaml = true;
+    bool    writeSingleOutputFile = true;
+    QString format = "yaml";
 };
 
 struct DeleteSourceParameters : AdvancedParameters {

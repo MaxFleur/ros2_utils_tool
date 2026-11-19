@@ -810,7 +810,7 @@ TEST_CASE("Threads Testing", "[threads]") {
         std::filesystem::remove_all("./bag_pcd");
         std::filesystem::remove_all("./pcds");
     }
-    SECTION("Bag to Yaml Thread Test") {
+    SECTION("Bag Message to File Thread Test") {
         Parameters::BagMessageToFileParameters parameters;
         parameters.sourceDirectory = "./dummy_bag";
         parameters.targetDirectory = "./yaml_files";
@@ -837,6 +837,29 @@ TEST_CASE("Threads Testing", "[threads]") {
             const auto& document = QJsonDocument::fromJson(file.readAll());
             file.close();
             return document;
+        };
+        const auto readCsvFile = [] (const std::string& filePath) {
+            std::vector<std::vector<std::string> > rows;
+            std::ifstream file(filePath);
+            REQUIRE(file.is_open());
+
+            std::string line;
+            while (std::getline(file, line)) {
+                std::vector<std::string> fields;
+                std::stringstream lineStream(line);
+                std::string field;
+
+                while (std::getline(lineStream, field, ',')) {
+                    fields.push_back(field);
+                }
+                rows.push_back(fields);
+            }
+
+            return rows;
+        };
+        const auto verifyCsvRow = [] (const std::vector<std::string>& row, const int i) {
+            REQUIRE(row.size() == 1);
+            REQUIRE(row.at(0) == "Message " + std::to_string(i));
         };
 
         SECTION("Single output file - yaml") {
@@ -865,7 +888,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             }
         }
         SECTION("Single output file - json") {
-            parameters.isYaml = false;
+            parameters.format = "json";
 
             thread->start();
             thread->wait();
@@ -880,7 +903,7 @@ TEST_CASE("Threads Testing", "[threads]") {
             }
         }
         SECTION("Multiple output files - json") {
-            parameters.isYaml = false;
+            parameters.format = "json";
             parameters.writeSingleOutputFile = false;
 
             thread->start();
@@ -892,6 +915,40 @@ TEST_CASE("Threads Testing", "[threads]") {
 
             for (auto i = 0; i < 100; ++i) {
                 verifyJsonObject(readJsonFile("./yaml_files/" + parameters.topicName.toStdString() + "_" + std::to_string(i) + ".json").object(), i);
+            }
+        }
+        SECTION("Single output file - csv") {
+            parameters.format = "csv";
+
+            thread->start();
+            thread->wait();
+
+            const auto& rows = readCsvFile("./yaml_files/topic.csv");
+            // Header + content is 101
+            REQUIRE(rows.size() == 101);
+            REQUIRE(rows.at(0) == std::vector<std::string>{ "data" });
+
+            for (auto i = 1; i < 101; ++i) {
+                verifyCsvRow(rows.at(i), i - 1);
+            }
+        }
+        SECTION("Multiple output files - csv") {
+            parameters.format = "csv";
+            parameters.writeSingleOutputFile = false;
+
+            thread->start();
+            thread->wait();
+
+            const auto extensionCheckValues = getDirFileCountWithExtensions("./yaml_files", ".csv");
+            REQUIRE(extensionCheckValues[0] == 100);
+            REQUIRE(extensionCheckValues[1] == 100);
+
+            for (auto i = 0; i < 100; ++i) {
+                const auto& rows = readCsvFile("./yaml_files/" + parameters.topicName.toStdString() + "_" + std::to_string(i) + ".csv");
+                // One header + one content line
+                REQUIRE(rows.size() == 2);
+                REQUIRE(rows.at(0) == std::vector<std::string>{ "data" });
+                verifyCsvRow(rows.at(1), i);
             }
         }
 

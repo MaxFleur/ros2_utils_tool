@@ -3,7 +3,7 @@
 #include "BasicThread.hpp"
 #include "Parameters.hpp"
 
-// Thread used to write one or multiple bag topics to a yaml or json file
+// Thread used to write one or multiple bag topics to a yaml, json or csv file
 class BagMessageToFileThread : public BasicThread {
     Q_OBJECT
 public:

@@ -11,15 +11,16 @@ BagMessageToFileWidget::BagMessageToFileWidget(Parameters::BagMessageToFileParam
     m_parameters(parameters), m_settings(parameters, "bag_message_to_file")
 {
     m_sourceLineEdit->setToolTip("The source bag file directory.");
-    m_targetLineEdit->setToolTip("The target yaml or json file directory.");
+    m_targetLineEdit->setToolTip("The target yaml, json or csv file directory.");
 
     m_basicOptionsFormLayout->insertRow(1, "Topic Name:", m_topicNameComboBox);
 
     auto* const formatComboBox = new QComboBox;
     formatComboBox->addItem("yaml", 0);
     formatComboBox->addItem("json", 1);
+    formatComboBox->addItem("csv", 2);
     formatComboBox->setToolTip("The format of the written message files.");
-    formatComboBox->setCurrentText(m_parameters.isYaml ? "yaml" : "json");
+    formatComboBox->setCurrentText(m_parameters.format);
 
     m_basicOptionsFormLayout->addRow("Format:", formatComboBox);
 
@@ -46,6 +47,6 @@ BagMessageToFileWidget::BagMessageToFileWidget(Parameters::BagMessageToFileParam
         writeParameterToSettings(m_parameters.writeSingleOutputFile, !checked, m_settings);
     });
     connect(formatComboBox, &QComboBox::currentTextChanged, this, [this] (const QString& text) {
-        writeParameterToSettings(m_parameters.isYaml, text == "yaml", m_settings);
+        writeParameterToSettings(m_parameters.format, text, m_settings);
     });
 }

@@ -319,7 +319,7 @@ TEST_CASE("Settings Testing", "[settings]") {
             qSettings.endGroup();
         }
     }
-    SECTION("Bag to Yaml Params Test") {
+    SECTION("Bag Message to File Params Test") {
         SECTION("Read") {
             qSettings.beginGroup("bag_message_to_file");
             checkSettingsInvalidacy(qSettings, { "write_single_output_file", "format" });
@@ -330,12 +330,12 @@ TEST_CASE("Settings Testing", "[settings]") {
             BagMessageToFileSettings settings(parameters, "bag_message_to_file");
 
             parameters.writeSingleOutputFile = true;
-            parameters.isYaml = true;
+            parameters.format = "csv";
             settings.write();
 
             qSettings.beginGroup("bag_message_to_file");
             verifySettingPrimitive(qSettings, "write_single_output_file", true);
-            verifySettingPrimitive(qSettings, "is_yaml", true);
+            verifySettingQString(qSettings, "format", "csv");
             qSettings.endGroup();
         }
     }

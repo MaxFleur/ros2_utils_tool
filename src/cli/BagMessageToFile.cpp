@@ -12,18 +12,18 @@
 void
 helpFunction()
 {
-    std::cout << "Usage: ros2 run ros2_utils_tool tool_bag_message_to_file [-h] [bag_path] [output_files_path] [-t TOPIC] [-m] [-f {json,yaml}] [-s]\n\n";
-    std::cout << "Convert bag topic messages to one or multiple yaml or json files.\n\n";
+    std::cout << "Usage: ros2 run ros2_utils_tool tool_bag_message_to_file [-h] [bag_path] [output_files_path] [-t TOPIC] [-m] [-f {csv,json,yaml}] [-s]\n\n";
+    std::cout << "Convert bag topic messages to one or multiple csv, json or yaml files.\n\n";
     std::cout << "positional arguments:\n";
     std::cout << "  bag_path              Source bag file.\n";
-    std::cout << "  output_files_path     Directory containing the output yaml or json file(s).\n\n";
+    std::cout << "  output_files_path     Directory containing the output csv, json or yaml file(s).\n\n";
     std::cout << "options:\n";
     std::cout << "  -h, --help            Show this help message and exit.\n";
     std::cout << "  -t TOPIC, --topic TOPIC\n";
     std::cout << "                        Bag topic to convert. If no topic name is specified, the first topic is taken.\n";
     std::cout << "  --multiple-output-files\n";
     std::cout << "                        Use multiple files (stores each message's output in a separate file.\n";
-    std::cout << "  -f {json,yaml}, --format {json,yaml}";
+    std::cout << "  -f {csv,json,yaml}, --format {csv,json,yaml}\n";
     std::cout << "                        Output file(s) format, defaults to yaml.\n";
     std::cout << "  -s, --suppress        Suppress any warnings.\n\n";
     std::cout << "Example usage:\n";
@@ -51,7 +51,7 @@ main(int argc, char* argv[])
     parameters.sourceDirectory = arguments.at(1);
     Utils::CLI::checkBagSourceDirectory(parameters.sourceDirectory);
 
-    // Yaml files directory
+    // Output files directory
     parameters.targetDirectory = arguments.at(2);
     Utils::CLI::checkParentDirectory(parameters.targetDirectory);
 
@@ -65,7 +65,7 @@ main(int argc, char* argv[])
         parameters.writeSingleOutputFile = !arguments.contains("--multiple-output-files");
         // Format
         if (Utils::CLI::containsArguments(arguments, "-f", "--format")) {
-            parameters.isYaml = arguments.at(Utils::CLI::getFormatIndex(arguments, { "json", "yaml" })) == "yaml";
+            parameters.format = arguments.at(Utils::CLI::getFormatIndex(arguments, { "csv", "json", "yaml" }));
         }
     }
 
@@ -81,7 +81,7 @@ main(int argc, char* argv[])
 
     // Create thread and run the operation
     auto* const bagMessageToFileThread = new BagMessageToFileThread(parameters);
-    const auto fileFormatString = parameters.isYaml ? QString("yaml") : QString("json");
+    const auto& fileFormatString = parameters.format;
 
     std::cout << "Source bag file: " << std::filesystem::absolute(parameters.sourceDirectory.toStdString()) << "\n";
     std::cout << "Target " << fileFormatString.toStdString() << " file(s) dir: " << std::filesystem::absolute(parameters.targetDirectory.toStdString()) << "\n";
