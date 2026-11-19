@@ -29,7 +29,7 @@ private slots:
                               bool                                                 isCtor);
 
     void
-    useCustomRateCheckBoxPressed(int state);
+    useCustomRateCheckBoxPressed(Qt::CheckState state);
 
 private:
     std::optional<bool>

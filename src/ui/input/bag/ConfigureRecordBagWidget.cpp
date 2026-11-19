@@ -59,7 +59,7 @@ ConfigureRecordBagWidget::ConfigureRecordBagWidget(Parameters::RecordBagParamete
         checkBox->setCheckState(enableValue ? Qt::Checked : Qt::Unchecked);
         checkBox->setToolTip(toolTip);
 
-        connect(checkBox, &QCheckBox::stateChanged, this, [this, &enableValue] (int state) {
+        Utils::UI::connectCheckBoxStateChanged(checkBox, this, [this, &enableValue] (Qt::CheckState state) {
             writeParameterToSettings(enableValue, state == Qt::Checked, m_settings);
         });
 
@@ -82,7 +82,7 @@ ConfigureRecordBagWidget::ConfigureRecordBagWidget(Parameters::RecordBagParamete
         connect(spinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [this, &spinBoxValueToSave] (int value) {
             writeParameterToSettings(spinBoxValueToSave, value, m_settings);
         });
-        connect(checkBox, &QCheckBox::stateChanged, this, [spinBox] (int state) {
+        Utils::UI::connectCheckBoxStateChanged(checkBox, this, [spinBox] (Qt::CheckState state) {
             spinBox->setEnabled(state == Qt::Checked);
         });
 
@@ -134,7 +134,7 @@ ConfigureRecordBagWidget::ConfigureRecordBagWidget(Parameters::RecordBagParamete
         writeParameterToSettings(m_parameters.showAdvancedOptions, shown, m_settings);
     });
 
-    connect(includeROSTopicsCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
+    Utils::UI::connectCheckBoxStateChanged(includeROSTopicsCheckBox, this, [this] (Qt::CheckState state) {
         writeParameterToSettings(m_parameters.includeROSTopics, state == Qt::Checked, m_settings);
     });
     connect(m_refreshButton, &QPushButton::clicked, this, &ConfigureRecordBagWidget::startSearchingThread);

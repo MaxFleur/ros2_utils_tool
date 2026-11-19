@@ -54,14 +54,18 @@ VideoToBagWidget::VideoToBagWidget(Parameters::VideoToBagParameters& parameters,
         writeParameterToSettings(m_parameters.topicName, topicNameLineEdit->text(), m_settings);
         enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.targetDirectory.isEmpty() && !m_parameters.topicName.isEmpty());
     });
-    connect(switchRedBlueCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
+    Utils::UI::connectCheckBoxStateChanged(switchRedBlueCheckBox, this, [this] (Qt::CheckState state) {
         writeParameterToSettings(m_parameters.exchangeRedBlueValues, state == Qt::Checked, m_settings);
     });
-    connect(useCustomFPSCheckBox, &QCheckBox::stateChanged, this, &VideoToBagWidget::useCustomFPSCheckBoxPressed);
-    connect(useCompressionCheckBox, &QCheckBox::stateChanged, this, &VideoToBagWidget::useCompressionCheckBoxPressed);
+    Utils::UI::connectCheckBoxStateChanged(useCustomFPSCheckBox, this, [this] (Qt::CheckState state) {
+        useCustomFPSCheckBoxPressed(state);
+    });
+    Utils::UI::connectCheckBoxStateChanged(useCompressionCheckBox, this, [this] (Qt::CheckState state) {
+        useCompressionCheckBoxPressed(state);
+    });
 
-    useCustomFPSCheckBoxPressed(m_parameters.useCustomFPS);
-    useCompressionCheckBoxPressed(m_parameters.useCompression);
+    useCustomFPSCheckBoxPressed(m_parameters.useCustomFPS ? Qt::Checked : Qt::Unchecked);
+    useCompressionCheckBoxPressed(m_parameters.useCompression ? Qt::Checked : Qt::Unchecked);
 }
 
 
@@ -102,7 +106,7 @@ VideoToBagWidget::findSourceButtonPressed()
 
 // We only need to create this if we want to use a custom fps value
 void
-VideoToBagWidget::useCustomFPSCheckBoxPressed(int state)
+VideoToBagWidget::useCustomFPSCheckBoxPressed(Qt::CheckState state)
 {
     // Partially checked value can still count for this case
     writeParameterToSettings(m_parameters.useCustomFPS, state != Qt::Unchecked, m_settings);
@@ -126,7 +130,7 @@ VideoToBagWidget::useCustomFPSCheckBoxPressed(int state)
 
 // Same here
 void
-VideoToBagWidget::useCompressionCheckBoxPressed(int state)
+VideoToBagWidget::useCompressionCheckBoxPressed(Qt::CheckState state)
 {
     // Partially checked value can still count for this case
     writeParameterToSettings(m_parameters.useCompression, state != Qt::Unchecked, m_settings);

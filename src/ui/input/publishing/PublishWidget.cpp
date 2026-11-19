@@ -73,11 +73,13 @@ PublishWidget::PublishWidget(Parameters::PublishParameters& parameters, bool use
         writeParameterToSettings(m_parameters.topicName, topicNameLineEdit->text(), m_settings);
         enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.topicName.isEmpty());
     });
-    connect(scaleCheckBox, &QCheckBox::stateChanged, this, &PublishWidget::scaleCheckBoxPressed);
-    connect(switchRedBlueCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
+    Utils::UI::connectCheckBoxStateChanged(scaleCheckBox, this, [this] (Qt::CheckState state) {
+        scaleCheckBoxPressed(state);
+    });
+    Utils::UI::connectCheckBoxStateChanged(switchRedBlueCheckBox, this, [this] (Qt::CheckState state) {
         writeParameterToSettings(m_parameters.exchangeRedBlueValues, state == Qt::Checked, m_settings);
     });
-    connect(loopCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
+    Utils::UI::connectCheckBoxStateChanged(loopCheckBox, this, [this] (Qt::CheckState state) {
         writeParameterToSettings(m_parameters.loop, state == Qt::Checked, m_settings);
     });
     connect(fpsSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [this] (int value) {
@@ -86,7 +88,7 @@ PublishWidget::PublishWidget(Parameters::PublishParameters& parameters, bool use
     connect(m_dialogButtonBox, &QDialogButtonBox::accepted, this, &PublishWidget::okButtonPressed);
     connect(okShortCut, &QShortcut::activated, this, &PublishWidget::okButtonPressed);
 
-    scaleCheckBoxPressed(m_parameters.scale);
+    scaleCheckBoxPressed(m_parameters.scale ? Qt::Checked : Qt::Unchecked);
 }
 
 
@@ -137,7 +139,7 @@ PublishWidget::searchButtonPressed()
 
 // We only need to create this if we want to scale the video
 void
-PublishWidget::scaleCheckBoxPressed(int state)
+PublishWidget::scaleCheckBoxPressed(Qt::CheckState state)
 {
     // Partially checked value can still count for this case
     writeParameterToSettings(m_parameters.scale, state != Qt::Unchecked, m_settings);

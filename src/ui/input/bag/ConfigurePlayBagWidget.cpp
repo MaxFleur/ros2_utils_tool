@@ -2,6 +2,7 @@
 
 #include "BagTreeWidget.hpp"
 #include "UtilsROS.hpp"
+#include "UtilsUI.hpp"
 
 #include <QCheckBox>
 #include <QDoubleSpinBox>
@@ -63,10 +64,10 @@ ConfigurePlayBagWidget::ConfigurePlayBagWidget(Parameters::PlayBagParameters& pa
     connect(m_offsetSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this] (double value) {
         writeParameterToSettings(m_parameters.offset, value, m_settings);
     });
-    connect(m_loopCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
+    Utils::UI::connectCheckBoxStateChanged(m_loopCheckBox, this, [this] (Qt::CheckState state) {
         writeParameterToSettings(m_parameters.loop, state == Qt::Checked, m_settings);
     });
-    connect(m_publishServiceRequestCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
+    Utils::UI::connectCheckBoxStateChanged(m_publishServiceRequestCheckBox, this, [this] (Qt::CheckState state) {
         writeParameterToSettings(m_parameters.publishServiceRequests, state == Qt::Checked, m_settings);
     });
 

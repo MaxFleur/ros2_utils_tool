@@ -123,7 +123,7 @@ BasicInputWidget::createAdvancedOptionsWidget(QFormLayout* advancedOptionsFormLa
     m_controlsLayout->addWidget(advancedOptionsWidget);
     m_controlsLayout->addStretch();
 
-    connect(advancedOptionsCheckBox, &QCheckBox::stateChanged, this, [advancedOptionsWidget, onToggled] (int state) {
+    Utils::UI::connectCheckBoxStateChanged(advancedOptionsCheckBox, this, [advancedOptionsWidget, onToggled] (Qt::CheckState state) {
         const auto shown = state == Qt::Checked;
         advancedOptionsWidget->setVisible(shown);
         onToggled(shown);

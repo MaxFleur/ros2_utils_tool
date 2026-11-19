@@ -10,6 +10,39 @@
 // Util functions for user interface related things
 namespace Utils::UI
 {
+// The QCheckbox state changed signal's name has changed with Qt 6.7,
+// consider these renamings here to avoid compiler warnings
+template<typename Functor>
+void
+connectCheckBoxStateChanged(QCheckBox*     checkBox,
+                            const QObject* context,
+                            Functor&&      functor)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    QObject::connect(checkBox, &QCheckBox::checkStateChanged, context, std::forward<Functor>(functor));
+#else
+    QObject::connect(checkBox, &QCheckBox::stateChanged, context, [functor = std::forward<Functor>(functor)] (int state) {
+        functor(static_cast<Qt::CheckState>(state));
+    });
+#endif
+}
+
+
+template<typename Functor>
+void
+connectCheckBoxStateChanged(QCheckBox* checkBox,
+                            Functor&&  functor)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    QObject::connect(checkBox, &QCheckBox::checkStateChanged, std::forward<Functor>(functor));
+#else
+    QObject::connect(checkBox, &QCheckBox::stateChanged, [functor = std::forward<Functor>(functor)] (int state) {
+        functor(static_cast<Qt::CheckState>(state));
+    });
+#endif
+}
+
+
 // Create a larger font for some buttons and widget headers
 void
 setWidgetFontSize(QWidget* widget,

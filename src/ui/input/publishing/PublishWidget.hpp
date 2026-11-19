@@ -28,7 +28,7 @@ private slots:
     searchButtonPressed();
 
     void
-    scaleCheckBoxPressed(int state);
+    scaleCheckBoxPressed(Qt::CheckState state);
 
 private:
     bool

@@ -27,10 +27,10 @@ private slots:
     findSourceButtonPressed() override;
 
     void
-    useCustomFPSCheckBoxPressed(int state);
+    useCustomFPSCheckBoxPressed(Qt::CheckState state);
 
     void
-    useCompressionCheckBoxPressed(int state);
+    useCompressionCheckBoxPressed(Qt::CheckState state);
 
 private:
     bool

@@ -71,7 +71,7 @@ AdvancedBagWidget::AdvancedBagWidget(Parameters::DeleteSourceParameters& paramet
 
     connect(m_selectAllCheckBox, &QCheckBox::clicked, this, &AdvancedBagWidget::setTreeWidgetItemSelection);
     connect(m_treeWidget, &QTreeWidget::itemChanged, this, &AdvancedBagWidget::itemCheckStateChanged);
-    connect(m_deleteSourceCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
+    Utils::UI::connectCheckBoxStateChanged(m_deleteSourceCheckBox, this, [this] (Qt::CheckState state) {
         writeParameterToSettings(m_parameters.deleteSource, state == Qt::Checked, m_settings);
     });
 }

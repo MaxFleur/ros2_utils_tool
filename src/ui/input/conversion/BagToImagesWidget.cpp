@@ -42,10 +42,10 @@ BagToImagesWidget::BagToImagesWidget(Parameters::BagToImagesParameters& paramete
                    !m_topicNameComboBox->currentText().isEmpty() && !m_parameters.targetDirectory.isEmpty());
 
     connect(formatComboBox, &QComboBox::currentTextChanged, this, &BagToImagesWidget::adjustWidgetsToChangedFormat);
-    connect(switchRedBlueCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
+    Utils::UI::connectCheckBoxStateChanged(switchRedBlueCheckBox, this, [this] (Qt::CheckState state) {
         writeParameterToSettings(m_parameters.exchangeRedBlueValues, state == Qt::Checked, m_settings);
     });
-    connect(useBWCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
+    Utils::UI::connectCheckBoxStateChanged(useBWCheckBox, this, [this] (Qt::CheckState state) {
         writeParameterToSettings(m_parameters.useBWImages, state == Qt::Checked, m_settings);
     });
 }
@@ -84,7 +84,7 @@ BagToImagesWidget::adjustWidgetsToChangedFormat(const QString& text)
     connect(m_qualitySlider, &QSlider::valueChanged, this, [this] (int value) {
         writeParameterToSettings(m_parameters.quality, value, m_settings);
     });
-    connect(m_optimizeOrBilevelCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
+    Utils::UI::connectCheckBoxStateChanged(m_optimizeOrBilevelCheckBox, this, [this] (Qt::CheckState state) {
         m_parameters.format == "jpg" ?
         writeParameterToSettings(m_parameters.jpgOptimize, state == Qt::Checked, m_settings) :
         writeParameterToSettings(m_parameters.pngBilevel, state == Qt::Checked, m_settings);

@@ -138,7 +138,7 @@ SettingsDialog::SettingsDialog(Parameters::DialogParameters& parameters, QWidget
     setLayout(mainLayout);
 
     connect(clearInputParametersButton, &QPushButton::clicked, this, &SettingsDialog::clearAllParameters);
-    connect(warnLowDiskspaceCheckBox, &QCheckBox::stateChanged, [lowDiskspaceThresholdSpinBox] (int state) {
+    Utils::UI::connectCheckBoxStateChanged(warnLowDiskspaceCheckBox, [lowDiskspaceThresholdSpinBox] (Qt::CheckState state) {
         lowDiskspaceThresholdSpinBox->setVisible(state == Qt::Checked);
     });
     connect(resetToDefaultButton, &QPushButton::clicked, this, [maxNumberOfThreadsSpinBox, useHardwareAccCheckBox,

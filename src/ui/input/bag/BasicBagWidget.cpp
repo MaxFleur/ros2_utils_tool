@@ -36,7 +36,7 @@ BasicBagWidget::BasicBagWidget(Parameters::SelectableBagContentParameters& param
     auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
 
     connect(m_findSourceButton, &QPushButton::clicked, this, &BasicBagWidget::findSourceButtonPressed);
-    connect(m_selectAllCheckBox, &QCheckBox::stateChanged, this, [this] {
+    Utils::UI::connectCheckBoxStateChanged(m_selectAllCheckBox, this, [this] (Qt::CheckState) {
         m_treeWidget->setTreeWidgetItemSelection(m_selectAllCheckBox->checkState());
     });
     connect(m_treeWidget, &QTreeWidget::itemChanged, this, &BasicBagWidget::itemCheckStateChanged);

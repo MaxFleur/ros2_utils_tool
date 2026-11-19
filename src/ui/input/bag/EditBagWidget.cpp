@@ -56,7 +56,7 @@ EditBagWidget::EditBagWidget(Parameters::EditBagParameters& parameters, bool war
     m_controlsLayout->addLayout(m_compressionLayout);
     m_controlsLayout->addStretch();
 
-    connect(m_updateTimestampsCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
+    Utils::UI::connectCheckBoxStateChanged(m_updateTimestampsCheckBox, this, [this] (Qt::CheckState state) {
         writeParameterToSettings(m_parameters.updateTimestamps, state == Qt::Checked, m_settings);
     });
     connect(m_compressionModeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this] (int index) {

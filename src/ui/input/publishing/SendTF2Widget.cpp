@@ -103,7 +103,9 @@ SendTF2Widget::SendTF2Widget(Parameters::SendTF2Parameters& parameters, QWidget 
 
     auto* const okShortCut = new QShortcut(QKeySequence(Qt::Key_Return), this);
 
-    connect(m_isStaticCheckBox, &QCheckBox::stateChanged, this, &SendTF2Widget::staticCheckBoxPressed);
+    Utils::UI::connectCheckBoxStateChanged(m_isStaticCheckBox, this, [this] (Qt::CheckState state) {
+        staticCheckBoxPressed(state);
+    });
     connect(m_saveToFileButton, &QToolButton::clicked, this, &SendTF2Widget::saveToFileButtonPressed);
     connect(m_loadFromFileButton, &QToolButton::clicked, this, &SendTF2Widget::loadFromFileButtonPressed);
     connect(m_childFrameNameLineEdit, &QLineEdit::textChanged, this, [this] {
@@ -113,13 +115,13 @@ SendTF2Widget::SendTF2Widget(Parameters::SendTF2Parameters& parameters, QWidget 
     connect(okShortCut, &QShortcut::activated, this, &SendTF2Widget::okButtonPressed);
     connect(m_timer, &QTimer::timeout, this, &SendTF2Widget::timeoutActivated);
 
-    staticCheckBoxPressed(m_parameters.isStatic);
+    staticCheckBoxPressed(m_parameters.isStatic ? Qt::Checked : Qt::Unchecked);
     setPixmapLabelIcon();
 }
 
 
 void
-SendTF2Widget::staticCheckBoxPressed(int state)
+SendTF2Widget::staticCheckBoxPressed(Qt::CheckState state)
 {
     // Partially checked value can still count for this case
     writeParameterToSettings(m_parameters.isStatic, state != Qt::Unchecked, m_settings);

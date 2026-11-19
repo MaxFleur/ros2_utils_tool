@@ -43,7 +43,7 @@ BagTF2ToFileWidget::BagTF2ToFileWidget(Parameters::BagTF2ToFileParameters& param
 
     formatComboBoxTextChanged(isFormatJson);
 
-    connect(keepTimestampsCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
+    Utils::UI::connectCheckBoxStateChanged(keepTimestampsCheckBox, this, [this] (Qt::CheckState state) {
         writeParameterToSettings(m_parameters.keepTimestamps, state == Qt::Checked, m_settings);
     });
     connect(m_formatComboBox, &QComboBox::currentTextChanged, this, [this] (const QString& text) {

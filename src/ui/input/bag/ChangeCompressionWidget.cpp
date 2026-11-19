@@ -47,7 +47,7 @@ ChangeCompressionWidget::ChangeCompressionWidget(Parameters::DeleteSourceParamet
     m_controlsLayout->addStretch();
     enableOkButton(!m_parameters.sourceDirectory.isEmpty() && !m_parameters.targetDirectory.isEmpty());
 
-    connect(deleteSourceCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
+    Utils::UI::connectCheckBoxStateChanged(deleteSourceCheckBox, this, [this] (Qt::CheckState state) {
         writeParameterToSettings(m_parameters.deleteSource, state == Qt::Checked, m_settings);
     });
 }

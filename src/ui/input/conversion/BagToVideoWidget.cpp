@@ -52,10 +52,10 @@ BagToVideoWidget::BagToVideoWidget(Parameters::BagToVideoParameters& parameters,
     connect(fpsSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [this] (int value) {
         writeParameterToSettings(m_parameters.fps, value, m_settings);
     });
-    connect(switchRedBlueCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
+    Utils::UI::connectCheckBoxStateChanged(switchRedBlueCheckBox, this, [this] (Qt::CheckState state) {
         writeParameterToSettings(m_parameters.exchangeRedBlueValues, state == Qt::Checked, m_settings);
     });
-    connect(useBWImagesCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
+    Utils::UI::connectCheckBoxStateChanged(useBWImagesCheckBox, this, [this] (Qt::CheckState state) {
         writeParameterToSettings(m_parameters.useBWImages, state == Qt::Checked, m_settings);
     });
 
@@ -77,7 +77,7 @@ BagToVideoWidget::formatComboBoxTextChanged(const QString& text)
 
         m_advancedOptionsFormLayout->addRow("Lossless Video:", m_useLosslessCheckBox);
 
-        connect(m_useLosslessCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
+        Utils::UI::connectCheckBoxStateChanged(m_useLosslessCheckBox, this, [this] (Qt::CheckState state) {
             m_parameters.lossless = state == Qt::Checked;
             m_settings.write();
         });

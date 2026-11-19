@@ -29,7 +29,7 @@ public:
 
 private slots:
     void
-    staticCheckBoxPressed(int state);
+    staticCheckBoxPressed(Qt::CheckState state);
 
     void
     saveToFileButtonPressed();

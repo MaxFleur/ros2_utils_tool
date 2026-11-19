@@ -58,14 +58,16 @@ DummyBagWidget::DummyBagWidget(Parameters::DummyBagParameters& parameters, bool 
     connect(messageCountSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [this] (int value) {
         writeParameterToSettings(m_parameters.messageCount, value, m_settings);
     });
-    connect(useCustomRateCheckBox, &QCheckBox::stateChanged, this, &DummyBagWidget::useCustomRateCheckBoxPressed);
+    Utils::UI::connectCheckBoxStateChanged(useCustomRateCheckBox, this, [this] (Qt::CheckState state) {
+        useCustomRateCheckBoxPressed(state);
+    });
     connect(m_addTopicButton, &QPushButton::clicked, this, [addNewTopic] {
         addNewTopic();
     });
 
     setPixmapLabelIcon();
     setLowDiskSpaceWidgetVisibility(m_sourceLineEdit->text());
-    useCustomRateCheckBoxPressed(m_parameters.useCustomRate);
+    useCustomRateCheckBoxPressed(m_parameters.useCustomRate ? Qt::Checked : Qt::Unchecked);
     m_okButton->setEnabled(!m_sourceLineEdit->text().isEmpty());
 }
 
@@ -123,7 +125,7 @@ DummyBagWidget::createNewDummyTopicWidget(const Parameters::DummyBagParameters::
 
 
 void
-DummyBagWidget::useCustomRateCheckBoxPressed(int state)
+DummyBagWidget::useCustomRateCheckBoxPressed(Qt::CheckState state)
 {
     writeParameterToSettings(m_parameters.useCustomRate, state != Qt::Unchecked, m_settings);
 

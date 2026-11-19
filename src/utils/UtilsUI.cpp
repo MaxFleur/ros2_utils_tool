@@ -100,7 +100,7 @@ createMessageBoxCheckBox(const QString& optionsIdentifier)
 {
     auto* const checkBox = new QCheckBox("Don't show this again");
 
-    QObject::connect(checkBox, &QCheckBox::stateChanged, [optionsIdentifier] (int state) {
+    connectCheckBoxStateChanged(checkBox, [optionsIdentifier] (Qt::CheckState state) {
         DialogSettings::writeStaticParameter(optionsIdentifier, state == Qt::Unchecked);
     });
 
