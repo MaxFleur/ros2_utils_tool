@@ -7,74 +7,19 @@
 #include <Python.h>
 
 #include "BagMessageToFileThread.hpp"
+#include "MessageFileWriter.hpp"
 
 #include "UtilsGeneral.hpp"
 #include "UtilsROS.hpp"
 
-#include <QJsonDocument>
-#include <QJsonObject>
-
 #include <rosbag2_cpp/reader.hpp>
 #include <rosbag2_storage/serialized_bag_message.hpp>
-
-#include "yaml-cpp/yaml.h"
 
 #include <fstream>
 
 namespace
 {
-// Write a single line for one or multiple csv files
-void
-writeCSVLine(std::ostream& stream, const std::vector<std::string>& fields)
-{
-    for (size_t i = 0; i < fields.size(); ++i) {
-        if (i != 0) {
-            stream << ',';
-        }
-
-        // Escape the field if it contains characters which would break the format
-        const auto& field = fields.at(i);
-        if (field.find_first_of(",\"\r\n") == std::string::npos) {
-            stream << field;
-            continue;
-        }
-
-        stream << '"';
-        for (const auto character : field) {
-            if (character == '"') {
-                stream << "\"\"";
-            } else {
-                stream << character;
-            }
-        }
-        stream << '"';
-    }
-    stream << '\n';
-}
-
-
-// Write bag message content previously converted to a csv compatible format
-// to a string which can then be written to a file
-std::string
-csvContentToString(const std::vector<std::string>&               headers,
-                   const std::vector<std::vector<std::string> >& rows)
-{
-    if (headers.empty()) {
-        return "";
-    }
-
-    std::ostringstream stream;
-    writeCSVLine(stream, headers);
-
-    for (const auto& row : rows) {
-        writeCSVLine(stream, row);
-    }
-
-    return stream.str();
-}
-
-
-// Write a bag message's content to file
+// Write a bag message's processed content to file
 bool
 writeFileContent(const std::string& filePath, const std::string& content)
 {
@@ -315,6 +260,68 @@ private:
 
     std::unordered_map<std::string, PyObjectRef> m_messageClasses;
 };
+
+
+std::unique_ptr<MessageFile::SingleFileWriter>
+createSingleFileWriter(MessageFile::FileFormat format,
+                       const std::string&      filePath,
+                       MessageConverterBridge& bridge)
+{
+    switch (format) {
+    case MessageFile::FileFormat::YAML:
+        return std::make_unique<MessageFile::YAMLFileWriter>(filePath, [&bridge] (const auto& message, const auto& messageType) {
+            return bridge.toYaml(message, messageType);
+        });
+    case MessageFile::FileFormat::JSON:
+        return std::make_unique<MessageFile::JSONFileWriter>(filePath, [&bridge] (const auto& message, const auto& messageType) {
+            return bridge.toJson(message, messageType);
+        });
+    case MessageFile::FileFormat::CSV:
+        return std::make_unique<MessageFile::CSVFileWriter>(filePath, [&bridge] (const auto& message, const auto& messageType) {
+            return bridge.toCsv(message, messageType);
+        });
+    }
+
+    return nullptr;
+}
+
+
+bool
+writeMessageToFile(MessageFile::FileFormat                      format,
+                   MessageConverterBridge&                      bridge,
+                   const rosbag2_storage::SerializedBagMessage& message,
+                   const std::string&                           messageType,
+                   const std::string&                           filePath)
+{
+    std::string content;
+
+    switch (format) {
+    case MessageFile::FileFormat::YAML:
+        content = bridge.toYaml(message, messageType);
+        break;
+    case MessageFile::FileFormat::JSON:
+        content = bridge.toJson(message, messageType);
+        break;
+    case MessageFile::FileFormat::CSV: {
+        const auto csvContent = bridge.toCsv(message, messageType);
+
+        std::vector<std::string> headers;
+        std::vector<std::string> values;
+        headers.reserve(csvContent.size());
+        values.reserve(csvContent.size());
+
+        for (const auto& [header, value] : csvContent) {
+            headers.push_back(header);
+            values.push_back(value);
+        }
+
+        content = MessageFile::csvContentToString(headers, { values });
+        break;
+    }
+    }
+
+    return writeFileContent(filePath, content);
+}
 } // namespace
 
 
@@ -336,155 +343,68 @@ BagMessageToFileThread::run()
         return;
     }
 
+    Utils::General::createAndClearDirectory(m_parameters.targetDirectory.toStdString());
+
+    const auto fileFormat = MessageFile::fileFormatFromString(m_parameters.format.toStdString());
+    if (!fileFormat) {
+        emit failed();
+        return;
+    }
+
+    const auto topicNameStdString = m_parameters.topicName.toStdString();
     const auto targetDirectoryStd = m_parameters.targetDirectory.toStdString();
-    Utils::General::createAndClearDirectory(targetDirectoryStd);
-
-    const auto& topicNameStdString = m_parameters.topicName.toStdString();
-    const auto topicTypeStdString = topicType->toStdString();
-    const auto totalInstances = *messageCount;
-
-    const auto& formatString = m_parameters.format.toStdString();
-    const auto isYaml = formatString == "yaml";
-    const auto isJson = formatString == "json";
-    const auto isCsv = formatString == "csv";
-    const auto fileExtension = "." + formatString;
-
-    // Single output files are written incrementally while reading the bag
-    std::ofstream singleOutputFile;
-    std::unique_ptr<YAML::Emitter> yamlEmitter;
-    std::vector<std::string> csvHeaders;
-
-    auto csvHeaderWritten = false;
-    auto jsonFirstMessage = true;
+    const auto fileExtension = "." + MessageFile::fileFormatToString(*fileFormat);
 
     MessageConverterBridge bridge;
-    auto iterationCount = 0;
-    rosbag2_storage::SerializedBagMessageSharedPtr message;
+
+    std::unique_ptr<MessageFile::SingleFileWriter> singleFileWriter;
+    if (m_parameters.writeSingleOutputFile) {
+        // Check if the file is writable
+        const auto targetFilePath = targetDirectoryStd + "/topic" + fileExtension;
+        singleFileWriter = createSingleFileWriter(*fileFormat, targetFilePath, bridge);
+
+        if (!singleFileWriter || !singleFileWriter->isOpen()) {
+            emit failed();
+            return;
+        }
+    }
 
     rosbag2_cpp::Reader reader;
     reader.open(m_sourceDirectory);
 
-    if (m_parameters.writeSingleOutputFile) {
-        // Check if the file can be opened
-        singleOutputFile.open(targetDirectoryStd + "/topic" + fileExtension);
-        if (!singleOutputFile.is_open()) {
-            reader.close();
-            emit failed();
-            return;
-        }
-
-        if (isYaml) {
-            yamlEmitter = std::make_unique<YAML::Emitter>(singleOutputFile);
-            *yamlEmitter << YAML::BeginMap;
-        } else if (isJson) {
-            singleOutputFile << "{\n";
-        }
-    }
-
+    auto iterationCount = 0;
     while (reader.has_next()) {
         if (isInterruptionRequested()) {
             reader.close();
             return;
         }
 
-        // Read and deserialize the message
-        message = reader.read_next();
+        const auto message = reader.read_next();
         if (message->topic_name != topicNameStdString) {
             continue;
         }
 
-        if (m_parameters.writeSingleOutputFile) {
-            if (isYaml) {
-                *yamlEmitter << YAML::Key << std::to_string(iterationCount) << YAML::Value << YAML::Load(bridge.toYaml(*message, topicTypeStdString));
-            } else if (isJson) {
-                const auto messageObject = QJsonDocument::fromJson(QByteArray::fromStdString(bridge.toJson(*message, topicTypeStdString))).object();
-                if (!jsonFirstMessage) {
-                    singleOutputFile << ",\n";
-                }
-
-                singleOutputFile << "    \"" << iterationCount << "\": " << QJsonDocument(messageObject).toJson(QJsonDocument::Compact).toStdString();
-                jsonFirstMessage = false;
-            } else if (isCsv) {
-                const auto csvContent = bridge.toCsv(*message, topicTypeStdString);
-
-                // Take care of the header
-                if (!csvHeaderWritten) {
-                    for (const auto& csvEntry : csvContent) {
-                        csvHeaders.push_back(csvEntry.first);
-                    }
-
-                    writeCSVLine(singleOutputFile, csvHeaders);
-                    csvHeaderWritten = true;
-                }
-
-                // Now main content
-                std::vector<std::string> csvValues;
-                csvValues.reserve(csvHeaders.size());
-
-                for (const auto& header : csvHeaders) {
-                    const auto value = std::find_if(csvContent.begin(), csvContent.end(), [&header] (const auto& entry) {
-                        return entry.first == header;
-                    });
-                    csvValues.push_back(value != csvContent.end() ? value->second : "");
-                }
-                writeCSVLine(singleOutputFile, csvValues);
-            }
-
-            if ((yamlEmitter && !yamlEmitter->good()) || !singleOutputFile.good()) {
-                reader.close();
-                emit failed();
-                return;
-            }
+        auto writeSucceeded = false;
+        if (singleFileWriter) {
+            writeSucceeded = singleFileWriter->write(iterationCount, *message, topicType->toStdString());
         } else {
             const auto targetFilePath = targetDirectoryStd + "/" + topicNameStdString + "_" + std::to_string(iterationCount) + fileExtension;
+            writeSucceeded = writeMessageToFile(*fileFormat, bridge, *message, topicType->toStdString(), targetFilePath);
+        }
 
-            std::string content;
-            if (isCsv) {
-                const auto csvContent = bridge.toCsv(*message, topicTypeStdString);
-
-                std::vector<std::string> headers;
-                std::vector<std::string> values;
-                headers.reserve(csvContent.size());
-                values.reserve(csvContent.size());
-
-                for (const auto& [header, value] : csvContent) {
-                    headers.push_back(header);
-                    values.push_back(value);
-                }
-
-                content = csvContentToString(headers, { values });
-            } else {
-                content = isYaml ? bridge.toYaml(*message, topicTypeStdString) : bridge.toJson(*message, topicTypeStdString);
-            }
-
-            if (!writeFileContent(targetFilePath, content)) {
-                reader.close();
-                emit failed();
-                return;
-            }
+        if (!writeSucceeded) {
+            reader.close();
+            emit failed();
+            return;
         }
 
         iterationCount++;
-        emit progressChanged(QString("Writing Message %1 of %2...").arg(iterationCount).arg(totalInstances),
-                             (static_cast<float>(iterationCount) / static_cast<float>(totalInstances) * 100));
+        emit progressChanged(QString("Writing Message %1 of %2...").arg(iterationCount).arg(*messageCount),
+                             (static_cast<float>(iterationCount) / static_cast<float>(*messageCount) * 100));
     }
 
-    if (m_parameters.writeSingleOutputFile) {
-        auto writeSucceeded = singleOutputFile.good();
-
-        if (isYaml) {
-            *yamlEmitter << YAML::EndMap;
-            writeSucceeded &= yamlEmitter->good();
-        } else if (isJson) {
-            singleOutputFile << (jsonFirstMessage ? "}\n" : "\n}\n");
-        }
-
-        yamlEmitter.reset();
-        singleOutputFile.close();
-
-        if (!writeSucceeded || singleOutputFile.fail()) {
-            emit failed();
-        }
+    if (singleFileWriter && !singleFileWriter->finish()) {
+        emit failed();
     }
     reader.close();
 }

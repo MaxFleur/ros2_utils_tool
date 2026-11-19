@@ -20,6 +20,7 @@ target_sources(rt_utils_cli PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/UtilsCLI.hpp
 )
 target_sources(rt_utils_misc PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/MessageFileWriter.hpp
     ${CMAKE_CURRENT_LIST_DIR}/NodeWrapper.hpp
     ${CMAKE_CURRENT_LIST_DIR}/Parameters.hpp
     ${CMAKE_CURRENT_LIST_DIR}/UtilsBag.hpp
